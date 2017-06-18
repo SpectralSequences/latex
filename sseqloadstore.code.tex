@@ -1,0 +1,175 @@
+%%
+%% Package: spectralsequences.sty version 1.0
+%% Author: Hood Chatham
+%% Email: hood@mit.edu
+%% Date: 2017-06-18
+%% License: Latex Project Public License
+%%
+%% File: sseqloadstore.code.tex
+%%
+%%    Defines commands for maintaining separate namespaces between distinct spectral sequences and saving information.
+%%
+
+
+% These are attributes that come with a given spectral sequence (by name)
+% All of these values are loaded at the beginning of sseqpage (and of sseqdata if an existing sseq is being modified).
+% They are then stored together at the end of sseqdata (and of sseqpage if "keep changes" option is present).
+\def\sseq@storelist{}
+\def\sseq@storelist@setdefaults{}
+\def\sseq@addtostorelist#1#2{%
+    \sseq@g@addto@macro\sseq@storelist{\\#1}%
+    \sseq@x@addto@macro\sseq@storelist@setdefaults{\global\let\@nx#1\@xp\@nx\csname \sseq@macroname#1@default\endcsname}%
+    \@xp\gdef\csname\sseq@macroname#1@default\endcsname{#2}%
+}
+\def\sseq@addtostorelistlet#1#2{%
+    \sseq@g@addto@macro\sseq@storelist{\\#1}%
+    \sseq@x@addto@macro\sseq@storelist@setdefaults{\global\let\@nx#1\@xp\@nx\csname \sseq@macroname#1@default\endcsname}%
+    \global\@xp\let\csname\sseq@macroname#1@default\endcsname#2%
+}
+
+\def\sseq@addiftostorelist#1{\sseq@addiftostorelistopt{#1}{false}}
+\def\sseq@addiftostorelist@truedefault#1{\sseq@addiftostorelistopt{#1}{true}}
+\def\sseq@addiftostorelistopt#1#2{%
+    \@xp\newif\csname ifsseq@#1\endcsname
+    \sseq@g@addto@macro\sseq@storelist{\sseq@storelistif{#1}}%
+    \sseq@x@addto@macro\sseq@storelist@setdefaults{\@xp\@nx\csname sseq@#1@default\endcsname}%
+    \@xp\xdef\csname sseq@#1@default\endcsname{\global\@xp\@nx\csname sseq@#1#2\endcsname}%
+}
+\def\sseq@addkeytostorelist#1#2{
+    \sseq@g@addto@macro\sseq@storelist{\sseq@storelistkey{#1}}%
+    \sseq@x@addto@macro\sseq@storelist@setdefaults{
+        \global\let\@xp\@nx\csname pgfk@#1/.@cmd\endcsname\@xp\@nx\csname pgfk@#1/.@cmd@default\endcsname
+        \global\let\@xp\@nx\csname pgfk@#1/.@body\endcsname\@xp\@nx\csname pgfk@#1/.@body@default\endcsname
+    }%
+    \pgfkeysdef{#1}{#2}%
+    \global\@xp\let\csname pgfk@#1/.@cmd@default\@xp\endcsname\csname pgfk@#1/.@cmd\endcsname
+    \global\@xp\let\csname pgfk@#1/.@body@default\@xp\endcsname\csname pgfk@#1/.@body\endcsname
+}
+
+% transfer data about the current spectral sequence between \<command> and \<command><sseqname>
+\def\sseq@storelist@store#1{\global\@xp\let\csname\sseq@macroname#1@@@\sseq@thename\endcsname#1}
+\def\sseq@storelist@get#1{\global\@xp\let\@xp#1\csname\sseq@macroname#1@@@\sseq@thename\endcsname}
+
+\def\sseq@storelistif@store#1{%
+    \@xp\edef\csname sseq@storeif@#1\endcsname{\csname ifsseq@#1\endcsname \@xp\@nx\csname sseq@#1true\endcsname\else\@xp\@nx\csname sseq@#1false\endcsname\fi}%
+    \@xp\sseq@storelist@store\csname sseq@storeif@#1\endcsname
+}
+\def\sseq@storelistif@get#1{
+    \@xp\sseq@storelist@get\csname sseq@storeif@#1\endcsname
+    \csname sseq@storeif@#1\endcsname
+}
+
+\def\sseq@storelistkey@store#1{
+    \global\@xp\let\csname pgfk@#1/.@cmd@@@\sseq@thename\@xp\endcsname\csname pgfk@#1/.@cmd\endcsname
+    \global\@xp\let\csname pgfk@#1/.@body@@@\sseq@thename\@xp\endcsname\csname pgfk@#1/.@body\endcsname
+}
+\def\sseq@storelistkey@get#1{
+    \global\@xp\let\csname pgfk@#1/.@cmd\@xp\endcsname\csname pgfk@#1/.@cmd@@@\sseq@thename\endcsname
+    \global\@xp\let\csname pgfk@#1/.@body\@xp\endcsname\csname pgfk@#1/.@body@@@\sseq@thename\endcsname
+}
+
+
+\def\sseq@storecmds{\let\\\sseq@storelist@store\let\sseq@storelistif\sseq@storelistif@store\let\sseq@storelistkey\sseq@storelistkey@store\sseq@storelist}
+\def\sseq@getcmds{\let\\\sseq@storelist@get\let\sseq@storelistif\sseq@storelistif@get\let\sseq@storelistkey\sseq@storelistkey@get\sseq@storelist}
+
+%%%% New "poor man's OOP" Load/Store
+% Directly stores things into commands that are annotated with the name of the spectral sequence.
+% I use this primarily for commands that won't necessarily exist for every spectral sequence
+% for instance because it has the description of a particular class or differential as part of its name
+\def\sseq@obj@fullname#1{sseq.\sseq@thename.#1}
+\def\sseq@obj#1{\csname sseq.\sseq@thename.#1\endcsname}
+\def\sseq@obj@gdef#1{\@xptwo\gdef\sseq@obj{#1}}
+\def\sseq@obj@xdef#1{\@xptwo\xdef\sseq@obj{#1}}
+\def\sseq@obj@protectedxdef#1{\@xptwo\sseq@protected@xdef\sseq@obj{#1}}
+\def\sseq@obj@xodef#1{\@xp\gdef\csname \sseq@obj@fullname{#1}\@xp\endcsname\@xp}
+\def\sseq@obj@let#1{\@xptwo\let\sseq@obj{#1}}
+\def\sseq@obj@gletcsname#1#2{\global\@xp\let\csname\sseq@obj@fullname{#1}\@xp\endcsname\csname#2\endcsname}
+\def\sseq@obj@gletobj#1#2{\global\@xp\let\csname\sseq@obj@fullname{#1}\@xp\endcsname\csname\sseq@obj@fullname{#2}\endcsname}
+\def\sseq@obj@undef#1{\@xptwo\let\sseq@obj{#1}\relax}
+\def\sseq@obj@show#1{\@xptwo\show\sseq@obj{#1}}
+\def\sseq@obj@ifundef#1{\@ifundefined{\sseq@obj@fullname{#1}}}
+\def\sseq@obj@ifdef#1#2#3{\@ifundefined{\sseq@obj@fullname{#1}}{#3}{#2}}
+\def\sseq@obj@inc#1{\bgroup\sseq@tempcount\sseq@obj{#1}\relax\advance\sseq@tempcount\@ne\sseq@obj@xdef{#1}{\the\sseq@tempcount}\egroup}
+\def\sseq@obj@gaddto{\@xptwo\sseq@g@addto@macro\sseq@obj}
+\def\sseq@obj@xaddto{\@xptwo\sseq@x@addto@macro\sseq@obj}
+\def\sseq@obj@xaddto{\@xptwo\sseq@x@addto@macro\sseq@obj}
+\def\sseq@obj@xoaddto#1{\@xp\sseq@g@addto@macro\csname \sseq@obj@fullname{#1}\@xp\endcsname\@xp}
+\def\sseq@obj@map#1#2{\def\\##1{#2}\sseq@obj{#1}}
+
+
+\def\sseq@obj@ifchanged#1#2#3{\sseq@obj@ifundef{#1.changed}{#3}{#2}}
+\def\sseq@obj@changedtrue#1{\sseq@obj@gdef{#1.changed}{}}
+\def\sseq@obj@changedfalse#1{\sseq@obj@undef{#1.changed}}
+
+\def\sseq@cleanup@obj#1{
+    \ifsseq@keepchanges\else
+        \sseq@obj@ifchanged{#1}{}{
+            \sseq@obj@changedtrue{#1}
+            \sseq@x@addto@macro\sseq@pagecleanup{
+                \@xptwo\ifx\sseq@obj{#1}\relax
+                    \global\@nx\sseq@obj@let{#1}\relax
+                \else
+                    \@nx\sseq@obj@gdef{#1}{\unexpanded\@xpthree{\sseq@obj{#1}}}
+                \fi
+                \@nx\sseq@obj@changedfalse{#1}
+            }
+        }
+    \fi
+}
+
+
+%%%% Saved paths, temporary saved paths, background saved paths
+% \sseq@savedpaths@whatever is redefined to be \sseq@savedpaths@whatever@standard or \sseq@savedpaths@whatever@temporary depending on context
+% This simplifies the code a lot because I don't have to check again where I should put things.
+\sseq@addtostorelist\sseq@savedpaths{}
+\def\sseq@tempsavedpaths{}
+\def\sseq@savedpaths@addclass@standard#1{\sseq@x@addto@macro\sseq@savedpaths{\@nx\sseq@class@draw@ifpage{#1}}}
+\def\sseq@savedpaths@adddifferential@standard#1{\sseq@x@addto@macro\sseq@savedpaths{\@nx\sseq@differential@draw@ifpage{#1}}}
+\def\sseq@savedpaths@addstructline@standard#1{\sseq@x@addto@macro\sseq@savedpaths{\@nx\sseq@structline@draw@ifpage{#1}}}
+\def\sseq@savedpaths@add@standard{\sseq@g@addto@macro\sseq@savedpaths}
+\def\sseq@savedpaths@xadd@standard{\sseq@x@addto@macro\sseq@savedpaths}
+\def\sseq@savedpaths@show@standard{\show\sseq@savedpaths}
+\def\sseq@scope@savedpaths@add@standard#1{\sseq@savedpaths@add@standard{#1}\sseq@savedpaths@add@background{#1}}
+
+\def\sseq@savedpaths@addclass@temporary#1{\sseq@x@addto@macro\sseq@tempsavedpaths{\@nx\sseq@class@draw@ifpage{#1}}}
+\def\sseq@savedpaths@adddifferential@temporary#1{\sseq@x@addto@macro\sseq@tempsavedpaths{\@nx\sseq@differential@draw@ifpage{#1}}}
+\def\sseq@savedpaths@addstructline@temporary#1{\sseq@x@addto@macro\sseq@tempsavedpaths{\@nx\sseq@structline@draw@ifpage{#1}}}
+\def\sseq@savedpaths@add@temporary{\sseq@g@addto@macro\sseq@tempsavedpaths}
+\def\sseq@savedpaths@xadd@temporary{\sseq@x@addto@macro\sseq@tempsavedpaths}
+\def\sseq@savedpaths@show@temporary{\show\sseq@tempsavedpaths}
+\def\sseq@scope@savedpaths@add@temporary#1{\sseq@savedpaths@add@temporary{#1}\sseq@savedpaths@add@background{#1}}
+
+
+\def\sseq@savedpaths@addclass@background#1{\sseq@error@internal@n{illegal-add-background-mode}{\sseq@savedpaths@addclass}}
+\def\sseq@savedpaths@adddifferential@background#1{\sseq@error@internal@n{illegal-add-background-mode}{\sseq@savedpaths@adddifferential}}
+\def\sseq@savedpaths@addstructline@background#1{\sseq@error@internal@n{illegal-add-background-mode}{\sseq@savedpaths@addstructline}}
+\def\sseq@savedpaths@add@background{\sseq@g@addto@macro\sseq@savedbackgroundpaths}
+\def\sseq@savedpaths@xadd@background{\sseq@x@addto@macro\sseq@savedbackgroundpaths}
+\def\sseq@savedpaths@show@background{\show\sseq@savedbackgroundpaths}
+
+\def\sseq@savedpaths@addclass@ignore#1{}
+\def\sseq@savedpaths@adddifferential@ignore#1{}
+\def\sseq@savedpaths@addstructline@ignore#1{}
+\def\sseq@savedpaths@add@ignore#1{}
+\def\sseq@savedpaths@xadd@ignore#1{}
+\def\sseq@savedpaths@show@ignore#1{}
+\def\sseq@scope@savedpaths@add@ignore#1{}
+
+\def\sseq@setsavedpaths#1{%
+    \@xp\let\@xp\sseq@savedpaths@addclass       \csname sseq@savedpaths@addclass@#1\endcsname
+    \@xp\let\@xp\sseq@savedpaths@adddifferential\csname sseq@savedpaths@adddifferential@#1\endcsname
+    \@xp\let\@xp\sseq@savedpaths@addstructline  \csname sseq@savedpaths@addstructline@#1\endcsname
+    \@xp\let\@xp\sseq@savedpaths@add            \csname sseq@savedpaths@add@#1\endcsname
+    \@xp\let\@xp\sseq@savedpaths@xadd            \csname sseq@savedpaths@xadd@#1\endcsname
+    \pgfutil@ifundefined{sseq@scope@savedpaths@add@#1}{}{%
+        \@xp\let\@xp\sseq@savedpaths@show        \csname sseq@savedpaths@show@#1\endcsname
+        \@xp\let\@xp\sseq@scope@savedpaths@add   \csname sseq@scope@savedpaths@add@#1\endcsname
+    }%
+}
+
+\def\sseq@usesavedpaths{%
+    \sseq@savedpaths
+    \sseq@clearchangestyles
+    \sseq@tempsavedpaths
+    \gdef\sseq@tempsavedpaths{}%
+} 

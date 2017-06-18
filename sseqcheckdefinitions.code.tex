@@ -1,0 +1,170 @@
+%%
+%% Package: spectralsequences.sty version 1.0
+%% Author: Hood Chatham
+%% Email: hood@mit.edu
+%% Date: 2017-06-18
+%% License: Latex Project Public License
+%%
+%% File: sseqcheckdefinitions.code.tex
+%%
+%%    A few tikz commands are modified in sseqpages. This file checks the definitions of all commands modified. Of course, this is insufficient to ensure that
+%%    the behavior isn't completely wrong, but at least it's a sanity check.
+%%
+
+% TODO: we could recover from failing to patch keys.
+
+\sseq@tempiftrue
+\begingroup
+
+\def\sseq@checkdef#1{\def\sseq@temp{\sseq@checkdef@{#1}}\afterassignment\sseq@temp\@xp\def\csname sseq@check@\sseq@macroname#1\endcsname}
+\def\sseq@checkdef@#1{\@xp\ifx\csname sseq@check@\sseq@macroname#1\endcsname#1\else
+    \sseq@tempiffalse
+\fi}
+
+%%
+%% sseqkeys.code.tex
+%%
+
+
+\sseq@checkdef\pgfkeys@case@one{%
+  \pgfkeysifdefined{\pgfkeyscurrentkey/.@cmd}%
+  {\pgfkeysgetvalue{\pgfkeyscurrentkey/.@cmd}{\pgfkeys@code}%
+   \expandafter\pgfkeys@code\pgfkeyscurrentvalue\pgfeov}
+  {\pgfkeys@case@two}%
+}
+
+\sseq@checkdef\pgfkeys@case@two@extern{%
+  \ifx\pgfkeyscurrentvalue\pgfkeysnovalue@text%
+    \pgfkeysvalueof{\pgfkeyscurrentkey}%
+  \else%
+    \pgfkeyslet{\pgfkeyscurrentkey}\pgfkeyscurrentvalue%
+  \fi%
+}
+
+
+\ifsseq@tempif\else
+    \endgroup
+    \sseq@tempiffalse % We'll throw a critical error in spectralsequences.sty to end input
+    \endinput
+\fi
+%%
+%% sseqdrawing.code.tex
+%%
+
+%from \pgf\frontendlayer\tikz\libraries\tikzlibraryfit.code.tex line 81
+\sseq@checkdef\tikz@lib@fit@scan@handle#1{%
+  \iftikz@shapeborder%
+    % Ok, fit all four external anchors, if they exist
+    \tikz@lib@fit@adjust{\pgfpointanchor{\tikz@shapeborder@name}{west}}%
+    \tikz@lib@fit@adjust{\pgfpointanchor{\tikz@shapeborder@name}{east}}%
+    \tikz@lib@fit@adjust{\pgfpointanchor{\tikz@shapeborder@name}{north}}%
+    \tikz@lib@fit@adjust{\pgfpointanchor{\tikz@shapeborder@name}{south}}%
+  \else%
+    \tikz@lib@fit@adjust{#1}%
+  \fi%
+  \tikz@lib@fit@scan%
+}
+
+% from \pgf\frontendlayer\tikz\tikz.code.tex line 5164
+\sseq@checkdef\tikz@calc@anchor#1.#2\tikz@stop{%
+    \pgfpointanchor{\tikz@pp@name{#1}}{#2}%
+}
+
+\ifsseq@tempif
+    \global\sseq@patchfittrue
+\else
+    \sseq@warning{fit-patch-failed}
+    \global\sseq@patchfitfalse
+\fi
+
+\sseq@tempiftrue
+
+
+%%
+%% sseqforeach.code.tex
+%%
+\sseq@checkdef\pgffor@@vars@opt[#1]{\pgfkeys{/pgf/foreach/.cd,#1}\pgffor@vars}
+
+\sseq@checkdef\pgffor@doloop{%
+  \pgffor@begingroup
+    \edef\pgffor@temp{\expandafter\Pgffor@geT\the\pgffor@iter}%
+    \edef\pgffor@incheck{{.0/}{\pgffor@temp/}}%
+    \expandafter\pgfutil@in@\pgffor@incheck%
+    \ifpgfutil@in@%
+      \expandafter\pgffor@strip\pgffor@temp%
+    \fi%
+    \expandafter\pgfutil@in@\expandafter/\expandafter{\pgffor@var}%
+    \ifpgfutil@in@%
+      \expandafter\def\expandafter\pgffor@valuerest\expandafter{\pgffor@temp//\relax}%
+      \expandafter\pgffor@multiassign\pgffor@var/\pgffor@stop/\pgffor@stop/\relax%
+    \else%
+    	% Convert to alphabetic sequence, if necessary.
+    	\ifpgffor@alphabeticsequence%
+    		\pgffor@makealphabetic\pgffor@temp%
+    		\expandafter\let\pgffor@var=\pgffor@temp%    						
+    	\else%
+    		\expandafter\expandafter\expandafter\def\expandafter\pgffor@var\expandafter{\pgffor@temp}%
+      \fi%
+    \fi%
+    % Insert any context, if any.
+    \ifpgffor@context%
+      \let\pgffor@temp=\pgffor@dots@pre%
+	    \expandafter\pgfutil@append@macrotomacro\expandafter%
+	    	{\expandafter\pgffor@temp\expandafter}\expandafter{\pgffor@var}%
+	    \expandafter\pgfutil@append@macrotomacro\expandafter%
+	    	{\expandafter\pgffor@temp\expandafter}\expandafter{\pgffor@dots@post}%
+	    \expandafter\let\pgffor@var=\pgffor@temp%
+	  \fi%
+	% Perform assignments before loop body.
+	\ifx\pgffor@assign@before@code\pgfutil@empty%
+    \else%
+    	\pgffor@assign@before@code%
+    \fi%
+    %
+    \expandafter\expandafter\expandafter\pgffor@reset@hooks\expandafter\pgffor@beginhook\expandafter\pgffor@body\pgffor@endhook%
+    %
+    % Perform assignments after loop body.
+	  \ifx\pgffor@assign@after@code\pgfutil@empty%
+    \else%
+    	\pgffor@assign@after@code%
+    \fi%
+  \pgffor@endgroup%
+  \pgffor@loop%
+}
+
+\sseq@checkdef\pgffor@invokebody{%
+	\pgffor@begingroup%
+    \expandafter\pgfutil@in@\expandafter/\expandafter{\pgffor@var}%
+    \ifpgfutil@in@%
+      \expandafter\def\expandafter\pgffor@valuerest\expandafter{\pgffor@value//\relax}%
+      \expandafter\pgffor@multiassign\pgffor@var/\pgffor@stop/\pgffor@stop/\relax%
+    \else%
+      \expandafter\expandafter\expandafter\def\expandafter\pgffor@var\expandafter{\pgffor@value}%
+    \fi%
+    % Execute assign once code.
+    \ifx\pgffor@assign@once@code\pgfutil@empty%
+  	\else\pgffor@assign@once@code%
+  	\fi%
+    % Execute assign before code.
+    \ifx\pgffor@assign@before@code\pgfutil@empty%
+    \else\pgffor@assign@before@code%
+    \fi%
+    %
+    \expandafter\expandafter\expandafter\pgffor@reset@hooks\expandafter\pgffor@beginhook\expandafter\pgffor@body\pgffor@endhook%
+    % Execute assign after code.
+    \ifx\pgffor@assign@after@code\pgfutil@empty%
+    \else%
+    	\pgffor@assign@after@code%
+    \fi%
+    %
+  \pgffor@endgroup%
+}
+
+\ifsseq@tempif
+    \global\sseq@patchforeachtrue
+\else
+    \sseq@warning{foreach-patch-failed}
+    \global\sseq@patchforeachfalse
+\fi
+
+\endgroup 

@@ -1,0 +1,126 @@
+%%
+%% Package: spectralsequences.sty version 1.0
+%% Author: Hood Chatham
+%% Email: hood@mit.edu
+%% Date: 2017-06-18
+%% License: Latex Project Public License
+%%
+%% File: example_hatcher.tex
+%%
+%%    This comes from Hatcher's spectral sequences book. I think it's a good demonstration of the flexibility of sseqpages. 
+%%    Thanks to Antonio Ruiz for suggesting it.
+%%
+
+\documentclass{article}
+\usepackage[landscape,margin=1cm,top=2cm]{geometry}
+\usepackage{spectralsequences}
+\usepackage{amssymb}
+\def\Z{\mathbb{Z}}
+
+\begin{document}
+\sseqset{
+    0/.sseq style={"0",draw=none},
+    homological Serre grading,
+    classes={draw=none,inner sep=0.2em},
+    tick gap=0.7em,
+}
+\begin{sseqdata}[
+    name=hatcherex1,
+    permanent cycles={draw,minimum width={width("$Z_2$")+0.85em}},
+    yscale=0.6,
+    axes gap=1.2em,
+    axes clip padding=0em
+]
+\begin{scope}[background,opacity=0.1]
+\foreach \n in {1,3,...,9}{
+    \fill(-1.1,\n-0.5)--(-1.1,\n+0.5)--(0,\n+0.5)--(\n+0.5,0)--(\n+0.5,-1.6)--(\n-0.5,-1.6)--(\n-0.5,0)--(0,\n-0.5)--cycle;
+}
+\end{scope}
+
+\class["\Z"](0,0)
+\foreach\x in {1,3,...,9}{
+    \class["\Z_2"](\x,0)
+}
+\foreach \x in {2,4,...,8}{
+    \class[0](\x,0)
+}
+\foreach\y in {1,3,...,9}{
+    \pgfmathparse{9-\y}
+    \let\xmax\pgfmathresult
+    \foreach\x in {0,...,\xmax}{
+        \class["\Z_2"](\x,\y)
+    }
+}
+
+\foreach \y in {2,4,...,8}{
+    \pgfmathparse{9-\y}
+    \let\xmax\pgfmathresult
+    \foreach\x in {0,...,\xmax}{
+        \class[0](\x,\y)
+    }
+}
+
+\foreach \x in {3,5,...,9}{
+    \d2(\x,0)
+}
+
+\d3(4,1)
+\d3(6,1)
+\d3(8,1)
+\d3(4,3)
+\d3(6,3)
+\d3(4,5)
+\end{sseqdata}
+\printpage[name=hatcherex1,page=0]
+
+\begin{sseqdata}[
+    name=hatcherex2,
+    yscale=0.6,
+    x axis gap=0.3cm,
+]
+
+\begin{scope}[background,opacity=0.1]
+\foreach \n in {1,3,...,9}{
+    \fill(-1.1,\n-0.5)--(-1.1,\n+0.7)--(0,\n+0.7)--(\n+0.5,0)--(\n+0.5,-1.6)--(\n-0.5,-1.6)--(\n-0.5,0)--(0,\n-0.5)--cycle;
+}
+\end{scope}
+
+
+\foreach\x in {0,2,...,8}{
+    \class["\Z"](\x,0)
+}
+\foreach \x in {1,3,...,9}{
+    \class[0](\x,0)
+}
+\foreach\y in {1,3,...,9}{
+    \pgfmathparse{9-\y}
+    \let\xmax\pgfmathresult
+    \foreach\x in {0,...,\xmax}{
+        \pgfmathparse{int(mod(\x,2))}
+        \ifnum\pgfmathresult=0\relax
+            \class["\Z_2"](\x,\y)
+        \else
+            \class[0](\x,\y)
+        \fi
+    }
+}
+
+\d2(2,0)
+\foreach \x in {4,6,...,8}{
+    \foreach\r in {2,4,...,\x}{
+        \d\r(\x,0)
+        \replaceclass["\Z"](\x,0)
+    }
+}
+
+\foreach \y in {2,4,...,8}{
+    \pgfmathparse{9-\y}
+    \let\xmax\pgfmathresult
+    \foreach\x in {0,...,\xmax}{
+        \class[0](\x,\y)
+    }
+}
+
+\end{sseqdata}
+\printpage[name=hatcherex2,page=0]
+\end{document}

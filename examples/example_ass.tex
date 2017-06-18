@@ -1,0 +1,359 @@
+%%
+%% Package: spectralsequences.sty version 1.0
+%% Author: Hood Chatham
+%% Email: hood@mit.edu
+%% Date: 2017-06-18
+%% License: Latex Project Public License
+%%
+%% File: example_ass.tex
+%%
+%%    Draws the Adams Spectral Sequence at the prime 2 through the 45 stem.
+%%    See pages 146 - 147 of Green book
+%%    https://mathoverflow.net/questions/102316/differentials-in-the-adams-spectral-sequence-for-spheres-at-the-prime-p-2
+%%    https://en.wikipedia.org/wiki/Homotopy_groups_of_spheres#Table_of_stable_homotopy_groups
+%%
+
+
+\documentclass{article}
+\usepackage[landscape,paperheight=14in,margin=0.1in]{geometry}
+\usepackage{spectralsequences}
+
+
+\begin{document}
+\NewSseqGroup\tower {m} {
+    \class(0,0)
+    \foreach \y in {2,...,#1} {
+        \class(0, \y-1)
+        \structline(0, \y-2, -1)(0, \y-1, -1)
+    }
+}
+
+\def\etaclass(#1,#2){
+    \class(#1+1,#2+1)
+    \structline(#1,#2, -1)(#1+1,#2+1, -1)
+}
+\def\etasqclass(#1,#2){
+    \class(#1+1,#2+1)
+    \class(#1+2,#2+2)
+    \structline(#1,#2, -1)(#1+1,#2+1, -1)
+    \structline(#1+1,#2+1, -1)(#1+2,#2+2, -1)
+}
+\def\etacubclass(#1,#2){
+    \class(#1+1,#2+1)
+    \class(#1+2,#2+2)
+    \class(#1+3,#2+3)
+    \structline(#1,#2, -1)(#1+1,#2+1, -1)
+    \structline(#1+1,#2+1, -1)(#1+2,#2+2, -1)
+    \structline(#1+2,#2+2, -1)(#1+3,#2+3, -1)
+}
+\def\divtwoclass[#1](#2,#3){
+    \class[#1](#2,#3-1)
+    \structline(#2,#3-1,-1)(#2,#3  ,-1)
+}
+\def\divfourclass[#1](#2,#3){
+    \class(#2,#3-1)
+    \structline(#2,#3-1,-1)(#2,#3  ,-1)
+    \class[#1](#2,#3-2)
+    \structline(#2,#3-2,-1)(#2,#3-1,-1)
+}
+\def\diveightclass[#1](#2,#3){
+    \class(#2,#3-1)
+    \structline(#2,#3-1,-1)(#2,#3  ,-1)
+    \class(#2,#3-2)
+    \structline(#2,#3-2,-1)(#2,#3-1,-1)
+    \class[#1](#2,#3-3)
+    \structline(#2,#3-3,-1)(#2,#3-2,-1)
+
+}
+\def\nuclass(#1,#2){
+    \class(#1+3,#2+1)
+    \structline(#1,#2,-1)(#1+3,#2+1,-1)
+}
+\def\nustruct(#1,#2){
+    \structline(#1,#2,-1)(#1+3,#2+1,-1)
+}
+
+\begin{sseqdata}[
+    name = S0ASS,
+    Adams grading,
+    classes=fill,
+    class labels={above left=0.2em},
+    x range={0}{45},
+    y range={0}{23},
+    xscale=0.7,
+    yscale=0.8,
+    differentials = red,
+    right clip padding = 3em,
+    classes = { tooltip = { (\xcoord,\ycoord) } },
+    grid = go
+]
+\tower(0,0){25}
+
+% multiples of eta
+\etacubclass(0,0)
+\classoptions["h_1"](1,1)
+
+% divisibilities of nu
+\divfourclass["h_2" below](3,3)
+
+\nustruct(0,0)
+
+\nuclass(3,1)
+
+
+
+\tower(7,1){4}
+%\classoptions["h_3" left](7,1)
+\etasqclass(7,1)
+\structline(6,2)(9,3)
+
+\class["c_0" above](8,3)
+\etaclass(8,3)
+
+
+
+\class["Ph_1"](9,5)
+\etasqclass(9,5)
+\divfourclass["Ph_2" below](11,7)
+
+\tower(14,2){2}
+\classoptions["h_3^2" left](14,2)
+\tower(14,4){3}
+\classoptions["d_0" left](14,4)
+
+\tower(15,1){8}
+\classoptions["h_4" left](15,1)
+\d2(15,1) % d2(h_4) = h_0h_3^2
+\d3(15,2)\d3(15,3) % d2(h_0h_4) = h_0d_0
+
+\etacubclass(15,1)
+\divfourclass[](18,4)
+\nustruct(15,1)\nustruct(15,2)\nustruct(15,3)
+
+
+\nuclass(18,2)
+
+\etacubclass(14,4)
+\diveightclass["e_0" left](17,7)
+\nustruct(14,6)\nustruct(14,5)\nustruct(14,4)
+
+\nuclass(17,5)
+\divfourclass["g" {below = 0.3em}](20,6)
+\etaclass(17,4)
+\divtwoclass["f_0" {below right=0em}](18,5)
+\etaclass(20,4)
+\nustruct(18,4)
+
+\classoptions["h_3^3" below](21,3)
+
+\d2(17,4)\d2(18,5)\d2(18,4,-1) % d2(e_0) = h1^2 d0, d2(f_0) = h0^2 e0
+\nustruct(17,4)\nuclass(20,5)
+\divtwoclass[](23,6)\nustruct(20,4)
+\nuclass(23,5)
+
+\tower(23,7){6}
+\classoptions["i" left](23,7)
+
+\class["Pc_0" {xshift=3pt}](16,7)\etaclass(16,7)
+\class["P^2c_0" {xshift=5pt,yshift=2pt}](24,11)\etaclass(24,11)
+
+\class["c_1" {above=0em}](19,3)
+\nuclass(19,3)
+
+\class["h_4c_0" below](23,4)
+\etaclass(23,4)
+
+
+\class["P^2h_1"](17,9)\etasqclass(17,9)
+\divfourclass["P^2h_2" {below=0em}](19,11)
+\nuclass(19,9)
+\divfourclass["Pd_0" left](22,10)
+\etacubclass(22,8)
+\diveightclass["Pe_0" below](25,11)
+\etaclass(25,8)\divfourclass["j" below](26,9)
+\d2(23,7)\d2(23,8) % d2(i)=h_0Pd_0
+\d2(25,8) % d2(Pe_0) = h_1^2 Pd
+\d2(26,9)\d2(26,8)\d2(26,7) % d2(j) = h_0 Pe_0
+
+\nustruct(22,10)\nustruct(22,9)\nustruct(22,8)
+
+
+\class["P^3h_1"](25,13)\etasqclass(25,13)
+\divfourclass["P^3h_2" {below=0em}](27,15)
+\nuclass(27,13)
+\divfourclass["P^2d_0" {left=0.2em}](30,14)
+\etacubclass(30,12)
+\diveightclass["P^2e_0" {below=0em}](33,15)
+\d2(33,12) % d2(P^2e_0) = h_1^2 P^2d_0
+\nustruct(30,14)\nustruct(30,13)\nustruct(30,12)
+\etaclass(33,12)
+\divfourclass["Pj" {right}](34,13)
+\d2(34,11)\d2(34,12)\d2(34,13) % d2(Pj) = h0 P^2e_0
+
+
+
+\class(28,10)\divfourclass["{Pg=d_0^2}" {below left=-0.5em}](28,10)
+\etaclass(28,8)\divfourclass["k" below](29,9)
+\d2(29,7)\d2(29,8) % d2(k) = h_0 Pg = h_0 d_0^2
+\class["r" below](30,6) \d3(30,6) % d3(r) = h0^2 k
+\tower(30,7){5}
+\classoptions["s" below](30,7)
+
+\tower(30,2){4}
+\classoptions["h_4^2" below](30,2)
+\etaclass(30,2)
+
+\tower(31,1){16}\classoptions["h_5" below](31,1)
+\d2(31,1)\d2(31,2)\d2(31,3,-1) % d2(h_5) = h_0 h_4^2
+\d3(31,4)\d3(31,5)\d3(31,6)\d3(31,7) \d3(31,8,1) % \d3(h_0^3 h_5) = s
+\replaceclass[offset={(0,0)}](31,8) % d_0e_0     + h_0^7h_5
+\structline(31,8)(31,9)
+\d4(31,8)\d4(31,9)\d4(31,10) % d4(d_0e_0 + h_0^7h_5) = P^2d_0, d4(h_0^8 h_5) = h_0 P^2d_0
+\etacubclass(31,1)
+\divfourclass[](34,4)
+\nustruct(31,3)\nustruct(31,2)\nustruct(31,1)
+\nuclass(34,2)
+
+\class["n" above](31,5)\nuclass(31,5)
+
+\class(31,10)
+\divfourclass["d_0e_0" {below right=0em,xshift=-5pt}](31,10)
+\etaclass(31,8)
+\divfourclass["l" {right=0em}](32,9)
+\d3(31,8,-1)     % d3(d_0e_0) = h_0^4 s = d3(h_0^7 h_5), see replaceclass above
+
+\d2(32,7,,-1)\d2(32,8,,-1) % d2(l) = h_0 d_0 e_0
+\d4(32,9,-1) % d4(h_0^2 l) = h_1 P^2d_0
+
+\class["q"](32,6)\etaclass(32,6)
+
+\class["d_1"](32,4)\etaclass(32,4)
+\nuclass(32,4)\nuclass(35,5)
+\divtwoclass["p" above right](33,5)
+
+\class["P^3c_0"{xshift=4pt,yshift=2pt}](32,15)\etaclass(32,15)
+
+\class["P^4h_1"](33,17)\etasqclass(33,17)
+\divfourclass["P^4h_2" right](35,19)
+
+\class(34,10)
+\divfourclass["d_0g" left](34,10)
+\etaclass(34,8)
+\divfourclass["m" right](35,9)
+\d2(35,7)\d2(35,8) % d2(m) = h_0 d_0 g
+
+
+\class["t"](36,6)\etaclass(36,6)
+\nustruct(34,6)
+
+\class(36,14)
+\divfourclass["P^2g" left](36,14)
+\etaclass(36,12)
+\divfourclass["Pk" {right=0em}](37,13)
+\d2(37,11)\d2(37,12) % d_2(P^1k) = h_0 P^2g
+
+
+\tower(37,5){6}\classoptions["x"](37,5)
+
+\class["e_0g"](37,8)\etaclass(37,8)
+\diveightclass["y" right](38,9)
+\d4(37,8,-1) \d4(38,9)% d4(e_0g) = P^2g
+\d2(38,6,-1)\d2(38,7,-1)\d2(38,8,-1) % d2(y) = h_0^3x
+
+\class(38,5)
+\diveightclass["h_3h_5" below](38,5)
+\etasqclass(38,2)
+
+\class["e_1" {below=0em,xshift=2pt}](38,4)\etasqclass(38,4)
+\divfourclass["f_1" right](40,6)
+\d3(38,4) % d_3(e_1) = h_2^2 n = h_1 t, see Bruner "A New Differential in the ASS"
+
+\tower(39,15){6}\classoptions["P^2i" {right=0em}](39,15)
+
+\class(38,18)\divfourclass["P^3d_0" {below left=0em}](38,18)
+\etacubclass(38,16)\diveightclass["P^3e_0" {below=0em}](41,19)
+\nustruct(38,18)\nustruct(38,17)\nustruct(38,16)
+\etaclass(41,16)\divfourclass["P^2j" {below=0em}](42,17)
+\d2(39,15)\d2(39,16) % d2(P^2i) = h_0 P^3d_0
+\d2(41,16,,1)\d2(42,17,,1) % d2(P^3e_0) = h_1^2 P^3d_0
+\d2(42,15)\d2(42,16) % d2(P^2j) = h_0 P^3e_0
+
+
+
+\class["c_0 h_5" {below=-0.3em}](39,4)\etaclass(39,4)
+
+\d4(38,2,1,-1) \d4(38,3,1,-1) % d4(h_3h_5) = h_0x
+
+
+\class(39,14)
+\divfourclass["Pd_0e_0" {below=-0.2em}](39,14)
+\etaclass(39,12)
+\divfourclass["Pl" {below=0em}](40,13)
+\d2(40,11)\d2(40,12) % d2(Pl) = h_0 P^2g
+\d4(39,12)\d4(40,13,,-1) % d4(Pd_0e_0) = P^3d_0
+
+
+
+\class["c_1g"](39,7)
+\class["g^2"](40,8)
+\class["u"](39,9)\etasqclass(39,9)
+\divtwoclass["z"](41,11)
+\class(41,5)\divfourclass["c_2"](41,5)
+\class["v"](42,9)
+\d2(42,9) % d2(v) = h_1^2 u
+
+\class["d_0^3"](42,12)
+
+\class["Ph_1h_5" {right=0em}](40,6)\etasqclass(40,6)
+\divfourclass["Ph_2h_5" {right=0em}](42,8)
+
+
+\class["P^4c_0"](40,18)\etaclass(40,18)
+
+
+\class["P^5h_1"](41,20)\etasqclass(41,20)
+\divfourclass["P^5h_2" right](43,22)
+
+\class(44,5)\divfourclass["g_2" below](44,5)
+\etaclass(44,3)
+
+\class(44,18)\divfourclass["P^3g" left](44,18)
+\etaclass(44,16)\divfourclass["P^2k" below](45,17)
+\class["P^2r"](46,14)
+\d2(45,15)\d2(45,16) % d2(P^2k) = h_0 P^3g
+\d3(46,14)% d3(P^2r) = h0^2 P^2k
+\class(45,4)\divtwoclass["h_4^3" below](45,4)
+
+\class(45,6)\divfourclass["h_5d_0" right](45,6)
+\etaclass(45,4)
+
+\class["w"](45,9)
+
+\class["Pc_0g" left](45,12)
+\d4(45,12) % d4(Pc_0g) = P^3g
+\end{sseqdata}
+
+\printpage[name=S0ASS,page=0]
+
+\printpage[name=S0ASS,page=2]
+
+\printpage[name=S0ASS,page=3]
+
+\printpage[name=S0ASS,page=4]
+
+\begin{sseqpage}[name=S0ASS,page=5]
+\structline[dashed,bend right=20](15,4)(16,7)
+\structline[dashed](21,5)(22,8)
+\structline[dashed,bend right=20](20,6)(23,9,-1)
+\structline[dashed,bend right=20](23,6)(23,9,-1)
+%\structline[dashed,bend right=20](32,6)(33,9)
+%\structline[dashed,bend right=20](32,6)(33,9)
+\classoptions["h_0^2i" left](23,9)
+\classoptions["h_0^{10}h_5" left](31,11)
+\classoptions["h_1h_5" below](32,2)
+\classoptions["h_2h_5" below](34,2)
+%\classoptions["h_0^2h_3h_5" {left=-0.1em}](38,4,1)
+\classoptions["h_1h_3h_5" {below=-.4em}](39,3,1)
+\classoptions["P^4h_3" {below=0em}](39,17)
+\end{sseqpage}
+\end{document} 

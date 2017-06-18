@@ -1,0 +1,139 @@
+%%
+%% Package: spectralsequences.sty version 1.0
+%% Author: Hood Chatham
+%% Email: hood@mit.edu
+%% Date: 2017-06-18
+%% License: Latex Project Public License
+%%
+%% File: example_endofVFoS.tex
+%%
+%%   This is the drawing that got me started making the package. To this day, I don't know what it is. I copied it from Matt Ando's handwritten notes on
+%%   Haynes 1990(?) class on Vector Fields on Spheres. It's on the very last page of the second part of the notes, so it must have been the last day of class.
+%%   Looking back, I seem to have inferred a bunch of stuff that wasn't actually written down on the page, but I'm not sure how so there's a chance some of it is wrong.
+%%
+
+\documentclass{article}
+\usepackage[landscape,margin=0cm,top=2cm]{geometry}
+\usepackage{amssymb}
+\usepackage{spectralsequences}
+
+\NewSseqCommand\row { m } {\foreach \x in {1,...,35}{\class(\x,#1)}}
+\NewSseqCommand\twoptrow { m } {\foreach \x in {1,...,35}{\class(\x,#1)\class(\x,#1)}}
+\begin{document}
+\begin{sseqdata}[
+    name=mysseq,
+    x range={1}{25},
+    y range={0}{19},
+    homological Serre grading,
+    classes=fill,
+    permanent classes={circle,red},
+    transient cycles={black},
+    differentials={blue},
+    grid = go,
+    scale=0.9
+]
+
+\foreach \x in {1,3,5,...,35} {\class(\x,0)}
+
+\row{1}
+\row{2}
+\row{3}
+
+\foreach \y in {7,15,23}{
+    \row{\y}
+    \row{\y+1}
+    \twoptrow{\y+2}
+    \row{\y+3}
+    \row{\y+4}
+}
+
+\foreach \x in {9,13,...,25}{
+    \d2(\x,0)
+%
+    \foreach \y in {7,15}{
+        \d2 (\x,\y)
+        \d2 (\x,\y+1,,2)
+        \d2 (\x,\y+2,1,)
+    }
+}
+
+
+
+\foreach \x in {4,8,...,24}{
+    \d2 (\x,1)
+    \d2 (\x,2)
+    \foreach \y in {7,15}{
+         \d2 (\x,\y+1,,2)
+        \d2 (\x,\y+2,1,)
+        \d2 (\x,\y+3)
+    }
+}
+
+
+\foreach \x in {4,8,..., 24,28}
+    \foreach \y in {7,15}{
+        \d3 (\x+2,\y,,1)
+        \d3 (\x,\y+2,2,)
+}
+
+\foreach \x in {11,19,27}{
+    \d4(\x,0)
+}
+
+\foreach \x in {12,20,28}
+    \foreach \y in {7,15}{
+        \d5(\x,\y)
+}
+
+
+
+\foreach \x in {10,18,26,34}{
+    \d7(\x,1)
+    \d7(\x-1,2)
+    \d7(\x-2,3,,2)
+
+    \foreach \y in {9,17}{
+        \d7(\x,\y,1)
+        \d7(\x-1,\y+1)
+        \d7(\x-2,\y+2,,2)
+    }
+}
+
+\d9(15,0)
+\d9(14,1,,2)
+\d10(13,2)
+
+\d8(23,0)
+\d8(22,1)
+\foreach \x in {23,31} {
+    \d8(\x-2,2,,2)
+    \d9(\x-3,3)
+}
+\foreach \x in {16,24,32} {
+    \d9(\x,7)
+    \d8(\x-2,9,1,)
+    \d8(\x-3,10,,2)
+    \d9(\x-4,11)
+}
+\end{sseqdata}
+
+
+\printpage[name=mysseq, page=0]
+\newpage
+\printpage[name=mysseq, page=2]
+\newpage
+\printpage[name=mysseq, page=3]
+
+\newpage
+\printpage[name=mysseq, page=4]
+\newpage
+\printpage[name=mysseq, page=5]
+\newpage
+\printpage[name=mysseq, page=7]
+\newpage
+\printpage[name=mysseq, page=8]
+\newpage
+\printpage[name=mysseq, page=9]
+\newpage
+\printpage[name=mysseq, page=10]
+\end{document}

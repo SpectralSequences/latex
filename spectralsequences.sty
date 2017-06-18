@@ -1,0 +1,279 @@
+%%
+%% Package: spectralsequences.sty version 1.0
+%% Author: Hood Chatham
+%% Email: hood@mit.edu
+%% Date: 2017-06-18
+%% License: Latex Project Public License
+%%
+%% A package for drawing spectral sequences
+%%
+
+
+% TODO:
+%  label handler key, \sseqnormalizepolynomial
+%  speed up off page edges (uses 10% of the draw time for page 0 of tmfass)
+%  speed up label nodes
+%  try to restrict fragility issues to tooltips and tikz primitives... annoying
+%  error messages that should be warnings by default?
+%  improve axes options? allow axis to be centered on coordinate or centered between coordinates
+%  recover from failing to patch pgfkeys
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{spectralsequences}[2017/06/04 v1.0]
+
+\RequirePackage{tikz}
+\RequirePackage{etoolbox}
+\RequirePackage{xparse}
+\RequirePackage{verbatim}
+\RequirePackage{pdfcomment}
+
+\usetikzlibrary{quotes}
+\usetikzlibrary{fit}
+\usetikzlibrary{positioning}
+\usetikzlibrary{intersections}
+\usetikzlibrary{backgrounds}
+\usepgflibrary{arrows.meta}
+\usetikzlibrary{shapes}
+%\usetikzlibrary{profiler}
+
+\newif\ifsseq@draftmode
+\DeclareOption{draft}{\sseq@draftmodetrue}
+\ProcessOptions\relax
+
+\def\sseq@authorname{Hood Chatham}
+\def\sseq@authoremail{hood@mit.edu}
+
+
+%\sseq@draftmodetrue
+
+%%%%%%                                            %%%%%%
+%%                                                    %%
+%%            Declarations and preliminaries          %%
+%%                                                    %%
+%%%%%%                                            %%%%%%
+\newif\ifsseq@inprogress
+
+\newif\ifsseq@hasname
+\newif\ifsseq@updateexisting
+\newif\ifsseq@ispageenv
+\newif\ifsseq@keepchanges
+\newif\ifsseq@keepglobaloptions
+\newif\ifsseq@globaldetone
+
+\newif\ifsseq@needstikz
+\newif\ifsseq@thispage
+\newif\ifsseq@outofrange
+\newif\ifsseq@classlabel
+\newif\ifsseq@draworphanedges
+\newif\ifsseq@drawedge
+\newif\ifsseq@tikzprims@integershift
+\newif\ifsseq@anchor
+\sseq@drawedgetrue
+\sseq@tikzprims@integershifttrue
+
+\newif\ifsseq@patchforeach
+\newif\ifsseq@patchfit
+
+\newif\ifsseq@tempif
+\newif\ifsseq@gtempif
+\newif\ifsseq@error
+
+\newtoks\sseq@temptoks
+\newtoks\sseq@temptoksii
+\newtoks\sseq@scope@toks
+
+\newcount\sseq@thepagecount
+\newcount\sseq@anonsseqcount
+\newcount\sseq@x
+\newcount\sseq@y
+\newcount\sseq@tempcount
+\newcount\sseq@tempcountb
+\newcount\sseq@tempx
+\newcount\sseq@tempy
+\newcount\sseq@tempxb
+\newcount\sseq@tempyb
+
+\newcount\sseq@stackdepth
+
+\newdimen\sseq@tooltip@height
+\newdimen\sseq@tooltip@width
+\newdimen\sseq@gridstrokethickness
+\sseq@gridstrokethickness=.1pt
+
+% Ensure \@xp and \@nx have the correct values in case that amsmath isn't loaded
+\let\@xp\expandafter
+\let\@nx\noexpand
+\def\@xptwo{\@xp\@xp\@xp}
+\def\@xpthree{\@xp\@xp\@xp\@xp\@xp\@xp\@xp}
+\def\sseq@nil{\sseq@thisshouldnthappen@nil unique expansion} % This expansion text should be unique so that \ifx\sseq@nil\othercommand is false.
+\def\sseq@infinity{10000} % Larger than any coordinate anyone will ever use.
+\newcount\sseq@infinitycount
+\sseq@infinitycount=\sseq@infinity\relax
+\def\sseq@macroname{\@xp\@gobble\string}
+\def\sseq@gobble@to@nil#1\sseq@nil{}
+\def\sseq@macrogobble#1->{}
+
+% These are only used by defertikzcommand now
+\def\sseq@callas#1{\def\sseq@callcmd{#1}}
+\def\sseq@call#1{\bgroup\@xp\let\sseq@callcmd#1\@xptwo\egroup\sseq@callcmd}
+
+\def\sseq@getfirstchar#1#2\sseq@nil{#1} % used in shift/checkshift transform
+\def\sseq@smuggle@macro#1#2\egroup{\@xp\egroup\@xp\def\@xp#1\@xp{#1}}
+
+
+\def\sseq@protected@edef{\let\sseq@store@slsl\\\def\\{\protect\\}\let\@@protect \protect \let \protect \@unexpandable@protect \afterassignment \sseq@restore@protect \edef}
+\def\sseq@protected@xdef{\let\sseq@store@slsl\\\def\\{\protect\\}\let\@@protect \protect \let \protect \@unexpandable@protect \afterassignment \sseq@restore@protect \xdef}
+\def\sseq@restore@protect{\let\protect\@@protect\let\\\sseq@store@slsl}
+
+\def\sseq@eval#1{\bgroup\edef\sseq@temp{#1}\@xp\egroup\sseq@temp}% I got this from sseq.sty
+\def\sseq@protectedeval#1{\bgroup\sseq@protected@edef\sseq@temp{#1}\@xp\egroup\sseq@temp}
+\def\sseq@eval@show#1{\bgroup\edef\sseq@temp{#1}\show\sseq@temp\@xp\egroup\sseq@temp}
+\def\sseq@profilenew#1#2{\pgfprofilenew{#1}\pretocmd#2{\pgfprofilestart{#1}}{}{\error}\apptocmd#2{\pgfprofileend{#1}}{}{\error}}
+
+%%%% add to macro commands
+\def\sseq@d@addto@macro#1#2{\@xp\def\@xp#1\@xp{#1#2}}
+\def\sseq@e@addto@macro#1#2{\edef#1{\unexpanded\@xp{#1}#2}} % let #2 be expanded
+\def\sseq@eo@addto@macro#1#2{\edef#1{\unexpanded\@xp{#1}\unexpanded\@xp{#2}}} % let #2 be expanded once
+\def\sseq@g@addto@macro#1#2{\@xp\gdef\@xp#1\@xp{#1#2}}
+\def\sseq@x@addto@macro#1#2{\xdef#1{\unexpanded\@xp{#1}#2}} % let #2 be expanded
+\def\sseq@xprotected@addto@macro#1#2{\sseq@protected@xdef#1{\unexpanded\@xp{#1}#2}}
+
+\def\sseq@d@addto@toks#1#2{#1\@xp{\the#1#2}}
+\def\sseq@e@addto@toks#1#2{\sseq@eval{#1{\the#1#2}}}
+
+\def\sseq@d@addto@temptoks{\sseq@d@addto@toks\sseq@temptoks}
+\def\sseq@e@addto@temptoks{\sseq@e@addto@toks\sseq@temptoks}
+
+
+% Used in sseqkeys to delete spaces from style commands.
+\def\sseq@setmacronospaces#1#2{%
+    \bgroup\catcode`\ =9\relax
+        \scantokens{\@xp\egroup\@xp\def\@xp#1\@xp{\csname #2\endcsname}}%
+}
+
+
+\def\sseq@removeparens{\@xp\sseq@removeparens@}
+\def\sseq@removeparens@(#1){#1}
+
+% Stolen from trimspaces.sty
+\bgroup
+\catcode`\Q=3
+\gdef\sseq@trimspaces#1{%
+  \romannumeral-`\q\sseq@trim@trim@\noexpand#1Q Q%
+}
+\long\gdef\sseq@trim@trim@#1 Q{\sseq@trim@trim@@#1Q}
+\long\gdef\sseq@trim@trim@@#1Q#2{#1}
+\egroup
+\def\sseq@trimleadingspaces{\romannumeral-`q}
+
+\def\sseq@ifempty#1{%
+    \@xp\ifx\@xp\sseq@nil\detokenize{#1}\sseq@nil
+        \@xp\@firstoftwo
+    \else
+        \@xp\@secondoftwo
+    \fi
+}
+
+\def\sseq@ifnil#1{
+    \ifx\sseq@nil#1
+        \@xp\@firstoftwo
+    \else
+        \@xp\@secondoftwo
+    \fi
+}
+
+\let\sseq@breakpoint\relax
+\def\sseq@break#1\sseq@breakpoint{}
+\def\sseq@break@withcleanup#1\sseq@breakpoint#2{}
+
+\def\sseq@breakfi{\fi\sseq@break}
+\def\sseq@breakfifi{\fi\fi\sseq@break}
+\def\sseq@breakfififi{\fi\fi\fi\sseq@break}
+\long\def\sseq@breakdataenv#1\end#2{
+    \def\sseq@tempa{sseqdata}\def\sseq@tempb{#2}\ifx\sseqtempa\sseqtempb
+        \@xp\sseq@breakdataenv@
+    \else
+        \@xp\sseq@breakdataenv
+    \fi
+}
+\def\sseq@breakdataenv@{\let\endsseqdata\sseq@breakendsseqdata\end{sseqdata}}
+
+\long\def\sseq@breakpageenv#1\end#2{
+    \def\sseq@tempa{sseqpage}\def\sseq@tempb{#2}\ifx\sseqtempa\sseqtempb
+        \@xp\sseq@breakpageenv@
+    \else
+        \@xp\sseq@breakpageenv
+    \fi
+}
+\def\sseq@breakpageenv@{\let\endsseqpage\sseq@breakendsseqpage\end{sseqpage}}
+\def\sseq@breakendsseqdata{}
+\def\sseq@breakendsseqpage{}
+
+\def\sseq@seteverythingtonoops{%
+    \let\sseqdata\comment
+    \let\sseqpage\comment
+    \let\sseqkeys\@gobble
+    \let\sseqnewgroup\@gobblethree
+}
+
+% Commands we are going to expose just inside of environments
+\def\sseq@macrolist{%
+    % These are defined in sseqmain:
+    \class\replaceclass\d\structline\classoptions\doptions\structlineoptions\circleclasses
+    % The following are defined in sseqparsers:
+    \pgfmathparse\isalive\lastx\lasty\lastclass\savestack\restorestack\pushstack\nameclass\tagclass
+    \parsecoordinate\parsedifferential\getdtarget\gettag
+    \xcoord\ycoord\page %\xmin\xmax\ymin\ymax % these just get protected
+}
+
+% All the tikz commands. We replace these in our environment too. Replacements  defined in sseqparsers.
+\def\sseq@tikzcommands{%
+    \clip\coordinate\draw\fill\filldraw
+    \graph\matrix\node\path\pattern
+    \shade\shadedraw\useasboundingbox
+}
+
+
+\input sseqmessages.code.tex        % Exposes directly: \sseqerrortowarning
+\input sseqcheckdefinitions.code.tex
+
+%\sseq@patchforeachfalse
+
+\ifsseq@tempif\else % Set to false in checkdefinitions if it failed to patch the key-value system.
+    \sseq@seteverythingtonoops
+    \sseq@pgfkeyspatchfailed
+\fi
+
+\input sseqloadstore.code.tex       % Responsible for installing environment-only macros
+\input sseqmacromakers.code.tex     % Exposes directly: \DeclareSseqCommand, \NewSseqCommand, \DeclareSseqGroup, \NewSseqGroup
+
+\input sseqparsers.code.tex         % Responsible for making tikz modifications, exposes directly \sseqnormalizemonomial
+
+
+\ifsseq@patchforeach
+    \input sseqforeach.code.tex
+\else
+    \def\sseq@patchfor{}
+\fi
+
+\input sseqkeys.code.tex            % Exposes directly: \sseqset
+\input sseqmain.code.tex            % Defines all the main commands. Exposes directly: the environments, \xmin, \xmax, etc.
+\input sseqdrawing.code.tex
+
+
+%%% Some default key settings
+\sseqset{
+    edge labels={auto=right},
+    classes={draw,circle,inner sep=0pt,minimum size=0.35em},
+    circle classes={newellipse, ellipse ratio=1.2,draw, inner sep=2pt},
+    edges=draw,
+    math nodes,
+    differentials=->
+}
+
+% Extra commands to expose:
+\let\sseqifempty\sseq@ifempty
+
+\def\sseqpower#1#2{\@xp\sseqtypesetpower@\@xp{\the\numexpr#2}{#1}{1}}
+\def\sseqpowerempty#1#2{\@xp\sseqtypesetpower@\@xp{\the\numexpr#2}{#1}{}}
+\def\sseqtypesetpower@#1#2#3{\ifnum#1=\z@#3\else\ifnum#1=\@ne#2\else#2^{#1}\fi\fi}

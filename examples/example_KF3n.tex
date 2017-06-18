@@ -1,0 +1,330 @@
+%%
+%% Package: spectralsequences.sty version 1.0
+%% Author: Hood Chatham
+%% Email: hood@mit.edu
+%% Date: 2017-06-18
+%% License: Latex Project Public License
+%%
+%% File: example_KF3n.tex
+%%
+%%   This is a computation of the Z_3 cohomology of K(F_3,n). This was part of a way-too-hard problem on Haynes Algebraic Topology II problem set which asked to compute
+%%   the smallest k>0 such that H_{n+k}(K(--,n);Z_p) : Ab --> Ab is not the zero functor and to compute what functor it is. One of the main ideas is to use the Bockstein
+%%   spectral sequence, because it handles the badness of integral Kunneth for us too.
+%%
+
+\documentclass{article}
+\usepackage[margin=0.2in,top=0.4in,landscape]{geometry}
+\usepackage{spectralsequences}
+\usepackage{amssymb}
+\def\Z{\mathbb{Z}}
+\begin{document}
+\sseqset{
+    cohomological Serre grading,
+    title={Page \page},
+    class placement transform={scale=3, rotate=90},
+    class pattern=linear,
+    classes={draw=none},
+    class label handler = {\sseqnormalizemonomial{#1}},
+    bocksteinSS/.style={
+        page=0, y range={-1}{0},
+        no differentials, no labels, no y ticks, no title,
+        yscale=1.5, x axis extend end=40pt, y axis extend end = 40pt, x axis gap =50pt,
+        class label handler = {},
+    }
+    %class labels=above,
+}
+
+\begin{sseqdata}[name=K(Z/3;2),
+    x range={0}{8}, xscale=2.2, yscale=1.5,
+    x label={$H^*(K(\Z/3,2),\Z/3)$},
+    y label={$H^*(K(\Z/3,1),\Z/3)$},
+    right clip padding=20pt, x axis gap=20pt,
+]
+\foreach \x/\xlabel in
+  { 0/1,  2/\iota_2, 3/\beta\iota_2, 4/\iota_2^2, 5/\iota_2\beta\iota_2, 6/\iota_2^3,
+     7/\iota_2^2\beta\iota_2, 7/P^1\beta\iota_2, 8/\iota_2^4, 8/\beta P^1\beta\iota_2 } 
+\foreach \y/\ylabel in
+  { 0/1, 1/\alpha, 2/x, 3/\alpha x, 4/x^2, 5/\alpha x^2, 6/x^3} {
+    \class["\ylabel\xlabel"](\x,\y)
+}
+
+\class(9,0)\class(9,0)
+\class(9,1)
+\class(9,2)
+\class(9,3)
+\class(9,4)
+\class(9,5)
+
+\class(10,0)\class(10,0)\class(10,0)
+\class(10,2)\class(10,2)
+\class(10,4)\class(10,4)
+
+\class(11,0)\class(11,0)
+\class(11,2)
+
+\class(12,0)
+\class(13,0)
+\class(14,0)
+\class(15,0)
+%\class["(\beta\iota_2)^2"](6,0)
+
+
+\d2(0,1) %d2(a)=i
+
+
+
+\d3(0,2) %d3(x) = b(i)
+\d2(0,3) % d2(ax) = ix
+\d3(0,4) % d2(x^2) = xb(i)
+\d2(0,5) % d2(ax^2) = ix^2
+%\d7
+
+
+\d2(2,1) % d2(ai) = i^2
+\d2(2,3) % d2(axi) = xi^2
+\d2(2,5) % d2(ax^2i)=x^2i^2)
+
+\d2(3,1) % d2(abi)=ib(i)
+\d2(3,3)
+\d2(3,5)
+
+\d2(4,1) % d2(ai^2)=i^3
+\d2(4,3)
+\d2(4,5)
+
+\d2(5,1,,1) %d2(ai_2bi_2) = i_2^2 bi_2
+\d2(5,3,,1)
+\d2(5,5,,1)
+
+\d2(6,1,,1) %d2(ai_2^3) = i_2^4
+\d2(6,3,,1)
+\d2(6,5,,1)
+
+\d2(7,1,1)  % d2(ai_2^2bi_2) = i_2^3 bi_2
+\d2(7,3,1)
+\d2(7,5,1)
+
+\d2(7,1,2) % d2(aP^1bi_2) = i_2 P^1bi_2
+\d2(7,3,2)
+\d2(7,5,2)
+
+\d3(7,2,2) % d3(x P^1bi_2) = bi_2 P^1bi_2
+\d3(7,4,2)
+
+\d2(8,1,1,2) % d2(a i_2^4) = i_2^5
+\d2(8,3,1,2)
+\d2(8,5,1,2)
+
+\d2(8,1,2,2) % d2(a bP^1bi_2) = i_2 bP^1bi_2
+\d2(8,3,2,2)
+\d2(8,5,2,2)
+
+\d3(8,2,2) % d3(x bP^1bi_2) = bi_2 bP^1bi_2
+\d3(8,4,2)
+
+
+\d5(3,4,,2) % d5(x^2i_2) = bP^1bi_2 -- Kudo differential
+
+\d7(0,6,,2) % d7(x^3) = P^1bi_2
+\d7(2,6,,2)
+\d7(3,6,,3)
+\d7(4,6,,2)
+\d7(5,6)
+\d7(6,6)
+\d7(7,6,1)
+\d7(7,6,2)
+\d7(8,6,1)
+\d7(8,6,2)
+
+
+\end{sseqdata}
+
+\printpage[name=K(Z/3;2),page=2]
+\newpage
+\printpage[name=K(Z/3;2),page=3]
+\newpage
+\printpage[name=K(Z/3;2),page=5]
+\newpage
+\printpage[name=K(Z/3;2),page=6]
+\newpage
+\printpage[name=K(Z/3;2),page=7]
+\newpage
+
+\begin{sseqpage}[
+    name=K(Z/3;2), bocksteinSS,
+    x axis extend end = 30pt, y axis gap=30pt,
+]
+\begin{scope}[background]
+\node[anchor=west] at (-2,0) { H^*(K(\Z/3,2),\Z/3)};
+\node[anchor=west] at (-2,-1) { H^*(K(\Z/3,2),\Z)};
+\end{scope}
+
+\draw[->]  (2,0) to[bend left=30, "\beta^1"] (3,0);
+\draw[->]  (4,0) to[bend left=30, "\beta^1"{pos = 0.55}] (5,0);
+\draw[->]  (6,0) to[bend right=30, "\beta^2"'] (7,0,1);
+\draw[->]  (7,0,2) to[bend left=30, "\beta^1"] (8,0,2);
+\draw[->]  (8,0,1) to[bend right=30, "\beta^1"' {pos = 0.46}] (9,0);
+
+\class["\Z\{1\}"](0,-1)
+\class["\Z/3\{\beta\iota_3\}"](2,-1)
+\class["\Z/3\{\beta\iota_2^2\}"](5,-1)
+\class["\Z/9\{\beta\iota_2^3\}"](7,-1)
+\class["\Z/3\{\beta P^1\iota_2\}"](8,-1)
+\end{sseqpage}
+
+
+\newpage
+\begin{sseqdata}[name=K(Z/3;3),xscale=2.2,yscale=1.7,y axis gap=40pt,x axis gap=30pt, x range={0}{9},
+    x label={$H^*(K(\Z/3,2),\Z/3)$},
+    y label={$H^*(K(\Z/3,1),\Z/3)$}
+]
+
+\foreach \x/\ymax/\xlabel in { 0/6/1, 3/6/\iota_3, 4/3/{{\beta\iota_3}} }
+\foreach \y/\ylabel in { 0/1, 2/\iota_2, 3/{{\beta\iota_2}}, 4/\iota_2^2, 5/\iota_2{\beta\iota_2}, 6/\iota_2^3 } {
+    \class["\ylabel\xlabel"](\x,\y)
+}
+
+\sseqset{class label handler = {}}
+
+\class["P^1\beta\iota_2"](0,7)
+\class["\iota_2^2\beta\iota_2"](0,7)
+\class["\beta P^1\beta\iota_2"](0,8)
+\class["\iota_2^4"](0,8)
+
+
+\class["P^1\iota_3"](7,0)
+\class["\iota_3\beta\iota_3"](7,0)
+\class["\beta P^1\iota_3"](8,0)
+\class["(\beta\iota_3)^2"](8,0)
+\class["P^1\beta\iota_3"](8,0)
+\class["\beta P^1\beta\iota_3"](9,0)
+
+
+\d3(0,2)
+\d4(0,3)
+\d3(0,4)
+\d3(0,5)
+\d7(0,6,,1)
+\d3(0,7,2)
+\d8(0,7,1,3)
+\d3(0,8,2)
+\d9(0,8,1)
+\d5(3,4,,1)
+
+\d3(4,2,,2)
+\d4(4,3,,2)
+\end{sseqdata}
+
+\printpage[name=K(Z/3;3),page=3]
+\newpage
+\printpage[name=K(Z/3;3),page=4]
+\newpage
+\printpage[name=K(Z/3;3),page=5]
+\newpage
+\printpage[name=K(Z/3;3),page=7]
+\newpage
+\printpage[name=K(Z/3;3),page=9]
+\newpage
+
+\begin{sseqpage}[ name=K(Z/3;3), bocksteinSS ]
+\begin{scope}[background]
+\node[anchor=west] at (-2.2,0) { H^*(K(\Z/3,3),\Z/3)};
+\node[anchor=west] at (-2.2,-1) { H^*(K(\Z/3,3),\Z)};
+\end{scope}
+
+\draw[->]  (3,0) to[bend left=30, "\beta^1"] (4,0);
+\draw[->]  (7,0,1) to[bend right=30, "\beta^1"' {pos=0.6}] (8,0,1);
+\draw[->] (7,0,2) to[bend left=30, "\beta^1" {pos=0.43}] (8,0,2);
+\draw[->] (8,0,3) to[bend left=30, "\beta^1"{pos=0.37}] (9,0);
+
+\class["\Z\{1\}"](0,-1)
+\class["\Z/3\{\beta\iota_3\}"](4,-1)
+\class["\Z/3\{\beta P^1\iota_3\}"](8,-1)
+\class["\Z/3\{\beta(\iota_3\beta\iota_3)\}"](8,-1)
+\class["\Z/3\{\beta P^1\beta\iota_3\}"](9,-1)
+\end{sseqpage}
+
+
+
+\begin{sseqdata}[name=K(Z/3;4),
+    xscale=2,yscale=1.5,y axis gap=20pt,x axis gap=30pt, x range={0}{10},
+    x label = {$H^*(K(\Z/3,3),\Z/3)$},
+    y label = {$H^*(K(\Z/3,4),\Z/3)$},
+    class label handler = {}
+]
+
+\class["1"](0,0)
+\class["\iota_3"](0,3)
+\class["\beta\iota_3"](0,4)
+\class["P^1\iota_3"](0,7)
+\class["\beta P^1\iota_3"](0,8)
+\class["\iota_3\beta\iota_3"](0,7)
+\class["(\beta\iota_3)^2"](0,8)
+\class["P^1\beta\iota_3"](0,8)
+\class["\beta P^1\beta\iota_3"](0,9)
+
+
+\class["\iota_4"](4,0)
+\class["\iota_3\iota_4"](4,3)
+\class["\beta\iota_3\iota_4"](4,4)
+
+\class["\beta\iota_4"](5,0)
+\class["\iota_3\beta\iota_4"](5,3)
+\class["\beta\iota_3\beta\iota_4"](5,4)
+
+\class["\iota_4^2"](8,0)
+\class["P^1\iota_4"](8,0)
+
+\class["\iota_4 \beta\iota_4"](9,0)
+\class["P^1\beta\iota_4"](9,0)
+\class["\beta P^1\iota_4"](9,0)
+
+\class["\beta P^1\beta\iota_4"](10,0)
+
+\d4(0,3) % d4(i_3) = i_4
+\d4(0,7,2)
+\d4(4,3,,1)
+\d4(5,3,,1)
+
+\d5(0,4)
+
+\d8(0,7,1,2)
+
+\d9(0,8,1,2)
+\d5(0,8,2)
+\d9(0,8,3,3)
+\d10(0,9)
+
+%\d
+\end{sseqdata}
+
+\printpage[name=K(Z/3;4),page=4]
+\newpage
+\printpage[name=K(Z/3;4),page=5]
+\newpage
+\printpage[name=K(Z/3;4),page=8]
+\newpage
+\printpage[name=K(Z/3;4),page=9]
+\newpage
+\printpage[name=K(Z/3;4),page=10]
+\newpage
+
+\begin{sseqpage}[ name=K(Z/3;4), bocksteinSS, yscale=1.3 ]
+\begin{scope}[background]
+\node[anchor=west] at (-2.2,0) { H^*(K(\Z/3,4),\Z/3)};
+\node[anchor=west] at (-2.2,-1) { H^*(K(\Z/3,4),\Z)};
+\end{scope}
+
+\draw[->] (4,0)   to[bend left=30,  "\beta^1"] (5,0);
+\draw[->] (8,0,1) to[bend right=30, "\beta^1"' {pos=0.6}] (9,0,1);
+\draw[->] (8,0,2) to[bend left=30,  "\beta^1" {pos=0.6}]   (9,0,3);
+\draw[->] (9,0,2) to[ "\beta^1"] (10,0);
+
+\class["\Z\{1\}"](0,-1)
+\class["\Z/3\{\beta\iota_4\}"](5,-1)
+\class["\Z/3\{\beta P^1\iota_4\}"](9,-1)
+\class["\Z/3\{\beta(\iota_4^2)\}"](9,-1)
+\class["\Z/3\{\beta P^1\beta\iota_4\}"](10,-1)
+\end{sseqpage}
+
+\end{document} 

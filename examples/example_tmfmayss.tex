@@ -1,0 +1,242 @@
+%%
+%% Package: sseqpages.sty version 1.0
+%% Author: Hood Chatham
+%% Email: hood@mit.edu
+%% Date: 2017-06-18
+%% License: Latex Project Public License
+%%
+%% File: example_tmfmayss.tex
+%%
+%%    I got this from Mike Hill's note: https://pdfs.semanticscholar.org/ddbb/8d584e4e81a71400088117b16cd241238c6c.pdf
+%%
+
+
+
+\documentclass{article}
+\usepackage[landscape,left=1cm]{geometry}
+\usepackage{spectralsequences}
+\begin{document}
+\sseqset{htwostructstyle/.sseq style = {gray,very thin, run off=-}}
+%\pgfkeys{/sseqpages/struct line/htwostructstyle/.show code}
+
+
+\NewSseqCommand\twods{ O{} U( r() m m }{
+    \def\temp{#1,#2,#3,#4,#5}
+    \getdtarget\target#2{#3}             % Store the target position in \target
+    \nameclass{source}(#3)               % naming the classes gives us a speed boost
+    \nameclass{target1}(\target,#4)      % by preventing sseqpages from reparsing the coordinate
+    \nameclass{target2}(\target,#5)      % it also makes the code easier to read
+%
+    \circleclasses[ differential style, #1,
+           name path = circ, page = #2--#2 ]
+                (target1)(target2)            % Circle the classes, use differential style
+%
+    \d[invisible]#2(source)(target1)     % don't draw anything, but record source and targets as hit.
+    \d[invisible]#2(source)(target2)
+%
+    \path(target1)--(target2)
+                coordinate[midway](midpt);% put a coordinate in the center of the two classes
+    \path[name path = lin] (source) -- (midpt);% save path from start to midpoint
+%
+    % draw line in "differential style" from start to intersection point of circ and lin
+    \draw[ differential style, #1, page constraint= { \page == #2 },
+           name intersections = { of = circ and lin } ]
+                (source) -- (intersection-1);
+}
+
+
+\NewSseqCommand \tower { O{} d() } {
+    \IfNoValueF{#2}{
+        \pushstack(#2)
+    }
+    \savestack
+    \edef\towermax{\the\numexpr9-\lasty0}
+    \begin{scope}[#1]
+    \foreach\i in {1,...,\towermax}{
+        \class(\lastx,\lasty+1)
+        \structline(\lastclass1)(\lastclass)
+    }
+    \end{scope}
+    \restorestack
+}
+
+\NewSseqCommand\honetower {O{}} {
+    \savestack
+    \begin{scope}[#1]
+    \edef\towermax{\the\numexpr9-\lasty0}
+    \foreach\i in {1,...,\towermax}{
+        \class(\lastx+1,\lasty+1)
+        \structline(\lastclass1)(\lastclass)
+    }
+    \end{scope}
+    \restorestack
+}
+
+\NewSseqCommand\htwo { O{} d()  } {
+    \IfNoValueF{#2}{
+        \pushstack(#2)
+    }
+    \class[#1](\lastx+3,\lasty+1)
+    \structline[htwostructstyle](\lastclass1)(\lastclass)
+}
+
+\NewSseqCommand \htwotower { O{} d() } {
+    \IfNoValueF{#2}{
+        \pushstack(#2)
+    }
+    \edef\towermax{\the\numexpr-\lasty+8}
+    \begin{scope}[#1]
+    \gettag\thetag(\lastclass)
+    \class(\lastx+3,\lasty+1)
+    \structline[htwostructstyle](\lastclass)(\lastclass1)
+    \savestack
+    \foreach\i in {1,...,\towermax}{
+        \class(\lastx,\lasty+1)
+        \structline(\lastclass1)(\lastclass)
+        \structline[htwostructstyle](\lastx-3,\lasty-1,\thetag)(\lastclass)
+    }
+    \restorestack
+    \end{scope}
+}
+
+
+\NewSseqCommand\dtower {u(u)} {
+    \foreach\i in {0,...,10}{
+        \d[yshift=\i]#1(#2)
+    }
+}
+
+\begin{sseqdata}[name=tmfmayss,y range={0}{8}, x range={0}{25}, classes=fill, class labels={below=3pt},degree={-1}{1},differentials=blue,
+    class pattern=linear, classes={ tooltip = {(\xcoord,\ycoord)} }, xscale=0.8,
+    title = {Page \page},
+    run off differentials = ->
+]
+\class[tag= h0^i](0,0) \tower[tag=h0^i]
+\honetower \classoptions["h_1"](1,1)
+
+\htwotower[tag=h0^i h2]
+\classoptions["h_2"](3,1)
+\htwotower[tag=h0^i h2^2]
+\htwotower[tag=h0^i h2^3]
+\htwotower[tag=h0^i h2^4]
+\htwotower[tag=h0^i h2^5]
+\htwotower[tag=h0^i h2^6]
+\htwotower[tag=h0^i h2^7]
+\htwotower[tag=h0^i h2^8]
+\htwo%\htwotower[tag=h0^i h2^9]
+
+
+\class["b_{20}",name=b20,tag=h1^i b20](4,2)
+\tagclass{h0^i b20}(4,2)
+\honetower[tag=h1^i b20]
+\tower[tag=h0^i b20]
+\class["x_7",tag=h0^i x7,name=x7](7,2) \honetower
+\htwotower[tag=h0^i x7](b20)
+\structline(\lastclass)(x7) % h0 x7 = h2 b20
+
+
+\class["b_{21}", tag=h0^i b21,name=b21](10,2)
+\honetower[tag=h1^i b21]
+%\structline(\lastclass)(h2^2 b20) % h2 (h0 x7) = h2 (h2 b20)
+
+\htwotower[tag=h0^i b21](x7)
+\structline(b21)(\lastclass)
+
+
+
+\htwotower[tag=h0^i h2 b21](b21)
+\htwotower[tag=h0^i h2^2 b21]
+\htwotower[tag=h0^i h2^3 b21]
+\htwotower[tag=h0^i h2^4 b21]
+\htwotower[tag=h0^i h2^5 b21]
+\htwotower[tag=h0^i h2^6 b21]
+
+\class["b_{30}",tag=h1^i b30](12,2)
+\tagclass{h0^i b30}(12,2)
+\tower[tag=h0^i b30]\honetower[tag=h1^i b30]
+\htwotower[tag=h0^i h2 b30]
+\htwotower[tag=h0^i h2^2 b30]
+\htwotower[tag=h0^i h2^3 b30]
+\htwotower[tag=h0^i h2^4 b30]
+\htwotower[tag=h0^i h2^5 b30]
+
+
+
+%
+
+\class[tag=h0^i x7^2](14,4)
+\classoptions["x_7^2",page=0--3](\lastclass)
+\classoptions["d",page=4--100](\lastclass)
+\tower[tag=h0^i x7^2] \honetower
+
+\htwotower[tag=h0^i h2 x7^2]
+\htwotower[tag=h0^i h2^2 x7^2]
+\htwotower[tag=h0^i h2^3 x7^2]
+\htwotower[tag=h0^i h2^4 x7^2]
+\htwo%\htwotower[tag=h0^i h2^5 x7^2]
+
+
+\class["b_{20}^2",tag=h0^i b_{20}^2](8,4)
+\tower[tag=h0^i b_{20}^2]
+\honetower
+\htwotower[tag=h0^i h2 b_{20}^2]
+\htwotower[tag=h0^i h2^2 b_{20}^2]
+\htwotower[tag=h0^i h2^3 b_{20}^2]
+\htwotower[tag=h0^i h2^4 b_{20}^2]
+\htwo%\htwotower[tag=h0^i h2^5, b_{20}^2]
+
+\class[tag=h0^i b21^2](20,4)
+\classoptions["b_{21}^2",page=0--3](\lastclass)
+\classoptions["g",page=4--100](\lastclass)
+\honetower
+\tower[tag=h0^i b21^2]
+
+\htwotower[tag=h0^i h2 b21^2]
+\htwotower[tag=h0^i h2^2 b21^2]
+
+\class["b_{30}^2",tag=h0^i b30^2](24,4)
+\tower[tag=h0^i b30^2]
+\honetower
+\htwotower
+%\htwotower[tag=h0^i h2^3 b21^2]
+
+
+
+\twods3(4,2,-1){1}{2} % d3(b20) = h1^3 + h0^2 h2
+\replaceclass[offset={(0,0)}](3,3)
+\structline(3,2)(3,3)
+\structline(2,2)(3,3)
+\structline[htwostructstyle](0,2)(3,3)
+
+\foreach\y in {3,...,8} {\d3(4,\y,-1,-1)} % d3( h0^i b20 ) = h0^{2+i} h2
+\foreach\n in {3,...,8} {\d3(2+\n,\n,h1^i b20,1)} % d3(h1^i b20) = h1^{3+i}
+\foreach \y in {2,...,8} {\d3(7,\y,h0^i x7,h0^i h2^2)}
+
+\foreach \y in {2,...,8} {\d3(10,\y,h0^i b21,h0^i h2^3)}
+
+\foreach \y in {3,...,8} {\d3(13,\y,  h0^i h2 b21  ,h0^i h2^4)}
+\foreach \y in {3,...,7} {\d3(16,\y+1,h0^i h2^2 b21,h0^i h2^5)}
+\foreach \y in {3,...,6} {\d3(19,\y+2,h0^i h2^3 b21,h0^i h2^6)}
+\foreach \y in {3,...,5} {\d3(22,\y+3,h0^i h2^4 b21,h0^i h2^7)}
+\foreach \y in {3,...,4} {\d3(25,\y+4,h0^i h2^5 b21,h0^i h2^8)}
+
+\foreach \n in {0,...,6} {\d3(12+\n,2+\n,h1^i b30,h1^i b21)}
+
+\foreach \n in {0,...,4} {\d5(24,4+\n,-1,-1)}
+
+
+\classoptions[page=4--100,"c_0"](8,3)
+\classoptions[page=4--100,"a"](12,3)
+\classoptions[page=4--100,"b"](15,3)
+
+
+
+\end{sseqdata}
+\printpage[name=tmfmayss,page=2]
+\newpage
+\printpage[name=tmfmayss,page=3]
+\newpage
+\printpage[name=tmfmayss,page=5]
+\newpage
+\printpage[name=tmfmayss,page=8,title={Page $\infty$}]
+\end{document} 

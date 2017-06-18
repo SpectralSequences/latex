@@ -1,0 +1,389 @@
+%%
+%% Package: spectralsequences.sty version 1.0
+%% Author: Hood Chatham
+%% Email: hood@mit.edu
+%% Date: 2017-06-18
+%% License: Latex Project Public License
+%%
+%% File: sseqmacromakers.code.tex
+%% Exposes: \DeclareSseqCommand, \NewSseqCommand, \DeclareSseqGroup, \NewSseqGroup
+%%
+%%   Set up commands to define other commands, both the internal macros, and the external ones.
+%%   Also the internal macros \sseq@DeclareDocumentCommandAs and \sseq@DeclareDocumentCommand
+%%   For the user commands, sets up call stack, thiscall, etc
+%%
+
+
+
+\ExplSyntaxOn
+
+%%% \sseq@DeclareDocumentCommand
+%
+% \sseq@DeclareDocumentCommand\somecommand is shorthand for \sseq@DeclareDocumentCommandAs\sseq@somecommand\somecommand
+%
+% so the result is that it defines \sseq@somecommand intended to be \let to \somecommand later.
+%%% Install user commands
+% copy commands into user namespace by removing sseq@ prefixes
+% given a list of commands, \let\thiscommand\sseq@thiscommand on each one
+
+\def\sseq@recordmacros{\@xp\sseq@recordmacros@\sseq@macrolist\sseq@nil}
+\def\sseq@recordmacros@#1{%
+    \ifx#1\sseq@nil\else % if so, that was the last command in the list
+        \@xp\def\csname sseq@builtin\sseq@macroname#1\endcsname{}
+        \@xp\sseq@recordmacros@
+    \fi %
+}
+
+
+
+\def\sseq@installmacros{\@xp\sseq@installmacros@\sseq@macrolist\sseq@nil}
+\def\sseq@installmacros@#1{%
+    \ifx#1\sseq@nil\else % if so, that was the last command in the list
+        \@xp\let\@xp#1\csname sseq@\sseq@macroname#1\endcsname
+        \@xp\sseq@installmacros@
+    \fi %
+}
+
+
+% Capital U argument type is "Until" but puts back the token when it's done.
+\cs_new_protected:Npn \sseq__xparse_add_type_U:w #1
+  {
+    \__xparse_flush_m_args:
+    \__xparse_add_grabber_mandatory:N U
+    \tl_put_right:Nn \l__xparse_signature_tl { {#1} }
+    \__xparse_prepare_signature:N
+  }
+
+\cs_new_protected:Npn \sseq__xparse_grab_U:w #1#2 \l__xparse_args_tl
+  { \sseq__xparse_grab_U_aux:nnN {#1} {#2} \cs_set_protected_nopar:Npn }
+
+\cs_new_protected:Npn \sseq__xparse_grab_U_aux:nnN #1#2#3
+  {
+    \exp_after:wN #3 \l__xparse_fn_tl ##1 #1
+      {
+        \__xparse_add_arg:n {##1}
+        #2\l__xparse_args_tl #1
+      }
+    \l__xparse_fn_tl
+  }
+
+% I would like to patch the \__xparse_grab_U:w's in my commands into \sseq__xparse_grab_U:w's but I can't because of -NoValue-.
+\def\sseq@install@xparse@Uarggrabber{ \cs_set_eq:NN \__xparse_grab_U:w \sseq__xparse_grab_U:w }
+
+%%% \sseq@DeclareDocumentCommand
+%
+% \sseq@DeclareDocumentCommand\somecommand is shorthand for \sseq@DeclareDocumentCommandAs\sseq@somecommand\somecommand
+%
+% so the result is that it defines \sseq@somecommand intended to be \let to \somecommand later.
+
+\cs_new_protected:Npn\sseq@DeclareDocumentCommand#1{%
+    \exp_args:Nc \sseq@DeclareDocumentCommandAs { sseq @ \cs_to_str:N #1 }#1
+}
+
+%%% \sseq@DeclareDocumentCommandAS
+%
+% #1 - the command to define
+% #2 - the command to use in argument parsing errors
+% #3 - parameters (\NewDocumentCommand style)
+% #4 - code
+%
+% See my stack exchange question: https://tex.stackexchange.com/questions/350596/control-error-messages-made-by-commands-defined-with-newdocumentcommand
+
+
+
+\cs_new_protected:Npn\sseq@DeclareDocumentCommandAs#1#2#3#4{
+    \group_begin:
+    \cs_set_eq:NN \__xparse_add_type_U:w \sseq__xparse_add_type_U:w
+    \cs_set_eq:cN { tempsave_ \cs_to_str:N #2 } #2 % Store the original value of #2
+    \cs_set_eq:cc { tempsave_ \cs_to_str:N #2 \c_space_tl code } { \cs_to_str:N #2 \c_space_tl code } % Store the original value of #2
+    \sseq@installmsghooks
+    \def\sseq@error@setup{}
+    \def\sseq@error@cleanup{\sseq@errortrue}
+    \let\sseq@error@annotation\empty
+    \DeclareDocumentCommand #2 { #3 } { #4 }
+    \ifsseq@error
+        \group_end:
+        \sseq@errortrue % This only happens if it came from user code, so don't set error to be false so it can break out too.
+        \@xp\sseq@break
+    \fi
+    \cs_if_exist:cTF{ \cs_to_str:N #2 \c_space_tl code }{
+        \cs_gset:Npx #1{
+            \begingroup
+            \exp_not:N \cs_set_eq:NN
+                \exp_not:c { \cs_to_str:N #2 \c_space_tl code }
+                \exp_not:c { \cs_to_str:N #1 \c_space_tl code }
+            \exp_not:c { \cs_to_str:N #1 \c_space_tl inner }
+        }
+        \pretocmd:cnnn { \cs_to_str:N #2 \c_space_tl code } { \endgroup } { } { \sseq@error@x { macro-patch-failed } { \string#1 } }
+        \cs_gset_eq:cN { \cs_to_str:N #1 \c_space_tl inner } #2
+        \cs_gset_eq:cc { \cs_to_str:N #1 \c_space_tl code } { \cs_to_str:N #2 \c_space_tl code }
+        \cs_gset_eq:Nc #2 { tempsave _ \cs_to_str:N #2 }
+        \cs_gset_eq:cc { \cs_to_str:N #2 \c_space_tl code } { tempsave_ \cs_to_str:N #2 \c_space_tl code }
+    }{
+        \cs_gset_eq:NN #1 #2
+    }
+    \group_end: % In this case, I want to pass \sseq@errortrue out of the block, so I close the group before I break.
+    \sseq@breakpoint % So this breakpoint definitely should be after the \endgroup.
+}
+
+\cs_set_eq:NN \patchcmd:Nnnnn \patchcmd
+\cs_set_eq:NN \pretocmd:Nnnn  \pretocmd
+\cs_generate_variant:Nn \patchcmd:Nnnnn {cnfnn}
+\cs_generate_variant:Nn \pretocmd:Nnnn  {cfnn}
+\cs_generate_variant:Nn \pretocmd:Nnnn  {cnnn}
+
+\cs_new_protected:Npn\NewSseqCommand#1{%
+    \cs_if_free:cTF { sseq @ usermacro @ \cs_to_str:N #1 } { \DeclareSseqCommand#1 } { \sseq@error@x{usermacro-not-free}{\string#1} \use_none:nn }
+}
+
+\cs_new_protected:Npn\DeclareSseqCommand#1#2#3{%
+    \cs_if_exist:cTF { sseq @ builtin @ \cs_to_str:N #1 } {\sseq@error@x{wont-override-system-macro}{\string#1}\sseq@break} {}
+    \cs_if_free:cT { sseq @ usermacro @ \cs_to_str:N #1 } {
+        \sseq@x@addto@macro { \sseq@installmacros } { \let \exp_not:N #1 \exp_not:c { sseq @ usermacro @ \cs_to_str:N #1 } }
+    }
+    % Make sure \cs_if_exist doesn't pass because there was a previously defined user macro with same name
+    \cs_undefine:c { sseq @ usermacro @ \cs_to_str:N #1 \c_space_tl code }
+    \exp_args:Nc \sseq@DeclareDocumentCommandAs { sseq @ usermacro @ \cs_to_str:N #1 } #1 { #2 } {
+                #3
+            \endgroup
+        }%
+    \ifsseq@error
+        \global\sseq@errorfalse
+        \@xp\sseq@break
+    \fi
+    \sseq@parseargspec{#1}{#2}%
+    % You might think we could skip this patching, and it's probably possible.
+    % However, this is responsible for turning the #'s of catcode other into #'s of catcode arg. I don't have as good of a way to do that.
+    % Also, this allows me to use \sseq@parseargspec after defining the command, so I don't have to run any error checking inside of it
+    % because if the argspec is invalid, \DeclareDocumentCommand will let me know.
+    \cs_if_exist:cTF{ sseq @ usermacro @ \cs_to_str:N #1  \c_space_tl code }{
+        \patchcmd:cnfnn{ sseq @ usermacro @ \cs_to_str:N #1  \c_space_tl code }{\endgroup}{
+            \@xp\endgroup
+            \@xp\begingroup
+            \the\sseq@temptoks
+            \sseq@atbeginusermacro@msgsetup
+        }{}{\error\sseq@error@x{usermacro-failed-patch}{\string#1}}
+    }{
+        \pretocmd:cfnn{ sseq @ usermacro @ \cs_to_str:N #1 }{
+            \@xp\begingroup
+            \the\sseq@temptoks
+            \sseq@atbeginusermacro@msgsetup
+        }{}{\error\sseq@error@x{usermacro-failed-patch}{\string#1}}
+    }
+    \cs_gset_eq:cc { sseq @ usermacro @ \cs_to_str:N #1 } { sseq @ usermacro @ \cs_to_str:N #1 }
+    \ifsseq@inprogress
+        \cs_set_eq:Nc #1 { sseq @ usermacro @ \cs_to_str:N #1 }
+    \fi
+    \sseq@breakpoint
+}
+
+%%% Commands to help the user define "groups" of commands to be reused
+\def\sseqnewgroup@splitcoord#1,#2\sseq@nil{%
+    \sseq@eval{
+        \@nx\begin{scope}[xshift=#1,yshift=#2,\unexpanded\@xp{\sseq@options}]
+    }
+}
+
+% #1 -- command
+% #2 -- argspec
+% #3 -- body of function (long)
+\NewDocumentCommand\NewSseqGroup{mm+m}{\DeclareSseqGroup@\NewSseqCommand{#1}{#2}{#3}}
+\NewDocumentCommand\DeclareSseqGroup{mm+m}{\DeclareSseqGroup@\DeclareSseqCommand{#1}{#2}{#3}}
+
+% #1 -- \NewSseqCommand or \DeclareSseqCommand
+% #2 -- command
+% #3 -- argspec
+% #4 -- body of function (long)
+\long\def\DeclareSseqGroup@#1#2#3#4{%
+    \group_begin:
+    \let\sseq@parseargspec\@gobbletwo % Get rid of argparse so we can change what gets added for setting up thiscall
+    \sseq@temptoks\@xp{\sseq@SseqGroup@argspec} % This gets added to the outer command by DeclareSseqCommand
+%
+    \sseq@installmsghooks
+    \def\sseq@error@setup{}
+    \def\sseq@error@cleanup{\sseq@errortrue}
+    \let\sseq@error@annotation\empty
+%
+% undefine so we can tell whether we need to patch \command<space>code or \command
+    \cs_undefine:c { sseq @ usermacro @ \cs_to_str:N #2 @ helper  \c_space_tl code }
+    \exp_args:Nc \DeclareDocumentCommand { sseq @ usermacro @ \cs_to_str:N #2 @ helper } { #3 } {
+            #4
+        \end{scope}
+    }%
+    \ifsseq@error
+        \@xp\sseq@break
+    \fi
+    #1#2{od()}{%
+        \IfNoValueTF{##1}{\def\sseq@options{}}{\def\sseq@options{##1}}%
+        \IfNoValueTF{##2}{%
+            \sseq@eval{
+                \@nx\begin{scope}[\unexpanded\@xp{\sseq@options}]
+            }%
+        }{%
+            \sseqnewgroup@splitcoord##2\sseq@nil
+        }%
+        \csname sseq @ usermacro @ \sseq@macroname #2 @ helper \@xp\endcsname \@gobble % This gobble eats the endgroup added by sseqDeclareDocumentCommand
+    }%
+
+    \sseq@parseargspec@newgroup{#2}{#3}%
+    % You might think we could skip this patching, and it's probably possible.
+    % However, this is responsible for turning the #'s of catcode other into #'s of catcode arg. I don't have as good of a way to do that.    
+    \cs_if_exist:cTF{ sseq @ usermacro @ \cs_to_str:N #2 @ helper \c_space_tl code }{
+        \pretocmd:cfnn { sseq @ usermacro @ \cs_to_str:N #2 @ helper \c_space_tl code }{
+            \the\sseq@temptoks
+            \sseq@atbeginusermacro@msgsetup
+        }{}{\error\sseq@error@x{usermacro-failed-patch}{\string#1}}
+        \cs_gset_eq:cc { sseq @ usermacro @ \cs_to_str:N #2 @ helper \c_space_tl code } { sseq @ usermacro @ \cs_to_str:N #2 @ helper \c_space_tl code } % globalize definition
+    }{
+        \pretocmd:cfnn { sseq @ usermacro @ \cs_to_str:N #2 @ helper }{
+            \the\sseq@temptoks
+            \sseq@atbeginusermacro@msgsetup
+        }{}{\error\sseq@error@x{usermacro-failed-patch}{\string#1}}
+    }
+    \cs_gset_eq:cc { sseq @ usermacro @ \cs_to_str:N #2 @ helper } { sseq @ usermacro @ \cs_to_str:N #2 @ helper } % globalize definition
+    \let\sseq@parseargspec\sseq@parseargspec@normal
+    \sseq@breakpoint
+    \group_end:
+}
+\let\sseqnewgroup\NewSseqGroup
+
+
+\bgroup\catcode`\#=12\relax
+    \gdef\sseq@SseqGroup@argspec{\sseq@eval{\sseq@temptoks{\IfNoValueF{#1}{\unexpanded{[#1]}}\IfNoValueF{#2}{\unexpanded{(#2)}}}}\@gobble}
+    \gdef\sseq@thearg{#\the\sseq@tempcount}
+\egroup
+
+
+% When there are arguments with default values (O, D, R, G), we need to put them into temporary macros to compare them and see if they are the default value
+% that's what temptoksii is for.
+\def\sseq@parseargspec#1#2{%
+    \sseq@tempcount=\z@
+    \sseq@temptoks{\@nx#1}% Holds the stuff that goes in \esetthiscall (so most stuff)
+    \sseq@temptoksii{}
+    \sseq@parseargspec@#2\sseq@nil
+    \sseq@eval{\sseq@temptoks{\the\sseq@temptoksii\@nx\sseq@usermacro@esetthiscall{\the\sseq@temptoks}}}
+}
+
+% For NewGroup:
+\let\sseq@parseargspec@normal\sseq@parseargspec
+\def\sseq@parseargspec@newgroup#1#2{%
+    \sseq@tempcount=\z@
+    \sseq@temptoks{}
+    \sseq@temptoksii{}%
+    \sseq@parseargspec@#2\sseq@nil
+    \sseq@eval{\sseq@temptoks{\the\sseq@temptoksii\@nx\sseq@usermacro@esetthiscall{\@nx\@nx\@nx#1\@nx\the\sseq@temptoks\the\sseq@temptoks}}}
+}
+
+
+\def\sseq@parseargspec@#1{
+    \advance\sseq@tempcount\@ne
+    \ifx#1\sseq@nil\else
+        \@xp\ifx\csname sseq@parseargspec@#1\@xp\endcsname\relax
+            \sseq@error@n{usermacro-unsupported-argument-type}{#1}
+        \else
+            \csname sseq@parseargspec@#1\@xptwo\endcsname
+        \fi
+    \fi
+}
+
+
+% Have to use \@alph to convert the number to a letter. Using a number here doesn't work because the control sequence gets retokenized
+% so we can only use letters in control sequences (another option would be to not expand the \csnames till later, but that would be harder).
+\def\sseq@parseargspec@ifargisnotdefault{%
+        \@nx\ifx
+            \@xp\@nx\csname sseq@parseargspec@temparg\@alph\sseq@tempcount\endcsname
+            \@xp\@nx\csname sseq@parseargspec@tempdefault\@alph\sseq@tempcount\endcsname
+    \unexpanded{%
+            \@xp\@gobble
+        \else
+            \@xp\@firstofone
+        \fi
+    }%
+}
+
+\def\sseq@parseargspec@setargdefault#1{%
+    \sseq@e@addto@toks\sseq@temptoksii{%
+        \def\@xp\@nx\csname sseq@parseargspec@temparg\@alph\sseq@tempcount\endcsname{\sseq@thearg}%
+        \def\@xp\@nx\csname sseq@parseargspec@tempdefault\@alph\sseq@tempcount\endcsname{\unexpanded{#1}}%
+    }
+}
+
+% Mandatory
+\def\sseq@parseargspec@m{%
+    \sseq@e@addto@temptoks{{\@nx\unexpanded{\sseq@thearg}}}
+    \sseq@parseargspec@
+}
+\def\sseq@parseargspec@l{%
+    \sseq@e@addto@temptoks{\@nx\unexpanded{\sseq@thearg}}
+    \sseq@parseargspec@
+}
+
+\def\sseq@parseargspec@u#1{%
+    \sseq@e@addto@temptoks{\@nx\unexpanded{\sseq@thearg}\unexpanded{\unexpanded{#1}}}
+    \sseq@parseargspec@
+}
+
+\def\sseq@parseargspec@U#1{%
+    \sseq@e@addto@temptoks{\@nx\unexpanded{\sseq@thearg}}
+    \sseq@parseargspec@
+}
+
+% Optional no default
+\def\sseq@parseargspec@o{%
+    \sseq@e@addto@temptoks{\@nx\IfNoValueF{\sseq@thearg}{[\@nx\unexpanded{\sseq@thearg}]}}
+    \sseq@parseargspec@
+}
+
+\def\sseq@parseargspec@d#1#2{%
+    \sseq@e@addto@temptoks{\@nx\IfNoValueF{\sseq@thearg}{\@nx\unexpanded{#1\sseq@thearg#2}}}
+    \sseq@parseargspec@
+}
+
+\def\sseq@parseargspec@r#1#2{ % technically required, but behaves like optional
+    \sseq@e@addto@temptoks{#1\@nx\unexpanded{\sseq@thearg}#2}
+    \sseq@parseargspec@
+}
+
+
+\def\sseq@parseargspec@g{%
+    \sseq@e@addto@temptoks{\@nx\IfNoValueF{\sseq@thearg}{\@nx\unexpanded{{\sseq@thearg}}}}
+    \sseq@parseargspec@
+}
+
+\def\sseq@parseargspec@s{%
+    \sseq@e@addto@temptoks{\@nx\IfBooleanT{\sseq@thearg}{*}}
+    \sseq@parseargspec@
+}
+
+\def\sseq@parseargspec@t#1{%
+    \sseq@e@addto@temptoks{\@nx\IfBooleanT{\sseq@thearg}{#1}}
+    \sseq@parseargspec@
+}
+
+
+
+\def\sseq@parseargspec@O#1{
+    \sseq@parseargspec@setargdefault{#1}%
+    \sseq@e@addto@temptoks{\sseq@parseargspec@ifargisnotdefault{\@nx\unexpanded{[\sseq@thearg]}}}%
+    \sseq@parseargspec@
+}
+\def\sseq@parseargspec@D#1#2#3{%
+    \sseq@parseargspec@setargdefault{#3}%
+    \sseq@e@addto@temptoks{\sseq@parseargspec@ifargisnotdefault{\@nx\unexpanded{#1\sseq@thearg#2}}}%
+    \sseq@parseargspec@
+}
+\def\sseq@parseargspec@R#1#2#3{%
+    \sseq@parseargspec@setargdefault{#3}%
+    \sseq@e@addto@temptoks{\sseq@parseargspec@ifargisnotdefault{\@nx\unexpanded{#1\sseq@thearg#2}}}%
+    \sseq@parseargspec@
+}
+\def\sseq@parseargspec@G#1{%
+    \sseq@parseargspec@setargdefault{#1}%
+    \sseq@e@addto@temptoks{\sseq@parseargspec@ifargisnotdefault{\@nx\unexpanded{{\sseq@thearg}}}}%
+    \sseq@parseargspec@
+}
+
+
+\ExplSyntaxOff
+
+%

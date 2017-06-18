@@ -1,0 +1,74 @@
+%%
+%% Package: spectralsequences.sty version 1.0
+%% Author: Hood Chatham
+%% Email: hood@mit.edu
+%% Date: 2017-06-18
+%% License: Latex Project Public License
+%%
+%% File: example_EO2_3.tex
+%%
+%%    This is the homotopy fixed point spectral sequence for EO_2 at the prime 3. The maximal finite subgroup of the Morava stabilizer for E_{p-1} is
+%%    of size 2p(p-1)^2 = 24, and so there is a norm element v in degree 24. There's also a bunch of trace classes on the zero line, but the trace map
+%%    E_* --> H^*( G ; E_* ) is induced by the trace map E_n --> EO_n, so all of these classes are permanent cycles. They are hard to compute and we don't draw them.
+%%    We also have classes \alpha and \beta coming from the stabilizer action, which are the images of \alpha_1 and \beta_1 in the ANSS.
+%%    By looking at cobar representatives, we can see that v*\beta_1 is the image of \beta_{3/3}.
+%%    Thus, the Toda differential in the ANSS d_3(\beta_{3/3}) = \alpha \beta^3 forces also that d_3(v) = \alpha \beta^2. Likewise, the Toda "Kudo" differential
+%%    d_9( \alpha \beta_{3/3}^2 ) = \beta^7 gives us upon dividing by \beta twice that d_9(\alpha v^2) = \beta^5. At this point, there are no possible differentials.
+%%    We see that v^3 survives so EO_n* is 72 = 2p^2(p-1)^2 periodic.  The picture is exactly the same at other odd primes. At 2, this degenerates to the
+%%    HFPSS for KO = KU^{hC_2} (see example_KUHFPSS).
+%%
+
+\documentclass{article}
+\usepackage{spectralsequences}
+\usepackage[landscape,margin=0cm,top=2cm]{geometry}
+
+\begin{document}
+\begin{sseqdata}[name=EO(2),Adams grading,
+    y range={0}{14},x range={0}{160},
+    xscale=0.15, x tick step=5,
+    classes={fill, tooltip={(\xcoord,\ycoord)}}
+]
+\foreach \v in {0,...,8}{
+    \foreach \b in {0,...,11}{
+        \foreach \a in {0,1}{
+            \class(3*\a + 10*\b+24*\v,\a+2*\b)
+            \ifnum\b>0\relax
+                \structline(3*\a+10*\b-10+24*\v,\a+2*\b-2) (3*\a + 10*\b+24*\v,\a+2*\b)
+            \fi
+        }
+        \structline(10*\b+24*\v,2*\b)(3 + 10*\b + 24*\v,2*\b+1)
+        \ifnum \v = \numexpr\v/3*3\relax
+
+        \else
+            \ifnum\b<9\relax
+                \d5(10*\b+24*\v,2*\b)
+            \fi
+        \fi
+    }
+}
+
+% v^2ab^2 is in degree 2*24 + 3 + 2*10 = 71, 5
+% b^{pn+1} = b^{7} is in degree 7*10 = 70,14
+\foreach \v in {2,5}{
+    \foreach \b in {0,...,6}{
+        \d9(\v*24 + 3 +10*\b,1+2*\b)
+    }
+}
+\end{sseqdata}
+\printpage[name=EO(2),page=0]
+\newpage
+\printpage[name=EO(2),page=5]
+\newpage
+\printpage[name=EO(2),page=9]
+\newpage
+\begin{sseqpage}[name=EO(2),page=10]
+\classoptions["a" left](3,1)
+\classoptions["b" right](10,2)
+\classoptions["ab" left](13,3)
+\classoptions["b^2" right](20,4)
+\classoptions["b^3" right](30,6)
+\classoptions["b^4" right](40,8)
+
+\classoptions["v^3" right](72,0)
+\end{sseqpage}
+\end{document} 

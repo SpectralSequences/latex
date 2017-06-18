@@ -1,0 +1,82 @@
+%%
+%% Package: spectralsequences.sty version 1.0
+%% Author: Hood Chatham
+%% Email: hood@mit.edu
+%% Date: 2017-06-18
+%% License: Latex Project Public License
+%%
+%% File: example_bo_May_SS.tex
+%%
+%%    Draws the May spectral sequence computing Ext_{A(1)} ( F_2, F_2 ), which by a change of rings and a simple argument that the ASS has to collapse,
+%%    is telling us pi_* bo. See the Green Book for reference.
+%%    The main purpose of this example from my perspective is to illustrate the utility of class "tags".
+%%
+
+
+\documentclass{article}
+\usepackage{spectralsequences}
+\NewSseqGroup\tower {} {
+    \class(0,0)
+    \foreach\i in {1,...,11}{
+        \class(0,\i)
+        \structline(0,\i-1,-1)(0,\i,-1)
+    }
+}
+\NewSseqGroup\hvee {} {
+    \tower(0,0)
+    \foreach\i in {1,...,11}{
+        \class(\i,\i)
+        \structline(\i-1,\i-1,-1)(\i,\i,-1)
+    }
+}
+
+\begin{document}
+\begin{sseqdata}[
+    name=A1 May,
+    x range={0}{10}, y range={0}{10},
+    degree={-1}{1},
+    classes={fill, tooltip = {(\xcoord,\ycoord)}},
+    class labels={below=3pt},
+    run off differentials= ->,
+    no orphan edges,
+]
+\foreach\i in {0,1,2}{
+    \begin{scope}[xshift=4*\i,yshift=2*\i,tag prefix=\i.]
+    \hvee[tag=id](0,0)
+    \hvee[tag=h0h1](1,2)
+    \hvee[tag=h20](2,1)
+    \foreach\j in {1,...,10}{
+        \d1(2,\j,h20,h0h1)
+    }
+    \foreach\j in {1,...,10}{
+        \d1(2+\j,1+\j,h20,h0h1)
+    }
+    \end{scope}
+}
+
+
+\foreach\i in {0,...,7}{
+    \d2(4+\i,2+\i,1.id,0.id)
+}
+\class(12,6)
+\d2(12,6,,1)
+
+%\classoptions["h_0"](0,1)
+\classoptions["h_1"](1,1)
+\classoptions["h_{20}"](2,1)
+\classoptions["h_{20}^2"](4,2)
+\classoptions["h_{20}^3"](6,3)
+\classoptions["h_{20}^4"](8,4)
+\classoptions["h_{20}^5"](10,5)
+
+\doptions[shorten >=3pt]1(10,10,2.h20,2.h0h1)
+\end{sseqdata}
+
+\printpage[name=A1 May,page=1]
+\newpage
+\printpage[name=A1 May,page=2]
+\newpage
+\begin{sseqpage}[name=A1 May,page=3]
+\classoptions["h_0h_{20}^2"](4,3,1.id)
+\end{sseqpage}
+\end{document} 

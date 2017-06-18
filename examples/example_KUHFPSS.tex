@@ -1,0 +1,92 @@
+%%
+%% Package: spectralsequences.sty version 1.0
+%% Author: Hood Chatham
+%% Email: hood@mit.edu
+%% Date: 2017-06-18
+%% License: Latex Project Public License
+%%
+%% File: example_KUHFPSS.tex
+%%
+%%    I think this is one of Eric Peterson's favorite spectral sequences, and his enthusiasm for it has rubbed off on me a bit.
+%%    Here our group is C_2 which acts on the periodicity element by -1, so again we have a norm element v in degree 2|G| = 4.
+%%    There are easier ways to understand this, but I explained the EO_3 one in terms of the comparison map from the ANSS,
+%%    and that's interesting here too. In the ANSS at 2, there is a differential d3(\alpha_3) = \alpha_1^4. Here a cobar calculation
+%%    shows that \alpha v =  \alpha_3, so dividing the differential by \alpha gives d3(v) = \alpha_1^3. Now there's no Kudo differential
+%%    because the prime is 2, and the spectral sequence immediately collapses.
+%%
+%%    Second, a demonstration of the falsehood of ku^{hC_2} = ko  --  ku^{hC_2} has an extra generator as a ring, which is in degree -4. 
+%%    In particular, it's not even connective.
+%%
+
+\documentclass{article}
+\usepackage[landscape,margin=2cm]{geometry}
+\usepackage{spectralsequences}
+\begin{document}
+\sseqset{
+    Z2class/.sseq style={circle,inner sep=0.3ex,fill=black},
+    Zclass/.sseq style={fill=none,draw,inner sep=0.6ex},
+    2Zclass/.sseq style={fill=none,rectangle,draw,inner sep=0.6ex,outer sep=0.5ex}
+}
+\begin{sseqdata}[
+    name=KRHFPSS,
+    x range={-12}{14},
+    y range={0}{10},
+    y axis style=center,
+    y axis gap=0.425cm,
+    tick step=4,
+    classes=Z2class,
+    differentials=->,
+    degree={-1}{#1-1},
+    scale=0.85,
+    right clip padding=0.1cm,
+    top clip padding=0.05cm,
+    x axis extend start=0cm,
+    x axis extend end=0.33cm,
+    y axis extend end=0.3cm,
+]
+
+\draw[background,xshift=-0.5cm,yshift=-0.51cm,step=1cm,gray,very thin] (\xmin+0.01,\ymin+0.01) grid (\xmax+0.9,\ymax+0.9);
+
+\pgfmathsetmacro\xitstart{int(int(\xmin/8)*8-16)}
+\pgfmathsetmacro\xitgap{int(\xitstart+4)}
+\pgfmathsetmacro\xitend{int(\xmax+2)}
+\pgfmathsetmacro\xmaxpp{int(\xmax+2)}
+
+\foreach \x in {\xitstart,\xitgap,...,\xitend} {
+    \class[Zclass](\x,0)
+    \foreach \z in {0,...,\xmaxpp} {
+        \class(\x+\z+1,\z+1)
+        \structline(\x+\z,\z)(\x+\z+1,\z+1)
+    }
+}
+
+\pgfmathsetmacro\xitstart{int(\xitgap)}
+\pgfmathsetmacro\xitgap{int(\xitstart+8)}
+
+\foreach \x in {\xitstart,\xitgap,...,\xitend} {
+    \foreach\z in {0,...,\xmax}{
+        \d4(\x+\z,\z)
+    }
+    \replaceclass[2Zclass](\x,0)
+}
+\end{sseqdata}
+\printpage[name=KRHFPSS,page=0]
+\newpage
+\printpage[name=KRHFPSS,page=5]
+
+
+\newpage
+\begin{sseqpage}[name=KRHFPSS,page=0,keep changes]
+\pgfmathsetmacro\antidiag{min(-\xmin,\ymax+0.8)}
+\clip[background,xshift=0.28cm,yshift=-0.4cm](-\antidiag,\antidiag)--(-1,1)--(-0.4,0)--(\xmax+2,0)--(\xmax+2,\antidiag)--cycle;
+\foreach \z in {2,6}{
+    \doptions[draw=none]4(-\z-1,\z-1)
+    \structlineoptions[draw=none](-\z-1,\z-1)(-\z,\z)
+    \structlineoptions[draw=none](-\z-3,\z+1)(-\z-2,\z+2)
+    \replaceclass(-\z-2,\z+2)
+}
+\structlineoptions[draw=none](-3,1)(-2,2)
+\end{sseqpage}
+\newpage
+\printpage[name=KRHFPSS,page=5]
+\end{document} 

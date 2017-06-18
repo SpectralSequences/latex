@@ -1,0 +1,79 @@
+%%
+%% Package: spectralsequences.sty version 1.0
+%% Author: Hood Chatham
+%% Email: hood@mit.edu
+%% Date: 2017-06-18
+%% License: Latex Project Public License
+%%
+%% File: example_duggarKRAHSS.tex
+%%
+%%    Draws the Atiyah Hirzebruch spectral sequence for KR. 
+%%    To be honest, I can't really remember what this is, but based on the title, I copied it out of Duggar's paper computing KR.
+%%
+
+
+
+\documentclass{article}
+\usepackage[landscape]{geometry}
+\usepackage{spectralsequences}
+\begin{document}
+\sseqset{Zclass/.sseq style={fill=none,draw,inner sep=0.6ex},2Zclass/.style={fill=none,rectangle,draw,inner sep=0.6ex}}
+\begin{sseqdata}[
+    name=KRAHSS,
+    Adams grading,
+    x range={-18}{17},
+    y range={-10}{10},
+    classes=fill,
+    no orphan edges,
+    run off differentials = {->},
+    scale=0.5,
+    axes style=center,
+    tick step=4,
+    x tick gap=0.2cm,
+    y tick gap=0.4cm,    
+    x axis gap=0.25cm,
+    y axis gap=0.25cm,
+    x axis extend start=0cm,
+    y axis extend start=0cm,
+    x axis extend end=0.25cm,
+    y axis extend end=0.25cm
+]
+
+\draw[background,xshift=-0.5cm,yshift=-0.5cm,step=1cm,gray,very thin] (\xmin+0.1,\ymin+0.1) grid (\xmax+0.7,\ymax+0.7);
+\pgfmathparse{\xmax+2}
+\foreach \x in {0,4,...,\pgfmathresult} {
+    \class[Zclass](\x,0)
+    \foreach \z in {0,...,\pgfmathresult} {
+        \class(\x+\z+1,\z+1)
+        \structline(\x+\z,\z)(\x+\z+1,\z+1)
+    }
+}
+
+\foreach \x in {4,12}{
+    \foreach\z in {0,...,\xmax}{
+        \d3(\x+\z,\z)
+    }
+    \replaceclass[2Zclass](\x,0)
+}
+
+\foreach\x in {-4,-8,...,-\pgfmathresult}{
+    \class[Zclass](\x,0)
+    \class(\x-2,0)
+    \foreach \z in {-1,...,-\pgfmathresult}{
+        \class(\x+\z-2,\z)
+        \structline(\x+\z-1,\z+1)(\x+\z-2,\z)
+    }
+}
+
+\foreach \x in {-6,-14}{
+    \foreach\z in {-3,...,-\xmax}{
+        \d3(\x+\z,\z)
+    }
+}
+
+\end{sseqdata}
+\printpage[name=KRAHSS,page=0]
+\newpage
+\printpage[name=KRAHSS,page=5]
+
+\end{document} 

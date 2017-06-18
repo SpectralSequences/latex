@@ -1,0 +1,508 @@
+%%
+%% Package: spectralsequences.sty version 1.0
+%% Author: Hood Chatham
+%% Email: hood@mit.edu
+%% Date: 2017-06-18
+%% License: Latex Project Public License
+%%
+%% File: sseqmessages.code.tex
+%% Exposes: Error message redirects?
+%%
+%%   Set up fancy error messages
+%%
+
+
+
+%% The error handling system is build on top of l3msg. l3msg produces errors like:
+%%
+%%    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+%%    !
+%%    ! LaTeX error: "<package>/<error-name>"
+%%    !
+%%    ! <error message text>
+%%    !
+%%    ! See the <package> documentation for further information. % produced by \msg_see_documentation_text:n{<package>}
+%%    !...............................................
+%%
+%% The user will see underneath it l.<line number> <text on line>
+%%
+%% Unfortunately, if the error is in a \foreach statement, the user will only see the final line of the foreach loop, often just the close brace.
+%% It's impossible to tell from this where in the \foreach the error occurred. Similar problems occur if the command is inside a user command.
+%%
+%% We're going to modify this file to improve the situation.
+%%
+%% If the command is in a forloop or a user command I want to:
+%%   -- annotate the error with the command that caused it, or the previous command if the error occurred before I can know what the current command looks like.
+%%   -- present a stack trace to inform the user where exactly the problem occurred
+%%
+%%
+%% We automatically print the annotation and stack trace at the end of all l3msg messages by hooking into \msg_see_documentation_text:n.
+%% The annotation and stack trace are prepared by a command \sseq@error@setup which we hook into the beginning of the latex3 message processing code.
+%%
+%% Here's an example of the result:
+%%
+%%    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+%%    !
+%%    ! sseqpages error: "index-too-large"
+%%    !
+%%    ! Index '-3' provided for target of structure line is too large -- only 1
+%%    ! classes exist at position (32,8).
+%%    !
+%%    ! (Error occurred during call "\structline(16,-1,-1)(16,0,-3)", in the    % This is the annotation
+%%    ! \foreach block that ends on line 158, with variable values: \n = 2.)    % it's stored in \sseq@error@annotation
+%%    !
+%%    ! Stack trace:                                                            % This is the stack trace
+%%    !    \towergroupb (8*\n ,4*\n )                                           % Produced by \sseq@printstacktrace
+%%    !    \foreach \n in {2,3,4}
+%%    !
+%%    ! See the sseqpages documentation for further information.
+%%    !
+%%    ! Type <return> to continue.
+%%    !...............................................
+
+
+\def\sseq@protecterror#1{\@nx\sseq@protecterror\unexpanded{{#1}}}
+
+% Stack, thiscall, foreachcall.
+% Here we record what the user has said (as best we can tell)
+\newtoks\sseq@thiscalltoks
+\def\sseq@thiscall{\the\sseq@thiscalltoks}
+\def\sseq@setthiscall#1{\sseq@seterrorannotation{call}\sseq@thiscalltoks{#1}}
+\def\sseq@esetthiscall#1{\sseq@seterrorannotation{call}\sseq@eval{\sseq@thiscalltoks{#1}}}
+\def\sseq@gsetthiscall{\sseq@seterrorannotation{call}\global\sseq@thiscalltoks}
+\def\sseq@xsetthiscall#1{\sseq@eval{\@nx\sseq@gsetthiscall{#1}}}
+\def\sseq@xsetlastcall#1{\sseq@eval{\global\sseq@thiscalltoks{#1}}}
+
+\def\sseq@usermacro@esetthiscall#1{\sseq@eval{\sseq@thiscalltoks{#1}}} % Don't set \sseq@error@annotation@call
+
+\newtoks\sseq@foreachcall
+\newtoks\sseq@topofstacktrace
+\sseq@topofstacktrace{}
+\def\sseq@restofstacktrace{}
+
+\def\sseq@pushstacktrace#1{
+    \edef\sseq@temp{\the\sseq@topofstacktrace}
+    \ifx\sseq@temp\pgfutil@empty\else
+        \edef\sseq@restofstacktrace{\unexpanded{\\\ \ \ }\@nx\sseq@stack@unexpanded{\the\sseq@topofstacktrace}\unexpanded\@xp{\sseq@restofstacktrace}}
+    \fi
+    \sseq@topofstacktrace{#1}
+}
+\def\sseq@opushstacktrace#1{\@xp\sseq@pushstacktrace\@xp{#1}}
+\def\sseq@stack@unexpanded#1{\@nx\sseq@stack@unexpanded\unexpanded{{#1}}}
+
+
+
+% Positional information about the error:
+% Lengths are five more than the correct length to account for the fact that the line starts with !<space> and to accommodate two quote characters and a comma.
+\def\sseq@error@annotation@aftercall{\\\\Error occurred after call\sseq@printthiscall\sseq@error@inforeachloop}
+\chardef\sseq@error@annotation@length@aftercall=34
+\def\sseq@error@annotation@call{\\\\Error occurred during call\sseq@printthiscall\sseq@error@inforeachloop}
+\chardef\sseq@error@annotation@length@call=33
+\def\sseq@error@annotation@atbeginforeach{\\\\Error occurred at the beginning of \string\foreach\ statement\sseq@printthiscall\sseq@error@inforeachloop}
+\chardef\sseq@error@annotation@length@atbeginforeach=60
+\def\sseq@error@annotation@atbeginusercmd{\\\\Error occurred at the beginning of user command\sseq@printthiscall\sseq@error@inforeachloop}
+\chardef\sseq@error@annotation@length@atbeginusercmd=54
+
+\def\sseq@seterrorannotation@drawing#1#2#3#4#5{%
+    \def\sseq@error@annotation{\\\\Error occurred while drawing class (#2,#3,#4)\ifnum#5>0 \space which has been replaced #5 time\ifnum#5>1s\fi\fi.
+    Look for a \ifnum#5>0\string\replaceclass\else\string\class\fi\space command that makes a class at that position.
+    Also make sure to check any \@nx\classoptions commands that could be the culprit.}%
+}
+
+\def\sseq@seterrorannotation#1{%
+    \@xp\let\@xp\sseq@error@annotation\csname sseq@error@annotation@#1\endcsname
+    \@xp\let\@xp\sseq@error@annotation@length\csname sseq@error@annotation@length@#1\endcsname
+}
+
+\sseq@seterrorannotation{aftercall}
+
+
+\def\sseq@error@inforeachloop{\sseq@possibleperiod}
+\def\sseq@error@inforeachloop@active{\sseq@possiblecomma in \foreach block with variable values:\sseq@for@printvars\sseq@possibleperiodb}
+\def\sseq@error@setup@errorinfo{}% Changed during \foreach and user commands
+
+\def\sseq@possiblecomma{,\space}
+\def\sseq@possibleperiod{.}
+\def\sseq@possibleperiodb{.}
+
+
+\def\sseq@error@announcestacktrace{\\\\Stack trace:}
+\def\sseq@printstacktrace{ % Only prints rest of stack trace because top element is mentioned in annotation.
+    \ifx\sseq@restofstacktrace\pgfutil@empty\else
+        \sseq@error@announcestacktrace\sseq@restofstacktrace
+    \fi
+}
+
+% \sseq@error@setup happens before the error is reported, \sseq@error@cleanup at the end.
+
+\ExplSyntaxOn
+
+\def\sseq@error@setup@withinfo{
+    \bgroup
+    \def\foreach{\@nx\foreach}
+    \sseq@countthiscall
+    \ifnum\sseq@thiscallnumchars>\numexpr\l_iow_line_count_int-\sseq@error@annotation@length\relax
+        \def\sseq@printthiscall{:\\\@xp\iow_indent:n\@xp{\the\sseq@thiscalltoks}\\}
+        \let\sseq@possiblecomma\empty
+        \let\sseq@possibleperiod\empty
+    \fi
+    \let\sseq@stack@unexpanded\unexpanded
+    \sseq@error@setup@errorinfo
+    \sseq@error@hook
+}
+
+\def\sseq@error@setup@noinfo  {\bgroup\def\foreach{\@nx\foreach}\let\sseq@stack@unexpanded\unexpanded\def\sseq@error@annotation{}\sseq@error@hook}
+\let\sseq@error@setup\sseq@error@setup@noinfo
+\def\sseq@error@cleanup{\egroup\sseq@errortrue} % If the error was thrown in NewDocumentCommand, we need to process it. Just used in sseqmacromakers.
+
+
+\def\sseq@printthiscall{\ "\the\sseq@thiscalltoks"}
+% make \exp_args:NNNf:
+\let \sseq_dummy:NNn \empty
+\cs_generate_variant:Nn \sseq_dummy:NNn {NNf}
+
+
+% Count the chars in thiscall
+% Detokenize handles the control words, but keeps the spaces as spaces. To count them properly, we lowercase them into 0's (any nonspace character would do just fine).
+\def\sseq@countthiscall{
+    \bgroup\lccode`\ =`\0\relax
+    \edef\temp{\detokenize\@xp{\the\sseq@thiscalltoks}}
+    \exp_args:Nf\lowercase{
+        \exp_args:NNNf\egroup
+        \edef\sseq@thiscallnumchars{
+            \exp_args:NNo\@nx\tl_count:n{\temp}
+        }
+    }
+}
+
+\ExplSyntaxOff
+
+
+\def\sseq@error@hook{} % \sseq@error@hook is just used once in the isalive error handling to set \protect to relax. Probably a better way to do that...
+\def\sseq@errorinfo{%
+    \sseq@error@annotation
+    \sseq@printstacktrace
+}
+
+
+
+\def\sseq@atbeginusermacro@msgsetup{%
+    \let\protect\empty % prevent issues if protected variables like \xmax are used as the loop max
+    \let\sseq@error@setup@errorinfo\sseq@error@setup@errorinfo@active % Install foreach error annotations
+    \let\sseq@error@setup\sseq@error@setup@withinfo
+    \sseq@opushstacktrace{\the\sseq@thiscalltoks}
+}
+
+\def\sseq@atbeginforeach@msgsetup{%
+    \let\protect\empty % prevent issues if protected variables like \xmax are used as the loop max
+    \let\sseq@error@build@foreachvarsinfo\sseq@error@build@foreachvarsinfo@active % Install stack annotation
+    \let\sseq@error@inforeachloop\sseq@error@inforeachloop@active  % install message indicating foreach variable values
+    \let\sseq@error@setup\sseq@error@setup@withinfo
+    \sseq@foreachcall{\foreach} % Stack gets pushed at the beginning of the body of the foreach loop once we know what the call looks like
+}
+
+
+\def\sseq@error@setup@errorinfo@active{%
+    \edef\tempa{\the\sseq@thiscalltoks}\edef\tempb{\the\sseq@foreachcall}
+    \ifx\tempa\tempb % We're at the beginning of a for loop
+        \sseq@seterrorannotation{atbeginforeach}
+    \else
+        \edef\tempb{\the\sseq@topofstacktrace}
+        \ifx\tempa\tempb % we're at the beginning of a user macro
+            \sseq@seterrorannotation{atbeginusercmd}
+        \else
+            % The top of the stack trace doesn't get included in the stack trace because it is assumed to be
+            % mentioned in the annotation. Since we aren't at the beginning of the foreach or usercmd,
+            % that means it won't be mentioned. Push an empty thing onto the stack so the innermost \foreach or usercommand is mentioned.
+            \sseq@pushstacktrace{}
+        \fi
+    \fi
+}
+
+
+
+
+
+
+%%%
+%%% Set up l3msg Hooks
+%%%
+
+
+\ExplSyntaxOn
+\char_set_catcode_space:N\ % Needed to make pretocmd work -- there are always spaces after every command, and they need to be retokenized as spaces
+
+\def\sseqerrortowarning#1{ \msg_redirect_name:nnn { sseqpages } { #1 } { warning } }
+
+\def\sseq@error     {\msg_error:nn    {sseqpages}}
+\def\sseq@error@n   {\msg_error:nnn   {sseqpages}}
+\def\sseq@error@nn  {\msg_error:nnnn  {sseqpages}}
+\def\sseq@error@nnn {\msg_error:nnnnn {sseqpages}}
+\def\sseq@error@nnnn{\msg_error:nnnnnn{sseqpages}}
+\def\sseq@error@x   {\msg_error:nnx   {sseqpages}}
+\def\sseq@error@xx  {\msg_error:nnxx  {sseqpages}}
+\def\sseq@error@xxx {\msg_error:nnxxx {sseqpages}}
+\def\sseq@error@xxxx{\msg_error:nnxxxx{sseqpages}}
+\def\sseq@warning   {\msg_warning:nn{sseqpages}}
+
+\def\sseq@newerror#1#2{\msg_new:nnn{sseqpages}{#1}{#2}}
+\def\sseq@newerror@internal#1#2{\msg_new:nnn{sseqpages}{#1}{Internal error: #2 \sseq@contactpackageauthor}}
+\edef\sseq@contactpackageauthor{Contact package author \sseq@authorname\space at \sseq@authoremail.}
+
+
+\cs_new_eq:NN \__sseq_hooked_msg_see_documentation_text:n \msg_see_documentation_text:n
+\cs_new_eq:NN \__sseq_hooked_msg_fatal_code:nnnnnn   \__msg_fatal_code:nnnnnn
+\cs_new_eq:NN \__sseq_hooked_msg_error_code:nnnnnn   \__msg_error_code:nnnnnn
+\cs_new_eq:NN \__sseq_hooked_msg_warning_code:nnnnnn \__msg_warning_code:nnnnnn
+\cs_new_eq:NN \__sseq_hooked_msg_info_code:nnnnnn    \__msg_info_code:nnnnnn
+
+
+\cs_new:Npn \sseq@installmsghooks {%
+    \cs_set_eq:NN \errmessage \sseq@errmessage
+    \cs_set_eq:NN \msg_see_documentation_text:n \__sseq_hooked_msg_see_documentation_text:n
+    \cs_set_eq:NN \__msg_fatal_code:nnnnnn      \__sseq_hooked_msg_fatal_code:nnnnnn
+    \cs_set_eq:NN \__msg_error_code:nnnnnn      \__sseq_hooked_msg_error_code:nnnnnn
+    \cs_set_eq:NN \__msg_warning_code:nnnnnn    \__sseq_hooked_msg_warning_code:nnnnnn
+    \cs_set_eq:NN \__msg_info_code:nnnnnn       \__sseq_hooked_msg_info_code:nnnnnn
+}
+
+\sseq@newerror@internal{msg-patch-failed}{Failed to patch the latex 3 message system. The errors will not be as expressive.}
+
+\def\sseq@msgpatchfailed{
+    \msg_error:nn{sseqpages}{msg-patch-failed}
+    \def\sseq@installmsghooks{}
+    \sseq@break
+}
+
+\let\sseq@errmessage@std\errmessage
+\def\sseq@errmessage#1{\sseq@error@setup\let\\\iow_newline:\sseq@errmessage@std{#1\sseq@error@annotation}\sseq@error@cleanup}
+
+\pretocmd\__sseq_hooked_msg_see_documentation_text:n{\sseq@errorinfo}{}{\sseq@msgpatchfailed}
+
+
+
+\pretocmd\__sseq_hooked_msg_fatal_code:nnnnnn  {\sseq@error@setup}  {}{\sseq@msgpatchfailed}
+\pretocmd\__sseq_hooked_msg_error_code:nnnnnn  {\sseq@error@setup}  {}{\sseq@msgpatchfailed}
+%\pretocmd\__sseq_hooked_msg_warning_code:nnnnnn{\sseq@msg@setup}  {}{\sseq@msgpatchfailed}
+%\pretocmd\__sseq_hooked_msg_info_code:nnnnnn   {\sseq@msg@setup}  {}{\sseq@msgpatchfailed}
+\apptocmd\__sseq_hooked_msg_fatal_code:nnnnnn  {\sseq@error@cleanup}{}{\sseq@msgpatchfailed}
+\apptocmd\__sseq_hooked_msg_error_code:nnnnnn  {\sseq@error@cleanup}{}{\sseq@msgpatchfailed}
+%\apptocmd\__sseq_hooked_msg_warning_code:nnnnnn{\sseq@error@cleanup}{}{\sseq@msgpatchfailed}
+%\apptocmd\__sseq_hooked_msg_info_code:nnnnnn   {\sseq@error@cleanup}{}{\sseq@msgpatchfailed}
+
+\sseq@breakpoint
+
+
+
+%%%%
+%%%%
+%%%% Error message definitions
+%%%%
+%%%%
+
+
+%%
+%%
+%% checkdefinitions -- patch-failed errors
+%%
+%%
+\@ifpackagelater{tikz}{2015/07/08}{
+    \sseq@newerror@internal{pgfkeys-patch-failed}{Failed to patch the key value system. Setting all commands to do nothing and quitting. Your copy of tikz is newer than the version sseqpages was designed for and seems to be incompatible with core features.}
+    \sseq@newerror@internal{fit-patch-failed}{Failed to patch fit. \@nx\circleclasses won't work. Your copy of tikz is newer than the version sseqpages was designed for and seems to be incompatible with \string\circleclasses.}
+    \sseq@newerror@internal{foreach-patch-failed}{Failed to patch \string\foreach. The errors sseqpages provides will be less comprehensive. Your copy of tikz is newer than the version sseqpages was designed for and seems to be incompatible with parts of the error handling system.}
+    \sseq@newerror@internal{circleclasses-not-provided}{\@nx\circleclasses won't work because your copy of tikz is too new. Instead I'm doing nothing.}
+}{
+    \sseq@newerror{pgfkeys-patch-failed}{Failed to patch the key value system. Setting all commands to do nothing and quitting. Your copy of tikz is older than the version sseqpages was designed for and seems to be incompatible with core features. Update tikz!}
+    \sseq@newerror{fit-patch-failed}{Failed to patch fit. \@nx\circleclasses won't work. Your copy of tikz is older than the version sseqpages was designed for and seems to be incompatible with \string\circleclasses. Update tikz!}
+    \sseq@newerror{foreach-patch-failed}{Failed to patch \string\foreach. The errors sseqpages provides will be less comprehensive. Your  copy of tikz is older than the version sseqpages was designed for and seems to be incompatible with parts of the error handling system.}
+    \sseq@newerror{circleclasses-not-provided}{\@nx\circleclasses won't work because your copy of tikz is too old. Instead I'm doing nothing. Update tikz!}
+}
+
+
+\def\sseq@pgfkeyspatchfailed {
+    \msg_critical:nn { sseqpages } { pgfkeys-patch-failed }
+}
+
+
+\sseq@newerror@internal{this-shouldnt-happen}{This branch of the code should be unreachable. Something really weird has happened. Error occurred in #1.}
+
+% Convexity thing
+\sseq@newerror{clip-not-convex}{The clip you provided to the "clip" option was not convex and the current edge intersects it more than two times. I'm not going to draw it.}
+
+
+%%
+%%
+%% macromakers
+%%
+%%
+\sseq@newerror{won't-override-builtin}{Macro '#1' is a sseqpages builtin and I won't override it. Try a different name.}
+\sseq@newerror{usermacro-not-free}{Macro '#1' has already been defined using \string\DeclareSseqCommand, \string\NewSseqCommand, \string\DeclareSseqGroup, or \string\NewSseqGroup. I am overriding it. If this is what you intended, you should either use \@nx\DeclareSseqGroup or \string\DeclareSseqCommand, which won't complain.}
+
+\sseq@newerror{macro-patch-failed}{Failed to patch macro '#1'. This is probably some annoying catcode issue. Try \@nx\tracingpatches to see more information about why the patch failed.}
+\sseq@newerror{usermacro-unsupported-argument-type}{Unsupported argument type '#1'. All argument types in the 2017/05/29 release of xparse are supported except for v, e, and E.}
+
+%%
+%%
+%% parsers
+%%
+%%
+\sseq@newerror{classpattern-already-defined}{Class pattern '#1' already defined. Overwriting it.}
+\sseq@newerror{classpattern-unexpected-token}{Unexpected token '#1' in class pattern definition. Skipping the definition.}
+\sseq@newerror{classpattern-missing-tokens}{Incomplete class pattern definition. Skipping the definition.}
+\sseq@newerror{classpattern-extra-coord-ignored}{Extra coordinate '#1' ignored. You probably forgot a semicolon.}
+\sseq@newerror{classpattern-too-few-coords}{Too few coordinates in row #1.}
+
+\sseq@newerror{classpattern-too-many-classes}{%
+    Too many classes in position #1. You are trying to add a #2th class, but the current class pattern is "#3" which only defines offset patterns for up to #4 classes.
+    If you need to have this many classes in this position, you can make your own class pattern with \string\sseqnewclasspattern, but you might want to consider alternatives like using one class to represent multiple generators in some way -- it is hard to make a diagram look good with large numbers of classes in one position.%
+}
+
+\sseq@newerror{invalid-coordinate}{Invalid #1coordinate\sseq@printerrortype.}
+\sseq@newerror{no-classes}{No classes yet exist in #1.}
+\sseq@newerror{index-too-large}{Index '#1' provided\sseq@printerrortype\ is too large -- only #2 classes exist at position #3.}
+\sseq@newerror{undefined-tag}{Index '#1' provided\sseq@printerrortype\ is not a valid integer expression or known tag in position #2.}
+\sseq@newerror{class-no-tag}{The class #1 has no tag so I cannot get it.}
+
+\sseq@newerror{class-extra-coords}{Too many coordinates. Ignoring the extra ones.}
+\sseq@newerror{named-coordinate-class}{You can't pass a named coordinate to \string\class.} % Probably not actually possible to obtain this error
+\sseq@newerror{d-no-degree}{%
+    You must specify the degree of your spectral sequence if you want to use the differential command \string\d.
+    Specify the degree by providing 'degree={f(\#1)}{g(\#1)}' as an option to '\string\begin{sseqdata}',
+    where f(\#1) and g(\#1) are formulas for the x and y degree of the \#1th page differential.%
+}
+\sseq@newerror{d-named-coord-two-indexes}{You provided a named class and two indexes, but the named class already comes with an index so you can only provide one more for the target. Ignoring the second index.}% should be a warning
+\sseq@newerror{d-target-index-target-coord}{You provided both a target index and a target coordinate, but this overdetermines the differential. Ignoring the target index.}
+\sseq@newerror{d-wrong-degree}{Differential does not respect grading. The target should be in position #1 but instead it is #2 in position #3.}
+
+\sseq@newerror{index-ignored}     {The coordinate #1 is not a class, but it has an index '#3'. Ignoring the index and treating it as the literal position #2.}
+\sseq@newerror{anchor-ignored}    {The coordinate #1 is not a class, but it has an anchor '#3'. Ignoring the anchor and treating it as the literal position #2.}
+\sseq@newerror{invalid-tikz-coord}{The coordinate #1 does not refer to a tikz class but its #2 coordinate is not valid \string\pgfmathparse\ input.}
+
+
+%%
+%%
+%% loadstore
+%%
+%%
+\sseq@newerror{illegal-add-background-mode}{\string#1 occurred in background mode.} % Should be impossible to trigger
+
+%%
+%%
+%% keys
+%%
+%%
+
+\def\sseq@possiblecurrentvalue{\ifx\pgfkeyscurrentvalue\pgfkeysnovalue@text\else=\pgfkeyscurrentvalue\fi}
+\def\sseq@possiblecurrentvaluemean{\ifx\pgfkeyscurrentvalue\pgfkeysnovalue@text\else={\@xp\sseq@macrogobble\meaning\pgfkeyscurrentvalue}\fi}
+
+\sseq@newerror{option-illegal}{%
+    You said '#1\sseq@possiblecurrentvalue', but the option '#1' is
+    illegal in the sseqdata and sseqpage environments#3.%
+}
+\sseq@newerror{option-illegal-as-global}{%
+    You passed '#1\sseq@possiblecurrentvalue' as a global option, but option '#1' is illegal as a global option.%
+}
+\sseq@newerror{option-global-only}{%
+    You said '#1\sseq@possiblecurrentvaluemean', but the option '#1' is
+    only allowed as a global option (as in '\string\begin{sseqdata}[#1\sseq@possiblecurrentvaluemean]'
+    or '\string\begin{sseqpage}[#1\sseq@possiblecurrentvaluemean]').%
+}
+
+% Applies to name and page, and saying "sseqs={name=somename}" is just a bad idea.
+\sseq@newerror{option-no-default-allowed}{%
+    You cannot set a default value for '#1'.% Try \@nx\sseqset{sseqs={#1\ifx\pgfkeyscurrentvalue\pgfkeysnovalue@text\else=\pgfkeyscurrentvalue\fi}}.%
+}
+\sseq@newerror{option-tikz-prims-only}{%
+    You can only use '#1' as an option for tikz primitives, not for \@nx\class, \@nx\replaceclass, \@nx\classoptions, \@nx\d, \@nx\doptions, \@nx\structline, or \@nx\structlineoptions.%
+}
+
+\sseq@newerror{det-one-after-scale}{You cannot use the option '#1\ifx\pgfkeyscurrentvalue\pgfkeysnovalue@text\else=\pgfkeyscurrentvalue\fi' as a global option after using 'xscale', 'yscale', or 'scale'. Please move '#1\ifx\pgfkeyscurrentvalue\pgfkeysnovalue@text\else=\pgfkeyscurrentvalue\fi' before any scaling options.}
+\sseq@newerror{negative-scale}{You said '#1scale=#2' as a global option, but scaling by negative numbers is not allowed as a global option. Instead, please use the option '#1mirror', and then scale by the absolute value.}
+
+\sseq@newerror{illegal-transform}{%
+    You said '#1\ifx\pgfkeyscurrentvalue\pgfkeysnovalue@text\else=\pgfkeyscurrentvalue\fi', but
+    no coordinate transforms are allowed in the body of sseqpages or sseqdata other than shifts by unit-free integers
+    except as options for tikz primitives or for scopes that only contain tikz primitives. If you need a coordinate transformation,
+    first use the option 'standard parse'.%
+}
+
+\sseq@newerror{unknown-key}{I do not know the key "\pgfkeyscurrentname".}
+\sseq@newerror{unknown-global}{Undefined global option '\pgfkeyscurrentname\@xp\ifx\pgfkeyscurrentvalue\pgfkeysnovalue\else=\pgfkeyscurrentvalue\fi'.}
+
+\sseq@newerror{scope-quotes}{Quotes are not allowed as options to a scope.}
+\sseq@newerror{tikz-edge-quotes}{If you want to use quotes on a tikz edge, please provide it directly to the 'to' command e.g., \@nx\draw (0,0) to["hi"] (1,0);}
+
+\sseq@newerror{change-style-data}{It's pointless to use 'change #1s' in the sseqdata environment. Try '#1s={##1}' instead.}
+\sseq@newerror{change-style-standalone}{It's pointless to use 'change #1s' in a standalone sseqpage environment. Try '#1s={##1}' instead.}
+\sseq@newerror{page-update-existing}{Option 'update existing' is only for the sseqdata environment.}
+\sseq@newerror{page-no-name}{You can't specify a page but no name.}
+\sseq@newerror{keep-changes-no-name}{Option 'keep changes' is only for named spectral sequences.}
+\sseq@newerror{keep-changes-sseqdata}{Option 'keep changes' is only for the sseqpage environment.}
+\sseq@newerror{unknown-grid}{Undefined grid style '#1'.}
+\sseq@newerror{unknown-class-pattern}{Unknown class pattern '\sseq@classpattern'.}
+\sseq@newerror{class-placement-shift}{Shifts are illegal in the transformations applied in "class placement" key. If you want to shift your nodes, use \string\sseqnewclasspattern.} % #1 <- x shift, #2 <- shift amount
+\sseq@newerror{do-command-failed}{\string\sseq@pgfkeysdocommand{#1}{#2} failed.}
+
+\sseq@newerror{standard-parse}{You cannot use \string#1 inside a scope that has either the background key or coordinate transformations other than integer shifts.}
+
+%%
+%%
+%% main
+%%
+%%
+
+\sseq@newerror{env-inside-tikz}{#1 environment started inside tikz.}
+\sseq@newerror{env-inside-sseq}{#1 environment started inside other sseq environment.}
+\sseq@newerror{env-data-no-name}{Every 'sseqdata' environment must have a name. Specify one by saying 'name=your sseq name'.}
+\sseq@newerror{env-data-already-exist}{A spectral sequence with the name '#1' already exists; updating it. If you want to add to an already existing spectral sequence, please pass the option 'update existing'.} % warning
+\sseq@newerror{env-page-not-exist}{No spectral sequence named '#1' exists. Making a new one.} % warning
+
+
+\sseq@newerror{is-alive-illegal-here}{You can't use \@nx\isalive outside of a page constraint for a tikz primitive.}
+
+\sseq@newerror{no-range}{Empty spectral sequence. For every spectral sequence you must either specify both the "x range" and "y range" or include at least one
+\string\class.} % maybe warning?
+\sseq@newerror{index-larger-than-stack}{Index #1 is larger than the current stack depth #2.}
+\sseq@newerror{incomplete-tikz}{Incomplete tikz expression. What I have so far is #1 and I am stopping because I ran into #2. You probably forgot a semicolon.}
+
+
+\sseq@newerror{cmdoptions-only}{You can only use the '#1' option with #2, not with #3.} % warning
+\sseq@newerror{cmdoptions-without-options}{There is no reason to use \string#1 without giving options.} % warning
+\sseq@newerror{cmdoptions-feature-doesn't-exist}{There is no #1 of the form '\sseq@thiscall' so I can't add options to it.}
+
+\sseq@newerror{classoptions-already-dead}{Generation #1 of the class #2 perished on page #3 so there is no reason to add an option to it on page \sseq@thepage.}
+\sseq@newerror{classoptions-not-yet-born}{Generation #1 of the class #2 is not yet present on page \sseq@thepage\ so there is no reason to add an option to it.}
+\sseq@newerror{classoptions-page-gen}{Don't use both "page" and "generation" for the same \@nx\classoption command.} % warning
+\sseq@newerror{classoptions-class-already-named}{The class \coord\ already is named '\sseq@obj{class.\classname.name}'. Overwriting it. Use \@nx\nameclass if you want to give it a second name.}%warning
+\sseq@newerror{doptions-invisible}{Cannot add options to invisible differential.}
+\sseq@newerror{doptions-no-effect-on-this-page}{Adding an option to a differential on page #1 when the current page is \sseq@thepage\ and the 'keep changes' option is not present has no effect.}
+
+
+\sseq@newerror{class-tag-already-defined}{A class with tag '#1' is already defined in position #2. Overwriting it.} % warning
+
+\sseq@newerror{replaceclass-not-dead-yet}{I cannot replace the class at #1 because it seems to be alive and well.}
+\sseq@newerror{replaceclass-no-effect-on-this-page}{The class at #1 died on page #2 so replacing it only affects pages after #3, but the current page is \sseq@thepage.} % warning
+
+
+
+\sseq@newerror{d-invalid-page}{Invalid page '#1'.}
+\sseq@newerror{d-class-already-hit}{% #1 <-#3, #2 <-\csname #3name\endcsname, #3 <- #2, #4 <- \unexpanded\@xpthree{\sseq@obj{\sseq@temp.deathinfo}}
+    The #1 #2 of differential \sseq@thiscall\ on page #3 has already been the #4.
+    Use \string\replaceclass#2 before \sseq@thiscall.%
+}
+\sseq@newerror{d-hit-same-page-replaceclass}{%#1 <- #3, #2 <- \csname #3name\endcsname, #3 <- #2, #3 <-\sseq@obj{#1[\the\sseq@tempcount].deathinfo},
+    The #1 #2 of differential \sseq@thiscall\ was the #3.
+    If multiple differentials touch a class on the same page, they cannot be separated by a \@nx\replaceclass command.%
+}
+\sseq@newerror{d-hit-wrong-order}{%
+    The #1 #2 of differential \sseq@thiscall\ on page #3 has already been the #4.
+    First use the shorter differential, then \string\replaceclass#2, then the longer differential.%
+}
+
+
+\sseq@newerror{structline-no-page-max}{You cannot provide \@nx\structline with the option "page=min--max", only with "page=min".} %warning
+\sseq@newerror{structline-already-exists}{Cannot add a structline from #1 to #2 because such a structline already exists.}
+\sseq@newerror{structline-stillborn}{Structline dies before it is born. Perhaps you meant to specify a different source or target?}
+
+
+\ExplSyntaxOff

@@ -1,0 +1,129 @@
+%%
+%% Package: spectralsequences.sty version 1.0
+%% Author: Hood Chatham
+%% Email: hood@mit.edu
+%% Date: 2017-06-18
+%% License: Latex Project Public License
+%%
+%% File: example_mayss.tex
+%%
+%%    I think this is the May SS for the sphere. May spectral sequences are annoying to draw neatly it turns out -- there's too much stuff in them.
+%%    It helps a lot if you start at E_2 though, since E_1 is polynomial. They also have the problem with their crappy grading that makes all
+%%    differentials the same length. I seem to have graded this weirdly, probably because the normal grading looked too bad.
+%%
+
+\documentclass{article}
+\usepackage{fullpage}
+\usepackage{spectralsequences}
+
+\begin{document}
+\NewSseqGroup\tower {m} {
+    \class["#1"](0,0)
+    \foreach\i in {1,...,14}{
+        \class(0,\i)
+        \structline(0,\i-1,-1)(0,\i,-1)
+    }
+}
+
+\NewSseqGroup\hone {m} {
+    \foreach\i in {1,...,#1}{
+        \class(\i,\i)
+        \structline(\i-1,\i-1,-1)(\i,\i,-1)
+    }
+}
+
+\NewSseqCommand\dtower {u(u)} {
+    \foreach\i in {0,...,10}{
+        \d[yshift=\i]#1(#2)
+    }
+}
+
+
+\def\single(#1)#2{\class["#2"](#1)}
+
+\NewSseqGroup\htwo {m} {
+    \foreach \n in {0,...,5}{
+        \tower(3*\n,\n){\sseqifempty{#1}{}{#1}\sseqpowerempty{h_2}{\n}}
+        \ifnum\n>0\relax
+            \structline(3*\n-3,\n-1,-1)(3*\n,\n,-1)
+        \fi
+    }
+}
+
+\NewSseqGroup\htwosinglejoin {mm} {
+    \foreach \n in {0,...,5}{
+        \single(3*\n,\n){\sseqifempty{#1}{}{#1}\sseqpowerempty{h_2}{\n}}
+        \ifnum\n>0\relax
+            \structline(3*\n-3,\n-1,-1)(3*\n,\n,-1)
+        \fi
+    }
+    \foreach \n in {0,...,#2}{
+        \structline(3*\n,\n,-1)(3*\n,\n+1,-1)
+    }
+}
+
+
+
+\begin{sseqdata}[name=may, degree={-1}{1-#1},x range={0}{13}, y range={0}{13},class labels=below right,differentials=blue,x axis extend end=23pt,draw]
+\tower(7,1){h_3}
+\htwo(0,0){}
+\classoptions[label position=above left](9,3)
+\hone(0,0){3}
+\htwo[label position={xshift=3pt,yshift=2pt}](4,4){b_{2,0}}
+\dtower2(4,4,-1,-1) % d2(b_{2,0}h_0^n) = h_2h_0^{n+2}
+\d2(4,4,-1,1) % d2(b_{2,0})= h_2h0^2 + h1^3
+
+%\hone(4,4){3}
+\htwo(8,8){b_{2,0}^2}
+\hone(8,8){3}
+\dtower4(8,8,,1) % d4(b_{2,0}^2) = h3 h0^4
+%\hone(8,8){3}
+\hone(7,1){2}
+
+
+\htwosinglejoin(7,4){x_7}{4}
+\dtower2(7,4,2,-1)
+\hone(7,4){2}
+\htwosinglejoin(11,8){x_7b_{2,0}}{4}
+\htwosinglejoin(10,4){b_{2,1}}{3}
+%\hone(10,4){1}
+\d2(10,4,-1,2) % d2(b21)=h2^3+h3h1^2
+\dtower2(10,4,1,1) % d2(b21 h0^n) = h2^3 h0^n
+
+
+\tower(11,5){h_3b_{2,0}}
+\tower(12,6){b_{3,0}}
+\dtower2(12,6,-1,-1)
+
+\htwo(12,12){b_{2,0}^3}
+\dtower2(12,12,-1,1) % d2(b20^3 h_0^n) = h0^n b20^2 d2(b20) = h0^{n+2} h2 b20^2
+\d2(12,12,-1,2) % d2(b_{2,0}^3)= b20^2 d2(b20) = h_2 h0^2 b20^2 + h1^3 b20^2
+\hone(12,12){3}
+\replaceclass(11,11)
+
+\structline(11,10)(11,11)
+\structline(10,10,2)(11,11)
+
+\replaceclass(3,3)
+
+\structline(2,2)(3,3)
+\structline(3,2)(3,3)
+
+
+
+
+
+\replaceclass(9,3)
+\structline(6,2)(9,3)
+\structline(8,2)(9,3)
+
+
+
+%\dtower2(12,6,2,-1)
+\end{sseqdata}
+\printpage[name=may]
+\newpage
+\printpage[name=may, page=4]
+\newpage
+\printpage[name=may, page=5]
+\end{document} 

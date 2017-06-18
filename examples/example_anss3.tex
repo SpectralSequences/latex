@@ -1,0 +1,88 @@
+%%
+%% Package: spectralsequences.sty version 1.0
+%% Author: Hood Chatham
+%% Email: hood@mit.edu
+%% Date: 2017-06-18
+%% License: Latex Project Public License
+%%
+%% File: example_anss3.tex
+%%
+%%    Draws the Adams Novikov spectral sequence at the prime 3 through the 45 stem.
+%%    In this range, all we see is the Toda differential d_{2p-1}(\beta_{p/p}) = \alpha\beta^p
+%%    Thanks to Eric Peterson for contributing this diagram.
+%%
+
+\documentclass{article}
+\usepackage{spectralsequences}
+\usepackage[landscape]{geometry}
+\begin{document}
+% tower definitions
+\NewSseqCommand\alphaclass{d()}{
+    \IfNoValueTF{#1}{}{\pushstack(#1)}
+    \class(\lastx+3,\lasty+1)
+    \structline(\lastclass)(\lastclass1)
+}
+
+\NewSseqCommand\betaclass{d()}{
+    \IfNoValueTF{#1}{}{\pushstack(#1)}
+    \class(\lastx+7,\lasty+1)
+    \structline(\lastclass)(\lastclass1)
+}
+
+\begin{sseqpage}[
+    Adams grading,
+    classes = { tooltip = {(\xcoord,\ycoord)} },
+    class labels = above left,
+    label distance=3pt,
+    differentials={-{>[width=4]}, target anchor=-60},
+    y range={0}{10},
+    x range={0}{45},
+    x tick step=5,
+    xscale=0.375
+]
+\class[rectangle,fill,inner sep=3pt](0,0)
+
+\class["\alpha_1"](3,1) \structline(0,0)(3,1)
+\class["\alpha_2"](7,1)
+\class[circlen=2,"\alpha_{3/2}"](11,1)
+\class["\alpha_4"](15,1)
+\class["\alpha_5"](19,1)
+\class[circlen=2,"\alpha_{6/2}"](23,1)
+\class["\alpha_7"](27,1)
+\class["\alpha_8"](31,1)
+\class[circlen=3,"\alpha_{9/3}"](35,1)
+\class["\alpha_{10}"](39,1)
+\class["\alpha_{11}"](43,1)
+
+\class["\beta_1"](10,2) \structline(3,1)(10,2)
+\class["\beta_2"](26,2)
+\class["\beta_{3/3}" {xshift = -2pt, yshift=-2pt}](34,2)
+\class["\beta_{3/2}"](38,2)
+\class["\beta_3"](42,2)
+
+% tower off of beta_1
+\alphaclass(10,2)\betaclass
+\alphaclass\betaclass
+\alphaclass\betaclass
+\alphaclass\betaclass
+
+% tower off of beta_2
+\alphaclass(26,2)\betaclass
+\alphaclass\betaclass
+\alphaclass
+
+
+% tower off of beta_3/3
+\alphaclass(34,2)\betaclass
+\alphaclass\betaclass
+
+% tower off of beta_3
+\class[fill,circlen=2](45,3) \structline(42,2,-1)(45,3,-1)
+\betaclass
+
+% d5s
+\d5(34,2)
+\d5(44,4)
+\end{sseqpage}
+
+\end{document} 

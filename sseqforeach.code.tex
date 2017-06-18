@@ -1,0 +1,88 @@
+%%
+%% Package: spectralsequences.sty version 1.0
+%% Author: Hood Chatham
+%% Email: hood@mit.edu
+%% Date: 2017-06-18
+%% License: Latex Project Public License
+%%
+%% File: sseqforeach.code.tex
+%%
+%%    Patches the \foreach command to obtain better error reporting
+%%
+
+
+% All of this \foreach stuff is defined by tikz in the file /pgf/utilities/pgffor.code.tex
+
+\def\sseq@for@nopatch{\sseq@error{foreach-patch-failed}\def\sseq@patchfor{}\endinput}
+
+\newtoks\sseq@foreachcall
+
+\def\sseq@for@vars{}
+\def\sseq@for@savemacro#1{\sseq@d@addto@macro\sseq@for@vars{\sseq@for@vars@do#1}}
+\def\sseq@for@vars@do#1{; \string#1 = #1}
+\def\sseq@for@vars@donx#1{; \string#1= #1}
+\ExplSyntaxOn
+\def\sseq@for@printvars{\ifx\sseq@for@vars\pgfutil@empty\else\exp_last_unbraced:Nf\@gobble\sseq@for@vars\fi}
+\ExplSyntaxOff
+
+
+\def\sseq@patchfor{%
+    \let\pgffor@atbeginforeach\sseq@pgffor@atbeginforeach
+    \let\pgffor@@vars@opt\sseq@pgffor@@vars@opt
+}
+\def\sseq@pgffor@modify#1{%
+    \@xp\let\csname sseq@\sseq@macroname#1\endcsname #1%
+    \eappto\sseq@patchfor{\let\@nx#1 \@xp\@nx\csname sseq@\sseq@macroname#1\endcsname}%
+}
+
+
+
+\def\sseq@pgffor@recordarg#1#2{
+    \sseq@pgffor@modify#1
+    \@xp\pretocmd\csname sseq@\sseq@macroname#1\endcsname{\sseq@foreachcall\@xp{\the\sseq@foreachcall#2}}{}{\sseq@for@nopatch}
+}
+\def\sseq@pgffor@erecordarg#1#2{
+    \sseq@pgffor@modify#1
+    \@xp\pretocmd\csname sseq@\sseq@macroname#1\endcsname{\sseq@eval{\sseq@foreachcall{\the\sseq@foreachcall#2}}}{}{\sseq@for@nopatch}
+}
+
+
+
+\bgroup\lccode`\*=`\#\lowercase{\egroup
+
+
+\def\sseq@pgffor@atbeginforeach{%
+    \begingroup %
+    \sseq@atbeginforeach@msgsetup
+    % \pgffor@macro@list calls \pgffor@normal@list, so we need to mark that the list has already been added to foreachcall.
+    \sseq@tempiftrue
+}
+
+% Modify the foreach argument parser commands to put the call into \sseq@foreachcall and to tell us what the variables are
+\def\sseq@pgffor@@vars@opt[#1]{\sseq@foreachcall\@xp{\the\sseq@foreachcall#1}\pgfkeys{/sseqpages/foreach/.cd,#1}\pgffor@vars}
+
+\sseq@pgffor@recordarg\pgffor@@vars{*1}
+\pretocmd\sseq@pgffor@@vars{\sseq@for@savemacro*1}{}{\sseq@for@nopatch}
+
+\sseq@pgffor@recordarg\pgffor@@vars@slash@gobble{/}
+\sseq@pgffor@recordarg\pgffor@macro@list{in *1}
+\pretocmd\sseq@pgffor@macro@list{\sseq@tempiffalse}{}{\sseq@for@nopatch}% Don't add this again in  \pgffor@normal@lis
+
+\sseq@pgffor@modify\pgffor@normal@list
+% Add list to argument if it wasn't a macro
+\pretocmd\sseq@pgffor@normal@list{\ifsseq@tempif\sseq@foreachcall\@xp{\the\sseq@foreachcall in {*1}}\fi\sseq@tempiftrue}{}{\sseq@for@nopatch}
+
+\sseq@pgffor@recordarg\pgffor@collectforeach@macro{\foreach}
+\sseq@pgffor@recordarg\pgffor@collectforeach@normal{\foreach}
+
+\sseq@pgffor@modify\pgffor@iterate
+\pretocmd\sseq@pgffor@iterate{\sseq@opushstacktrace{\the\sseq@foreachcall}\sseq@thiscalltoks\@xp{\the\sseq@foreachcall}}{}{\sseq@for@nopatch}
+
+\sseq@pgffor@modify\pgffor@doloop
+\sseq@pgffor@modify\pgffor@invokebody
+\patchcmd\sseq@pgffor@doloop{\pgffor@begingroup}{\pgffor@begingroup\sseq@xsetlastcall{\the\sseq@foreachcall}}{}{\sseq@for@nopatch}
+\patchcmd\sseq@pgffor@invokebody{\pgffor@begingroup}{\pgffor@begingroup\sseq@xsetlastcall{\the\sseq@foreachcall}}{}{\sseq@for@nopatch}
+}
+
+%TODO: also hook \pgffor@assign@parse, \pgffor@remember@parse, \pgffor@count@parse.
+

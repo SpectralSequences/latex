@@ -1,0 +1,505 @@
+%%
+%% Package: spectralsequences.sty version 1.0
+%% Author: Hood Chatham
+%% Email: hood@mit.edu
+%% Date: 2017-06-18
+%% License: Latex Project Public License
+%%
+%% File: spectralsequencesmanualpreamble.tex
+%%
+%%   Manual preamble
+%%
+
+% TODO: someday I should comment this -- it's a bit of a mess
+
+\documentclass{ltxdoc}
+\usepackage[a4paper,left=2.25cm,right=2.25cm,top=2.5cm,bottom=2.5cm,nohead]{geometry}
+\usepackage{spectralsequences}
+\usetikzlibrary{shapes.geometric}
+\usepackage{amssymb}
+\usepackage[notmath]{sansmathfonts}
+\usepackage{verbatim}
+\usepackage{needspace}
+\usepackage[documentation]{tcolorbox}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+
+\hypersetup{%
+        colorlinks=true,
+        linkcolor=blue,
+        filecolor=blue,
+        urlcolor=thered,
+        citecolor=blue,
+        pdfborder=0 0 0,
+}
+\usepackage{hyperxmp}
+\makeatletter
+\def\displaycommand#1{\displaycommand@#1\@nil}
+\def\displaycommand@#1#2\@nil{\texttt{\string#1}#2}
+
+% From Christian Feuersänger https://tex.stackexchange.com/a/73103
+\makeatletter          % !!!!
+\input{pgfmanual.code} % This must be exectuted when catcode of @ is letter
+\makeatother           % !!!!
+
+\usepackage{calc} %
+\include{pgfmanual-en-macros} % This must be executed when catcode of @ is other
+
+\makeatletter
+
+\parskip=10pt
+\parindent=0pt
+\MakeShortVerb{\|}
+
+\def\sectionstring{\textbackslash\@xp\@gobble\string}
+
+\def\@gobbletocln#1:{}
+\def\eatclnifpresent#1{%
+    \eatclnifpresent@#1:\nil
+}
+\def\eatclnifpresent@#1:#2\nil{%
+    \ifx$#2$%
+        #1%
+    \else
+        \removecln#2\nil
+    \fi
+}
+\def\removecln#1:\nil{#1}
+
+\def\removenil#1\nil{#1}
+
+\def\pgfmanual@pretty@singlequote{'}
+
+
+
+\def\pulloffstartspaces{\@xp\pulloffstartspaces@\thekey\@nil}
+\def\pulloffstartspaces@#1{%
+    \def\test{#1}%
+    \ifx\test\pgfmanual@pretty@activespace
+        \@xp\def\@xp\leadingtoks\@xp{\leadingtoks\pgfmanual@pretty@space}%
+        \@xp\pulloffstartspaces@
+    \else
+        \ifx#1\@nil
+            \def\thekey{}%
+        \else
+            \@xp\@xp\@xp\pulloffstartspaces@@\@xp\@xp\@xp#1%
+        \fi
+    \fi
+}
+\def\pulloffstartspaces@@#1\@nil{\def\thekey{#1}}
+
+\def\pulloffstartbrace{\@xp\pullofflbrace\thekey\nil\@nil}
+\def\pullofflbrace#1#2\@nil{%
+    \ifx\test\pgfmanual@pretty@lbrace
+        \@xp\def\@xp\leadingtoks\@xp{\leadingtoks\pgfmanual@pretty@lbrace}%
+        \@xp\def\@xp\thekey\@xp{\removenil#2}%
+    \else
+        \@xp\def\@xp\thekey\@xp{\removenil#1#2}%
+    \fi
+}
+
+
+\def\pulloffsinglequote{\@xp\pulloffsinglequote@\thekey\nil\@nil}
+\def\pulloffsinglequote@#1#2\@nil{%
+    \def\test{#1}%
+    \ifx\test\pgfmanual@pretty@singlequote
+        \@xp\def\@xp\leadingtoks\@xp{\leadingtoks\pgfmanual@pretty@singlequote}%
+        \@xp\def\@xp\thekey\@xp{\removenil#2}%
+    \else
+        \def\possiblesinglequote{}%
+        \@xp\def\@xp\thekey\@xp{\removenil#1#2}%
+    \fi
+}
+
+
+
+
+% deletes everything except trailing spaces. For making link underline not include trailing spaces (have to reinsert spaces)
+\def\onlytrailingspaces#1{%
+    \pgfkeys@spdef\temp{#1}%
+    \@xp\def\@xp\temp\@xp##\@xp1\temp{}%
+    \temp#1%
+}
+
+% remove trailing spaces, for making link underline not include trailing spaces
+\def\removetrailingspaces{\@xp\removetrailingspaces@\@xp{\thekey}}
+\def\removetrailingspaces@#1{%
+    \removetrailingspace{#1}%
+    \ifx\possibletrailingspace\empty\else
+        \edef\trailingtoks{\unexpanded\@xp{\possibletrailingspace}\unexpanded\@xp{\trailingtoks}}%
+        \@xp\removetrailingspaces@\@xp{\thekey}%
+    \fi
+}
+
+\bgroup
+\catcode`\Q=3\lccode`\)=`\}\lccode`\~=`\ \lowercase{
+    \gdef\removetrailingspace#1{\removetrailingspace@#1QQ~Q}
+    \gdef\removetrailingspace@#1~Q{\removetrailingspace@@#1}
+    \gdef\removetrailingspace@@#1Q#2Q{\def\thekey{#1}\def\possibletrailingspace{#2}}
+
+    % Remove trailing brace -- so close brace can be colored / styled differently
+    \gdef\removetrailingbrace{\@xp\removetrailingbrace@\thekey QQ)Q}
+    \gdef\removetrailingbrace@#1)Q{\removetrailingbrace@@#1}
+    \gdef\removetrailingbrace@@#1Q#2Q{\def\thekey{#1}\edef\trailingtoks{\unexpanded{#2}\unexpanded\@xp{\trailingtoks}}}
+}
+
+\catcode`\^^M=\active
+    % remove trailing new line -- so we can properly test whether the last nonwhitespace character is a brace
+    \gdef\removetrailingnewline{\@xp\removetrailingnewline@\thekey \nil\nil^^M\nil}%
+    \gdef\removetrailingnewline@#1^^M\nil{\removetrailingnewline@@#1}%
+    \gdef\removetrailingnewline@@#1\nil#2\nil{\def\thekey{#1}\edef\trailingtoks{\unexpanded{#2}\unexpanded\@xp{\trailingtoks}}}%
+\egroup
+
+
+
+% Redefine decompose not to do all that fancy crap -- just print as is. Maybe we should get rid of surrounding spaces here and where we do the ref?
+\def\decompose#1/\nil{%
+    \index{#1@\protect\texttt{#1} key}%
+    \index{\mypath#1@\protect\texttt{#1}}%
+    \pgfmanualpdflabel{#1}{}%
+}
+\let\olddeclare\declare
+\ExplSyntaxOn
+% Get rid of colon so that we can have context based linking -- "page" links to global page, "class:page" prints page and links to the page key in the class section, etc.
+\def\declare#1{%
+    \exp_args:Nf\olddeclare{%
+        \eatclnifpresent{#1}%
+    }%
+}
+\ExplSyntaxOff
+
+%\patchcmd\pgfmanualpdfref{#2}{#2} % If I want it to behave differently for things that aren't links
+\patchcmd\pgfmanualpdfref{\expandafter\pgfmanualpdfref@\expandafter{\pgfmanualpdflabel@@}{#2}} % Fix it so that being a link doesn't change the color
+    {\colorlet{temp}{.}\expandafter\pgfmanualpdfref@\expandafter{\pgfmanualpdflabel@@}{\textcolor{temp}{#2}}}{}{}%
+
+\newenvironment{manualentry}[1]{%
+    \begin{pgfmanualentry}%
+    \pgfmanualentryheadline{#1}%
+    \pgfmanualbody
+}{%
+    \end{pgfmanualentry}%
+}
+
+
+
+\def\removespace#1\space\nil{#1}
+\newenvironment{stylekeylist}[2][]{%
+  \begin{pgfmanualentry}
+    \def\extrakeytext{}%
+  \foreach \xx in {#2} {%
+    \expandafter\extractkey\xx\space= \marg{keys}\@nil%
+    \declareasstyle{\@xp\removespace\mykey\nil}% tells latex not to italicize body
+  }%
+  \pgfmanualbody
+}{%
+  \end{pgfmanualentry}
+}%
+
+% Custom handler for value of key -- instead of italicizing, do what?
+\def\ifcustomhandler#1{%
+    \@xp\pgfkeys@spdef\@xp\test\@xp{#1}%
+    \expandafter\ifx\csname\test @ custom handler\endcsname\relax\@xp\@secondoftwo\else\@xp\@firstoftwo\fi
+}
+\def\customhandler#1{%
+    \@xp\pgfkeys@spdef\@xp\test\@xp{#1}%
+    \csname\test @ custom handler\endcsname{#1}%
+}
+
+\def\declarecustomhandler#1#2{%
+    \immediate\write\@auxout{\@nx\expandafter\gdef\@nx\csname#1@ custom handler\endcsname{\@nx#2}}%
+    \@xp\gdef\csname#1@ custom handler\endcsname{#2}%
+}
+
+\def\declareasstyle#1{\declarecustomhandler{#1}\stylehandler}
+\def\stylehandler#1#2{%
+    \bgroup
+    \let\pgfmanualwordstartup\relax
+    \def\thekey{#2}%
+    \let\leadingtoks\empty
+    \pulloffstartspaces\pulloffstartbrace
+    \textcolor{keycolor}{\leadingtoks}%
+    \@xp\pgfmanualprettyprintpgfkeys\@xp{\thekey}%
+    \egroup
+}
+\def\codehandler#1#2{%
+    \bgroup
+    \def\thekey{#2}%
+    \let\leadingtoks\empty
+    \let\trailingtoks\empty
+    \pulloffstartspaces\pulloffstartbrace
+    \removetrailingspaces\removetrailingnewline
+    \removetrailingspaces\removetrailingbrace
+    \textcolor{keycolor}{\leadingtoks}%
+    \@xp\pgfmanualprettyprintcode\@xp{\thekey}%
+    \textcolor{keycolor}{\trailingtoks}%
+    \egroup
+}
+
+\declarecustomhandler{font}{\codehandler}
+\declarecustomhandler{page constraint}{\codehandler}
+\declarecustomhandler{page constraint}{\codehandler}
+
+\let\pgfmanualpdflabel@opt@old\pgfmanualpdflabel@opt
+\def\pgfmanualpdflabel@opt[#1]#2#3{%
+    \pgfkeys@spdef\temp{#2}%
+    \sseq@eval{\unexpanded{\pgfmanualpdflabel@opt@old[#1]}\unexpanded\@xp{\@xp{\temp}{#3}}}%
+}
+
+\patchcmd\extractkey{\hfill(\extrakeytext no value)}{}{}{\error}
+\patchcmd\extractkey{\def\mykey}{\gdef\mykey}{}{\error}
+\patchcmd\extractkeyequal{\hfill(\extrakeytext no default)}{}{}{\error}
+\patchcmd\extractkeyequal{\def\mykey}{\gdef\mykey}{}{\error}
+\patchcmd\extractinitial{no default, }{}{}{\error}
+\patchcmd\extractinitial{\def\mykey}{\gdef\mykey}{}{\error}
+\patchcmd\extractdefault{\def\mykey}{\gdef\mykey}{}{\error}
+\patchcmd\extractdefault{#2}{{\hskip2pt}#2}{}{\error}
+\patchcmd\extractequalinitial{\def\mykey}{\gdef\mykey}{}{\error}
+\let\extractkey@\extractkey
+\apptocmd\extractkey@{\egroup}{}{\error}
+\def\extractkey{\bgroup\@ifnextchar*{\def\decompose####1\nil{}\relax\extractkey@\@gobble}{\extractkey@}}
+
+\def\pgfmanual@pretty@quote{"}
+\let\pgfmanual@pretty@pgfkeys@loop@\pgfmanual@pretty@pgfkeys@loop
+\def\pgfmanual@pretty@pgfkeys@loop#1{%
+	\def\pgfmanual@loc@TMPa{#1}%
+    \def\pgfmanual@pretty@pgfkeys@loop@NEXT{\pgfmanual@pretty@pgfkeys@loop@{#1}}%
+    \ifx\pgfmanual@loc@TMPa\pgfmanual@pretty@quote%
+        \let\pgfmanual@pretty@pgfkeys@loop@NEXT\pgfmanual@pretty@collectquote
+    \fi
+    \pgfmanual@pretty@pgfkeys@loop@NEXT
+}
+\def\pgfmanual@pretty@collectquote{%
+    \let\pgfmanualprettyprinterhandlecollectedargs=\pgfmanual@pretty@collectargs@finish@collectquote
+    \pgfmanualprettyprintercollectupto"
+    	{\pgfmanual@pretty@collectquote@b}%
+}
+\def\pgfmanual@pretty@collectquote@b{%
+    \let\pgfmanualprettyprinterhandlecollectedargs=\pgfmanual@pretty@collectargs@finish@collectquote@b
+    \pgfmanualprettyprintercollectupto,{%
+        \@xp\afterpgfmanual@pretty@collectquote\temp
+    }%
+}
+
+\def\afterpgfmanual@pretty@collectquotenocomma,{\pgfmanual@pretty@pgfkeys@loop}
+\def\afterpgfmanual@pretty@collectquote{\pgfmanual@pretty@pgfkeys@loop}
+\def\pgfmanual@pretty@collectargs@finish@collectquote#1{\textcolor{keycolor}{\pgfmanualpdfref{""quotes}{"#1"}}}
+\def\pgfmanual@pretty@collectargs@finish@collectquote@b#1{%
+    \edef\temp{\ifpgfmanualprettyprinterfoundterminator,\fi}%
+    \pgfkeys{/codeexample/prettyprint/key name/.code={\textcolor{keycolor}{##1}}}%
+    \def\thekey{#1}%
+    \def\leadingtoks{}\def\trailingtoks{}%
+    \pulloffstartspaces\pulloffsinglequote\pulloffstartspaces\pulloffstartbrace
+    \removetrailingspaces\removetrailingbrace
+    \textcolor{keycolor}{{}\leadingtoks}% {} here to prevent \textcolor from eating initial space
+    \@xp\pgfmanual@pretty@pgfkeys@loop\thekey\pgfmanual@EOI
+    \textcolor{keycolor}{{}\trailingtoks}%
+}
+
+% Don't allow braces in key names
+\patchcmd\pgfmanual@pretty@pgfkeys@collectkey{%
+	\def\pgfmanual@pretty@pgfkeys@collectkey@next{%
+		\pgfmanualprettyprintercollectargcount{1}{\pgfmanual@pretty@pgfkeys@collectkey}%
+		#1%
+	}%
+}{%			
+    \expandafter\pgfmanual@pretty@pgfkeys@processkey\expandafter{\the\toks0 }%
+		#1%
+		\def\pgfmanual@pretty@pgfkeys@collectkey@next{\pgfmanual@pretty@pgfkeys@loop}%
+}{}{\error}
+
+% Redefine point collection to correctly balance the parens
+% Has unfortunate side effect that it now throws an error if parens don't balance.
+\let\pgfmanual@pretty@collectpoint@old\pgfmanual@pretty@collectpoint
+\def\pgfmanual@pretty@collectpoint{\pgfmanual@pretty@collectpoint@(} %)
+\DeclareDocumentCommand\pgfmanual@pretty@collectpoint@{r()}{%
+    \pgfmanualprettyprinterfoundterminatortrue
+	\pgfmanual@pretty@collectargs@finish@collectpoint{#1}%
+	\afterpgfmanual@pretty@collectpoint
+}
+
+
+\pgfqkeys{/codeexample/prettyprint}{
+	cs arguments/meta/.initial=1, % Make \meta work correctly in codeexample
+	cs/meta/.code={\textcolor{black}{\meta{\@gobble#1}}},
+%
+	cs arguments/opt/.initial=1,
+	cs/opt/.code={\opt{\@gobble#1}},
+ %
+    cs arguments/oarg/.initial=1,
+	cs/oarg/.code={\oarg{\@gobble#1}},
+%
+    cs arguments/marg/.initial=1,
+	cs/marg/.code={\marg{\@gobble#1}},
+%
+    cs arguments/pars/.initial=1,
+    cs/pars/.code={\@xp\pars\@xp{\@xp\pgfmanualprettyprintpgfkeys\@xp{\@gobble#1}}},
+    cs arguments/pararg/.initial=1,
+    cs/pararg/.code={\pararg{\@gobble#1}},
+    cs arguments/parargtwo/.initial=2,
+    cs/parargtwo/.code 2 args={\parargtwo{\@gobble#1}{\@gobble#2}},
+%
+    cs arguments/cscolor/.initial=1,
+	cs/cscolor/.code={\textcolor{cscolor}{\@gobble#1}},
+    cs arguments/pointcolor/.initial=1,
+	cs/pointcolor/.code={\textcolor{pointcolor}{\@gobble#1}},
+    %point/.code={\def\temp{#1}\show\temp},
+%
+    cs arguments/sseqset/.initial=1,
+    cs/sseqset/.code 2 args={\textcolor{cscolor}{\string\sseqset}\{\pgfmanualprettyprintpgfkeys{#2}\}},
+%
+    cs arguments/DeclareDocumentCommand/.initial=2,
+    cs/DeclareDocumentCommand/.code={\handlexparsestylecmd#1},
+    cs arguments/NewSseqCommand/.initial=2,
+    cs/NewSseqCommand/.code={\handlexparsestylecmd#1},
+%
+    /pdflinks/internal link prefix=pgf,
+    key value with style detection/.code 2 args={\pgfkeysalso{/codeexample/prettyprint/key value display only={#2}}}, % get rid of bothersome special style handling
+    % handle spaces and colons
+    key name/.code={%
+        \pgfkeys@spdef\temp{#1}%
+        \let\pgfmanual@pretty@pgfkeys@collectkey@keyname\temp
+        \textcolor{keycolor}{%
+            \pgfmanualpdfref{\temp}{%
+                \noligs{\@xp\eatclnifpresent\@xp{\temp}}%
+            }%
+        }%
+        \onlytrailingspaces{#1}%
+    },
+    key value display only/.code={%
+        \sseq@eval{\@nx\pgfutil@in@{/.style}{\pgfmanual@pretty@pgfkeys@collectkey@keyname}}%
+        \ifpgfutil@in@\else
+            \sseq@eval{\@nx\pgfutil@in@{/.sseq style}{\pgfmanual@pretty@pgfkeys@collectkey@keyname}}%
+        \fi
+        \ifpgfutil@in@
+            \def\thekey{#1}%
+            \def\trailingtoks{}%
+            \removetrailingspaces\removetrailingbrace
+            \@xp\stylehandler\@xp{\@xp}\@xp{\thekey}%
+            \textcolor{keycolor}{%
+                \trailingtoks
+            }%
+        \else
+            \ifcustomhandler{\pgfmanual@pretty@pgfkeys@collectkey@keyname}{%
+                \def\thekey{#1}%
+                \def\trailingtoks{}%
+                \removetrailingspaces\removetrailingbrace
+                \@xp\customhandler\@xp{\@xp\pgfmanual@pretty@pgfkeys@collectkey@keyname\@xp}\@xp{\thekey}%
+                \textcolor{keycolor}{%
+                    \trailingtoks
+                }%
+            }{%
+                \textcolor{keycolor}{{\itshape{\let\pgfmanualwordstartup\relax\pgfmanualprettyprintpgfkeys{#1}}}}%
+            }%
+        \fi
+    },
+    point/.code={\pgfutil@in@){#1}\ifpgfutil@in@\prettyprintprocesspoint#1\else \textcolor{pointcolor}{\noligs{#1}}\fi},
+	%/cs/.code={\pgfmanualpdfref{#1}{\textcolor{blue}{#1}}},
+%	/cs with args/.code 2 args={\pgfmanualpdfref{#1}{\textcolor{blue}{#1}}\{\pgfmanualprettyprintcode{#2}\pgfmanualclosebrace},
+    %/colored
+}
+
+\def\handlexparsestylecmd#1#2#3{\pgfkeysvalueof{/codeexample/prettyprint/cs/.@cmd}#1\pgfeov\textcolor{cscolor}{#2}\typesetargspec{#3}}
+\def\typesetargspec#1{\{\textcolor{purple}{#1}\}}
+
+\let\oldtextcolor\textcolor
+\def\textcolorpoint#1{\oldtextcolor{pointcolor}}
+
+
+% Normally the verbatim processes stuff using
+\let\pgfmanual@verb@collect@code\pgfmanual@verb@collect
+\patchcmd\pgfmanual@verb@collect@code{\pgfmanualprettyprintpgfkeys}{\pgfmanualprettyprintcode}{}{\error}
+\let\pgfmanual@verb@code\pgfmanual@verb
+\patchcmd\pgfmanual@verb@code{\begingroup}{\begingroup\let\pgfmanual@verb@collect\pgfmanual@verb@collect@code}{}{\error}
+\def\codeverb|{\pgfmanual@verb@code}
+
+% balance the braces
+\NewDocumentCommand\prettyprintprocesspoint { r() } {%
+    \textcolor{pointcolor}{%
+        \bgroup
+            \let\pgfmanual@pretty@collectpoint\pgfmanual@pretty@collectpoint@old
+            \let\textcolor\textcolorpoint
+            \noligs{(\pgfmanualprettyprintcode{#1})}%
+        \egroup
+    }%
+}
+%\pgfqkeys{/codeexample}{every codeexample/.style={width=6cm}}
+
+
+\pgfqkeys{/sseqpages}{
+    class/class:name/.forward to=/sseqpages/class/name,
+    class/class:page/.forward to=/sseqpages/class/page,
+    struct line/structline:page/.forward to=/sseqpages/struct line/page,
+    fit/cc:differential style/.forward to=/sseqpages/fit/differential style,
+    tikz primitives/cc:differential style/.forward to=/sseqpages/tikz primitives/differential style
+}
+
+
+\def\ooptions{\oarg{options}}
+\def\moptions{|[|\meta{options}|]|}
+\def\sourcecoord{\meta{source coordinate}}
+\def\targetcoord{\meta{target coordinate}}
+\def\sourcen{\meta{source n}}
+\def\targetn{\meta{target n}}
+\def\sourcename{\meta{source name}}
+
+\def\version{version 1.0}
+\def\today{\the\year/\the\month/\the\day}
+\def\pgfmanualurl{http://math.mit.edu/~hood/pgfmanual_v3.0.1a.pdf}
+\def\xparseurl{http://mirror.ctan.org/macros/latex2e/contrib/l3packages/xparse.pdf}
+\def\colormanualurl{http://mirror.ctan.org/macros/latex/required/graphics/color.pdf}
+
+\def\pkg#1{\textsf{\textmd{#1}}}
+\def\sseqpages{\textsc{\pkg{spectralsequences}}}
+\def\sseqpkg{\pkg{sseq}}
+\let\tikzpkg\tikzname
+\def\pgfpkg{\pkg{\textmd{PGF}}}
+\def\tikzcdpkg{\pkg{tikzcd}}
+\def\pgfplotspkg{\textsc{\pkg{pgfplots}}}
+\def\xparsepkg{\pkg{xparse}}
+\def\colorpkg{\pkg{color}}
+
+\bgroup\lccode`\(=`\{\lccode`\)=`\}\lowercase{\egroup
+    \def\sseqpageenv{\pgfmanualpdfref{sseqpage}{\texttt{(sseqpage)}}}
+    \def\sseqdataenv{\pgfmanualpdfref{sseqdata}{\texttt{(sseqdata)}}}
+    \def\tikzpictureenv{\texttt{(tikzpicture)}}
+    \def\scopeenv{\texttt{(scope)}}
+}
+
+
+\hypersetup{
+    pdftitle={The Sseqpages Package},
+    pdfauthor={Hood Chatham},
+    pdfsubject={A spectral sequence drawing package build on tikz},
+    pdfkeywords={spectral sequences,algebraic topology,homotopy theory,math,tikz,sseq},
+    pdflicenseurl={http://www.latex-project.org/lppl/}
+}
+
+\def\pars#1{|(|#1|)|}
+\def\pararg#1{\pars{\meta{#1}}}
+\def\parargtwo#1#2{|(\meta{#1},\meta{#2})|}
+\def\parargthree#1#2#3{|(\meta{#1},\meta{#2},\meta{#3})|}
+\def\parargthreeopt#1#2#3{|(\meta{#1},\meta{#2}|\opt{|,\meta{#3}|}|)|}
+\def\parargthreevar#1#2#3{|(\meta{#1},\meta{#2}#3)|}
+
+
+\def\example#1{\path{example_#1.tex}}
+
+
+% xparse modifications:
+\ExplSyntaxOn
+\cs_set_eq:NN \__xparse_grab_U:w \sseq__xparse_grab_U:w
+\cs_set_eq:NN \__xparse_add_type_U:w \sseq__xparse_add_type_U:w
+\ExplSyntaxOff
+
+\def\@maketitle{%
+ \null\vskip 2em
+  \begin{center}\let\footnote\thanks\sffamily
+    {\huge \@title\par}\vskip 1.5em
+    {\large \parbox{.33\textwidth}{\centering\@author}%
+            \parbox{.33\textwidth}{\centering\@date}}%
+  \vskip2.5em\rule{\textwidth}{.4pt}%
+  \end{center}\par\vskip1.5em}
+\def\abstractname{}
+\def\mailtoHC{\href % some PDF viewers don't like spaces:
+    {mailto:<hood@mit.edu>\%20Hood\%20Chatham?subject=[sseqpages]}
+    {\texttt{hood@mit.edu}}} 

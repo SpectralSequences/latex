@@ -1,0 +1,1324 @@
+%%
+%% Package: spectralsequences.sty version 1.0
+%% Author: Hood Chatham
+%% Email: hood@mit.edu
+%% Date: 2017-06-18
+%% License: Latex Project Public License
+%%
+%% File: sseqparsers.code.tex
+%%
+%%    Defines the parsers and input sanitizers. Also handles tikz primitive parsing and \isalive.
+%%    ExplSyntaxOn for this whole file!
+
+\ExplSyntaxOn
+
+
+% Prevent \protect from causing trouble for \pgfmathparse
+\let\sseq@pgfmathparse@orig\pgfmathparse
+\def\sseq@pgfmathparse#1{\let\@@protect\protect\def\protect{}\sseq@pgfmathparse@orig{#1}\restore@protect}
+
+
+%%% ifpgfmathexpr
+% #1 -- expresion to test
+% #2 -- true case
+% #3 -- false case
+% This tests true if \pgfmathparse{#1} throws an error or not. Luckily, \pgfmathparse pipes its errors through \pgfmath@error so this is easy.
+\def\sseq@ifpgfmathexpr#1{
+    \bgroup
+    \let\protect\pgfutil@empty
+    \global\sseq@gtempiftrue
+    \def\pgfmath@error##1##2{\global\sseq@gtempiffalse}
+    \pgfmathparse{#1}
+    \ifpgfmathunitsdeclared
+        \xdef\sseq@mathresult{\pgfmathresult pt}
+    \else
+        \xdef\sseq@mathresult{\pgfmathresult}
+    \fi
+    \egroup
+    \ifsseq@gtempif
+        \@xp\@firstoftwo
+    \else
+        \@xp\@secondoftwo
+    \fi
+}
+
+
+% Test if single token input is a digit
+\def\sseq@ifdigit#1{
+    \ifodd0
+        \ifx#1 0 1 \else
+        \ifx#1 1 1 \else
+        \ifx#1 2 1 \else
+        \ifx#1 3 1 \else
+        \ifx#1 4 1 \else
+        \ifx#1 5 1 \else
+        \ifx#1 6 1 \else
+        \ifx#1 7 1 \else
+        \ifx#1 8 1 \else
+        \ifx#1 9 1 \else
+        \fi \fi \fi \fi \fi
+        \fi \fi \fi \fi \fi
+    \relax
+        \@xp\@firstoftwo
+    \else
+        \@xp\@secondoftwo
+    \fi
+}
+
+%%% ifintexpr
+% #1 -- expresion to test
+% #2 -- true case
+% #3 -- false case
+% This tests true if \numexpr #1\relax throws no error and consumes all of #1 and false otherwise.
+
+% Spaces matter to us, because \sseq@ifintexpr{1 1} is false but \sseqsifintexpr{11} is true
+% so we make spaces into catcode other and use \scantokens
+\def\sseq@ifintexpr#1{%
+    \bgroup
+    \char_set_catcode_other:N \ %
+    \sseq@tempcount\z@
+    \makeatletter
+    \scantokens{\sseq@ifintexpr@first{needsint}#1\sseq@nil}%
+    \@xp\egroup\next
+}
+\@xp\let\@xp\sseq@otherspace\c_catcode_other_space_tl % This has to be a let, no idea why
+%\def\sseq@ifintexpr#1{\@firstoftwo}
+
+% Gobble the space of catcode other that scantokens inserts after \sseq@ifintexpr@first
+\def\sseq@ifintexpr@first#1#2{\sseq@ifintexpr@{#2}}
+
+% We need to use \futurelet so that we can detect open braces even when they only surround one token like {1}
+% so we have to store the state in \sseq@ifintexpr@state
+
+\def\sseq@ifintexpr@#1{\def\sseq@ifintexpr@state{#1}\futurelet\testtok\sseq@ifintexpr@@}
+\def\sseq@ifintexpr@@{%
+    \ifx\testtok\bgroup%
+        \let\next\sseq@ifintexpr@false
+    \else
+        \ifx\testtok\sseq@nil
+            \@xp\let\@xp\next\csname sseq@ifintexpr@@\sseq@ifintexpr@state @done\endcsname
+        \else
+            % Even though I \let \sseq@otherspace to a space of catcode other up there,
+            % I still need this freaking expandafter here. God only knows why. Figured this out by trial and error.
+            % We need to check here for a space because \string<space> produces NO OUTPUT regardless of the catcode of the space.
+            % This fucks over \sseq@ifintexpr@@@ real hard because it doesn't expect \string#1 to produce no characters.
+            \@xp\ifx\sseq@otherspace\testtok
+                \def\next{\sseq@ifintexpr@next{~}\@xp\next\@gobble}
+            \else
+                \let\next\sseq@ifintexpr@@@
+            \fi
+        \fi
+    \fi
+    \next
+}
+
+\def\sseq@ifintexpr@@@#1{
+    \ifcat$\@xp\@gobble\string#1$%
+        \@xp\sseq@ifintexpr@@@@\@xp#1
+    \else
+        % scantokens puts an extra space character after control sequences, so to give them the best shot at working, eat that space character
+        % Then use f expansion.
+        \@xp\@xp\@xp\sseq@ifintexpr@@@fexpcs\@xp\@xp\@xp#1\@xp\@gobble
+    \fi
+}
+
+% Unfortunately, if we have a macro that takes an argument inside another macro that takes an argument, this will fail (the inside macro will get a space) but such is life.
+\def\sseq@ifintexpr@@@fexpcs{\exp_last_unbraced:Nf\sseq@ifintexpr@@@fexpcs@}
+\def\sseq@ifintexpr@@@fexpcs@{\futurelet\testtok\sseq@ifintexpr@@@fexpcs@@}
+\def\sseq@ifintexpr@@@fexpcs@@{
+    \ifx\testtok\bgroup
+        \@xp\sseq@ifintexpr@false
+    \else
+        \@xp\sseq@ifintexpr@@@@
+    \fi
+}
+
+
+
+%\exp_last_unbraced:Nf\sseq@ifintexpr@@
+
+
+% We can't just use \futurelet because "\let\testtok(" makes \testtok unexpandable
+% (I guess that makes sense, but why is it that I need \@xp\ifx\otherspace above if I've also \let\otherspace to a character? Mysterious...),
+% so then "\csname hello\testtok\endcsname" is an error. This indexes into our state machine,
+% cases: a digits, + or -, * or /, (, ), or something else (anything else always leads to false
+\def\sseq@ifintexpr@@@@#1{%
+    \ifx#1\sseq@nil
+        \def\next{\csname sseq@ifintexpr@@\sseq@ifintexpr@state @done\endcsname\sseq@nil}%
+    \else
+        \sseq@ifdigit{#1}%
+            {\sseq@ifintexpr@next{digit}}%
+            {%
+                \ifx#1+%
+                    \sseq@ifintexpr@next{+-}
+                \else
+                    \ifx#1-%
+                        \sseq@ifintexpr@next{+-}
+                    \else
+                        \ifx#1*%
+                            \sseq@ifintexpr@next{*/}
+                        \else
+                            \ifx#1/%
+                                \sseq@ifintexpr@next{*/}
+                            \else
+                                \pgfutil@ifundefined{sseq@ifintexpr@@\sseq@ifintexpr@state @#1}%
+                                    {\let\next\sseq@ifintexpr@false}%
+                                    {\sseq@ifintexpr@next{#1}}%
+                            \fi
+                        \fi
+                    \fi
+                \fi
+            }%
+    \fi
+    \next
+}
+
+% This has to eat the space
+%\bgroup\lccode`\*=`\ \lowercase{\egroup
+    \def\sseq@ifintexpr@true#1\sseq@nil{\ifnum\sseq@tempcount=\z@ \let\next\@firstoftwo\else\let\next\@secondoftwo\fi}
+    \def\sseq@ifintexpr@false#1\sseq@nil{\let\next\@secondoftwo}
+%}
+\def\sseq@makeifint#1#2#3{\@xp\def\csname sseq@ifintexpr@@#1@#2\endcsname{#3}}
+\def\sseq@ifintexpr@next#1{\@xp\let\@xp\next\csname sseq@ifintexpr@@\sseq@ifintexpr@state @#1\endcsname}
+
+\sseq@makeifint{needsint}{done}{\sseq@ifintexpr@false}
+\sseq@makeifint{needsint}{digit}{\sseq@ifintexpr@{int}}
+\sseq@makeifint{needsint}{*/}{\sseq@ifintexpr@false}
+\sseq@makeifint{needsint}{+-}{\sseq@ifintexpr@{needsint}}
+\sseq@makeifint{needsint}{(}{\advance\sseq@tempcount\@ne\sseq@ifintexpr@{needsint}}
+\sseq@makeifint{needsint}{)}{\sseq@ifintexpr@false}
+\sseq@makeifint{needsint}{\space}{\sseq@ifintexpr@{needsint}}
+
+\sseq@makeifint{int}{done}{\sseq@ifintexpr@true}
+\sseq@makeifint{int}{digit}{\sseq@ifintexpr@{int}}
+\sseq@makeifint{int}{*/}{\sseq@ifintexpr@{needsint}}
+\sseq@makeifint{int}{+-}{\sseq@ifintexpr@{needsint}}
+\sseq@makeifint{int}{(}{\sseq@ifintexpr@false}
+\sseq@makeifint{int}{)}{
+    \advance\sseq@tempcount\m@ne
+    \ifnum\sseq@tempcount<\z@\relax
+        \@xp\@xp\@xp\sseq@ifintexpr@false\@xp\@gobble
+    \else
+        \@xp\sseq@ifintexpr@
+    \fi{nointallowed}
+}
+\sseq@makeifint{int}{\space}{\sseq@ifintexpr@{nointallowed}}
+
+\sseq@makeifint{nointallowed}{done}{\sseq@ifintexpr@true}
+\sseq@makeifint{nointallowed}{digit}{\sseq@ifintexpr@false}
+\sseq@makeifint{nointallowed}{*/}{\sseq@ifintexpr@{needsint}}
+\sseq@makeifint{nointallowed}{+-}{\sseq@ifintexpr@{needsint}}
+\sseq@makeifint{nointallowed}{(}{\sseq@ifintexpr@false}
+\sseq@makeifint{nointallowed}{)}{
+    \advance\sseq@tempcount\m@ne
+    \ifnum\sseq@tempcount<\z@
+        \@xp\@xp\@xp\sseq@ifintexpr@false\@xp\@gobble
+    \else
+        \@xp\sseq@ifintexpr@
+    \fi{nointallowed}
+}
+\sseq@makeifint{nointallowed}{\space}{\sseq@ifintexpr@{nointallowed}}
+
+%%
+%%
+%%          New Class Pattern
+%%
+%%
+
+\newcount\sseq@cp@row
+\newcount\sseq@cp@n
+
+\def\sseqnewclasspattern#1#2{
+    \ifcsname sseq@#1xoffset1/1\endcsname\sseq@error@n{classpattern-already-defined}{#1}\fi % could be a warning
+    \begingroup
+    \def\sseq@name{#1}
+    \def\sseq@temp{}
+    \def\sseq@state{nocoord}
+    \sseq@cp@row=\@ne
+    \sseq@cp@n=\z@
+    \let\next\sseq@newclasspattern@
+    \sseq@newclasspattern@#2\sseq@nil
+}
+
+\def\sseq@newclasspattern@{
+    \@ifnextchar\bgroup{\sseq@error@n{classpattern-unexpected-token}{\{}}{\sseq@newclasspattern@processstate}
+}
+
+\def\sseq@newclasspattern@processstate{
+    \csname sseq@newclasspattern@processstate@\sseq@state\endcsname
+}
+
+\def\sseq@newclasspattern@processstate@xcoord#1{
+    \ifx#1,
+        \sseq@ifpgfmathexpr{\sseq@temp}{
+            \let\sseq@tempx\sseq@mathresult
+            \def\sseq@temp{}
+            \def\sseq@state{ycoord}
+        }{
+            \sseq@error{classpattern-not-integer-expression}
+            \let\next\sseq@newclasspattern@abort
+        }
+    \else
+        \ifx#1\sseq@nil
+            \sseq@error{classpattern-missing-tokens}
+            \let\next\endgroup
+        \else
+            \sseq@d@addto@macro\sseq@temp{#1}
+        \fi
+    \fi
+    \next
+}
+
+\def\sseq@newclasspattern@processstate@ycoord#1{
+    \ifx#1)
+        \sseq@ifpgfmathexpr{\sseq@temp}{% Need iffloatexpr =(
+            \let\sseq@tempy\sseq@mathresult
+            \def\sseq@temp{}
+            \def\sseq@state{nocoord}
+            \advance\sseq@cp@n\@ne
+            \ifnum\sseq@cp@n>\sseq@cp@row\relax
+                \sseq@error@x{classpattern-extra-coord-ignored}{(\sseq@tempx,\sseq@tempy)}
+            \else
+                \sseq@e@addto@macro\sseq@newclasspattern@dodefs{
+                    \def\@xp\@nx\csname sseq@\sseq@name xoffset\the\sseq@cp@n/\the\sseq@cp@row\endcsname{\sseq@tempx}
+                    \def\@xp\@nx\csname sseq@\sseq@name yoffset\the\sseq@cp@n/\the\sseq@cp@row\endcsname{\sseq@tempy}
+                }
+            \fi
+        }{
+            \sseq@error{classpattern-not-integer-expression}
+            \let\next\sseq@newclasspattern@abort
+        }
+    \else
+        \ifx#1\sseq@nil
+            \sseq@error{classpattern-missing-tokens}
+            \let\next\endgroup
+        \else
+            \sseq@d@addto@macro\sseq@temp{#1}
+        \fi
+    \fi
+    \next
+}
+
+\def\sseq@newclasspattern@processstate@nocoord#1{
+    \ifx#1(
+        \def\sseq@state{xcoord}
+    \else
+        \ifx#1;
+            \ifnum\sseq@cp@n=\sseq@cp@row\relax
+                \advance\sseq@cp@row\@ne
+                \sseq@cp@n=\z@
+            \else
+                \sseq@error@x{classpattern-too-few-coords}{\the\sseq@cp@row}
+                \let\next\sseq@newclasspattern@abort
+            \fi
+        \else
+            \ifx#1\sseq@nil
+                \let\next\sseq@newclasspattern@finish
+            \else
+                \sseq@error@n{classpattern-unexpected-token}{#1}
+                \let\next\sseq@newclasspattern@abort
+            \fi
+        \fi
+    \fi
+    \next
+}
+
+\def\sseq@newclasspattern@finish{
+    \ifnum\sseq@cp@n=\z@\relax
+        \advance\sseq@cp@row\m@ne
+    \else
+        \ifnum\sseq@cp@n=\sseq@cp@row\relax\else
+            \sseq@error@x{classpattern-too-few-coords}{\the\sseq@cp@row}
+            \let\sseq@newclasspattern@dodefs\empty
+        \fi
+    \fi
+    % This will make a definition even if the class pattern was rejected because of the too-few-coords error
+    % It doesn't matter though, because we don't use this to check for existence
+    \sseq@e@addto@macro\sseq@newclasspattern@dodefs{%
+        \chardef\@xp\@nx\csname sseq@\sseq@name @maxclasses\endcsname=\the\sseq@cp@row\relax
+    }%
+    \@xp\endgroup
+    \sseq@newclasspattern@dodefs
+
+
+}
+\def\sseq@newclasspattern@dodefs{}
+\def\sseq@newclasspattern@abort#1\sseq@nil{\endgroup}
+
+
+
+
+%%%%%%                                            %%%%%%
+%%                                                    %%
+%%               Coordinate Parsers                   %%
+%%                                                    %%
+%%%%%%                                            %%%%%%
+
+% Only works for full coordinates. Used for error checking in \replaceclass and \d.
+\def\sseq@ifundefcoord{\@xp\sseq@ifundefcoord@}
+\def\sseq@ifundefcoord@(#1){%
+    \sseq@obj@ifundef{class.(#1).num}%
+}
+
+\def\sseq@ifdead#1{\ifnum\sseq@obj{class.#1[\sseq@obj{class.#1.num}].page}<\sseq@infinitycount\@xp\@firstoftwo\else\@xp\@secondoftwo\fi}
+
+
+% These do all of the work of taking a coordinate of the form (x,y), (x,y,n), or (x,y,tag) and turning them
+% into the internal representation needed for the rest of the package.
+% This comes in two parts:
+%   \sseq@parsecoord@maincoord -- separates a coordinate into {x,y}{n or tag}, numerically evaluates x and y, and adds in the values of \sseq@x and \sseq@y
+%   \sseq@parsecoord@index -- decides which class {n or tag} represents
+%
+% There are three interface commands:
+%    \sseq@parsecoord   -- for most things
+%    \sseq@cparsecoord  -- for \class (but not for \replaceclass or \classoptions). Doesn't use \sseq@parsecoord@index at all.
+%    \sseq@dparsecoord  -- for \d and \doptions
+%    \sseq@parsecoordex -- for \isalive: the body of a page constraint needs to be \edef'd so we need a completely expandable version.
+%      The expandable version doesn't have any error checking -- to get the error checking, we pass the coordinates once through the unexpandable version
+%      inside of an hbox.
+
+\def\sseq@errortype{}
+\def\sseq@printerrortype{\@xp\sseq@ifempty\@xp{\sseq@errortype}{}{~ for ~ \sseq@errortype}}
+
+%% Pulls off x,y and evaluates them, puts n or empty into a separate variable.
+% #1 -- a coordinate of the form {x,y} or {x,y,stuff}
+\let\sseq@relax\relax
+% The \sseq@relax is just to make \lastclass work. It has to pull an argument off the token stream to expandably check whether
+% it is an integer. However, without this \sseq@relax, \lastclass could appear as the last token of the edef, which is no good.
+\def\sseq@parsecoord@maincoord#1{\exp_last_unbraced:Nx\sseq@parsecoord@maincoord@{#1\sseq@relax}}
+\def\sseq@parsecoord@maincoord@#1\sseq@relax{%
+    \pgfutil@in@ \sseq@protecterror { #1 }
+    \ifpgfutil@in@
+        \bgroup
+        \sseq@restorefont
+        \let\sseq@protecterror\relax
+        \setbox0=\hbox{#1} % Trigger the error message
+        \egroup
+        \@xp\sseq@break
+    \else
+        \pgfutil@in@,{#1}
+        \ifpgfutil@in@
+            \sseq@parsecoord@maincoord@@#1,\sseq@nil
+        \else
+            \sseq@obj@ifdef{class.namedclass.\detokenize{#1}}{
+                \def\sourcename{#1}
+                \@xpthree\sseq@parsecoord@maincoord@named\sseq@obj{class.namedclass.#1}\sseq@nil
+            }{
+                \sseq@error{invalid-coordinate}\sseq@breakfifi
+            }
+        \fi
+    \fi
+}
+
+\def\sseq@parsecoord@maincoord@@#1,#2,#3\sseq@nil{%
+    \sseq@obj@ifdef{class.namedclass.\detokenize{#1}}{
+        \def\sourcename{#1}
+        \@xpthree\sseq@parsecoord@maincoord@named\sseq@obj{class.namedclass.#1}\sseq@nil
+        \edef\sseq@restcoord{\sseq@removecomma#2,#3\sseq@nil}
+    }{
+        \sseq@ifintexpr{#1}{
+            \sseq@ifintexpr{#2}{}{\sseq@error@n{invalid-coordinate}{y }\sseq@breakfifi} % breakfifi to get out of ifs from maincoord@
+            \edef\sseq@xcoord{\the\numexpr\sseq@x+(#1)\relax}%
+            \edef\sseq@ycoord{\the\numexpr\sseq@y+(#2)\relax}%
+            \edef\sseq@xycoord{\sseq@xcoord,\sseq@ycoord}%
+            \sseq@ifempty{#3}{\let\sseq@restcoord\pgfutil@empty}{%
+                \edef\sseq@restcoord{\sseq@removecomma#3\sseq@nil}%
+            }%
+        }{
+            \sseq@error@n{invalid-coordinate}{x }\sseq@breakfifi % breakfifi to get out of ifs from maincoord@
+        }
+    }%
+}%
+
+\def\sseq@parsecoord@maincoord@named#1,#2,#3\sseq@nil{
+    \def\sseq@xcoord{#1}%
+    \def\sseq@ycoord{#2}%
+    \edef\sseq@xycoord{\sseq@xcoord,\sseq@ycoord}
+    \def\sseq@restcoord{}
+    \pgfkeys@spdef\sseq@rawindex{#3}
+    \def\sseq@index{#3}
+    \let\rawindex\sseq@rawindex
+    \let\index\sseq@index
+}
+
+\def\sseq@removecomma#1,\sseq@nil{#1}
+
+
+% "Input" to this command is stored in the following commands:
+% \sseq@xycoord -- x,y
+% \sseq@rawindex -- n
+% \sseq@errortype -- description for error messages
+\def\sseq@errortype@tikzprim{tikz ~ primitive}% This is sort of a silly hack, but this first error check shouldn't happen in a tikz primitive.
+\def\sseq@parsecoord@index{%
+    \sseq@obj@ifundef{partcoord.(\sseq@xycoord).numnodes}{
+        \ifx\sseq@errortype\sseq@errortype@tikzprim
+            \def\sseq@index{}%  Communicates to \sseq@tikzprimitives@coords@maybeclass that this is not a class
+        \else
+            \sseq@error@x{no-classes}{(\sseq@xycoord)}\@xp\sseq@break
+        \fi
+    }{
+        \ifx\sseq@rawindex\pgfutil@empty
+            \def\sseq@index{1}
+        \else
+            \sseq@obj@ifdef{partcoord.(\sseq@xycoord).tag.\sseq@class@tagprefix\sseq@rawindex}{% If the raw index is a tag
+                \edef\sseq@index{\sseq@obj{partcoord.(\sseq@xycoord).tag.\sseq@class@tagprefix\sseq@rawindex}}
+            }{%
+                \sseq@ifintexpr{\sseq@rawindex}{%
+                    \edef\sseq@rawindexeval{\the\numexpr\sseq@rawindex}
+                    \ifnum\sseq@rawindexeval<\z@%
+                        \edef\sseq@index{\the\numexpr\sseq@obj{partcoord.(\sseq@xycoord).numnodes} + \sseq@rawindex + \@ne\relax}%
+                        \ifnum\sseq@index<\@ne
+                            \sseq@error@xxx{index-too-large}{\sseq@rawindex}{\sseq@obj{partcoord.(\sseq@xycoord).numnodes}}{(\sseq@xycoord)}%
+                            \edef\sseq@index{1}% or maybe I should break?
+                        \fi
+                    \else
+                        \ifnum\sseq@rawindexeval>\sseq@obj{partcoord.(\sseq@xycoord).numnodes}\relax
+                            \sseq@error@xxx{index-too-large}{\sseq@rawindex}{\sseq@obj{partcoord.(\sseq@xycoord).numnodes}}{(\sseq@xycoord)}%
+                            \edef\sseq@rawindex{\sseq@obj{partcoord.(\sseq@xycoord).numnodes}}% or maybe I should break?
+                        \fi
+                        \edef\sseq@index{\the\numexpr\sseq@rawindex}
+                    \fi
+                }{
+                    \sseq@error@xx{undefined-tag}{\sseq@rawindex}{(\sseq@xycoord)}%
+                    \def\sseq@index{1}%
+                }
+            }
+        \fi
+    }
+}
+
+% #1 -- name to define
+% #2 -- coordinate
+% #3 -- the error message
+\def\sseq@parsecoord#1#2#3{%
+    \def\sseq@index{}
+    \def\sseq@errortype{#3}
+    \sseq@parsecoord@maincoord{#2}%
+    \let\sseq@rawindex\sseq@restcoord
+    \ifx\sseq@index\pgfutil@empty
+        \@xp\sseq@parsecoord@index
+    \fi
+    \@xp\let\csname x\sseq@macroname#1\endcsname\sseq@xcoord
+    \@xp\let\csname y\sseq@macroname#1\endcsname\sseq@ycoord
+    \@xp\let\csname \sseq@macroname#1@partial\endcsname\sseq@xycoord
+    \edef#1{(\sseq@xycoord,\sseq@index)}%
+    \@xp\edef\csname\sseq@macroname#1nopar\endcsname{\sseq@xycoord,\sseq@index}
+    \@xp\def\csname\sseq@macroname#1name\endcsname{(#2)}%
+    \@xp\def\csname\sseq@macroname#1nameunbraced\endcsname{#2}%
+    \@xp\edef\csname\sseq@macroname#1@internalname\endcsname{sseq{\sseq@xycoord,\sseq@index}}%
+}
+
+% EXPOSE: a wrapper around \sseq@parsecoord. Use full name of coordinate to avoid name class with sseq@parsecoord.
+\sseq@DeclareDocumentCommand \parsecoordinate { m r() }{%
+    \sseq@parsecoord{#1}{#2}{call of \string\parsecoord}%
+}
+
+% #1 -- coordinate
+\def\sseq@cparsecoord#1{%
+    \def\sseq@index{}
+    \sseq@parsecoord@maincoord{#1}%
+    \ifx\sseq@index\pgfutil@empty\else\sseq@error{named-coordinate-class}\fi% probably not possible to get this error
+    \ifx\sseq@restcoord\pgfutil@empty\else\sseq@error{class-extra-coords}\fi%
+    \let\partialcoord\sseq@xycoord
+    \let\xcoord\sseq@xcoord
+    \let\ycoord\sseq@ycoord
+    \edef\nodenum{\sseq@obj@ifundef{partcoord.(\partialcoord).numnodespp}{1}{\sseq@obj{partcoord.(\partialcoord).numnodespp}}}%
+    \edef\coordnopar{\xcoord,\ycoord,\nodenum}
+    \edef\coord{(\coordnopar)}%
+}
+
+
+% #1 -- page
+% #2 -- coordinate
+% #3 -- target coordinate or "No Value"
+\def\sseq@dparsecoord#1#2#3{%
+    \def\sseq@index{}%
+    \def\sseq@errortype{differential}%
+    \sseq@parsecoord@maincoord{#2}%
+    \ifx\sseq@index\pgfutil@empty
+        \edef\sseq@rawsindex{\@xp\sseq@dparsecoord@getxindex\@xp{\sseq@restcoord}}%
+        \@xp\pgfkeys@spdef\@xp\sseq@rawsindex\@xp{\sseq@rawsindex}
+        \edef\sseq@rawtindex{\@xp\sseq@dparsecoord@getyindex\@xp{\sseq@restcoord}}%
+        \@xp\pgfkeys@spdef\@xp\sseq@rawtindex\@xp{\sseq@rawtindex}
+    %
+        \let\sseq@rawindex\sseq@rawsindex
+        \def\sseq@errortype{source ~ of ~ differential}
+        \@xp\sseq@parsecoord@index % the \@xp is needed so that \sseq@break inside of parsecoordindex works properly.
+    \else
+        \edef\sseq@rawtindex{\@xp\sseq@dparsecoord@getxindex\@xp{\sseq@restcoord}}%
+        \@xp\pgfkeys@spdef\@xp\sseq@rawtindex\@xp{\sseq@rawtindex}
+        \edef\sseq@shouldbeempty{\@xp\sseq@dparsecoord@getyindex\@xp{\sseq@restcoord}}
+        \ifx\sseq@shouldbeempty\pgfutil@empty\else
+            \sseq@error{d-named-coord-two-indexes}
+        \fi
+    \fi
+    \let\sourcecoord\sseq@xycoord
+    \edef\source{(\sseq@xycoord,\sseq@index)}%
+    \ifx\sourcename\undefined
+        \edef\sourcename{(\sseq@xycoord\ifx\sseq@rawindex\pgfutil@empty\else,\sseq@rawindex\fi)}
+    \fi
+    \IfNoValueTF{#3}{
+        \ifsseq@hasdegree\else\sseq@error{d-no-degree}\@xp\sseq@break\fi
+        \sseq@eval{\edef\@nx\sseq@xycoord{\@nx\sseq@differential@gettarget{#1}{\sseq@xycoord}}}
+        \let\sseq@rawindex\sseq@rawtindex
+        \def\sseq@errortype{target ~ of ~ differential}
+        \sseq@parsecoord@index
+        \let\targetcoord\sseq@xycoord
+        \edef\target{(\sseq@xycoord,\sseq@index)}%
+        \edef\targetname{(\sseq@xycoord\ifx\sseq@rawindex\pgfutil@empty\else,\sseq@rawindex\fi)}
+    }{
+        \ifx\sseq@rawtindex\pgfutil@empty\else
+            \sseq@error{d-target-index-target-coord}
+        \fi
+        \sseq@parsecoord\target{#3}{differential}
+        \let\targetcoord\target@partial
+        \ifsseq@hasdegree
+            \ifsseq@strictdegree
+                \sseq@eval{\edef\@nx\sseq@checktarget{\@nx\sseq@differential@gettarget{#1}{\sourcecoord}}}
+                \ifx\sseq@checktarget\targetcoord\else
+                    \sseq@error@xxx{d-wrong-degree}{(\sseq@checktarget)}{\targetname}{(\targetcoord)}
+                \fi
+            \fi
+        \fi
+    }
+}
+
+\def\sseq@differential@gettarget#1#2{\sseq@differential@gettarget@{#1}#2\sseq@nil}
+\def\sseq@differential@gettarget@#1#2,#3\sseq@nil{\the\numexpr#2+\sseq@targetx{#1}\relax,\the\numexpr#3+\sseq@targety{#1}\relax}
+
+\def\sseq@getfirsttwoelts#1,#2,#3\sseq@nil{#1,#2}
+\def\sseq@getdtarget#1#2#3{\sseq@eval{\edef\@nx#1{\@nx\sseq@differential@gettarget{#2}{\sseq@getfirsttwoelts#3,,\sseq@nil}}}}
+
+% Takes a comma separated list that can be empty, have one element, or two elements, returns first element (or empty if list is empty).
+\def\sseq@dparsecoord@getxindex#1{\sseq@dparsecoord@getxindex@#1,\sseq@nil}
+\def\sseq@dparsecoord@getxindex@#1,#2\sseq@nil{#1}
+% Takes a comma separated list that can be empty, have one element, or two elements, returns second element (or empty if less than two elements).
+\def\sseq@dparsecoord@getyindex#1{\sseq@dparsecoord@getyindex@#1,\sseq@nil}
+\def\sseq@dparsecoord@getyindex@#1,#2\sseq@nil{%
+    \sseq@ifempty{#2}{}{%
+        \sseq@removecomma#2\sseq@nil%
+    }%
+}
+
+\def\sseq@parsecoordinate#1#2{%
+    \sseq@parsecoord{#1}{#2}{call of \string\parsecoord}%
+}
+
+
+% EXPOSE: a wrapper around \sseq@parsecoord. Use full name of coordinate to avoid name class with sseq@parsecoord.
+\sseq@DeclareDocumentCommand \parsedifferential { m r() }{%
+    \sseq@dparsecoord{#1}{#2}{call of \string\parsecoord}%
+}
+
+% Expandable coordinate parsing for \isalive.
+% Doesn't do any error checking -- the error checking is done by passing it through \sseq@parsecoord in a non-\edef context.
+% #1 -- a callback. Must be a single command b/c it's an N in \exp_args
+% #2 -- the coordinate
+\cs_new:Npn \exp_last_unbraced:NNNf #1#2#3#4
+  {
+    \exp_after:wN #1
+    \exp_after:wN #2
+    \exp_after:wN #3 \tex_romannumeral:D -`0 #4
+  }
+
+\def\sseq@parsecoordex{\exp_last_unbraced:NNNf\sseq@parsecoordex@}
+\def\sseq@parsecoordex@#1(#2){\sseq@parsecoordex@@#1#2,\@nil}
+\def\sseq@parsecoordex@@#1#2,#3,#4\@nil{
+    \ifx&#4&
+        \exp_last_unbraced:NNo\sseq@parsecoord@indexex#1(\the\numexpr#2\@xp,\the\numexpr#3,1)
+    \else
+        \exp_args:NNo\sseq@parsecoord@indexex#1{\the\numexpr#2\@xp,\the\numexpr#3\@xp\relax\@xp}\@xp{\sseq@removecomma#4\sseq@nil}
+    \fi
+}
+
+
+% This is \sseq@parsecoord@index pared down as much as possible -- all error checking is removed because that will happen in a
+% \setbox0=\hbox{stuff} sequestered calculation that uses \sseq@parsecoord@index instead.
+% #1 -- callback which takes one argument --  the final coordinate in parentheses.
+% #2 -- x,y
+% #3 -- n
+\def\sseq@parsecoord@indexex#1#2#3{%
+    \sseq@obj@ifdef{partcoord.(#2).tag.\sseq@class@tagprefix#3}{% If the raw index is a tag
+        \exp_args:NNo\sseq@parsecoord@indexex@#1{\the\numexpr\sseq@obj{partcoord.(#2).tag.\sseq@class@tagprefix#3}}{#2}%
+    }{%
+        \ifnum\numexpr#3<0\space
+            \exp_args:NNo\sseq@parsecoord@indexex@#1{\the\numexpr\sseq@obj{partcoord.(#2).numnodes} + #3 + 1}{#2}%
+        \else
+            \exp_args:NNo\sseq@parsecoord@indexex@#1{\the\numexpr#3}{#2}%
+        \fi
+    }%
+}
+\def\sseq@parsecoord@indexex@#1#2#3{
+    #1(#3,#2)
+}
+
+
+
+
+%%%
+%%% The Stack
+%%%
+
+\sseq@addtostorelistlet\sseq@stacktop\relax
+\def\sseq@stackitem#1#2#3{\csname sseq.\sseq@thename.stack.#1.#3\endcsname} % gobble #2 which we added in for the error message
+\def\sseq@getstackentry#1{
+    \exp_args:No\sseq@getstackentry@{\sseq@stacktop}{#1}{#1} % Second copy of #1 for error message
+}
+
+\def\sseq@getstackentry@#1#2{
+    \ifnum#2=\z@\@xp\@firstoftwo\else\@xp\@secondoftwo\fi
+        {\sseq@stackitem{#1}}
+        {\@ifundefined{sseq.\sseq@thename.stack.#1.next}{\sseq@getstackentry@indextoolarge}{
+            \exp_args:Nf\sseq@getstackentry@{\csname sseq.\sseq@thename.stack.#1.next\@xp\endcsname\@xp}\@xp{\the\numexpr#2-1}
+        }}
+}
+
+\def\sseq@getstackentry@indextoolarge#1{\sseq@protecterror{\sseq@error@xx{index-larger-than-stack}{#1}{\the\sseq@stackdepth}}}
+
+\def\sseq@pushstack(#1){
+    \bgroup
+    \sseq@parsecoord\temp{#1}{}
+    \sseq@pushstack@\temp
+    \egroup
+}
+
+\def\sseq@pushstack@{\@xp\sseq@pushstack@@}
+
+\def\sseq@pushstack@@(#1,#2,#3){
+    \global\advance\sseq@stackdepth\@ne
+    \@xp\gdef\csname sseq.\sseq@thename.stack.\the\sseq@stackdepth.lastx\endcsname{#1}
+    \@xp\gdef\csname sseq.\sseq@thename.stack.\the\sseq@stackdepth.lasty\endcsname{#2}
+    \@xp\xdef\csname sseq.\sseq@thename.stack.\the\sseq@stackdepth.lastclass\endcsname{lastclass.\the\sseq@stackdepth}
+    \sseq@obj@gdef{class.namedclass.lastclass.\the\sseq@stackdepth}{#1,#2,#3}
+    \global\@xp\let\csname sseq.\sseq@thename.stack.\the\sseq@stackdepth.next\endcsname\sseq@stacktop
+    \xdef\sseq@stacktop{\the\sseq@stackdepth}
+}
+
+
+\newcount\sseq@userstacksavecount
+\def\sseq@savestack{
+    \global\advance\sseq@userstacksavecount\@ne
+    \sseq@savestack@name{usersave@\the\sseq@userstacksavecount}
+}
+\def\sseq@restorestack{
+    \sseq@restorestack@name{usersave@\the\sseq@userstacksavecount}
+    \global\advance\sseq@userstacksavecount\m@ne
+}
+
+\def\sseq@savestack@name#1{\sseq@obj@xdef{stack.save#1}{\sseq@stacktop}}
+
+\def\sseq@restorestack@name#1{\xdef\sseq@stacktop{\sseq@obj{stack.save#1}}}
+
+\def\sseq@lastx#1{
+    % \romannumeral is testing here whether #1 is a nonnegative integer
+    % if #1 consists of a single nonnegative integer then -0#1 will be turned into some nonpositive integer
+    % and romannumeral produces no output when handed a nonpositive integer, so the result will be empty.
+    % If #1 has any nonnumerical tokens or is negative, there will be left over stuff.
+    \@xp\sseq@ifempty\@xp{\romannumeral-0#1}{
+        \sseq@getstackentry{#1}{lastx}
+    }{
+        \sseq@getstackentry{0}{lastx}#1 % #1 isn't a number so put it back
+    }
+}
+\def\sseq@lasty#1{
+    \@xp\sseq@ifempty\@xp{\romannumeral-0#1}{
+        \sseq@getstackentry{#1}{lasty}
+    }{
+        \sseq@getstackentry{0}{lasty}#1 % #1 isn't a number so put it back
+    }
+}
+
+\def\sseq@lastclass#1{
+    \@xp\sseq@ifempty\@xp{\romannumeral-0#1}{
+        \sseq@getstackentry{#1}{lastclass}
+    }{
+        \sseq@getstackentry{0}{lastclass}#1 % #1 isn't a number so put it back
+    }
+}
+
+
+\def\sseq@nameclass#1(#2){
+    \bgroup
+    \sseq@parsecoord\coord{#2}{}
+    \sseq@cleanup@obj{class.namedclass.#1}
+    \sseq@obj@xdef{class.namedclass.#1}{\coordnopar}
+    \egroup
+}
+
+\def\sseq@tagclass#1(#2){%
+    \bgroup
+    \sseq@parsecoord\coord{#2}{}%
+    \sseq@obj@ifdef{partcoord.(\sseq@xycoord).tag.\sseq@class@tagprefix\sseq@class@tag}{%
+        \sseq@error@nn{class-tag-already-defined}{\sseq@class@tagprefix\sseq@class@tag}{(\sseq@xycoord)}% could be warning
+    }%
+    \sseq@cleanup@obj{class.\coord.tag}%
+    \sseq@obj@xdef{class.\coord.tag}{\sseq@class@tagprefix\sseq@class@tag}%
+    \sseq@cleanup@obj{partcoord.(\sseq@xycoord).tag.\sseq@class@tagprefix\sseq@class@tag}%
+    \sseq@obj@xdef{partcoord.(\sseq@xycoord).tag.\sseq@class@tagprefix\sseq@class@tag}{\sseq@index}%
+    \egroup
+}
+
+\def\sseq@gettag#1(#2){
+    \bgroup
+    \sseq@parsecoord\coord{#2}{}
+    \sseq@obj@ifdef{class.\coord.tag}{
+        \xdef#1{\sseq@obj{class.\coord.tag}}
+    }{
+        \sseq@error@n{class-no-tag}{(#2)}
+    }
+    \egroup
+}
+
+
+
+
+
+%%%%%%
+%%%
+%%%   Tikz Primitives
+%%%
+%%%%%%
+
+% Replace a tikz command with a command that saves the command on savedpaths
+
+\def\sseq@modtikzcommands{%
+    \let\scope\sseq@scope
+    \let\endscope\sseq@endscope
+    \@xp\sseq@modtikzcommands@\sseq@tikzcommands\sseq@nil
+}
+\def\sseq@modtikzcommands@#1{%
+    \ifx#1\sseq@nil\else
+        \edef#1{\@xp\@nx\csname\sseq@macroname#1\space\endcsname\@nx#1}%
+        \@xp\let\csname\sseq@macroname#1\space\endcsname\sseq@defer@tikzcommand % This is just for error reporting so that it will say "Paragraph ended before \draw  was complete"
+        \@xp\sseq@modtikzcommands@
+    \fi
+}
+
+\def\sseq@defer@tikzcommand#1{%
+    \begingroup
+    \let\sseq@isaliveprotect\sseq@isaliveprotect@protect
+    \sseq@callas{#1}%
+    \gdef\sseq@thepathsofar{#1[/utils/exec={\sseq@thesseqstyle\sseq@thetikzprimitivestyle\the\sseq@scope@toks\sseq@savedoptioncode}]}%
+    \xdef\sseq@whattheusersaid{\string#1}
+    \sseq@defer@tikzcommand@
+}
+
+\def\sseq@defer@tikzcommand@{%
+    \futurelet\testtok\sseq@defer@tikzcommand@@
+}
+
+\def\sseq@defer@tikzcommand@@{%
+    \ifx\testtok;
+        \let\next\sseq@defer@tikzcommand@finish
+    \else
+        \ifx\testtok[%
+            \let\next\sseq@defer@tikzcommand@option
+        \else
+            \ifx\testtok(%
+                \let\next\sseq@defer@tikzcommand@coord
+            \else
+                \@xp\ifx\space\testtok
+                    \let\next\sseq@defer@tikzcommand@space
+                \else
+                    \ifx\testtok\bgroup
+                        \let\next\sseq@defer@tikzcommand@group
+                    \else
+                        \let\next\sseq@defer@tikzcommand@other
+                    \fi
+                \fi
+            \fi
+        \fi
+    \fi
+    \sseq@call{\next}%
+}
+
+
+\def\sseq@defer@tikzcommand@option[#1]{%
+    \sseq@processoptions{tikz ~ primitives}{#1}%
+    \ifx\sseq@savedoptioncode\pgfutil@empty\else
+        \sseq@x@addto@macro\sseq@thepathsofar{[/utils/exec={\unexpanded\@xp{\sseq@savedoptioncode}}]}%
+    \fi
+    \sseq@g@addto@macro\sseq@whattheusersaid{[#1]}
+    \sseq@defer@tikzcommand@
+}
+
+\def\sseq@defer@tikzcommand@coord(#1){
+    \sseq@tikzprimitives@coord(#1)
+    \sseq@g@addto@macro\sseq@whattheusersaid{(#1)}
+    \sseq@defer@tikzcommand@
+}
+
+% When do groups occur in tikz commands? should we try to parse the inside?
+\def\sseq@defer@tikzcommand@group#1{
+    \sseq@g@addto@macro\sseq@whattheusersaid{{#1}}
+    \sseq@xprotected@addto@macro\sseq@thepathsofar{{#1}}%
+    \sseq@defer@tikzcommand@
+}
+
+\long\def\sseq@defer@tikzcommand@other#1{
+    \ifcat$\@xp\@gobble\string#1$ % test for control word. Won't catch active characters.
+        \@xp\use_i:nnn
+    \else
+        \@xp\ifx\csname sseq@illegalintikz@\string#1\endcsname\relax
+            \exp_last_unbraced:Nf \use_ii:nnn
+        \else
+            \exp_last_unbraced:Nf \use_iii:nnn
+        \fi
+    \fi{  % case i: it's not a control word. Just add it to the saved path
+        \sseq@g@addto@macro\sseq@whattheusersaid{#1}
+        \sseq@g@addto@macro\sseq@thepathsofar{#1}%
+        \sseq@defer@tikzcommand@
+    }{ % case ii: it's some different control word. Let's try full expanding it.
+       % note that here we cannot figure out what the user actually said, so we just have to report the f-expanded version.
+        \def\tempa{#1} % save the current value
+        \exp_last_unbraced:Nf \sseq@defer@tikzcommand@other@cs#1
+    }{ % case iii: it's an illegal control word (e.g., \class, \d, \begin, \end, ...) throw an error.
+        \sseq@error@xx{incomplete-tikz}{\unexpanded\@xp{\sseq@whattheusersaid}}{
+            \ifx\par#1 the ~ start ~ of ~ a ~ new ~ paragraph
+            \else \string#1\fi
+        }
+        \sseq@defer@tikzcommand@finish@ % finish@ doesn't try to grab a semicolon, which is good because there isn't one.
+        #1 % Reinsert the token that is causing us to stop
+    }
+}
+
+\def\sseq@defer@tikzcommand@other@cs#1{ % so we f expanded the control sequence, now we test if that did anything
+    \def\tempb{#1} % get the first f expanded token
+    \ifx\tempa\tempb
+        \@xp\@firstoftwo
+    \else
+        \@xp\@secondoftwo
+    \fi{% it didn't get expanded any more, so just add it to the stored stuff
+        \sseq@g@addto@macro\sseq@whattheusersaid{#1}
+        \sseq@g@addto@macro\sseq@thepathsofar{#1}
+        \sseq@defer@tikzcommand@
+    }{% it got expanded. Run it through the main loop again.
+        \sseq@defer@tikzcommand@#1
+    }
+}
+
+% Illegal control words:
+\long\def\sseq@setillegalcontrolwords#1{\sseq@setillegalcontrolwords@#1\sseq@nil}
+\long\def\sseq@setillegalcontrolwords@#1{
+    \ifx#1\sseq@nil\else
+        \@xp\def\csname sseq@illegalintikz@\string#1\endcsname{}
+        \@xp\sseq@setillegalcontrolwords@
+    \fi
+}
+
+% We missing anything here?
+\sseq@setillegalcontrolwords{
+    \class\classoptions\replaceclass\d\doptions\structline\structlineoptions\circleclasses
+    \savestack\restorestack\pushstack\nameclass\foreach\begin\end\par
+    \clip\coordinate\draw\fill\filldraw
+    \graph\matrix\node\path\pattern
+    \shade\shadedraw\useasboundingbox
+}
+
+
+\@xp\def\@xp\sseq@defer@tikzcommand@space\space{%
+    \sseq@g@addto@macro\sseq@thepathsofar{~}%
+    \sseq@g@addto@macro\sseq@whattheusersaid{~}
+    \sseq@defer@tikzcommand@
+}
+
+\def\sseq@defer@tikzcommand@finish;{
+    \sseq@g@addto@macro\sseq@whattheusersaid{;}
+    \sseq@defer@tikzcommand@finish@
+}
+
+% If the expression was incomplete, we'll jump here
+\def\sseq@defer@tikzcommand@finish@{
+    \sseq@g@addto@macro\sseq@thepathsofar{;}
+    \global\sseq@thiscalltoks\@xp{\sseq@whattheusersaid}
+    \ifx\sseq@pageconstraint\sseq@pageconstraint@true
+        \sseq@savedpaths@xadd{\unexpanded\@xp{\sseq@thepathsofar}}%
+    \else
+        \sseq@savedpaths@xadd{%
+            \@nx\sseq@tikzcommand@conditionaldraw{\unexpanded\@xp{\sseq@thepathsofar}}{\unexpanded\@xp{\sseq@pageconstraint}}
+        }%
+    \fi
+    \endgroup
+}
+
+
+\def\sseq@tikzcommand@conditionaldraw#1#2{%
+    \sseq@pgfmathparse@rescan{#2}%
+    \ifnum\pgfmathresult>\z@ #1 \fi
+}
+
+\def\sseq@pgfmathparse@rescan#1{\makeatletter\catcode`\&=12\relax\scantokens{\pgfmathparse{#1}}}
+
+%%% Coordinate parser, copied with huge simplifications from \tikz@@scan@@no@calculator, tikz.code.tex line 4994.
+%%% We don't need to handle any of the weird cases, we just need to know about them so we can give up and let tikz do the work later.
+% TODO: do same coordinate fixing for coordinates in calculations (yeah right! not even clear this is a good idea...)
+\def\sseq@tikzprimitives@coord(#1){
+    \begingroup
+    \let\next\sseq@tikzprimitives@coords@maybenamedclass
+    \ifsseq@tikzprims@integershift
+        \pgfutil@in@${#1}
+        \ifpgfutil@in@
+            \let\next\sseq@tikzprimitives@coords@handlemath
+        \else
+            \pgfutil@in@ :{#1}
+            \ifpgfutil@in@\else
+                \pgfutil@in@{intersection }{#1}
+                \ifpgfutil@in@\else
+                    \pgfutil@in@|{#1}%
+                    \ifpgfutil@in@\else
+                        \pgfutil@in@,{#1}
+                        \ifpgfutil@in@
+                            \let\next\sseq@tikzprimitives@coords@maybeclass
+                        \fi
+                    \fi
+                \fi
+            \fi
+        \fi
+    \fi
+    \next{#1}
+    \endgroup
+}
+\def\sseq@tikzprimitives@coords@maybeclass#1{
+    \let\next\sseq@tikzprimitives@coords@notaclass % most branches do this.
+    % First check whether there are any of the protect "to be determined later" variables like \xmax, etc. If there are, it's not a class
+    \sseq@protected@edef\sseq@temp@i{#1}
+    \edef\sseq@temp@ii{#1}
+    \ifx\sseq@temp@i\sseq@temp@ii
+        \@xp\sseq@tikzprimitive@getcoord@anchor#1.\sseq@nil % puts coord into \sseq@tempcoord, anchor if any into \sseq@tempanchor
+        \exp_args:NNo\pgfutil@in@.{\sseq@tempanchornopt} % If there's an extra . in the "anchor", it's not an anchor, and this is not a class
+        \ifpgfutil@in@\else
+            \exp_args:NNo \pgfutil@in@,{\sseq@tempcoord} % If the . we used to delineate the "anchor" was in the x-coordinate, it's not an anchor and this is not a class
+            \ifpgfutil@in@
+                \exp_args:NNo \pgfutil@in@,{\sseq@tempanchornopt} % If there is a comma in the "anchor" it's not an anchor and this is not a class
+                \ifpgfutil@in@\else
+                    \ifx\sseq@tempanchor\pgfutil@empty
+                        \sseq@tempiftrue
+                    \else % If there's an "anchor" we need to test whether the expression is a valid decimal coordinate. If it is, we're going to treat it as not a class
+                        % outputs into sseq@tempif, sets sseq@tempiffalse if it IS valid math, b/c then we're not a anchor
+                        \sseq@anchortrue % If this ends up getting handled as a tikz coordinate, we'll have to add an "anchor ignored" error
+                        \sseq@tikzprimitives@testlastcoord@validmathexpression#1,\sseq@nil
+                    \fi
+                    \ifsseq@tempif
+                        \@xp\sseq@tikzprimitives@ifintcoords\@xp{\sseq@tempcoord}{ % check we're all integer coordinates
+                            \sseq@parsecoord\coord{\sseq@tempcoord}{tikz ~ primitive}%
+                            \ifx\sseq@index\pgfutil@empty\else
+                                \sseq@x@addto@macro\sseq@thepathsofar{(sseq{\sseq@removeparens\coord}\sseq@tempanchor)}% Okay, we're all set, it's a class
+                                \let\next\@gobble % don't run \sseq@tikzprimitives@notaclass
+                            \fi
+                        }{}%
+                    \fi
+                \fi
+            \fi
+        \fi
+    \fi
+    \next{#1}
+}
+
+% Sets tempiffalse if if the second coordinate IS a valid math expression -- then t
+\def\sseq@tikzprimitives@testlastcoord@validmathexpression#1,#2,#3\sseq@nil{
+    \sseq@ifpgfmathexpr{#2}{
+        \sseq@tempiffalse
+    }{
+        \sseq@tempiftrue
+    }
+}
+
+\def\sseq@tikzprimitives@coords@maybenamedclass#1{
+    \sseq@tikzprimitive@getcoord@anchor#1.\sseq@nil % puts coord into \sseq@tempcoord, anchor if any into \sseq@tempanchor
+    \sseq@protectedeval{\@nx\sseq@obj@ifdef{class.namedclass.\@nx\detokenize{\sseq@tempcoord}}}{% need this detokenize here to prevent it from throwing errors when there's a command inside...
+        \sseq@x@addto@macro\sseq@thepathsofar{(sseq{\sseq@obj{class.namedclass.\sseq@tempcoord}\sseq@tempanchor})}
+    }{
+        \sseq@tikzprimitives@coords@notaclass{#1}
+    }
+}
+
+\let\sseq@tikzprimitives@coords@maybeclass@save\sseq@tikzprimitives@coords@maybeclass
+
+
+\def\sseq@tikzprimitives@coords@notaclass#1{
+    \def\next{\sseq@tikzprimitives@coords@notaclass@leavetotikz{#1}}
+    \pgfutil@in@${#1}
+    \ifpgfutil@in@\else
+        \pgfutil@in@ :{#1}
+        \ifpgfutil@in@\else
+            \pgfutil@in@{intersection }{#1}
+            \ifpgfutil@in@\else
+                \pgfutil@in@|{#1}%
+                \ifpgfutil@in@\else
+                    \pgfutil@in@,{#1}
+                    \ifpgfutil@in@
+                        \def\next{\sseq@tikzprimitives@coords@notaclass@handle{#1}}
+                    \fi
+                \fi
+            \fi
+        \fi
+    \fi
+    \next
+}
+
+\def\sseq@tikzprimitives@coords@notaclass@leavetotikz#1{
+    \sseq@g@addto@macro\sseq@thepathsofar{(#1)}
+}
+
+\def\sseq@tikzprimitives@coords@notaclass@handle#1{
+    \ifsseq@anchor
+        % Still seems impossible to trigger this?
+        \sseq@error@xxx{anchor-ignored}{(#1)}{(\unexpanded\@xp{\sseq@tempcoord})}{\sseq@tempanchor}
+        \@xp\sseq@tikzprimitives@coords@notaclass@handle@\sseq@tempcoord,\sseq@nil
+    \else
+        \sseq@tikzprimitives@coords@notaclass@handle@#1,\sseq@nil
+    \fi
+}
+
+\def\sseq@tikzprimitives@coords@notaclass@handle@#1,#2,#3\sseq@nil{
+    \sseq@ifempty{#3}{
+        \let\sseq@index\pgfutil@empty
+    }{
+        \edef\sseq@index{,\unexpanded\@xp{\sseq@removecomma#3\sseq@nil}}
+        \edef\sseq@indexnocomma{\unexpanded\@xp{\sseq@removecomma#3\sseq@nil}}
+    }
+    \sseq@ifpgfmathexpr{#1}{
+        % Decide whether we can keep the result, which is stored in \sseq@mathresult
+        \protected@edef\sseq@tempa{#1}
+        \edef\sseq@tempb{#1}
+        \ifx\sseq@tempa\sseq@tempb
+            \let\sseq@tempx\sseq@mathresult
+        \else
+            \def\sseq@tempx{#1}
+        \fi
+    }{
+        \sseq@error@xx{invalid-tikz-coord}{(#1,#2\sseq@index)}{x}
+        \def\sseq@defer@tikzcommand@finish;{\endgroup}
+    }
+    \sseq@ifpgfmathexpr{#2}{
+        % Decide whether we can keep the result, which is stored in \sseq@mathresult
+        \protected@edef\sseq@tempa{#2}
+        \edef\sseq@tempb{#2}
+        \ifx\sseq@tempa\sseq@tempb
+            \let\sseq@tempy\sseq@mathresult
+        \else
+            \def\sseq@tempy{#2}
+        \fi
+    }{
+        \sseq@error@xx{invalid-tikz-coord}{(#1,#2\sseq@index)}{y}
+        \def\sseq@defer@tikzcommand@finish;{\endgroup}
+    }
+    \def\sseq@tempa{#1}
+    \ifx\sseq@index\pgfutil@empty\else
+        \sseq@error@xxx{index-ignored}{(\unexpanded{#1,#2}\unexpanded\@xp{\sseq@index})}{\unexpanded{(#1,#2)}}{\unexpanded\@xp{\sseq@indexnocomma}}
+    \fi
+    \sseq@xprotected@addto@macro\sseq@thepathsofar{(\sseq@tempx,\sseq@tempy)}
+}
+
+\def\sseq@tikzprimitives@ifintcoords#1{\sseq@tikzprimitives@ifintcoords@#1,\sseq@nil}
+\def\sseq@tikzprimitives@ifintcoords@#1,#2,#3\sseq@nil{%
+    \sseq@ifintexpr{#1}{%
+        \sseq@ifintexpr{#2}{%
+            \@firstoftwo
+        }{\@secondoftwo}%
+    }{\@secondoftwo}%
+}
+\def\sseq@tikzprimitives@coords@handlemath#1{\sseq@tikzprimitives@coords@handlemath@(#1)}
+\def\sseq@tikzprimitives@coords@handlemath@#1$#2$){\sseq@g@addto@macro\sseq@thepathsofar{#1$#2$)}}
+\def\sseq@tikzprimitive@getcoord@anchor#1.#2\sseq@nil{
+    \def\sseq@tempcoord{#1}
+    \ifx\sseq@nil#2\sseq@nil
+        \def\sseq@tempanchor{}
+        \def\sseq@tempanchornopt{}
+    \else
+        \edef\sseq@tempanchor{.\sseq@tikzprimitive@getcoord@anchor@eatdot#2}
+        \edef\sseq@tempanchornopt{\sseq@tikzprimitive@getcoord@anchor@eatdot#2}
+    \fi
+}
+\def\sseq@tikzprimitive@getcoord@anchor@eatdot#1.{#1}
+\def\sseq@uptopt#1.#2\sseq@nil{#1}
+%%% Page constraint and \isalive
+% #1 -- the new page constraint
+% #2 -- a binary logical operator (&& or ||).
+\def\sseq@updatepageconstraint#1#2{
+    \def\sseq@isaliveprotect{}
+    \let\sseq@isalive@\sseq@isalive@active
+    \bgroup
+    % Was pretty hard to get \isalive to report errors correctly. And to work in general >_<
+    \let\sseq@isalive@parens\sseq@isalive@parens@check
+    \sseq@d@addto@macro\sseq@error@hook{\let\protect\relax}%
+    \let\protect\@unexpandable@protect
+    \edef\sseq@error@annotation{\unexpanded{.^^J(In page constraint "#1")}\unexpanded\@xp{\sseq@error@annotation}}
+    \selectfont\sseq@restorefont
+    \setbox0=\hbox{#1}
+    \egroup
+    \sseq@protected@edef\sseq@pageconstraint{(\unexpanded\@xp{\sseq@pageconstraint})#2(#1)}
+}
+
+
+%TODO: fix this...
+\def\sseq@updatepageconstraintrange{%
+    \sseq@protected@edef\sseq@pageconstraint{%
+        (\unexpanded\@xp{\sseq@pageconstraint})&&(\temp<=\page \ifx\tempmax\empty\else&&\page<=\tempmax\fi)%
+    }%
+}
+
+% This protect variant allows us to delay evaluation of \isalive, just so that we can
+% capture something close to the original argument to (does this matter anymore?)
+\let\sseq@isaliveprotect\relax
+\def\sseq@isaliveprotect@protect{\@nx\sseq@isaliveprotect\@nx}
+\def\sseq@isalive{\sseq@isaliveprotect\sseq@isalive@}
+\def\sseq@isalive@{\sseq@isalive@error}
+\def\sseq@isalive@error{\sseq@error{is-alive-illegal-here}}
+\def\sseq@isalive@active#1{%
+    \@xp\ifx\@xp$\@gobble#1$%
+        \@xp\sseq@isalive@parens\@xp#1%
+    \else
+        \sseq@isalive@list#1\sseq@nil
+    \fi
+}
+\def\sseq@isalive@list(#1)#2{%
+    \sseq@isalive@parens(#1)%
+    \ifx\sseq@nil#2\else
+        &&\@xp\sseq@isalive@list\@xp#2%
+    \fi
+}
+
+\def\sseq@isalive@parens@check(#1){
+    \sseq@parsecoord\coord{#1}{\string\isalive}
+}
+\def\sseq@isalive@parens(#1){\sseq@parsecoordex\sseq@isalive@parens@(#1)}
+\def\sseq@isalive@parens@(#1,#2,#3){\@nx\sseq@isalive@final{#1}{#2}{#3}{\sseq@obj{class.(#1,#2,#3).num}}}
+\def\sseq@isalive@final#1#2#3#4{%
+    \ifnum\sseq@obj{class.(#1,#2,#3)[#4].page}<\sseq@thepagecount
+        0%
+    \else
+        \ifnum#4=\z@
+            1%
+        \else
+            \ifnum\sseq@obj{class.(#1,#2,#3)[\the\numexpr #4-1\relax].page}=\sseq@thepagecount
+                0%
+            \else
+                1%
+            \fi
+        \fi
+    \fi
+}
+
+
+
+
+
+%%%
+%%% This is a macro for typesetting monomials.
+%%%
+
+% We need to check for math subscript characters
+\char_set_catcode_math_subscript:N \_
+
+\protected\def\sseqnormalizemonomial#1{
+    \bgroup
+    \def\sseq@support{}
+    \sseq@ifempty{#1}{1}{
+        \sseqnormalizemonomial@#1\sseq@nil
+    }
+}
+\def\sseqnormalizemonomial@#1{
+    \pgfkeys@spdef\sseq@var{#1}
+    \def\sseq@power{1}
+    \def\sseq@subscript{}
+    \futurelet\testtok\sseqnormalizemonomial@@
+}
+
+\def\sseqnormalizemonomial@@{
+    \ifx\testtok^
+        \let\next\sseqnormalizemonomial@sup
+    \else
+        \ifx\testtok_
+            \let\next\sseqnormalizemonomial@sub
+        \else
+            \let\next\sseqnormalizemonomial@add
+        \fi
+    \fi
+    \next
+}
+
+\def\sseqnormalizemonomial@sup^#1{
+    \edef\sseq@power{\the\numexpr#1\relax}
+    \futurelet\testtok\sseqnormalizemonomial@@
+}
+
+\def\sseqnormalizemonomial@sub_#1{
+    \def\sseq@subscript{_{#1}}
+    \futurelet\testtok\sseqnormalizemonomial@@
+}
+
+\def\sseqnormalizemonomial@add{
+    \def\temp{1}
+    \ifx\sseq@var\temp\else
+        \edef\sseq@var{\unexpanded\@xp{\sseq@var}\unexpanded\@xp{\sseq@subscript}}
+        \@ifundefined{\sseqnormalizemonomial@varcs}{
+            \@xp\edef\csname\sseqnormalizemonomial@varcs\endcsname{\sseq@power}
+            \sseq@e@addto@macro\sseq@support{\@nx\\{\unexpanded\@xp{\sseq@var}}{\sseqnormalizemonomial@varcs}}%
+        }{
+            \@xp\edef\csname\sseqnormalizemonomial@varcs\endcsname{\the\numexpr\csname\sseqnormalizemonomial@varcs\endcsname + \sseq@power}
+        }
+    \fi
+    \sseqnormalizemonomial@testend
+}
+
+% This is supposed to take a space out of the input stream. For some reason \futurelet grabs it even though it's not supposed to...
+% Make sure braces go around argument, except that if they go around \sseq@nil, \futurelet will grab the the open brace and not see
+% the \sseq@nil. So we use a full expansion and don't put braces around \sseq@nil if that's our argument.
+% MOTHERFUCKING SPACES.
+\def\sseqnormalizemonomial@id#1{
+    \ifx\sseq@nil#1
+        \@xp\@firstoftwo
+    \else
+        \@xp\@secondoftwo
+    \fi{\@nx\sseq@nil}{{#1}}
+}
+
+\def\sseqnormalizemonomial@testend{
+    \ifx\testtok\sseq@nil
+        \sseqnormalizemonomial@done
+        \sseq@smuggle@macro\processedlabel
+        \egroup
+        \let\next\@gobble
+    \else
+        \@xp\ifx\space\testtok % not sure why I have to test for spaces like this -- figured it out with trial and error, like in \ifintexpr
+            % I'm not really sure why a space can show up here, but it crashes the macro and we don't care about spaces.
+            % I can't \@gobble the space because it will ignore it and take the next argument. What I can do is \@firstofone it away, but that deletes braces
+            % and in our case it's safe to put in extra braces but not to delete them. So I have \sseqnormalizemonomial@id...
+            % LaTeX is really really weird.
+            \def\next{\@xp\futurelet\@xp\testtok\@xp\sseqnormalizemonomial@testend\romannumeral-`0\sseqnormalizemonomial@id}
+        \else
+            \let\next\sseqnormalizemonomial@
+        \fi
+    \fi
+    \next
+}
+
+\def\sseqnormalizemonomial@varcs{sseqnormalizemonomial@var@\detokenize\@xp{\sseq@var}}
+
+\def\sseqnormalizemonomial@done{
+    \def\processedlabel{}
+    \def\\##1##2{
+        \sseq@tempcount=\csname ##2\endcsname\relax
+        \ifnum\sseq@tempcount=\z@
+        \else
+            \ifnum\sseq@tempcount=\@ne
+                \sseq@d@addto@macro\processedlabel{##1}
+            \else
+                \sseq@e@addto@macro\processedlabel{\unexpanded{##1}^{\the\sseq@tempcount}}
+            \fi
+        \fi
+    }
+    \sseq@support
+    \ifx\processedlabel\pgfutil@empty % use 1 for empty monomial
+        \def\processedlabel{1}
+    \fi
+}
+
+% Restore catcode of underscore to letter
+\catcode`\_ = 11\relax
+
+
+
+
+\ExplSyntaxOff 

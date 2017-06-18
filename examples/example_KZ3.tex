@@ -1,0 +1,139 @@
+%%
+%% Package: spectralsequences.sty version 1.0
+%% Author: Hood Chatham
+%% Email: hood@mit.edu
+%% Date: 2017-06-18
+%% License: Latex Project Public License
+%%
+%% File: example_KZ3.tex
+%%
+%%    This was one of the first spectral sequences I ever worked out (probably after the one for loops S^n), in the summer of 2013 with Kevin Donoghue.
+%%
+
+\documentclass{article}
+\usepackage[landscape,margin=0.5cm,top=2cm]{geometry}
+\usepackage[]{sseqpages}
+\usepackage{amssymb}
+\def\Z{\mathbb{Z}}
+% Last time test: 1.1 sec
+\begin{document}
+\def\column#1[#2]{\foreach \y in {0,...,6} {\class[#2](#1,2*\y)}}
+\sseqset{classes={draw=none}}
+\begin{sseqdata}[
+    name={K(Z,3)},
+    x range={0}{12},
+    y range={0}{10},
+    cohomological Serre grading,
+    differentials={->},
+    labels=below,
+    xscale=1.8,
+    y axis gap=0.7cm,
+    math nodes,
+    x axis extend end=0.8cm,
+    this page cycles=red,
+    title=\textup{Serre SS Page \page{}},
+    x label = {$H^*(K(\Z,3))$},
+    y label = {$H^*(K(\Z,2))$}
+]
+%\tracingall
+\column0["\Z\{\ifnum\y>0\relax x\ifnum\y>1\relax  ^{\y}\fi\else1\fi\}"]
+%\error
+\column3["\Z\{a\ifnum\y>0x\ifnum\y>1 ^{\y}\fi\fi\}"]
+
+
+\foreach\y in {1,...,6} {\d["\cdot \y"']3(0,2*\y)}
+\replaceclass["\Z/3"](3,4)
+\replaceclass["\Z/5"](3,8)
+
+
+\column6["\Z/2"]
+\d3(3,2)
+\d3(3,6)
+\d3(3,10)
+\replaceclass["\Z/2"](3,6)
+\replaceclass["\Z/3"](3,10)
+\column8["\Z/3"]
+\d5(3,4)
+\d5(3,10)
+\column9["\Z/2"]
+\d3(6,2)
+\d3(6,6)
+\d3(6,10)
+\column10["\Z/2"]
+\d7(3,6)
+\column11["\Z/3"]
+\d3(8,2)
+\d3(8,4)
+\d3(8,8)
+\d3(8,10)
+\column12["\Z/2\oplus\Z/5"]
+\column13["\Z/2"]
+\column15["\Z/2\oplus\Z/2\oplus\Z/5"]
+\d3(9,2)
+\d3(9,6)
+\d3(9,10)
+\d3(10,2)
+\d3(10,6)
+\d3(10,10)
+\d3(10,12)
+\d3(12,2)
+\d3(12,4)
+\d3(12,6)
+\d3(12,8)
+\d3(12,10)
+\d3(12,4)
+\replaceclass["\Z/5"](12,0)
+\replaceclass["\Z/5"](12,4)
+\replaceclass["\Z/5"](12,8)
+\d9(3,8)
+
+
+\replaceclass["\Z/5"](12,10)
+\replaceclass["\Z/2"](15,0)
+\replaceclass["\Z/2\oplus\Z/2"](15,4)
+
+\d5(10,4)
+
+\class["\Z/3"](16,0)
+\class["\Z/3"](16,6)
+\d5(11,4)
+\d5(11,10)
+
+\class["\Z/2"] (17,0)
+
+\class["\Z/2"](17,8)
+
+\d5(12,12)
+
+\class["\Z/2"](19,0)
+\d9(10,8)
+
+\class["\Z/5"](23,0)
+\d11(12,10)
+
+\replaceclass["\Z/6"](16,0)
+\d13(3,12)
+
+%\replaceclass["\Z/6"](21,0)
+%\d13(8,12)
+\class["\Z/3"](24,0)
+\d13(11,12)
+\end{sseqdata}
+
+
+\printpage[name={K(Z,3)}, page=0,no differentials]
+\newpage
+\printpage[name={K(Z,3)}, page=0]
+\newpage
+\printpage[name={K(Z,3)}, page=3]
+\newpage
+\printpage[name={K(Z,3)}, page=5]
+\newpage
+\printpage[name={K(Z,3)}, page=7]
+\newpage
+\printpage[name={K(Z,3)}, page=9]
+\newpage
+\printpage[name={K(Z,3)}, page=11]
+\newpage
+\printpage[name={K(Z,3)}, page=12]
+\end{document}
