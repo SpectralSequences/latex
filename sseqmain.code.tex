@@ -1,5 +1,5 @@
 %%
-%% Package: spectralsequences.sty version 1.0
+%% Package: spectralsequences.sty version 1.0.0
 %% Author: Hood Chatham
 %% Email: hood@mit.edu
 %% Date: 2017-06-18
@@ -271,7 +271,8 @@
 \def\sseq@scope@[#1]{%
     \sseq@scope@savedpaths@add{\begin{scope}}%
     \sseq@processoptions{scope}{#1}% outputs into \sseq@savedoptioncode
-    \sseq@eval{\@nx\sseq@scope@savedpaths@add{\sseq@scope@toks{\unexpanded\@xp{\sseq@savedoptioncode\tikz@options}}}}%
+    \sseq@eval{\sseq@scope@toks{\unexpanded\@xp{\the\sseq@scope@toks}\unexpanded\@xp{\sseq@savedoptioncode\tikz@options}}}
+    \sseq@eval{\@nx\sseq@scope@savedpaths@add{\sseq@scope@toks{\the\sseq@scope@toks}}}%
     %\advance\sseq@scope@savestackid\@ne
     %\sseq@savestack@name{scope@save\the\sseq@scope@savestackid}
 }

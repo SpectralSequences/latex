@@ -1,5 +1,5 @@
 %%
-%% Package: spectralsequences.sty version 1.0
+%% Package: spectralsequences.sty version 1.0.0
 %% Author: Hood Chatham
 %% Email: hood@mit.edu
 %% Date: 2017-06-18
@@ -9,14 +9,15 @@
 %%
 
 
+
 % TODO:
-%  label handler key, \sseqnormalizepolynomial
+%  give an error if \gettag fails to find a tag
 %  speed up off page edges (uses 10% of the draw time for page 0 of tmfass)
 %  speed up label nodes
-%  try to restrict fragility issues to tooltips and tikz primitives... annoying
 %  error messages that should be warnings by default?
 %  improve axes options? allow axis to be centered on coordinate or centered between coordinates
-%  recover from failing to patch pgfkeys
+
+
 
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{spectralsequences}[2017/06/04 v1.0]

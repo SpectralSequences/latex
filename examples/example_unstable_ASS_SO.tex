@@ -1,0 +1,84 @@
+%%
+%% Package: sseqpages.sty version 1.0.0
+%% Author: Hood Chatham
+%% Email: hood@mit.edu
+%% Date: 2017-06-18
+%% License: Latex Project Public License
+%%
+%% File: example_unstable_ASS_SO.tex
+%%
+%%    From Kathryn Lesh: A conjecture on the unstable Adams spectral sequences for SO and U top of page 21. 
+%%    http://hopf.math.purdue.edu//Lesh/uass-so-model.pdf 
+%%
+
+\documentclass{article}
+\usepackage[landscape]{geometry}
+\usepackage{spectralsequences}
+
+\begin{document}
+
+\sseqset{
+    M3M2/.sseq style = { fill }, 
+    M4M3/.sseq style = { circlen = 2, fill }
+}
+
+\NewSseqCommand \tower { O{} d() } {
+    \IfNoValueF{#2}{
+        \class(#2)
+    }
+    \savestack
+    \edef\towermax{\the\numexpr10-\lasty0}
+    \begin{scope}[#1]
+    \foreach\i in {1,...,\towermax}{
+        \class(\lastx,\lasty+1)
+        \structline(\lastclass1)(\lastclass)
+    }
+    \end{scope}
+    \restorestack
+}
+
+\NewSseqCommand \etaclass {} {
+    \class(\lastx+1,\lasty+1)
+    \structline(\lastclass1)(\lastclass)
+}
+
+\NewSseqCommand \divtwoclass {} {
+    \class(\lastx,\lasty-1)
+    \structline(\lastclass1)(\lastclass)
+}
+
+\begin{sseqdata}[ name = SO_UASS, tick step = 5, x range = {0}{20}, Adams grading ]
+\class(1,0)
+\tower(3,0)
+
+\begin{scope}[M3M2]
+\tower(7,0)
+\makeatletter
+%\sseq@savedpaths@show
+\etaclass\etaclass
+
+\tower(11,3)
+
+\class(14,4)
+\divtwoclass\divtwoclass
+\etaclass\etaclass\etaclass
+\divtwoclass\divtwoclass
+
+\class(16,5)\etaclass
+\end{scope}
+
+\begin{scope}[M4M3]
+\tower(15,0)
+\etaclass\etaclass\etaclass
+\divtwoclass\divtwoclass
+\end{scope}
+
+\d2(15,0)\d2(15,1)\d2(15,2)
+\d2(16,1)\d2(17,2)\d2(18,3)
+\d2(18,2)\d2(18,1)
+\end{sseqdata}
+
+\printpage[ name = SO_UASS, page = 2 ]
+\newpage
+\printpage[ name = SO_UASS, page = 3 ]
+\end{document}

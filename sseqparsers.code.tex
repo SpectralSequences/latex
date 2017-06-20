@@ -1,5 +1,5 @@
 %%
-%% Package: spectralsequences.sty version 1.0
+%% Package: spectralsequences.sty version 1.0.0
 %% Author: Hood Chatham
 %% Email: hood@mit.edu
 %% Date: 2017-06-18
@@ -747,6 +747,7 @@
 
 \def\sseq@tagclass#1(#2){%
     \bgroup
+    \def\sseq@class@tag{#1}
     \sseq@parsecoord\coord{#2}{}%
     \sseq@obj@ifdef{partcoord.(\sseq@xycoord).tag.\sseq@class@tagprefix\sseq@class@tag}{%
         \sseq@error@nn{class-tag-already-defined}{\sseq@class@tagprefix\sseq@class@tag}{(\sseq@xycoord)}% could be warning
