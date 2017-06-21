@@ -1,32 +1,38 @@
 #!/bin/bash
-echo "Compiling manual"
+
+package_files=$( /usr/bin/find  | grep -E ".sty|.tex|.md" )
+#echo "Compiling manual"
 cd manual
-texify --pdf --quiet spectralsequencesmanual.tex
+#texify --pdf --quiet spectralsequencesmanual.tex
+if [ $? -ne 0 ] ; then
+    echo "Manual failed, quitting."
+    exit 1
+fi
 cd ..
 
-echo "Compiling examples"
-./compileexamples.sh
+#echo "Compiling examples"
+#./compileexamples.sh
 if [ $? -gt 0 ] ; then
     echo "Examples failed; quitting."
     exit 1
 fi
 
 echo "Cleanup tex output files"
-/usr/bin/find -regextype egrep -regex \
-    ".*\.aux|.*\.bbl|.*\.dvi|.*\.log|.*\.synctex.*|.*\.toc|.*\.out|.*\.up.*" \
-    -delete
+/usr/bin/find -regextype egrep -regex ".*\.aux|.*\.bbl|.*\.dvi|.*\.log|.*\.synctex.*|.*\.toc|.*\.out|.*\.up.*" -delete
     
 #echo "Applying dos2unix"
-#/usr/bin/find . -type f | grep -vE ".git|.pdf" | xargs dos2unix --quiet
+#echo $package_files | xargs dos2unix --quiet
 
-echo "Replacing date strings"
-grep -lr "Package: spectralsequences.sty version" * | grep -vE "sh$" | xargs sed --in-place "s/Date: ....-..-../Date: $(date +%Y-%m-%d)/g"
-
-# If a version number was supplied, replace versions:
-#grep -l "Date: 2017-06-21" | xargs sed --in-place "s/Date: 2017-06-21/Date: $(date +%Y-%m-%d)/g"
+# If a version number was supplied, replace versions and date strings:
+if [ $1 ] ; then
+    echo "Replacing date strings and version numbers"
+    echo $package_files | xargs sed --in-place "s/Date: ....-..-../Date: $(date +%Y-%m-%d)/g"
+    sed --in-place "s_ProvidesPackage{spectralsequences}\[.*\]_ProvidesPackage[$(date +%Y/%m/%d) v$1]_g" spectralsequences.sty
+    echo $package_files | xargs sed -E --in-place "s/spectralsequences v[0-9]*\.[0-9]*\.[0-9]*[[:punct:]]?[a-z]*/spectralsequences v$1/g"
+fi
 
 echo "Zipping files"
-powershell "Get-ChildItem . -r -Exclude ".git","*.sh","*.zip","*.txt" | Write-Zip -OutputPath spectralsequences.zip | Out-Null"
+powershell "Get-ChildItem . -r -Path ".sty","*.tex","*.md","*.pdf" | Write-Zip -OutputPath spectralsequences.zip | Out-Null"
 
 if [ -s commitmessage.txt ] ; then
     echo "Committing" 
@@ -35,4 +41,15 @@ if [ -s commitmessage.txt ] ; then
     printf "" > commitmessage.txt
     echo "Pushing commit"
     git push
+fi
+
+if [ $1 ] ; then
+    while true; do
+        read -p $'Do you wish commit the package to CTAN?\n' yn
+        case $yn in
+            [Yy]es ) ./ctan-upload.sh ./ctan-upload-fields.def; break;;
+            [Nn]* ) break;;
+            * ) echo "Please answer yes or no.";;
+        esac
+    done
 fi

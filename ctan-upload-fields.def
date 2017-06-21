@@ -1,0 +1,23 @@
+PKG='spectralsequences'
+VERS='1.0.0'
+AUTHOR='Hood Chatham'
+UPLOADER=''
+FILENAME='spectralsequences.zip'
+EMAIL='hood@mit.edu'
+DESCRIPTION='Print spectral sequence diagrams using pgf/tikz.'
+CTANPATH='/graphics/pgf/contrib/spectralsequences'
+LICENSE='lppl'
+REPOSITORY='github.com/hoodmane/spectralsequences'
+
+if [ -s ctan-announce.txt ] ; then
+    TYPE='announce'
+    dos2unix --quiet ctan-announce.txt
+    ANNOUNCEMENT=$( cat ctan-announce.txt )
+else
+    TYPE='silent'
+fi
+
+if [ -s ctan-note.txt ] ; then
+    dos2unix --quiet ctan-note.txt 2> /dev/null
+    NOTE=$( cat ctan-note.txt 2> /dev/null)
+fi
