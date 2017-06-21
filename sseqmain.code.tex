@@ -2,7 +2,7 @@
 %% Package: spectralsequences.sty version 1.0.0
 %% Author: Hood Chatham
 %% Email: hood@mit.edu
-%% Date: 2017-06-18
+%% 2017-06-20
 %% License: Latex Project Public License
 %%
 %% File: sseqmain.code.tex
@@ -267,12 +267,18 @@
 
 %%% Scope
 \newcount\sseq@scope@savestackid
+\def\sseq@scope@secondpasstoks{}
 \def\sseq@scope{\@ifnextchar[{\sseq@scope@}{\sseq@scope@[]}}%]
 \def\sseq@scope@[#1]{%
     \sseq@scope@savedpaths@add{\begin{scope}}%
+    % This is a funky hack to fix a problem with shifts. On tmfass, if we don't handle shifts specially, we actually put so much stuff into
+    % this \sseq@scope@secondpasstoks macro that we exceed TeX's upper bound for the maximum total macro memory. Or something like that -- I don't understand the error,
+    % but it definitely only depends on how much stuff there is overall and on there being lots of scopes, not on any particular part of the diagram.
+    % Anyways, to avoid this excessive storage demand, we don't put the shifts into the scope toks and apply them tons of times, we just do them once.
+    \let\sseq@options@scopeshiftsecondpass\sseq@scope@savedpaths@add
     \sseq@processoptions{scope}{#1}% outputs into \sseq@savedoptioncode
-    \sseq@eval{\sseq@scope@toks{\unexpanded\@xp{\the\sseq@scope@toks}\unexpanded\@xp{\sseq@savedoptioncode\tikz@options}}}
-    \sseq@eval{\@nx\sseq@scope@savedpaths@add{\sseq@scope@toks{\the\sseq@scope@toks}}}%
+    \edef\sseq@scope@secondpasstoks{\unexpanded\@xp{\sseq@scope@secondpasstoks}\unexpanded\@xp{\sseq@savedoptioncode}}
+    \sseq@eval{\@nx\sseq@scope@savedpaths@add{\unexpanded\@xp{\sseq@scope@secondpasstoks}}}%
     %\advance\sseq@scope@savestackid\@ne
     %\sseq@savestack@name{scope@save\the\sseq@scope@savestackid}
 }

@@ -2,7 +2,7 @@
 %% Package: spectralsequences.sty version 1.0.0
 %% Author: Hood Chatham
 %% Email: hood@mit.edu
-%% Date: 2017-06-18
+%% Date: 2017-06-21
 %% License: Latex Project Public License
 %%
 %% File: sseqkeys.code.tex
@@ -135,7 +135,6 @@
     \sseq@tempiffalse
     \sseq@pgfkeysdocommand@try{/tikz/#1}{#2}
     \sseq@pgfkeysdocommand@try{/pgf/#1}{#2}
-    % is this really an internal error? Maybe we should have failed earlier?
     \ifsseq@tempif\else\sseq@error@internal@nn{do-command-failed}{#1}{#2}\fi
 }
 
@@ -1556,6 +1555,10 @@
     \sseq@tikz@shifttransform{y}{#2}
 }
 
+% special second pass handler for scopes to prevent shifts from causing out of memory style errors,
+% see the longer comment at the definition of sseq@scope in main.code.tex
+\def\sseq@options@scopeshiftsecondpass{\sseq@options@secondpass}
+
 \sseq@pgfqkeysdirlist{/sseqpages/scope,/sseqpages/tikz primitives}{
     shift/.code={
         \sseq@options@firstpass{\tikz@scan@one@point\sseq@shift@firstpassprocess#1\relax}
@@ -1563,8 +1566,8 @@
     },
     xshift/.sseq @ first pass code=\sseq@tikz@firstpass@checkshifttransform{x}{#1},
     yshift/.sseq @ first pass code=\sseq@tikz@firstpass@checkshifttransform{y}{#1},
-    xshift/.sseq @ second pass append code=\sseq@tikz@shifttransform{x}{#1},
-    yshift/.sseq @ second pass append code=\sseq@tikz@shifttransform{y}{#1},
+    xshift/.append code=\sseq@options@scopeshiftsecondpass{\sseq@tikz@shifttransform{x}{#1}},%% Note special scopeshiftsecondpass command
+    yshift/.append code=\sseq@options@scopeshiftsecondpass{\sseq@tikz@shifttransform{y}{#1}},%%
     rotate around/.sseq @ second pass code={\sseq@standardparse\sseq@pgfkeysdocommand{rotate}{#1}},
     rotate/.sseq @ stdparse do transform, rotate/.value required,
     xslant/.sseq @ stdparse do transform, xslant/.value required,

@@ -2,7 +2,7 @@
 %% Package: spectralsequences.sty version 1.0.0
 %% Author: Hood Chatham
 %% Email: hood@mit.edu
-%% Date: 2017-06-18
+%% Date: 2017-06-21
 %% License: Latex Project Public License
 %%
 %% File: sseqmacromakers.code.tex
@@ -227,7 +227,7 @@
 
     \sseq@parseargspec@newgroup{#2}{#3}%
     % You might think we could skip this patching, and it's probably possible.
-    % However, this is responsible for turning the #'s of catcode other into #'s of catcode arg. I don't have as good of a way to do that.    
+    % However, this is responsible for turning the #'s of catcode other into #'s of catcode arg. I don't have as good of a way to do that.
     \cs_if_exist:cTF{ sseq @ usermacro @ \cs_to_str:N #2 @ helper \c_space_tl code }{
         \pretocmd:cfnn { sseq @ usermacro @ \cs_to_str:N #2 @ helper \c_space_tl code }{
             \the\sseq@temptoks
