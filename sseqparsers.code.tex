@@ -12,6 +12,14 @@
 
 \ExplSyntaxOn
 
+\def\sseqparseint#1#2{
+    \sseq@ifintexpr{#2+0}{ % +0 here to prevent \lastx from freaking out if it's at the end of #2. 
+        \edef#1{\the\numexpr#2\relax}
+    }{
+        \sseq@error{invalid-int-expr}
+    }
+}
+
 
 % Prevent \protect from causing trouble for \pgfmathparse
 \let\sseq@pgfmathparse@orig\pgfmathparse

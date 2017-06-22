@@ -49,7 +49,7 @@
         \pushstack(#2)
     }
     \savestack
-    \edef\towermax{\the\numexpr9-\lasty0}
+    \sseqparseint\towermax{\ymax-\lasty+1}
     \begin{scope}[#1]
     \foreach\i in {1,...,\towermax}{
         \class(\lastx,\lasty+1)
@@ -62,7 +62,7 @@
 \NewSseqCommand\honetower {O{}} {
     \savestack
     \begin{scope}[#1]
-    \edef\towermax{\the\numexpr9-\lasty0}
+    \sseqparseint\towermax{\ymax-\lasty+1}
     \foreach\i in {1,...,\towermax}{
         \class(\lastx+1,\lasty+1)
         \structline(\lastclass1)(\lastclass)
@@ -83,7 +83,7 @@
     \IfNoValueF{#2}{
         \pushstack(#2)
     }
-    \edef\towermax{\the\numexpr-\lasty+8}
+    \sseqparseint\towermax{\ymax-\lasty}
     \begin{scope}[#1]
     \gettag\thetag(\lastclass)
     \class(\lastx+3,\lasty+1)

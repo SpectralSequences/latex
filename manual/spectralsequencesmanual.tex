@@ -12,8 +12,8 @@
 
 %
 % TODO:
-%  explain the necessity for \lastx0 at the end of groups.
 %  add "draft" to documentation
+%  perhaps think about ordering, particularly of "Misc commands" section
 %  tutorial
 %  explain / cross reference examples folder?
 %
@@ -128,17 +128,15 @@ After a class is the source or target of a differential, it disappears on the ne
 \d[->>]3(1,0)
 \replaceclass["2\mathbb{Z}"](1,0)
 \end{sseqdata}
-\printpage[ name = replace class example, page = 2 ]
-\hskip1cm
-\printpage[ name = replace class example, page = 3 ]
-\hskip1cm
+\printpage[ name = replace class example, page = 2 ] \qquad
+\printpage[ name = replace class example, page = 3 ] \qquad
 \printpage[ name = replace class example, page = 4 ]
 \end{codeexample}
 Note that this will not restore any structlines coming into or off of the class, if you want the structlines to persist, you must call |\structline| again (or use the structline |structline:page| option)
 \end{commandlist}
 
 \begin{commandlist}{{\classoptions\moptions\parargthreeopt{x}{y}{n}},\classoptions\moptions\pararg{classname}}
-This adds options to a class that already exists. This can be used in a \sseqpageenv\space environment to modify the appearance of a class for just one drawing of the spectral sequence, for instance to highlight it for discussion purposes.
+This adds options to an existing class. This can be used in a \sseqpageenv\space environment to modify the appearance of a class for just one drawing of the spectral sequence, for instance to highlight it for discussion purposes.
 
 If there are multiple classes at the coordinate |(x,y)| you may specify which using an integer or a |tag| $n$. By default, this command will affect the first class placed in that position. You can also provide the |class:name| of a class.
 \begin{codeexample}[width = 6cm]
@@ -199,8 +197,7 @@ If there are multiple nodes in the source or target, you may specify which one t
 \structline(1,1)(1,0)
 \d2(1,0)
 \end{sseqdata}
-\printpage[ name = d example, page = 2 ]
-\hskip0.3cm
+\printpage[ name = d example, page = 2 ] \quad
 \printpage[ name = d example, page = 3 ]
 \end{codeexample}
 If there are multiple nodes in the source or target coordinate, then there is a funny syntax for indicating which one should be the source and target:
@@ -247,7 +244,7 @@ This command creates a structure line from \sourcecoord\space to \targetcoord. T
 If the source or target of a structure line is hit by a differential, then on subsequent pages, the structure line disappears.
 
 If the source or target has had multiple generations (i.e., they got hit and you used |\replaceclass|), then the |\structline| will only appear starting on the first page where the current generation of both the source and target are present. If this is undesirable, you can use the |structline:page| option to change it.
-\begin{codeexample}[width = 9cm]
+\begin{codeexample}[width = 7cm]
 \DeclareSseqGroup\tower {} {
     \class(0,0)
     \foreach \y in {1,...,5} {
@@ -269,9 +266,8 @@ If the source or target has had multiple generations (i.e., they got hit and you
 \tower[struct lines = red](2,0)
 \d2(1,1,2)
 \end{sseqdata}
-\printpage[name = structline example, page = 2]
-\hskip1cm
-\printpage[name = structline example, page = 3]
+\printpage[ name = structline example, page = 2 ] \quad
+\printpage[ name = structline example, page = 3 ]
 \end{codeexample}
 \end{command}
 
@@ -911,8 +907,8 @@ This command simplifies a monomial by combining like variables and removing base
 \end{codeexample}
 \end{command}
 
-\begin{commandlist}{\NewSseqCommand    \texttt{\textbackslash}\meta{command}\marg{argspec}\marg{body},
-                    \DeclareSseqCommand\texttt{\textbackslash}\meta{command}\marg{argspec}\marg{body}}
+\begin{commandlist}{\NewSseqCommand    \cmdarg{command}\marg{argspec}\marg{body},
+                    \DeclareSseqCommand\cmdarg{command}\marg{argspec}\marg{body}}
 The \xparsepkg\ package provides these very powerful commands for defining macros. They are used internally to the \sseqpages\space package to define |\class|, |\d|, etc. To help you create variants of these commands, I will record here the argument specifications for each of them. See the \href{\xparseurl}{\xparsepkg\ manual} for a better explanation and more information.
 
 To make a command like |\class|, you can use the argument specification |O{}r()|. The argument type \texttt{O\marg{default}} stands for a bracket delimited optional argument with default value \meta{default}. In this case, we've specified the default to be empty. |r()| stands for a ``required'' argument delimited by |(| and |)|. In the command definition, access the optional argument with |#1| and the coordinate with |#2|.
@@ -993,8 +989,8 @@ The |\structline| and |\changeclasses| commands have argument specification |O{}
 \end{codeexample}
 \end{commandlist}
 
-\begin{commandlist}{\NewSseqGroup\texttt{\textbackslash}\meta{command}\oarg{argspec}\marg{body},
-                    \DeclareSseqGroup\texttt{\textbackslash}\meta{command}\oarg{argspec}\marg{body}}
+\begin{commandlist}{\NewSseqGroup\cmdarg{command}\marg{argspec}\marg{body},
+                    \DeclareSseqGroup\cmdarg{command}\marg{argspec}\marg{body}}
 % TODO: explain me
 So that calling |\mygroup(x,y)| prints the whole group shifted to start at $\mathtt{(x,y)}$ instead of $\mathtt{(0,0)}$. For instance:
 \begin{codeexample}[width = 8cm]
@@ -1011,6 +1007,10 @@ So that calling |\mygroup(x,y)| prints the whole group shifted to start at $\mat
 \end{sseqpage}
 \end{codeexample}
 \end{commandlist}
+
+\begin{command}{\sseqparseint\cmdarg{macro}\marg{integer expression}}
+Stores the result of evaluating an integer expression into \cmdarg{macro}. An integer expression consists of |+|, |-|, |*|, |/|, parentheses, and macros that expand to more of the same. The exact rules regarding what is a valid expression are pretty much what you would expect.
+\end{command}
 
 \begin{command}{\getdtarget\marg{macro}\marg{page}\pars{\sourcecoord}}
 Sets \meta{macro} equal to the coordinates of the target position of a length \meta{page} differential starting at \sourcecoord. This helps to make commands that draw fancy differentials. For instance, consider the following example, suggested by Catherine Ray:
@@ -1061,7 +1061,7 @@ The |\nameclass| command gives a name to a class. It's similar to saying |\dopti
 The |\tagclass| command gives a tag to a class. It's similar to saying |\doptions[tag = |\meta{name}|]|, but faster. See \example{tmfmayss} for a use case for this.
 \end{command}
 
-\begin{command}{\gettag\texttt{\textbackslash}\meta{somecontrolsequence}\pararg{coordinate}}
+\begin{command}{\gettag\cmdarg{somecontrolsequence}\pararg{coordinate}}
 The |\gettag| command finds the most recent tag applied to the coordinate and stores it into the command. This is useful for connecting groups of nodes. For example, consider the following code, inspired by \example{tmfmayss}.
 \begin{codeexample}[width=6cm]
 \DeclareSseqCommand \tower { O{} } {
@@ -1113,7 +1113,46 @@ The following commands are used to access the stack:
 
 \begin{commandlist}{\lastx\opt{\meta{n}},\lasty\opt{\meta{n}},\lastclass\opt{\meta{n}}}
 The commands |\lastx| and |\lasty| evaluate to the |x| and |y| position, respectively, of the $n$th class on the stack. If $n = 0$ you can leave it off.
-The command |\lastclass| evaluates to the coordinate of
+The command |\lastclass| evaluates to the coordinate of the most recent class on the stack. This is useful for writing turtle-style code:
+\begin{codeexample}[width=6cm]
+\DeclareSseqCommand \etaclass {}{
+    \class(\lastx+1,\lasty+1)
+    \structline(\lastclass1)(\lastclass)
+}
+\DeclareSseqCommand \divtwoclass {}{
+    \class(\lastx,\lasty-1)
+    \structline(\lastclass1)(\lastclass)
+}
+\begin{sseqpage}
+\class(0,0)
+\savestack
+\foreach \y in { 1,...,5 }{
+    \class(0,\y)
+    \structline(\lastclass1)(\lastclass)
+}
+\restorestack
+\etaclass\etaclass\etaclass
+\divtwoclass\divtwoclass
+\end{sseqpage}
+\end{codeexample}
+
+You can use |\lastx| and |\lasty| in other contexts than in the body of a \sseqpages\ command, most notably inside |\sseqparseint| (they also go fine inside |\pgfmathparse| if you need it or one of its siblings). For instance, consider the following tower command:
+\begin{codeexample}[width=6cm]
+\DeclareSseqCommand \tower { } {
+    \savestack
+    \sseqparseint\numclasses{\ymax-\lasty0}
+    \foreach \n in {1,...,\numclasses}{
+        \class(\lastx,\lasty+1)
+        \structline(\lastclass1)(\lastclass)
+    }
+    \restorestack
+}
+\begin{sseqpage}[y range = {0}{5}]
+\class(0,0)\tower
+\class(1,3)\tower
+\class(3,2)\tower
+\end{sseqpage}
+\end{codeexample}
 \end{commandlist}
 
 
@@ -1242,8 +1281,7 @@ These options change the appearance of all cycles which support or are hit by a 
 \class(1,3) \class(2,0)
 \d2(1,0) \d3(2,0)
 \end{sseqdata}
-\printpage[ name = this page cycles example, page = 2 ]
-\hskip1cm
+\printpage[ name = this page cycles example, page = 2 ] \qquad
 \printpage[ name = this page cycles example, page = 3 ]
 \end{codeexample}
 \end{stylekeylist}
@@ -1328,7 +1366,7 @@ The main function \sseqpages\ provides for use here is |\sseqnormalizemonomial{#
 Here is an example of a function that evaluates an arithmetic expression:
 \begin{codeexample}[width=6cm]
 \begin{sseqpage}[
-    class label handler = { \edef\processedlabel{\the\numexpr#1} }
+    class label handler = { \sseqparseint\processedlabel{#1} }
 ]
 \class["1+1"](0,0)
 \class["1+2*(1+3*(4-1))"](1,1)

@@ -27,7 +27,7 @@
         \class(#2)
     }
     \savestack
-    \edef\towermax{\the\numexpr10-\lasty0}
+    \sseqparseint\towermax{\ymax-\lasty}
     \begin{scope}[#1]
     \foreach\i in {1,...,\towermax}{
         \class(\lastx,\lasty+1)
@@ -47,14 +47,12 @@
     \structline(\lastclass1)(\lastclass)
 }
 
-\begin{sseqdata}[ name = SO_UASS, tick step = 5, x range = {0}{20}, Adams grading ]
+\begin{sseqdata}[ name = SO_UASS, tick step = 5, x range = {0}{20}, Adams grading, y range={0}{10} ]
 \class(1,0)
 \tower(3,0)
 
 \begin{scope}[M3M2]
 \tower(7,0)
-\makeatletter
-%\sseq@savedpaths@show
 \etaclass\etaclass
 
 \tower(11,3)

@@ -434,6 +434,23 @@
 }
 
 
+
+\hypersetup{
+    pdftitle={The Sseqpages Package},
+    pdfauthor={Hood Chatham},
+    pdfsubject={A spectral sequence drawing package build on tikz},
+    pdfkeywords={spectral sequences,algebraic topology,homotopy theory,math,tikz,sseq},
+    pdflicenseurl={http://www.latex-project.org/lppl/}
+}
+
+\def\pars#1{|(|#1|)|}
+\def\pararg#1{\pars{\meta{#1}}}
+\def\parargtwo#1#2{|(\meta{#1},\meta{#2})|}
+\def\parargthree#1#2#3{|(\meta{#1},\meta{#2},\meta{#3})|}
+\def\parargthreeopt#1#2#3{|(\meta{#1},\meta{#2}|\opt{|,\meta{#3}|}|)|}
+\def\parargthreevar#1#2#3{|(\meta{#1},\meta{#2}#3)|}
+
+\def\cmdarg{\texttt{\textbackslash}\meta}
 \def\ooptions{\oarg{options}}
 \def\moptions{|[|\meta{options}|]|}
 \def\sourcecoord{\meta{source coordinate}}
@@ -464,23 +481,6 @@
     \def\tikzpictureenv{\texttt{(tikzpicture)}}
     \def\scopeenv{\texttt{(scope)}}
 }
-
-
-\hypersetup{
-    pdftitle={The Sseqpages Package},
-    pdfauthor={Hood Chatham},
-    pdfsubject={A spectral sequence drawing package build on tikz},
-    pdfkeywords={spectral sequences,algebraic topology,homotopy theory,math,tikz,sseq},
-    pdflicenseurl={http://www.latex-project.org/lppl/}
-}
-
-\def\pars#1{|(|#1|)|}
-\def\pararg#1{\pars{\meta{#1}}}
-\def\parargtwo#1#2{|(\meta{#1},\meta{#2})|}
-\def\parargthree#1#2#3{|(\meta{#1},\meta{#2},\meta{#3})|}
-\def\parargthreeopt#1#2#3{|(\meta{#1},\meta{#2}|\opt{|,\meta{#3}|}|)|}
-\def\parargthreevar#1#2#3{|(\meta{#1},\meta{#2}#3)|}
-
 
 \def\example#1{\path{example_#1.tex}}
 

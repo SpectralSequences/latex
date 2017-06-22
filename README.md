@@ -16,6 +16,9 @@ Changelog:
     
 ## [Unreleased] 
 
+### Added:
+- \sseqparseint
+
 ### Fixed: 
 - The \tagclass command was broken. Now it works.
 - Scopes didn't nest properly, now they do.

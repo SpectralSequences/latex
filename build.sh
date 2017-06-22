@@ -1,17 +1,17 @@
 #!/bin/bash
 
 package_files=$( /usr/bin/find  | grep -E ".sty|.tex|.md" )
-#echo "Compiling manual"
+echo "Compiling manual"
 cd manual
-#texify --pdf --quiet spectralsequencesmanual.tex
+texify --pdf --quiet spectralsequencesmanual.tex
 if [ $? -ne 0 ] ; then
     echo "Manual failed, quitting."
     exit 1
 fi
 cd ..
 
-#echo "Compiling examples"
-#./compileexamples.sh
+echo "Compiling examples"
+./compileexamples.sh
 if [ $? -gt 0 ] ; then
     echo "Examples failed; quitting."
     exit 1
@@ -20,14 +20,14 @@ fi
 echo "Cleanup tex output files"
 /usr/bin/find -regextype egrep -regex ".*\.aux|.*\.bbl|.*\.dvi|.*\.log|.*\.synctex.*|.*\.toc|.*\.out|.*\.up.*" -delete
     
-#echo "Applying dos2unix"
-#echo $package_files | xargs dos2unix --quiet
+echo "Applying dos2unix"
+echo $package_files | xargs dos2unix --quiet
 
 # If a version number was supplied, replace versions and date strings:
 if [ $1 ] ; then
     echo "Replacing date strings and version numbers"
     echo $package_files | xargs sed --in-place "s/Date: ....-..-../Date: $(date +%Y-%m-%d)/g"
-    sed --in-place "s_ProvidesPackage{spectralsequences}\[.*\]_ProvidesPackage[$(date +%Y/%m/%d) v$1]_g" spectralsequences.sty
+    sed --in-place "s_ProvidesPackage{spectralsequences}\[.*\]_ProvidesPackage{spectralsequences}[$(date +%Y/%m/%d) v$1]_g" spectralsequences.sty
     echo $package_files | xargs sed -E --in-place "s/spectralsequences v[0-9]*\.[0-9]*\.[0-9]*[[:punct:]]?[a-z]*/spectralsequences v$1/g"
 fi
 
