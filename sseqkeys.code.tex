@@ -341,8 +341,7 @@
 
 
 
-\sseq@setlabeldirectionkeys{/sseqpages/class/label}[/.sseq @ first pass code]
-    {\sseq@classlabeltrue\def\sseq@class@labelposition@name{#1}\def\sseq@class@labelposition@distance{##1}}
+\sseq@setlabeldirectionkeys{/sseqpages/class/label}[/.sseq @ first pass code]{\sseq@classlabeltrue}
 \sseq@setlabeldirectionkeys{/sseqpages/class/label}[/.sseq @ second pass append code]{\sseq@class@positionlabel{#1}{##1}}
 \sseq@setlabeldirectionkeys{/sseqpages/class/label}[/.default]{\sseq@defaultlabeldistance{#1}}
 \sseq@setlabeldirectionkeys{/sseqpages/global/class/label}[/.default]{\sseq@defaultlabeldistance{#1}}
@@ -354,7 +353,7 @@
     label distance/.code={\sseq@setdefaultlabeldistances{#1}}
 }
 
-\def\sseq@class@positionlabel#1#2{\sseq@pgfkeysdocommand{#1}{#2}}
+\def\sseq@class@positionlabel#1#2{\sseq@pgfkeysdocommand{#1}{#2 of \tikz@fig@name}}
 
 
 
@@ -458,42 +457,16 @@
     \ifsseq@classlabel
         \sseq@options@firstpassmode
         \the\sseq@outerclasslabelstyle
-        \sseq@xprotected@addto@macro\sseq@classlabelnodes{
-            \@nx\ifsseq@needstikz
-                node[
-                    /sseqpages/class/label,
-                    /utils/exec={
-                        \let\@nx\sseq@tikz@transform@save\@nx\tikz@transform
-                        \let\@nx\tikz@transform\relax % The next line was set up to fix the classlabelstyle glitch
-                        \the\sseq@sseqstyle\@nx\the\sseq@sseqstyle@page
-                        \the\sseq@labelstyle\@nx\the\sseq@labelstyle@page\the\sseq@classlabelstyle\@nx\the\sseq@classlabelstyle@page
-                        \sseq@theouterclasslabelstyle\unexpanded\@xp{\sseq@savedoptioncode}%
-                     %   \@nx\iftikz@fullytransformed\@nx
-                     %      \@nx\tikz@fullytransformedtrue
-                     %   \else
-                     %       \@nx{\@nx\pgftransformresetnontranslations\@nx\sseq@globalrotatetransform}
-                     %   \@nx\fi
-                        \let\@nx\tikz@transform\@nx\sseq@tikz@transform@save
-                     }%
-                ]{\sseq@labeltextfn{\processedlabel}}%
-            \@nx\else
-                \@nx\node[
-                    /sseqpages/class/label,
-                    /utils/exec={
-                        \let\@nx\sseq@tikz@transform@save\@nx\tikz@transform
-                        \let\@nx\tikz@transform\relax % The next line was set up to fix the classlabelstyle glitch
-                        \the\sseq@sseqstyle\@nx\the\sseq@sseqstyle@page
-                        \the\sseq@labelstyle\@nx\the\sseq@labelstyle@page\the\sseq@classlabelstyle\@nx\the\sseq@classlabelstyle@page
-                        \sseq@theouterclasslabelstyle\unexpanded\@xp{\sseq@savedoptioncode}
-                     %   \@nx\iftikz@fullytransformed\@nx
-                     %      \@nx\tikz@fullytransformedtrue
-                     %   \else
-                     %       \@nx{\@nx\pgftransformresetnontranslations\@nx\sseq@globalrotatetransform}
-                     %   \@nx\fi
-                       \let\@nx\tikz@transform\@nx\sseq@tikz@transform@save
-                     }
-                ]{\unexpanded\@xp{\@xp\sseq@labeltextfn\@xp{\processedlabel}}};%
-            \@nx\fi
+        \sseq@x@addto@macro\sseq@classlabelnodes{%
+            \@nx\sseq@drawlabel{%
+                \unexpanded\@xp{\processedlabel}}%
+                {% This is setup to prevent a bug where \classoptions and class label style don't work correctly together
+                    \the\sseq@sseqstyle\@nx\the\sseq@sseqstyle@page
+                    \the\sseq@labelstyle\@nx\the\sseq@labelstyle@page
+                    \the\sseq@classlabelstyle\@nx\the\sseq@classlabelstyle@page
+                    \sseq@theouterclasslabelstyle
+                    \unexpanded\@xp{\sseq@savedoptioncode}%
+                }%
         }%
     \else
         \sseq@options@firstpassmode

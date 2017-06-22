@@ -166,10 +166,3 @@
         \@xp\let\@xp\sseq@scope@savedpaths@add   \csname sseq@scope@savedpaths@add@#1\endcsname
     }%
 }
-
-\def\sseq@usesavedpaths{%
-    \sseq@savedpaths
-    \sseq@clearchangestyles
-    \sseq@tempsavedpaths
-    \gdef\sseq@tempsavedpaths{}%
-} 

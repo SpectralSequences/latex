@@ -16,6 +16,12 @@
 %%%  Environment definitions
 %%%
 %%%%%%%
+\def\sseq@usesavedpaths{%
+    \sseq@savedpaths
+    \sseq@clearchangestyles
+    \sseq@tempsavedpaths
+    \gdef\sseq@tempsavedpaths{}%
+} 
 
 \sseq@addtostorelist\sseq@savedbackgroundpaths{}
 \sseq@addtostorelist\sseq@restorestyles{}

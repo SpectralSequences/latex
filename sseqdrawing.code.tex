@@ -356,14 +356,15 @@
                 \@nx\node[/utils/exec={\let\@nx\tikz@mode\@nx\sseq@mode},
                     /handlers/first char syntax/the character "/.initial=\@nx\sseq@handlequote
                 ] (\sseq@thisnodename) {\unexpanded\@xpthree{\sseq@obj{#1.nodetext}}}
-                [every text node part/.code={}]
-                \@nx\sseq@obj{#1.labelnodes};
+                [every text node part/.code={}];
             }%
+            \sseq@obj{#1.labelnodes}
         \else
             \tikz@node@textfont
             \edef\sseq@classnodetextoptions{\@xptwo\@nx\sseq@obj{#1.nodetext.options}}
             \edef\sseq@classnodetext{\@xptwo\@nx\sseq@obj{#1.nodetext}}
-            \sseq@setnodetext
+            \sseq@classnodetextoptions
+            \sseq@setnodetext{\sseq@classnodetext}
             \let\tikz@fig@name\sseq@thisnodename
             \pgfmultipartnode{\tikz@shape}{\tikz@anchor}{\tikz@fig@name}{\sseq@drawnode}%
             \tikz@alias
@@ -404,11 +405,13 @@
     \fi
     \endgroup
 }
-\def\sseq@setnodetext{%
+
+% #1 -- label text
+% #2 -- options
+\def\sseq@setnodetext#1{%
     \setbox\pgfnodeparttextbox=\hbox{%
         \pgfscope%
         \tikzset{every text node part/.try}%
-        \sseq@classnodetextoptions
         \ifx\tikz@textopacity\pgfutil@empty%
         \else%
          \pgfsetfillopacity{\tikz@textopacity}%
@@ -430,7 +433,7 @@
         \fi%
         \pgfsetcolor{.}%
           \tikz@atbegin@node%
-          \sseq@classnodetext%
+          #1%
           \tikz@atend@node%
            \ifx\tikz@text@width\pgfutil@empty%
            \else%
@@ -488,6 +491,27 @@
   }%
   \global\pgflinewidth=\pgfutil@tempdima%
 }
+
+%%% Labels
+
+% #1 -- label text
+% #2 -- options
+\def\sseq@drawlabel#1#2{
+    \bgroup\pgfscope
+    \def\tikz@mode{}
+    \let\sseq@tikz@transform@save\tikz@transform
+    \let\tikz@transform\relax % The next line was set up to fix the classlabelstyle glitch
+    \sseq@options@secondpassmode
+    \sseq@thesseqstyle\sseq@thelabelstyle\sseq@theclasslabelstyle#2
+    \tikz@options
+    \let\tikz@transform\sseq@tikz@transform@save
+    \pgftransformshift{\tikz@node@at}
+    \tikz@lib@pos@call
+    \sseq@setnodetext{\sseq@labeltextfn{#1}}{}
+    \pgfmultipartnode{\tikz@shape}{\tikz@anchor}{}{\sseq@drawnode}%
+    \endpgfscope\egroup
+}
+
 
 %%%
 %%% Drawing edges
