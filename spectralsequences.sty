@@ -11,7 +11,8 @@
 
 
 % TODO:
-%  make \sseqparseint error message
+%  finish \sseqparseint, \IfOutOfBoundsTF, \DoUntilOutOfBounds (add error trapping, test and document them)
+%  the new loop constructs need \foreach style error handling
 %  should we specify our favorite conditionals library?
 %  give an error if \gettag fails to find a tag
 %  give an error if the user tries to put a shift into a style
@@ -47,6 +48,26 @@
 \def\sseq@authorname{Hood Chatham}
 \def\sseq@authoremail{hood@mit.edu}
 
+
+% Commands we are going to expose just inside of environments
+\def\sseq@macrolist{%
+    \xcoord\ycoord\page %\xmin\xmax\ymin\ymax % these just get protected
+    % These are defined in sseqmain:
+    \class\replaceclass\d\structline\classoptions\doptions\structlineoptions\circleclasses
+    % The following are defined in sseqparsers:
+    \pgfmathparse\isalive\lastx\lasty\lastclass\savestack\restorestack\pushstack\nameclass\tagclass
+    \parsecoordinate\parsedifferential\getdtarget\gettag
+    \IfOutOfBoundsTF\IfOutOfBoundsT\IfOutOfBoundsF\IfInBoundsTF\IfInBoundsT\IfInBoundsF
+    \Do\DoUntilOutOfBounds\DoUntilOutOfBoundsThenNMore
+}
+
+
+% All the tikz commands. We replace these in our environment too. Replacements  defined in sseqparsers.
+\def\sseq@tikzcommands{%
+    \clip\coordinate\draw\fill\filldraw
+    \graph\matrix\node\path\pattern
+    \shade\shadedraw\useasboundingbox
+}
 
 %\sseq@draftmodetrue
 
@@ -220,28 +241,10 @@
     \let\sseqnewgroup\@gobblethree
 }
 
-% Commands we are going to expose just inside of environments
-\def\sseq@macrolist{%
-    % These are defined in sseqmain:
-    \class\replaceclass\d\structline\classoptions\doptions\structlineoptions\circleclasses
-    % The following are defined in sseqparsers:
-    \pgfmathparse\isalive\lastx\lasty\lastclass\savestack\restorestack\pushstack\nameclass\tagclass
-    \parsecoordinate\parsedifferential\getdtarget\gettag
-    \xcoord\ycoord\page %\xmin\xmax\ymin\ymax % these just get protected
-}
-
-% All the tikz commands. We replace these in our environment too. Replacements  defined in sseqparsers.
-\def\sseq@tikzcommands{%
-    \clip\coordinate\draw\fill\filldraw
-    \graph\matrix\node\path\pattern
-    \shade\shadedraw\useasboundingbox
-}
 
 
 \input sseqmessages.code.tex        % Exposes directly: \sseqerrortowarning
 \input sseqcheckdefinitions.code.tex
-
-%\sseq@patchforeachfalse
 
 \ifsseq@tempif\else % Set to false in checkdefinitions if it failed to patch the key-value system.
     \sseq@seteverythingtonoops

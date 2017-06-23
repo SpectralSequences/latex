@@ -15,7 +15,7 @@
 
 \documentclass{article}
 \usepackage{spectralsequences}
-\NewSseqGroup\tower {} {
+\NewSseqCommand\tower {} {
     \class(0,0)
     \foreach\i in {1,...,11}{
         \class(0,\i)
@@ -23,7 +23,7 @@
     }
 }
 \NewSseqGroup\hvee {} {
-    \tower(0,0)
+    \tower
     \foreach\i in {1,...,11}{
         \class(\i,\i)
         \structline(\i-1,\i-1,-1)(\i,\i,-1)

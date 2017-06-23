@@ -49,9 +49,8 @@
         \pushstack(#2)
     }
     \savestack
-    \sseqparseint\towermax{\ymax-\lasty+1}
     \begin{scope}[#1]
-    \foreach\i in {1,...,\towermax}{
+    \DoUntilOutOfBounds{
         \class(\lastx,\lasty+1)
         \structline(\lastclass1)(\lastclass)
     }
@@ -62,8 +61,7 @@
 \NewSseqCommand\honetower {O{}} {
     \savestack
     \begin{scope}[#1]
-    \sseqparseint\towermax{\ymax-\lasty+1}
-    \foreach\i in {1,...,\towermax}{
+    \DoUntilOutOfBounds{
         \class(\lastx+1,\lasty+1)
         \structline(\lastclass1)(\lastclass)
     }
@@ -83,13 +81,12 @@
     \IfNoValueF{#2}{
         \pushstack(#2)
     }
-    \sseqparseint\towermax{\ymax-\lasty}
     \begin{scope}[#1]
     \gettag\thetag(\lastclass)
     \class(\lastx+3,\lasty+1)
     \structline[htwostructstyle](\lastclass)(\lastclass1)
     \savestack
-    \foreach\i in {1,...,\towermax}{
+    \DoUntilOutOfBounds{
         \class(\lastx,\lasty+1)
         \structline(\lastclass1)(\lastclass)
         \structline[htwostructstyle](\lastx-3,\lasty-1,\thetag)(\lastclass)

@@ -37,10 +37,13 @@
 
 \NewSseqGroup\tower {} {% 25
     \class(0,0)
-    \foreach \y in {1,...,22}{
-        \class(0,\y)
-        \structline(0,\y-1,-1) (0,\y,-1)
+    \DoUntilOutOfBounds{
+        \class(\lastx,\lasty+1)
+        \structline(\lastclass1) (\lastclass)
     }
+    % We need one extra class to accept a differential
+    \class(\lastx,\lasty+1)
+    \class(\lastx,\lasty+1)
 }
 
 \NewSseqGroup\towergroup {} {%9 + 25 = 36

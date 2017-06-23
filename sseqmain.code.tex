@@ -21,7 +21,7 @@
     \sseq@clearchangestyles
     \sseq@tempsavedpaths
     \gdef\sseq@tempsavedpaths{}%
-} 
+}
 
 \sseq@addtostorelist\sseq@savedbackgroundpaths{}
 \sseq@addtostorelist\sseq@restorestyles{}
@@ -284,7 +284,7 @@
     \let\sseq@options@scopeshiftsecondpass\sseq@scope@savedpaths@add
     \sseq@processoptions{scope}{#1}% outputs into \sseq@savedoptioncode
     \edef\sseq@scope@secondpasstoks{\unexpanded\@xp{\sseq@scope@secondpasstoks}\unexpanded\@xp{\sseq@savedoptioncode}}
-    \sseq@eval{\@nx\sseq@scope@savedpaths@add{\unexpanded\@xp{\sseq@scope@secondpasstoks}}}%
+    \sseq@eval{\@nx\sseq@scope@savedpaths@add{\sseq@scope@toks{\unexpanded\@xp{\sseq@scope@secondpasstoks}}}}%
     %\advance\sseq@scope@savestackid\@ne
     %\sseq@savestack@name{scope@save\the\sseq@scope@savestackid}
 }

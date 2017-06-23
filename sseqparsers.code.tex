@@ -13,13 +13,24 @@
 \ExplSyntaxOn
 
 \def\sseqparseint#1#2{
-    \sseq@ifintexpr{#2+0}{ % +0 here to prevent \lastx from freaking out if it's at the end of #2. 
+    \sseq@ifintexpr{#2+0}{ % +0 here to prevent \lastx from freaking out if it's at the end of #2.
         \edef#1{\the\numexpr#2\relax}
     }{
         \sseq@error{invalid-int-expr}
     }
 }
 
+\def\sseq@ifint#1{
+    \ifcat$\romannumeral0#1$
+        \prg_return_true:
+    \else
+        \ifcat$\romannumeral-0#1$
+            \prg_return_true:
+        \else
+            \prg_return_false:
+        \fi 
+    \fi
+}
 
 % Prevent \protect from causing trouble for \pgfmathparse
 \let\sseq@pgfmathparse@orig\pgfmathparse
@@ -722,17 +733,19 @@
     % if #1 consists of a single nonnegative integer then -0#1 will be turned into some nonpositive integer
     % and romannumeral produces no output when handed a nonpositive integer, so the result will be empty.
     % If #1 has any nonnumerical tokens or is negative, there will be left over stuff.
+    %
+    % We also have to subtract off \sseq@x so that this behaves correctly inside of a scope (the \lastx value should be unshifted)
     \@xp\sseq@ifempty\@xp{\romannumeral-0#1}{
-        \sseq@getstackentry{#1}{lastx}
+        \the\numexpr\sseq@getstackentry{#1}{lastx}-\sseq@x\relax
     }{
-        \sseq@getstackentry{0}{lastx}#1 % #1 isn't a number so put it back
+        \the\numexpr\sseq@getstackentry{0}{lastx}-\sseq@x\relax#1 % #1 isn't a number so put it back
     }
 }
 \def\sseq@lasty#1{
     \@xp\sseq@ifempty\@xp{\romannumeral-0#1}{
-        \sseq@getstackentry{#1}{lasty}
+        \the\numexpr\sseq@getstackentry{#1}{lasty}-\sseq@y\relax
     }{
-        \sseq@getstackentry{0}{lasty}#1 % #1 isn't a number so put it back
+        \the\numexpr\sseq@getstackentry{0}{lasty}-\sseq@y\relax#1 % #1 isn't a number so put it back
     }
 }
 
@@ -753,7 +766,7 @@
     \egroup
 }
 
-\def\sseq@tagclass#1(#2){%
+\sseq@DeclareDocumentCommand\tagclass{mr()}{
     \bgroup
     \def\sseq@class@tag{#1}
     \sseq@parsecoord\coord{#2}{}%
@@ -767,7 +780,7 @@
     \egroup
 }
 
-\def\sseq@gettag#1(#2){
+\sseq@DeclareDocumentCommand\gettag{mr()}{
     \bgroup
     \sseq@parsecoord\coord{#2}{}
     \sseq@obj@ifdef{class.\coord.tag}{
@@ -778,9 +791,58 @@
     \egroup
 }
 
+\prg_new_conditional:Npnn \sseq_if_out_of_bounds:n #1 { T ,  F , TF } {    
+    \sseq@parsecoord\coord{#1}{}
+    \sseq@tempiftrue
+    \ifnum\xcoord<\sseq@xmaxpp\relax\ifnum\xcoord>\sseq@xminmm\relax\ifnum\ycoord<\sseq@ymaxpp\relax\ifnum\ycoord>\sseq@yminmm\relax
+        \sseq@tempiffalse
+    \fi\fi\fi\fi
+    \ifsseq@tempif
+        \prg_return_true:
+    \else
+        \prg_return_false:
+    \fi
+}
 
 
+\sseq@DeclareDocumentCommand \IfOutOfBoundsTF { r() } { \sseq_if_out_of_bounds:nTF { #1 } }
+\sseq@DeclareDocumentCommand \IfOutOfBoundsT  { r() } { \sseq_if_out_of_bounds:nT  { #1 } }
+\sseq@DeclareDocumentCommand \IfOutOfBoundsF  { r() } { \sseq_if_out_of_bounds:nF  { #1 } }
+\sseq@DeclareDocumentCommand \IfInBoundsTF { r() mm } { \sseq_if_out_of_bounds:nTF { #1 } { #3 } { #2 } }
+\sseq@DeclareDocumentCommand \IfInBoundsT  { r() } { \sseq_if_out_of_bounds:nF  { #1 } }
+\sseq@DeclareDocumentCommand \IfInBoundsF  { r() } { \sseq_if_out_of_bounds:nT  { #1 } }
 
+\sseq@DeclareDocumentCommand \Do { mm } {
+    \def\iteration{0}
+    \prg_replicate:nn {#1} {
+        \edef\iteration{\the\numexpr\iteration+1}
+        #2
+    }
+}
+
+\sseq@DeclareDocumentCommand \DoUntilOutOfBounds { m } {
+    \sseq_if_out_of_bounds:nTF{\lastclass0}{
+        \bool_set_true:N \l_tmpa_bool
+    }{
+        \bool_set_false:N \l_tmpa_bool
+    }
+    \def\iteration{0}
+    \bool_until_do:Nn \l_tmpa_bool {
+        \edef\iteration{\the\numexpr\iteration+1}    
+        #1
+        \sseq_if_out_of_bounds:nT{\lastclass0}{
+            \bool_set_true:N \l_tmpa_bool
+        }
+    }
+}
+
+\sseq@DeclareDocumentCommand \DoUntilOutOfBoundsThenNMore { m m } {
+    \DoUntilOutOfBounds { #2 }
+    \prg_replicate:nn {#1} {
+        \edef\iteration{\the\numexpr\iteration+1}
+        #2
+    }
+}
 
 %%%%%%
 %%%
@@ -1160,7 +1222,6 @@
 }
 
 
-%TODO: fix this...
 \def\sseq@updatepageconstraintrange{%
     \sseq@protected@edef\sseq@pageconstraint{%
         (\unexpanded\@xp{\sseq@pageconstraint})&&(\temp<=\page \ifx\tempmax\empty\else&&\page<=\tempmax\fi)%

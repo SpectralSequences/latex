@@ -1,0 +1,166 @@
+%%
+%% Package: spectralsequences v1.0.0-dev
+%% Author: Hood Chatham
+%% Email: hood@mit.edu
+%% Date: 2017-06-21
+%% License: Latex Project Public License
+%%
+%% File: example_ass3.tex
+%%
+%%    The Adams spectral sequence at the prime 3 through the 45 stem.
+%%    Compare page 5 to example_ass3
+%%    Copied from page 11 of the green book.
+%%
+
+\documentclass{article}
+% 8.5 x 15 is pretty much a 16/9 aspect ratio, ideal for on-screen viewing
+\usepackage[landscape,paperheight=15in,margin=0.1in, top=1in]{geometry}
+\pagestyle{plain}
+\usepackage{spectralsequences}
+
+\begin{document}
+
+\NewSseqCommand\tower {d()m} {
+    \IfNoValueF{#1}{\class(#1)}
+    \savestack
+    \Do { #2 } {
+        \class(\lastx, \lasty+1)
+        \structline(\lastclass1)(\lastclass)
+    }
+    \restorestack
+}
+
+\NewSseqCommand\hclass {d()}{
+    \IfNoValueF{#1}{\pushstack(#1)}
+    \class(\lastx+3,\lasty+1)
+    \structline(\lastclass1)(\lastclass)
+}
+
+\NewSseqCommand\bclass {d()}{
+    \IfNoValueF{#1}{\pushstack(#1)}
+    \class(\lastx+7,\lasty+1)
+    \structline(\lastclass1)(\lastclass)
+}
+
+\NewSseqCommand\hbachair {d()}{
+    \IfNoValueF{#1}{\pushstack(#1)}
+    \nameclass{tempclass}(\lastclass)
+    \bclass(\lastx,\lasty+1)
+    \hclass
+    \hclass(tempclass)
+    \bclass
+    \structline(\lastclass3)(\lastclass)
+}
+
+\NewSseqCommand\bahclaw { r() } {
+    \class(#1)
+    \bclass
+    \class(\lastx,\lasty+1)
+    \structline(\lastclass1)(\lastclass)
+    \class(\lastx-3,\lasty-1)
+    \structline(\lastclass1)(\lastclass)
+    \pushstack(\lastclass2)
+}
+\begin{sseqdata}[
+    name=ass3,
+    Adams grading,
+    classes={fill, inner sep=1.2pt, tooltip={(\xcoord,\ycoord)}},
+    class labels={below,black},
+    differentials=blue,
+    x tick step = 5,
+    x range={0}{45},
+    y range={0}{11},
+    xscale=0.7,
+    yscale=1.2,
+    y axis gap=2em
+]
+\tower(0,0){\ymax+1}
+\classoptions["a_0" {left=0pt}](0,1)
+\hbachair
+\classoptions["b_0"](\lastclass)
+\classoptions[purple,page=3](7,2)
+\DoUntilOutOfBounds{\hbachair}
+
+\begin{scope}[sseq=purple]
+\class["h_1"](11,1)
+\tower{2}
+\d2(\lastclass)
+\DoUntilOutOfBounds{
+    \bclass\d2(\lastclass)
+    \hclass\d2(\lastclass)
+}
+\end{scope}
+
+\begin{scope}[orange]
+\class["k_0"](26,2)
+\DoUntilOutOfBounds{
+    \hclass\bclass
+}
+\end{scope}
+
+
+\begin{scope}[sseq=purple]
+\bahclaw(15,4)
+\DoUntilOutOfBounds{\hbachair}
+\bahclaw(27,7)
+\DoUntilOutOfBounds{\hbachair}
+\bahclaw(39,10)
+\DoUntilOutOfBounds{\hbachair}
+\bahclaw(38,7)
+\d2(\lastclass1)\d2(\lastclass2)\d2(\lastclass3)\d2(\lastclass4)
+\DoUntilOutOfBounds{
+    \hbachair
+    \d2(\lastclass)\d2(\lastclass1)
+    \d2(\lastclass3)\d2(\lastclass4)    
+}
+\end{scope}
+
+
+
+
+\begin{scope}[sseq=purple]
+\class[](23,3) % label me
+\tower{3}
+\d2(\lastclass)\d2(\lastx,\lasty+1)
+\DoUntilOutOfBounds{
+    \hbachair
+    \d2(\lastclass)\d2(\lastclass1)
+    \d2(\lastclass3)\d2(\lastclass4)
+}
+\end{scope}
+
+
+\class["h_2"](35,1)
+\tower{8}
+\DoUntilOutOfBounds{\hbachair}
+
+\begin{scope}[sseq=orange]
+\class(34,2) % label me?
+\tower{4}
+\DoUntilOutOfBounds{
+    \hclass\bclass
+}
+\d5(34,2)
+\d5(44,4)
+\end{scope}
+\foreach \y in {1,...,4}{
+    \d2(35,\y)
+}
+\d3(35,5)\d3(35,6)
+\foreach \y in {7,...,9}{
+    \classoptions[purple,page=4](35,\y,-1)
+}
+
+
+
+
+\end{sseqdata}
+\centering
+\printpage[name=ass3,page=1]
+\newpage
+\printpage[name=ass3,page=2]
+\newpage
+\printpage[name=ass3,page=3]
+\newpage
+\printpage[name=ass3,page=5]
+\end{document} 
