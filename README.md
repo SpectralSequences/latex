@@ -18,8 +18,11 @@ Changelog:
 
 ### Added:
 - \sseqparseint
+- \IfInBoundsTF, \IfOutOfBoundsTF
+- \Do, \DoUntilOutOfBounds, \DoUntilOutOfBoundsThenNMore
 
 ### Fixed: 
 - The \tagclass command was broken. Now it works.
 - Scopes didn't nest properly, now they do.
 - Fixed a big performance issue with nested scopes and shifts. 
+- Adobe reader grid color is now correct

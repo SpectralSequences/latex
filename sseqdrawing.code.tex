@@ -195,7 +195,7 @@
  \pgflowlevelsynccm
  \pgfsetlinewidth{1cm}
  \pgfsetdash{{1cm}{1cm}}{1cm}
- \pgfsetcolor{lightgray}
+ \pgfsetcolor{\sseq@gridcolor}
  \pgfpathgrid[stepx=2cm,stepy=2cm]{\pgfpoint{-0.5cm}{-0.5cm}}{\pgfpoint{\sseq@xmax cm+0.499cm}{\sseq@ymax cm+0.499cm}}
  \pgfusepath{stroke}
  \endpgfscope
@@ -206,6 +206,7 @@
  \pgfscope
  \pgfsetlinewidth{\the\sseq@gridstrokethickness}
  \sseq@useclip
+ \pgfsetcolor{\sseq@gridcolor}
  \pgftransformxshift{-0.5cm}
  \pgftransformyshift{-0.5cm}
  \pgfpathgrid[stepx=1cm,stepy=1cm]{\pgfpoint{-1cm}{-1cm}}{\pgfpoint{\xmax cm+0.99cm}{\ymax cm+0.99cm}}
@@ -217,6 +218,7 @@
  \bgroup
  \pgfscope
  \sseq@useclip
+ \pgfsetcolor{\sseq@gridcolor}
  \pgfsetlinewidth{\the\sseq@gridstrokethickness}
  \pgfpathgrid[stepx=1cm,stepy=1cm]{\pgfpoint{-1cm}{-1cm}}{\pgfpoint{\xmax cm+0.5cm}{\ymax cm+0.5cm}}
  \pgfusepath{stroke}
