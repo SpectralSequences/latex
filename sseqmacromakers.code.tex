@@ -25,17 +25,6 @@
 %%% Install user commands
 % copy commands into user namespace by removing sseq@ prefixes
 % given a list of commands, \let\thiscommand\sseq@thiscommand on each one
-
-\def\sseq@recordmacros{\@xp\sseq@recordmacros@\sseq@macrolist\sseq@nil}
-\def\sseq@recordmacros@#1{%
-    \ifx#1\sseq@nil\else % if so, that was the last command in the list
-        \@xp\def\csname sseq@builtin\sseq@macroname#1\endcsname{}
-        \@xp\sseq@recordmacros@
-    \fi %
-}
-
-
-
 \def\sseq@installmacros{\@xp\sseq@installmacros@\sseq@macrolist\sseq@nil}
 \def\sseq@installmacros@#1{%
     \ifx#1\sseq@nil\else % if so, that was the last command in the list
@@ -44,28 +33,66 @@
     \fi %
 }
 
-
 % Capital U argument type is "Until" but puts back the token when it's done.
-\cs_new_protected:Npn \sseq__xparse_add_type_U:w #1
-  {
-    \__xparse_flush_m_args:
-    \__xparse_add_grabber_mandatory:N U
-    \tl_put_right:Nn \l__xparse_signature_tl { {#1} }
-    \__xparse_prepare_signature:N
-  }
 
-\cs_new_protected:Npn \sseq__xparse_grab_U:w #1#2 \l__xparse_args_tl
-  { \sseq__xparse_grab_U_aux:nnN {#1} {#2} \cs_set_protected_nopar:Npn }
-
-\cs_new_protected:Npn \sseq__xparse_grab_U_aux:nnN #1#2#3
-  {
-    \exp_after:wN #3 \l__xparse_fn_tl ##1 #1
+% So xparse changed a bunch between the copy pushed to CTAN on February 7th and the copy pushed on February 9th
+\@ifpackagelater{xparse}{2017/02/08}{
+    % NEW CODE
+    \cs_new_protected:Npn \sseq__xparse_grab_U:w #1#2 \__xparse_run_code:
+      { \sseq__xparse_grab_U_aux:nnN {#1} {#2} \cs_set_protected_nopar:Npn }  
+    \cs_new_protected:Npn \sseq__xparse_grab_U_aux:nnN #1#2#3
       {
-        \__xparse_add_arg:n {##1}
-        #2\l__xparse_args_tl #1
+        \tl_set:Nn \l__xparse_signature_tl {#2}
+        \exp_after:wN #3 \l__xparse_fn_tl ##1 #1
+          { \__xparse_add_arg:n {##1} #1 } 
+        \l__xparse_fn_tl
       }
-    \l__xparse_fn_tl
-  }
+    \cs_new_protected:Npn \sseq__xparse_add_type_U:w #1
+      {
+        \__xparse_flush_m_args:
+        \__xparse_add_default:
+        \__xparse_add_grabber_mandatory:N U
+        \tl_put_right:Nn \l__xparse_signature_tl { {#1} }
+        \__xparse_prepare_signature:N
+      }
+}{
+    % OLD CODE
+    \cs_new_protected:Npn \sseq__xparse_grab_U:w #1#2 \l__xparse_args_tl
+      { \sseq__xparse_grab_U_aux:nnN {#1} {#2} \cs_set_protected_nopar:Npn }
+    \cs_new_protected:Npn \sseq__xparse_grab_U_aux:nnN #1#2#3
+      {
+        \exp_after:wN #3 \l__xparse_fn_tl ##1 #1
+          {
+            \__xparse_add_arg:n {##1}
+            #2\l__xparse_args_tl #1
+          }
+        \l__xparse_fn_tl
+      }
+    \cs_new_protected:Npn \sseq__xparse_add_type_U:w #1
+      {
+        \__xparse_flush_m_args:
+        \__xparse_add_grabber_mandatory:N U
+        \tl_put_right:Nn \l__xparse_signature_tl { {#1} }
+        \__xparse_prepare_signature:N
+      }
+}% END \@ifpackagelater
+
+
+\cs_new_protected:Npn \sseq__xparse_normalize_type_U:w #1 {
+    \quark_if_recursion_tail_stop_do:nn {#1} { \__xparse_bad_arg_spec:wn }
+    \__xparse_normalize_check_lu:N U
+    \__xparse_add_arg_spec:n { U {#1} }
+    \int_incr:N \l__xparse_mandatory_args_int
+    \tl_clear:N \l__xparse_last_delimiters_tl
+    \__xparse_normalize_arg_spec_loop:n
+}
+
+% Expandable commands are a menace to us because they define a bunch of helper commands that we then have to keep track of.
+% We are too lazy to do this, so force \l__xparse_grab_expandably_bool to be false.
+% This is backwards compatible (I think) because \bool_set_false:N just performs a chardef (no existence check)
+% so in old versions, \l__xparse_grab_expandably_bool will be created harmlessly. 
+\let\sseq__xparse_prepare_signature:n\__xparse_prepare_signature:n
+\pretocmd\sseq__xparse_prepare_signature:n { \bool_set_false:N \l__xparse_grab_expandably_bool } {}{\error}
 
 % I would like to patch the \__xparse_grab_U:w's in my commands into \sseq__xparse_grab_U:w's but I can't because of -NoValue-.
 \def\sseq@install@xparse@Uarggrabber{ \cs_set_eq:NN \__xparse_grab_U:w \sseq__xparse_grab_U:w }
@@ -89,13 +116,12 @@
 %
 % See my stack exchange question: https://tex.stackexchange.com/questions/350596/control-error-messages-made-by-commands-defined-with-newdocumentcommand
 
-
-
 \cs_new_protected:Npn\sseq@DeclareDocumentCommandAs#1#2#3#4{
     \group_begin:
     \cs_set_eq:NN \__xparse_add_type_U:w \sseq__xparse_add_type_U:w
-    \cs_set_eq:cN { tempsave_ \cs_to_str:N #2 } #2 % Store the original value of #2
-    \cs_set_eq:cc { tempsave_ \cs_to_str:N #2 \c_space_tl code } { \cs_to_str:N #2 \c_space_tl code } % Store the original value of #2
+    \cs_set_eq:NN \__xparse_normalize_type_U:w \sseq__xparse_normalize_type_U:w
+    \cs_set_eq:NN \__xparse_prepare_signature:n \sseq__xparse_prepare_signature:n 
+    %\cs_set:Npn   \__xparse_declare_cmd_code:Nnn {\bool_set_false:N \l__xparse_grab_expandably_bool\__xparse_declare_cmd_code_aux:Nnn}
     \sseq@installmsghooks
     \def\sseq@error@setup{}
     \def\sseq@error@cleanup{\sseq@errortrue}
@@ -112,13 +138,15 @@
             \exp_not:N \cs_set_eq:NN
                 \exp_not:c { \cs_to_str:N #2 \c_space_tl code }
                 \exp_not:c { \cs_to_str:N #1 \c_space_tl code }
+            \exp_not:N \cs_set_eq:NN
+                \exp_not:c { \cs_to_str:N #2 \c_space_tl }
+                \exp_not:c { \cs_to_str:N #1 \c_space_tl }
             \exp_not:c { \cs_to_str:N #1 \c_space_tl inner }
         }
-        \pretocmd:cnnn { \cs_to_str:N #2 \c_space_tl code } { \endgroup } { } { \sseq@error@x { macro-patch-failed } { \string#1 } }
+        \pretocmd:cnnn { \cs_to_str:N #2 \c_space_tl code } { \endgroup{} } { } { \sseq@error@x { macro-patch-failed } { \string#1 } }
         \cs_gset_eq:cN { \cs_to_str:N #1 \c_space_tl inner } #2
         \cs_gset_eq:cc { \cs_to_str:N #1 \c_space_tl code } { \cs_to_str:N #2 \c_space_tl code }
-        \cs_gset_eq:Nc #2 { tempsave _ \cs_to_str:N #2 }
-        \cs_gset_eq:cc { \cs_to_str:N #2 \c_space_tl code } { tempsave_ \cs_to_str:N #2 \c_space_tl code }
+        \cs_gset_eq:cc { \cs_to_str:N #1 \c_space_tl }{ \cs_to_str:N #2 \c_space_tl } % sometimes the new version of xparse stores stuff in #2<space>
     }{
         \cs_gset_eq:NN #1 #2
     }
@@ -157,7 +185,7 @@
     % Also, this allows me to use \sseq@parseargspec after defining the command, so I don't have to run any error checking inside of it
     % because if the argspec is invalid, \DeclareDocumentCommand will let me know.
     \cs_if_exist:cTF{ sseq @ usermacro @ \cs_to_str:N #1  \c_space_tl code }{
-        \patchcmd:cnfnn{ sseq @ usermacro @ \cs_to_str:N #1  \c_space_tl code }{\endgroup}{
+        \patchcmd:cnfnn{ sseq @ usermacro @ \cs_to_str:N #1  \c_space_tl code }{\endgroup{}}{
             \@xp\endgroup
             \@xp\begingroup
             \the\sseq@temptoks
@@ -206,7 +234,7 @@
 %
 % undefine so we can tell whether we need to patch \command<space>code or \command
     \cs_undefine:c { sseq @ usermacro @ \cs_to_str:N #2 @ helper  \c_space_tl code }
-    \exp_args:Nc \DeclareDocumentCommand { sseq @ usermacro @ \cs_to_str:N #2 @ helper } { #3 } {
+    \exp_args:Nc \sseq@DeclareDocumentCommandAs { sseq @ usermacro @ \cs_to_str:N #2 @ helper } #2 { #3 } {
             #4
         \end{scope}
     }%
@@ -239,7 +267,7 @@
             \the\sseq@temptoks
             \sseq@atbeginusermacro@msgsetup
         }{}{\error\sseq@error@x{usermacro-failed-patch}{\string#1}}
-    }
+    }    
     \cs_gset_eq:cc { sseq @ usermacro @ \cs_to_str:N #2 @ helper } { sseq @ usermacro @ \cs_to_str:N #2 @ helper } % globalize definition
     \let\sseq@parseargspec\sseq@parseargspec@normal
     \sseq@breakpoint
@@ -386,4 +414,4 @@
 
 \ExplSyntaxOff
 
-%
+% 

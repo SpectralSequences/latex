@@ -759,7 +759,7 @@ See the \pgfmanualpdfref{class style}{corresponding entry} in the \tikzpkg\space
 \end{keylist}
 
 \begin{key}{cc:page = \meta{page}\opt{-{}-\meta{page max}}}
-By default, the ellipse will be drawn on the same set of pages that a structline between the two classes would be drawn on. This specifies a range of pages for the ellipse to be drawn. Note that unlike with structlines, you can instruct \circleclasses\ to draw the shape even on pages where one or both of the classes that it is fitting are dead.
+By default, the ellipse will be drawn on the same set of pages that a structline between the two classes would be drawn on. This specifies a range of pages for the ellipse to be drawn. Note that unlike with structlines, you can instruct |\circleclasses| to draw the shape even on pages where one or both of the classes that it is fitting are dead.
 \end{key}
 
 \subsection{Options for \tikzpkg\space primitives}
@@ -967,6 +967,11 @@ An example where this is actually useful:
 
 
 The |\d| command has argument specification |O{} U( r()|. The argument type |U| is special to \sseqpages, and is a variant of until that reinserts the delimiting token. This allows the |(| token to also delimit the beginning of the |r()| argument. Note that the argument type |U| is specially added by \sseqpages\ and might be removed in the future if the \LaTeX3 team yells at me or something.
+    \ExplSyntaxOn
+    \cs_set_eq:NN \__xparse_add_type_U:w \sseq__xparse_add_type_U:w
+    \cs_set_eq:NN \__xparse_normalize_type_U:w \sseq__xparse_normalize_type_U:w
+    \sseq@install@xparse@Uarggrabber
+    \ExplSyntaxOff
 \begin{codeexample}[width = 7cm,vbox]
 \DeclareDocumentCommand {\demo} { O{} U( r() }
     {  \#1 = \textcolor{purple}{\{#1\}};

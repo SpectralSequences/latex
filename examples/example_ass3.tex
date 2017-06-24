@@ -77,6 +77,7 @@
 \tower(0,0){\ymax+1}
 \classoptions["a_0" {left=0pt}](0,1)
 \hbachair
+\classoptions["h_0"](3,1)
 \classoptions["b_0"](\lastclass)
 \classoptions[purple,page=3](7,2)
 \DoUntilOutOfBounds{\hbachair}
@@ -111,7 +112,7 @@
 \DoUntilOutOfBounds{
     \hbachair
     \d2(\lastclass)\d2(\lastclass1)
-    \d2(\lastclass3)\d2(\lastclass4)    
+    \d2(\lastclass3)\d2(\lastclass4)
 }
 \end{scope}
 
@@ -135,7 +136,7 @@
 \DoUntilOutOfBounds{\hbachair}
 
 \begin{scope}[sseq=orange]
-\class(34,2) % label me?
+\class["b_{11}"](34,2)
 \tower{4}
 \DoUntilOutOfBounds{
     \hclass\bclass

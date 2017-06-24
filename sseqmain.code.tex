@@ -458,7 +458,7 @@
 
 \sseq@DeclareDocumentCommand\classoptions{or()}{%
     \begingroup
-    \sseq@xsetthiscall{\classoptions\IfNoValueF{#1}{[\unexpanded{#1}]}\unexpanded{(#2)}}%
+    \sseq@xsetthiscall{\string\classoptions\IfNoValueF{#1}{[\unexpanded{#1}]}\unexpanded{(#2)}}%
     \IfNoValueT{#1}{\sseq@error@x{cmdoptions-without-options}{\string\classoptions}\sseq@break}% could be warning
     \IfNoValueT{#2}{\sseq@break}%
     \sseq@options@firstpassmode
