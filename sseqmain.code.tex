@@ -951,17 +951,19 @@
         \sseq@cleanup@obj{structline.\source\target.num}
         \sseq@obj@inc{structline.\source\target.num}
     }{
+        \sseq@cleanup@obj{structline.\source\target.num}
         \sseq@obj@gdef{structline.\source\target.num}{0}
         \sseq@savedpaths@addstructline{structline.\source\target}
     }
     \edef\sseq@structlinename{structline.\source\target[\sseq@obj{structline.\source\target.num}]}
+    \sseq@cleanup@obj{\sseq@structlinename.page}
     \sseq@obj@xdef{\sseq@structlinename.page}{\sseq@infinity}
     \sseq@obj@xdef{\sseq@structlinename.pagemin}{\sseq@pagemin}
     \sseq@obj@xdef{\sseq@structlinename.source}{\source}
     \sseq@obj@xdef{\sseq@structlinename.target}{\target}
-    \sseq@cleanup@obj{structline.\source\target.num}
     \sseq@class@adddependence{class.\source}{\sseq@structlinename}% If the source or target is already dead, this will set structlinename.page
     \sseq@class@adddependence{class.\target}{\sseq@structlinename}
+    \sseq@cleanup@obj{\sseq@structlinename.options}
     \sseq@obj@xdef{\sseq@structlinename.options}{\ifsseq@needstikz\@nx\sseq@needstikztrue\fi\unexpanded\@xp{\sseq@savedoptioncode}}
 }
 \def\sseq@structline@structlineoptions{

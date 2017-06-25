@@ -12,17 +12,26 @@
 
 % TODO:
 %  finish \sseqparseint, \IfOutOfBoundsTF, \DoUntilOutOfBounds (add error trapping, test and document them)
+%  modify class label handler so that if #1 is unused, it is treated reasonably
+%
+%  make "sseq style" work with arguments (ignore keys that are parametrized)
+%  get minimum width=width("\noexpand\small 16") to work
+%  prevent options from leaking from later to earlier labels
+%  better flexibility with class pattern arrangement
+%
 %  the new loop constructs need \foreach style error handling
-%  should we specify our favorite conditionals library?
 %  define error message for usermacro-failed-patch
 %  give an error if \gettag fails to find a tag
 %  give an error if the user tries to put a shift into a style
+%  Fix no classes error message for \d
+%
+%
 %  speed up off page edges (uses 10% of the draw time for page 0 of tmfass)
-%  speed up label nodes
+%
+%
 %  error messages that should be warnings by default?
 %  improve axes options? allow axis to be centered on coordinate or centered between coordinates
-
-
+%  should we specify our favorite conditionals library?
 
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{spectralsequences}[2017/06/21 v1.0.0-dev]

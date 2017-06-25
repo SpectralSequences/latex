@@ -27,3 +27,4 @@ Changelog:
 - Fixed a big performance issue with nested scopes and shifts. 
 - Adobe reader grid color is now correct
 - The package now works with xparse after 2017/02/08 when changes were made that broke my original code
+- Fixed a bug where if you used a structline in two sseqpage environments with the same name, it would give an error. 
