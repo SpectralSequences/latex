@@ -220,7 +220,7 @@
 
 \let\sseq@breakpoint\relax
 \def\sseq@break#1\sseq@breakpoint{}
-\def\sseq@break@withcleanup#1\sseq@breakpoint#2{}
+\def\sseq@break@withcleanup#1\sseq@breakpoint#2{#2}
 
 \def\sseq@breakfi{\fi\sseq@break}
 \def\sseq@breakfifi{\fi\fi\sseq@break}

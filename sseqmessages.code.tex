@@ -462,7 +462,7 @@
 
 \sseq@newerror{no-range}{Empty spectral sequence. For every spectral sequence you must either specify both the "x range" and "y range" or include at least one
 \string\class.} % maybe warning?
-\sseq@newerror{index-larger-than-stack}{Index #1 is larger than the current stack depth #2.}
+\sseq@newerror{index-out-of-bounds}{Index #1 is greater than or equal to the current stack depth #2. Valid indices must be strictly less than the stack depth.}
 \sseq@newerror{incomplete-tikz}{Incomplete tikz expression. What I have so far is #1 and I am stopping because I ran into #2. You probably forgot a semicolon.}
 
 
@@ -503,6 +503,7 @@
 \sseq@newerror{structline-no-page-max}{You cannot provide \@nx\structline with the option "page=min--max", only with "page=min".} %warning
 \sseq@newerror{structline-already-exists}{Cannot add a structline from #1 to #2 because such a structline already exists.}
 \sseq@newerror{structline-stillborn}{Structline dies before it is born. Perhaps you meant to specify a different source or target?}
+\sseq@newerror{structline-source-target-equal}{The source and target of a \@nx\structline cannot be equal.}
 
 
 \ExplSyntaxOff

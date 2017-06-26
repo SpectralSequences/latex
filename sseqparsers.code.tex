@@ -517,14 +517,37 @@
     \ifx\sseq@index\pgfutil@empty
         \@xp\sseq@parsecoord@index
     \fi
+    % TODO: clean this up a bit? it's pretty ad-hoc.
+    % Whenever you update this, make sure to update sseq@paredcoords@swap below too.
     \@xp\let\csname x\sseq@macroname#1\endcsname\sseq@xcoord
     \@xp\let\csname y\sseq@macroname#1\endcsname\sseq@ycoord
+    \@xp\let\csname n\sseq@macroname#1\endcsname\sseq@index
     \@xp\let\csname \sseq@macroname#1@partial\endcsname\sseq@xycoord
     \edef#1{(\sseq@xycoord,\sseq@index)}%
     \@xp\edef\csname\sseq@macroname#1nopar\endcsname{\sseq@xycoord,\sseq@index}
     \@xp\def\csname\sseq@macroname#1name\endcsname{(#2)}%
     \@xp\def\csname\sseq@macroname#1nameunbraced\endcsname{#2}%
     \@xp\edef\csname\sseq@macroname#1@internalname\endcsname{sseq{\sseq@xycoord,\sseq@index}}%
+}
+
+% #1 & #2 -- the two base commands that were handed to \sseq@parsecoord to swap.
+% This is only used in \structline to normalize the name of structure lines, so that sseqpages knows what you are talking about
+% if you say \structline(coorda)(coordb) and then later \structline(coordb)(coorda)
+\cs_new:Npn \sseq_swapmacros:NN #1#2 {
+    \let\sseq@temp#1 \let#1#2 \let#2\sseq@temp   
+}
+\cs_generate_variant:Nn \sseq_swapmacros:NN { cc }
+
+\def\sseq@parsedcoords@swap#1#2{
+    \sseq_swapmacros:cc { x\sseq@macroname#1 } { x\sseq@macroname#2 }
+    \sseq_swapmacros:cc { y\sseq@macroname#1 } { y\sseq@macroname#2 }
+    \sseq_swapmacros:cc { n\sseq@macroname#1 } { n\sseq@macroname#2 }
+    \sseq_swapmacros:cc { \sseq@macroname#1@partial } { \sseq@macroname#2@partial }
+    \sseq_swapmacros:NN #1 #2
+    \sseq_swapmacros:cc { \sseq@macroname#1nopar } { \sseq@macroname#2nopar }
+    \sseq_swapmacros:cc { \sseq@macroname#1name } { \sseq@macroname#2name }
+    \sseq_swapmacros:cc { \sseq@macroname#1nameunbraced } { \sseq@macroname#2nameunbraced }
+    \sseq_swapmacros:cc { \sseq@macroname#1@internalname } { \sseq@macroname#2@internalname }
 }
 
 % EXPOSE: a wrapper around \sseq@parsecoord. Use full name of coordinate to avoid name class with sseq@parsecoord.
@@ -678,21 +701,22 @@
 %%% The Stack
 %%%
 
-\sseq@addtostorelistlet\sseq@stacktop\relax
-\def\sseq@stackitem#1#2#3{\csname sseq.\sseq@thename.stack.#1.#3\endcsname} % gobble #2 which we added in for the error message
-\def\sseq@getstackentry#1{
-    \exp_args:No\sseq@getstackentry@{\sseq@stacktop}{#1}{#1} % Second copy of #1 for error message
+\sseq@addtostorelist\sseq@stacktop{}
+\def\sseq@stackitem#1#2{\csname sseq.\sseq@thename.stack.#1.#2\endcsname} % gobble #2 which we added in for the error message
+\def\sseq@getstackentry#1#2{
+    \ifnum#1<\sseq@stackdepth
+        \exp_args:No\sseq@getstackentry@{\sseq@stacktop}{#1}{#2}
+    \else
+        \sseq@protecterror{\sseq@error@xx{index-out-of-bounds}{#1}{\the\sseq@stackdepth}}
+    \fi
 }
 
 \def\sseq@getstackentry@#1#2{
     \ifnum#2=\z@\@xp\@firstoftwo\else\@xp\@secondoftwo\fi
-        {\sseq@stackitem{#1}}
-        {\@ifundefined{sseq.\sseq@thename.stack.#1.next}{\sseq@getstackentry@indextoolarge}{
-            \exp_args:Nf\sseq@getstackentry@{\csname sseq.\sseq@thename.stack.#1.next\@xp\endcsname\@xp}\@xp{\the\numexpr#2-1}
-        }}
+        { \sseq@stackitem{#1} }
+        { \exp_args:Nco\sseq@getstackentry@ { sseq.\sseq@thename.stack.#1.next } { \the\numexpr#2-1 } }
 }
 
-\def\sseq@getstackentry@indextoolarge#1{\sseq@protecterror{\sseq@error@xx{index-larger-than-stack}{#1}{\the\sseq@stackdepth}}}
 
 \def\sseq@pushstack(#1){
     \bgroup

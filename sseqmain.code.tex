@@ -893,19 +893,19 @@
 %%%
 %%% \structline and \structlineoptions
 %%%
-\sseq@DeclareDocumentCommand\structline{or()r()}{%
+\sseq@DeclareDocumentCommand\structline{od()}{%
     \begingroup
-    \sseq@xsetthiscall{\string\structline\IfNoValueF{#1}{\unexpanded{[#1]}}\unexpanded{(#2)(#3)}}%
-    \sseq@structline@main{structline}{#1}{#2}{#3}%
+    \def\next{\sseq@structline@main{structline}{#1}{#2}}%
+    \@xptwo\next\sseq@trimleadingspaces
 }
-\sseq@DeclareDocumentCommand\structlineoptions{or()r()}{%
+\sseq@DeclareDocumentCommand\structlineoptions{od()}{%
     \begingroup
-    \sseq@xsetthiscall{\string\structlineoptions\IfNoValueF{#1}{\unexpanded{[#1]}}\unexpanded{(#2)(#3)}}%
-    \IfNoValueT{#1}{\sseq@error@x{cmdoptions-without-options}{\string\structlineoptions}\sseq@break@withcleanup}
-    \sseq@structline@main{structlineoptions}{#1}{#2}{#3}%
-    \sseq@breakpoint\@gobble\endgroup
+    \def\next{\sseq@structline@main{structlineoptions}{#1}{#2}}%
+    \@xptwo\next\sseq@trimleadingspaces
 }
-\def\sseq@structline@main#1#2#3#4{%
+
+\sseq@DeclareDocumentCommandAs\sseq@structline@main\structline{mmmd()}{%
+    \sseq@xsetthiscall{\string\structline\IfNoValueF{#2}{\unexpanded{[#2]}}\IfNoValueF{#3}{\unexpanded{(#3)}\IfNoValueF{#4}{\unexpanded{(#4)}}}}%   
     \sseq@options@firstpassmode
     \the\sseq@sseqstyle
     \the\sseq@edgestyle
@@ -915,8 +915,38 @@
     \IfNoValueF{#2}{%
         \sseq@processoptions{struct line}{#2}% Outputs result into \sseq@savedoptioncode
     }%
-    \sseq@parsecoord\source{#3}{source of structure line}%
-    \sseq@parsecoord\target{#4}{target of structure line}%
+    \def\sourcename{#3}%
+    \def\targetname{#4}%
+    \IfNoValueTF{#3}{%
+        \def\sourcename{\lastclass1}%
+        \def\targetname{\lastclass}% 
+    }{%
+        \IfNoValueT{#4}{%
+            \def\targetname{\lastclass}%
+        }%
+    }%
+    \sseq@parsecoord\source{\sourcename}{source of structure line}%
+    \sseq@parsecoord\target{\targetname}{target of structure line}% 
+    \ifnum\xsource>\xtarget\relax
+        \sseq@parsedcoords@swap\source\target
+    \else
+        \ifnum\xsource=\xtarget\relax
+            \ifnum\ysource>\ytarget\relax
+                \sseq@parsedcoords@swap\source\target
+            \else     
+                \ifnum\ysource=\ytarget\relax
+                    \ifnum\nsource>\ntarget\relax
+                        \sseq@parsedcoords@swap\source\target
+                    \else
+                        \ifnum\nsource=\ntarget\relax
+                            \sseq@error{structline-source-target-equal}%
+                            \@xp\sseq@break\romannumeral-`0
+                        \fi
+                    \fi 
+                \fi
+            \fi
+        \fi
+    \fi
     \@ifundefined{sseq@structline@page}{%this is repeated in circleclasses
         \def\sseq@pagemin{0}
         \ifnum\sseq@obj{class.\source.num}>\z@

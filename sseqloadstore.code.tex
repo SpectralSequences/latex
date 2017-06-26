@@ -21,6 +21,7 @@
     \sseq@x@addto@macro\sseq@storelist@setdefaults{\global\let\@nx#1\@xp\@nx\csname \sseq@macroname#1@default\endcsname}%
     \@xp\gdef\csname\sseq@macroname#1@default\endcsname{#2}%
 }
+% TODO: is this used?
 \def\sseq@addtostorelistlet#1#2{%
     \sseq@g@addto@macro\sseq@storelist{\\#1}%
     \sseq@x@addto@macro\sseq@storelist@setdefaults{\global\let\@nx#1\@xp\@nx\csname \sseq@macroname#1@default\endcsname}%
