@@ -21,6 +21,7 @@ Changelog:
 - \IfInBoundsTF, \IfOutOfBoundsTF
 - \Do, \DoUntilOutOfBounds, \DoUntilOutOfBoundsThenNMore
 - Defaults for \structline: a single missing coordinate is replaced with \lastclass, if both are missing, same as \structline(\lastclass1)(\lastclass)
+- Ticks are now placed at values congruent to tick offset mod tick step, tick offset defaults to 0
 
 ### Fixed: 
 - The \tagclass command was broken. Now it works.

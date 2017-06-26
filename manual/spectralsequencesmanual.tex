@@ -14,6 +14,8 @@
 % TODO:
 %  add "draft" to documentation
 %  perhaps think about ordering, particularly of "Misc commands" section
+%  Add \Do,\DoUntilOutOfBounds, etc
+%
 %  tutorial
 %  explain / cross reference examples folder?
 %
@@ -1648,7 +1650,7 @@ It probably won't look great if you pick an angle that isn't a multiple of 90 de
 
 \subsection{Plot Options and Axes Style}
 \begin{keylist}{x range = \marg{x min}\marg{x max},y range = \marg{y min}\marg{y max}}
-These options force the x and y range to be a specific interval. By default, if no range is specified then the range is chosen to fit all the classes. If an x range is specified but no y range, then the y range is chosen to fit all the classes that lie inside the specified x range, and vice versa.
+These options set the x range (respectively y range) to be a specific interval. By default, if no range is specified then the range is chosen to fit all the classes. If an x range is specified but no y range, then the y range is chosen to fit all the classes that lie inside the specified x range, and vice versa. The values must be integers -- if you want to extend the x axis a noninteger amount, try using |x axis start extend| or |x axis end extend|.
 \end{keylist}
 
 \begin{key}{grid = \marg{grid style}}
@@ -1728,6 +1730,10 @@ Suppress axes ticks (the numbers next to the axes). Only matters if axes are dra
 Sets the interval between labels.
 \end{keylist}
 
+\begin{keylist}{x tick offset = \meta{integer} (initially 0),y tick offset = \meta{integer} (initially 0),tick offset = \meta{integer} (initially 0)}
+Sets the label offset -- by default the ticks will always be the set of numbers that are 0 mod \meta{tick step}. Change it so that the ticks are the set of numbers that are \meta{tick offset} mod \meta{tick step}.
+\end{keylist}
+
 \begin{stylekeylist}{x tick style,y tick style,tick style}
 Change the tick style:
 \begin{codeexample}[width = 7cm]
@@ -1786,7 +1792,7 @@ If you use |axes style = center|, these keys change the position of the axes. Ot
 \end{keylist}
 %
 \begin{keylist}{x axis start extend = \meta{dimension} (initially 0.5cm), y axis start extend = \meta{dimension} (initially 0.5cm),
-                x axis end extend = \meta{dimension} (initially 0.9cm), y axis end extend = \meta{dimension} (initially 0.9cm)}
+                x axis extend end = \meta{dimension} (initially 0.9cm), y axis extend end = \meta{dimension} (initially 0.9cm)}
 \end{keylist}
 %
 \begin{keylist}{x axis clip padding = \meta{dimension} (initially 0.1cm), y axis clip padding = \meta{dimension} (initially 0.1cm)}

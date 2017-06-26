@@ -86,47 +86,74 @@
     \egroup
     \pgfusepath{stroke}%
 }
-\def\sseq@drawxticks{
+\ExplSyntaxOn
+\def\sseq@intdivceiling#1#2{%
+    \ifnum#1>\z@ % \int_div_truncate:nn rounds towards 0. We want \int_div_ceiling
+        \int_div_truncate:nn{#1+#2-1}{#2} % if positive, use ceil(p/q)=floor((p+q-1)/q) for p,q integers
+    \else
+        \int_div_truncate:nn{#1}{#2} % if we are negative, towards 0 is ceiling
+    \fi
+}
+\def\sseq@intdivfloor#1#2{%
+    \ifnum#1<\z@ % \int_div_truncate:nn rounds towards 0. We want \int_div_floor
+        \int_div_truncate:nn{#1-#2+1}{#2} % if we are negative, use floor(p/q) = ceil(p-q+1/q) for p,q integers
+    \else
+        \int_div_truncate:nn{#1}{#2} % if positive, towards 0 is floor
+    \fi
+}
+\ExplSyntaxOff
+
+\def\sseq@drawxticks{%
     \sseq@tempy=\sseq@ymin\relax
-    \sseq@tempx=\sseq@xmax\relax
-    \advance\sseq@tempx\@ne\relax
-    \edef\sseq@temp{\the\sseq@tempx}%
-    \sseq@tempx=\sseq@xmin\relax
+    \sseq@tempx=\numexpr % min
+        \sseq@intdivceiling{\sseq@xmin}{\sseq@xtickstep} * \sseq@xtickstep
+        -
+        \sseq@intdivceiling{\sseq@xtickstepoffset}{\sseq@xtickstep} * \sseq@xtickstep + \sseq@xtickstepoffset
+    \relax 
+    \ifnum\sseq@tempx<\sseq@xmin\relax
+        \advance\sseq@tempx\sseq@xtickstep\relax
+    \fi
+    \sseq@tempxb=\numexpr\sseq@xmax+1\relax % max 
     \loop
         \bgroup
-        \sseq@eval{\@nx\pgftransformshift{\@nx\pgfpoint{\the\sseq@tempx cm}{\the\sseq@tempy cm}}}
+        \sseq@eval{\@nx\pgftransformshift{\@nx\pgfpoint{\the\sseq@tempx cm}{\the\sseq@tempy cm}}}%
         \pgftransformresetnontranslations
         \sseq@globaldetonetransform
-        \pgftransformyshift{-\sseq@xlabelgap}\pgftransformyshift{-\sseq@xaxisgap}
+        \pgftransformyshift{-\sseq@xlabelgap}\pgftransformyshift{-\sseq@xaxisgap}%
         \pgftransformresetnontranslations
         \ifsseq@rotatelabels\sseq@globalrotatetransform\fi
         \sseq@xtickstyle
         \tikz@options
-        \pgftext{\hbox{$\sseq@xtickfn{\the\sseq@tempx}$}}
+        \pgftext{\hbox{$\sseq@xtickfn{\the\sseq@tempx}$}}%
         \egroup
         \advance\sseq@tempx\sseq@xtickstep\relax
-    \ifnum\sseq@tempx<\sseq@temp\repeat
+    \ifnum\sseq@tempx<\sseq@tempxb\repeat
 }
-\def\sseq@drawyticks{
-    \sseq@tempx=\sseq@xmin\relax
-    \sseq@tempy=\sseq@ymax\relax
-    \advance\sseq@tempy\@ne\relax
-    \edef\sseq@tempmax{\the\sseq@tempy}
-    \sseq@tempy=\sseq@ymin\relax
+\def\sseq@drawyticks{%
+    \sseq@tempx=\sseq@xmin\relax    
+    \sseq@tempy=\numexpr % min 
+        \sseq@intdivceiling{\sseq@ymin}{\sseq@ytickstep} * \sseq@ytickstep
+        -
+        \sseq@intdivceiling{\sseq@ytickstepoffset}{\sseq@ytickstep} * \sseq@ytickstep + \sseq@ytickstepoffset
+    \relax 
+    \ifnum\sseq@tempy<\sseq@ymin\relax
+        \advance\sseq@tempy\sseq@ytickstep\relax
+    \fi
+    \sseq@tempyb=\numexpr\sseq@ymax+1\relax % max 
     \loop
         \bgroup
-        \sseq@eval{\@nx\pgftransformshift{\@nx\pgfpoint{\the\sseq@tempx cm}{\the\sseq@tempy cm}}}
+        \sseq@eval{\@nx\pgftransformshift{\@nx\pgfpoint{\the\sseq@tempx cm}{\the\sseq@tempy cm}}}%
         \pgftransformresetnontranslations
         \sseq@globaldetonetransform
-        \pgftransformxshift{-\sseq@ylabelgap}\pgftransformxshift{-\sseq@yaxisgap}
+        \pgftransformxshift{-\sseq@ylabelgap}\pgftransformxshift{-\sseq@yaxisgap}%
         \pgftransformresetnontranslations
         \ifsseq@rotatelabels\sseq@globalrotatetransform\fi
         \sseq@ytickstyle
         \tikz@options
-        \pgftext{\hbox{$\sseq@ytickfn{\the\sseq@tempy}$}}
+        \pgftext{\hbox{$\sseq@ytickfn{\the\sseq@tempy}$}}%
         \egroup
         \advance\sseq@tempy\sseq@ytickstep\relax
-    \ifnum\sseq@tempy<\sseq@tempmax\repeat
+    \ifnum\sseq@tempy<\sseq@tempyb\repeat
 }
 \def\sseq@setupclip{
     %\clip(\sseq@xmin-0.4,\sseq@ymin-0.4) rectangle (\sseq@xmax+0.5,\sseq@ymax+0.5);%

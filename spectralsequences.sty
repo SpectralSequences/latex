@@ -13,25 +13,41 @@
 % TODO:
 %  finish \sseqparseint, \IfOutOfBoundsTF, \DoUntilOutOfBounds (add error trapping, test and document them)
 %  modify class label handler so that if #1 is unused, it is treated reasonably
-%
-%  make "sseq style" work with arguments (ignore keys that are parametrized)
-%  get minimum width=width("\noexpand\small 16") to work
-%  prevent options from leaking from later to earlier labels
 %  better flexibility with class pattern arrangement
 %
-%  the new loop constructs need \foreach style error handling
-%  define error message for usermacro-failed-patch
-%  give an error if \gettag fails to find a tag
-%  give an error if the user tries to put a shift into a style
-%  Fix no classes error message for \d
+%  Eva's issues:
+%    Input sanitizer to make sure x range values are integers
+%    Input sanitizer to make sure tick step, tick step offset are positive integers
+%    Fix grid with axis style=center
+%    rename "axis style" to "axis type" and make an "axis style" option that styles the axis.
+%
+%
+%
+%  Fix all of the bugs we found when we tried to make ppower work:
+%    make "sseq style" work with arguments (ignore keys that are parametrized)
+%    get minimum width=width("\noexpand\small 16") to work
+%    prevent options from leaking from later to earlier labels
+%
+%
+%  Errors:
+%    the new loop constructs need \foreach style error handling
+%    the new loop constructs should have a progress check
+%    define error message for usermacro-failed-patch
+%    give an error if \gettag fails to find a tag
+%    give an error if the user tries to put a shift into a style
+%    Fix no classes error message for \d (probably I should have kept the MWE for this...)
+%    Add xparse related assumptions (I'm surprised we didn't already have these)
+%
+%  Redo sseqerrortest and set up regression test script as part of build (damn I didn't realize we'd lost anything imporant with that find -d disaster)
+%  Maybe we should add some other regression tests too
 %
 %
 %  speed up off page edges (uses 10% of the draw time for page 0 of tmfass)
 %
-%
-%  error messages that should be warnings by default?
-%  improve axes options? allow axis to be centered on coordinate or centered between coordinates
-%  should we specify our favorite conditionals library?
+%  Don't care:
+%    error messages that should be warnings by default?
+%    improve axes options? allow axis to be centered on coordinate or centered between coordinates
+%    should we specify our favorite conditionals library?
 
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{spectralsequences}[2017/06/21 v1.0.0-dev]
