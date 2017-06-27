@@ -1813,13 +1813,13 @@ If you use |axes style = center|, these keys change the position of the axes. Ot
 \end{scope}
 \catcode`\| = 12
 \begin{scope}[background,|-|,blue]
-% clip gap
+% axis clip padding
 \draw[shift = {(\sseq@xmax+0.8,-\sseq@xaxisgap)}] (0,0)--(0,\sseq@xclip@axisgap);
 \draw[shift = {(-\sseq@yaxisgap,\sseq@ymax+0.8)}] (0,0)--(\sseq@yclip@axisgap,0);
 \draw[distance label,shift = {(\sseq@xmax+0.8,-\sseq@xaxisgap+\sseq@xclip@axisgap/2)}] (0,0) -- (2,0)
-node[description, right] {x axis\\ clip gap};
+node[description, right] {x axis\\ clip padding};
 \draw[distance label,shift = {(-\sseq@yaxisgap+\sseq@yclip@axisgap/2,\sseq@ymax+0.8)}] (0,0) .. controls (0,0.5) .. (-0.5,0.5)
-node[description, left] {y axis\\ clip gap};
+node[description, left] {y axis\\ clip padding};
 
 
 % border clip padding
