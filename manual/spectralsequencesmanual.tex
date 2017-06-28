@@ -892,9 +892,89 @@ These handlers create reusable styles to be used in spectral sequences. If this 
 \end{keylist}
 \end{command}
 
-\begin{command}{\foreach}
-This command is from \tikzpkg\space and works in pretty much the same way in \sseqpages, though with slightly better variants. The |\foreach| command is very flexible and has a lot of variants. See the \href{\pgfmanualurl#section.64}{\tikzpkg\space manual} for more details.
+\begin{command}{\foreach }
+This command is from \tikzpkg\space and works in pretty much the same way in \sseqpages, though with slightly better variants. The |\foreach| command is very flexible and has a lot of variants. The basic usage is |\foreach \x in {\meta{xmin},...,\meta{xmax}} \marg{loop body}| which will execute |\meta{loop body}| with |\x| set to each value between \meta{xmin} and \meta{xmax} inclusive. If you want a step greater than 1, try |\foreach \x in {\meta{xmin},\meta{xmin}+\meta{xstep},...,\meta{xmax}} \marg{loop body}|. 
+
+If you need to do multiple loops with a common body, you can just stack the |\foreach| commands:
+\begin{codeexample}[width=6cm]
+\begin{sseqpage}[xscale=0.5]
+\foreach \x in {0,2,...,6} 
+\foreach \y in {0,...,3}{
+    \class(\x,\y)
+}
+\end{sseqpage}
+\end{codeexample}
+
+You can also loop through tuples, for instance:
+\begin{codeexample}[width=6cm]
+\begin{sseqpage}[xscale=0.5]
+\foreach \x/\y/\label in {0/1/a,1/1/b,0/0/c,1/0/d}{
+    \class["\label" above](\x,\y)
+}
+\end{sseqpage}
+\end{codeexample}
+See the last example for |normalize monomial| for a better example of this usage.
+
+There are tons of other things you can do with |\foreach|, though I haven't yet found need for them in combination with \sseqpages. See the \href{\pgfmanualurl#section.64}{\tikzpkg\space manual} for more details.
 \end{command}
+
+\begin{commandlist}{
+    \Do\marg{iterations}\meta{loop body},
+    \DoUntilOutOfBounds\meta{loop body},
+    \DoUntilOutOfBoundsThenNMore\marg{extra iterations}\meta{loop body},
+    \iteration
+}
+The one use case that |\foreach| doesn't cover all that well is if you want the loop to always repeat until the features you are drawing go off the page. This is what |\DoUntilOutOfBounds| and |\DoUntilOutOfBoundsThenNMore| are for. These help ensure that if you change the range of your diagram, infinite families will automatically be drawn correctly without the need to adjust a bunch of loop bounds. The purpose of |\DoUntilOutOfBoundsThenNMore| is for towers that are receiving a differential. If your spectral sequence is Adams graded, and a tower is receiving a $d_r$ differential from another tower, you should use |\DoUntilOutOfBoundsThenNMore{r}|:
+\begin{codeexample}[width=7cm]
+\begin{sseqpage}[ 
+    Adams grading, classes = fill,
+    x range = {0}{10}, y range = {0}{6},
+    x tick step = 2, 
+    xscale = 0.3,yscale = 0.7,
+    run off differentials = {->}
+]
+\class(0,0)
+\DoUntilOutOfBoundsThenNMore{3}{
+    \class(\lastx+1,\lasty+1)
+    \structline
+}
+\class(4,0)
+\DoUntilOutOfBounds{
+    \class(\lastx+1,\lasty+1)
+    \structline
+    \d3(\lastclass)
+}
+\end{sseqpage}
+\end{codeexample}
+You can also nest |\DoUntilOutOfBounds| reasonably:
+\begin{codeexample}[width=7cm]
+\begin{sseqpage}[ 
+    x range = {0}{6}, y range = {0}{6},
+    tick step = 2,
+    scale = 0.6
+]
+\class(0,0)
+\DoUntilOutOfBounds{
+    \class(\lastx+1,\lasty+1)
+    \structline
+    \DoUntilOutOfBounds{
+        \class(\lastx,\lasty+1)
+        \structline
+    }
+}
+\end{sseqpage}
+\end{codeexample}
+One important difference between |\foreach| and the |\Do| family of commands is that |\Do| has no effect on the stack. This is in order to ensure that they nest properly.
+
+Note that if you are using these commands and you are planning to draw several pictures of the diagram with restricted range, you need to specify a range for the \sseqdataenv\ that contains all of the ranges of pages that you want to draw. If you then want to set a smaller default range, use \sseqpageenv with |keep changes|.
+%TODO: test that this would work.
+
+The |\Do| command is less general than |\foreach|; the purpose is to provide a syntax for stack-based looping that is similar to |\DoUntilOutOfBounds| but with a fixed range. So |\Do{n}\marg{loop body}| repeats \meta{loop body} |n| times. The assumption is that the loop body draws something relative to the position of the |\lastclass|.
+
+If you need to know how many iterations one of these three commands has gone through, this is stored in the variable |\iteration|.
+\end{commandlist}
+
+
 
 \begin{command}{\sseqerrortowarning\meta{error-name}}
 Turns the error with the given name into a warning. An error message will start by saying |sseqpages error: "error-name"|. This is the name you need to put into this command.
@@ -1399,6 +1479,7 @@ Here's an example using |\sseqnormalizemonomial|:
 \end{codeexample}
 
 Here is another example which demonstrates a useful idiom for drawing Serre spectral sequences. For a more complete example, see \example{KF3n}. Note the use of braces in |{Sq^1\iota_2}|. Without braces, |\sseqnormalizemonomial| will simplify |Sq^1xSq^2x| into $S^2q^3x^2$, which is obviously undesirable, so the correct way to input this is |{Sq^1x}{Sq^2x}|. Unfortunately, |\foreach| strips a pair of braces from its arguments, so you need to put two pairs of braces.
+%\pgfmanualpdflabel{normalizemonomialex-labels}
 \begin{codeexample}[width=8cm]
 \begin{sseqpage}[
   xscale = 1.4,

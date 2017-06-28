@@ -14,18 +14,55 @@
 
 \ExplSyntaxOn
 \def\sseq@Do #1#2 {
-    \def\iteration{0}
+    \begingroup
+    \sseq@ifintexpr{#1}{
+        \savestack
+        \def\iteration{0}
+        \prg_replicate:nn {#1} {
+            \edef\iteration{\the\numexpr\iteration+1}
+            #2
+        }
+        \restorestack
+    }{\sseq@error@xx{Do-invalid-int-expr}{\string\Do}{\unexpanded{#1}}}
+    \endgroup
+}
+
+\def\sseq@DoUntilOutOfBounds #1 {
+    \begingroup
+    \ifx\xmin\sseq@xmin\else\ifx\ymin\sseq@ymin\else
+        \sseq@error@x{DoUntil-no-bound}{\string\DoUntilOutOfBounds}
+        \sseq@breakfifi
+    \fi\fi
+    \def\sseq@commandname{\string\DoUntilOutOfBounds}
+    \sseq@savestack % so we can nest these
+    \sseq@DoUntilOutOfBounds@body{#1}
+    \sseq@restorestack
+    \sseq@breakpoint
+    \endgroup
+}
+
+\def \sseq@DoUntilOutOfBoundsThenNMore #1#2 {
+    \begingroup
+    \ifx\xmin\sseq@xmin\else\ifx\ymin\sseq@ymin\else
+        \sseq@error@n{DoUntil-no-bound}{\DoUntilOutOfBoundsThenNMore}
+        \sseq@breakfifi
+    \fi\fi
+    \sseq@ifintexpr{#1}{}{
+        \sseq@error@xx{Do-invalid-int-expr}{\string\DoUntilOutOfBoundsThenNMore}{\unexpanded{#1}}
+        \sseq@break
+    }
+    \def\sseq@commandname{\string\DoUntilOutOfBoundsThenNMore}
+    \sseq@DoUntilOutOfBounds@body{#2}
     \prg_replicate:nn {#1} {
         \edef\iteration{\the\numexpr\iteration+1}
         #2
     }
+    \sseq@restorestack
+    \sseq@breakpoint
+    \endgroup
 }
 
-% A hook for \DoUntilOutOfBoundsThenNMore
-\let\sseq@possible@restorestack\sseq@restorestack
-\def\sseq@DoUntilOutOfBounds #1 {
-    \begingroup
-    \sseq@savestack % so we can nest these
+\def\sseq@DoUntilOutOfBounds@body#1{
     % If we're already out of bounds, we'll just do nothing do nothing.
     \sseq_if_out_of_bounds_noparse:nnTF{\lastx{0}}{\lasty{0}}{
         \bool_set_true:N \l_tmpa_bool
@@ -82,42 +119,31 @@
                 \fi
             \fi
             \if_bool:N \l_tmpb_bool\else:
-                \sseq@error{DoUntilOutOfBounds-no-bound}
+                \sseq@error@x{DoUntil-no-progress}{\sseq@commandname}
             \fi:
         }
     }
     \bool_until_do:Nn \l_tmpa_bool {
-%        \sseq@tempxb=\sseq@tempx
-%        \sseq@tempyb=\sseq@tempx
         \edef\iteration{\the\numexpr\iteration+1}
         #1
         \sseq_if_out_of_bounds_noparse:nnTF{\lastx{0}}{\lasty{0}}{% we're done
             \bool_set_true:N \l_tmpa_bool
         }{% Check descent condition
-%            \sseq@tempx=\lastx{0}\relax % store new last value for comparison
-%            \sseq@tempy=\lasty{0}\relax
-%            \bool_set_false:N \l_tmpb_bool
-%            \sseq@checkbound
-%            \if_bool:N \l_tmpb_bool\else:
-%                \sseq@error{DoUntilOutOfBounds-descent-failed}
-%            \fi:
+%            \ifnum\iteration/10*10-\iteration=\z@
+%                \sseq@tempx=\lastx{0}\relax % store new last value for comparison
+%                \sseq@tempy=\lasty{0}\relax
+%                \bool_set_false:N \l_tmpb_bool
+%                \sseq@checkbound
+%                \if_bool:N \l_tmpb_bool\else:
+%                    \sseq@error{DoUntilOutOfBounds-descent-failed}
+%                \fi:
+%                \sseq@tempxb=\sseq@tempx
+%                \sseq@tempyb=\sseq@tempx
+%            \fi
         }
     }
-    \sseq@possible@restorestack % Don't do this if we are inside \DoUntilOutOfBoundsThenNMore
-    \endgroup
 }
 
-\def \sseq@DoUntilOutOfBoundsThenNMore #1#2 {
-    \begingroup
-    \let\sseq@possible@restorestack\relax
-    \DoUntilOutOfBounds { #2 }
-    \prg_replicate:nn {#1} {
-        \edef\iteration{\the\numexpr\iteration+1}
-        #2
-    }
-    \sseq@restorestack
-    \endgroup
-}
 
 
 \ExplSyntaxOff

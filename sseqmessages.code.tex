@@ -332,6 +332,15 @@
 
 %%
 %%
+%% loadstore
+%%
+%%
+\sseq@newerror@internal{illegal-add-background-mode}{\string#1 occurred in background mode.} 
+
+
+
+%%
+%%
 %% macromakers
 %%
 %%
@@ -378,13 +387,17 @@
 \sseq@newerror{anchor-ignored}    {The coordinate #1 is not a class, but it has an anchor '#3'. Ignoring the anchor and treating it as the literal position #2.}
 \sseq@newerror{invalid-tikz-coord}{The coordinate #1 does not refer to a tikz class but its #2 coordinate is not valid \string\pgfmathparse\ input.}
 
+%%
+%%
+%% foreach
+%%
+%%
+\sseq@newerror{DoUntil-no-bound}{You used #1 but specified neither an x range nor a y range.}
+\sseq@newerror{DoUntil-no-progress}{You used #1 but the loop body you provided seems to be making no progress towards the boundary.}
+\sseq@newerror{Do-invalid-int-expr}{Argument "#2" to #1 is not a valid integer expression.}
 
-%%
-%%
-%% loadstore
-%%
-%%
-\sseq@newerror{illegal-add-background-mode}{\string#1 occurred in background mode.} % Should be impossible to trigger
+
+
 
 %%
 %%
