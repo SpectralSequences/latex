@@ -895,16 +895,28 @@
 %%%
 \sseq@DeclareDocumentCommand\structline{od()}{%
     \begingroup
-    \def\next{\sseq@structline@main{structline}{#1}{#2}}%
-    \@xptwo\next\sseq@trimleadingspaces
+    \IfNoValueTF{#2}{
+        \sseq@structline@main{structline}{#1}{#2}{#2}
+    }{  
+        \def\next{\sseq@structline@{structline}{#1}{#2}}%
+        \@xptwo\next\sseq@trimleadingspaces
+    }
 }
 \sseq@DeclareDocumentCommand\structlineoptions{od()}{%
     \begingroup
-    \def\next{\sseq@structline@main{structlineoptions}{#1}{#2}}%
-    \@xptwo\next\sseq@trimleadingspaces
+    \IfNoValueTF{#2}{
+        \sseq@structline@main{structline}{#1}{#2}{#2}
+    }{
+        \def\next{\sseq@structline@{structline}{#1}{#2}}%
+        \@xptwo\next\sseq@trimleadingspaces
+    }
 }
 
-\sseq@DeclareDocumentCommandAs\sseq@structline@main\structline{mmmd()}{%
+\sseq@DeclareDocumentCommandAs\sseq@structline@\structline{mmmd()}{%
+    \sseq@structline@main{#1}{#2}{#3}{#4}
+}
+
+\def\sseq@structline@main#1#2#3#4{
     \sseq@xsetthiscall{\string\structline\IfNoValueF{#2}{\unexpanded{[#2]}}\IfNoValueF{#3}{\unexpanded{(#3)}\IfNoValueF{#4}{\unexpanded{(#4)}}}}%
     \sseq@options@firstpassmode
     \the\sseq@sseqstyle

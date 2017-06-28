@@ -8,10 +8,120 @@
 %% File: sseqforeach.code.tex
 %%
 %%    Patches the \foreach command to obtain better error reporting
+%%    Also defines some of my own looping commands, \Do, \DoUntilOutOfBounds, \DoUntilOutOfBoundsThenNMore
+%%    All of the \foreach stuff we are modifying is defined by tikz in the file /pgf/utilities/pgffor.code.tex
 %%
 
+\ExplSyntaxOn
+\def\sseq@Do #1#2 {
+    \def\iteration{0}
+    \prg_replicate:nn {#1} {
+        \edef\iteration{\the\numexpr\iteration+1}
+        #2
+    }
+}
 
-% All of this \foreach stuff is defined by tikz in the file /pgf/utilities/pgffor.code.tex
+% A hook for \DoUntilOutOfBoundsThenNMore
+\let\sseq@possible@restorestack\sseq@restorestack
+\def\sseq@DoUntilOutOfBounds #1 {
+    \begingroup
+    \sseq@savestack % so we can nest these
+    % If we're already out of bounds, we'll just do nothing do nothing.
+    \sseq_if_out_of_bounds_noparse:nnTF{\lastx{0}}{\lasty{0}}{
+        \bool_set_true:N \l_tmpa_bool
+    }{
+        \bool_set_false:N \l_tmpa_bool
+        % Now we need to set up the loop descent condition.
+        \sseq@tempxb=\lastx{0}\relax % Record current x and y values
+        \sseq@tempyb=\lasty{0}\relax
+        \def\iteration{1}
+        #1 % run loop body once
+        \sseq_if_out_of_bounds_noparse:nnTF{\lastx{0}}{\lasty{0}}{ % If we're out of bounds now, we can quit
+            \bool_set_true:N \l_tmpa_bool
+        }{ % Otherwise, determine descent check
+            \sseq@tempx=\lastx{0}\relax % store new last value for comparison
+            \sseq@tempy=\lasty{0}\relax
+            \bool_set_false:N \l_tmpb_bool % This is to record whether there is a defined x range or y range. If neither, we'll throw an error.
+%            \def\sseq@checkbound{\bool_set_false:N \l_tmpb_bool}
+            \ifx\xmin\sseq@xmin
+                \ifnum\sseq@tempx>\sseq@tempxb
+                    \bool_set_true:N \l_tmpb_bool % We have a descent condition
+%                    \sseq@d@addto@macro\sseq@checkbound{
+%                        \ifnum\sseq@tempx>\sseq@tempxb % Any stage of the loop is okay as long as it increases x
+%                            \bool_set_true:N \l_tmpb_bool
+%                        \fi
+%                    }
+                \else
+                    \ifnum\sseq@tempx<\sseq@tempxb
+                        \bool_set_true:N \l_tmpb_bool
+%                        \sseq@d@addto@macro\sseq@checkbound{ % Any stage of the loop is okay as long as it decreases x
+%                            \ifnum\sseq@tempx<\sseq@tempxb
+%                                \bool_set_true:N \l_tmpb_bool
+%                            \fi
+%                        }
+                    \fi
+                \fi
+            \fi
+            \ifx\ymin\sseq@ymin
+                \ifnum\sseq@tempy>\sseq@tempyb
+                    \bool_set_true:N \l_tmpb_bool
+%                    \sseq@d@addto@macro\sseq@checkbound{
+%                        \ifnum\sseq@tempy>\sseq@tempyb
+%                            \bool_set_true:N \l_tmpb_bool
+%                        \fi
+%                    }
+                \else
+                    \ifnum\sseq@tempy<\sseq@tempyb
+                        \bool_set_true:N \l_tmpb_bool
+%                        \sseq@d@addto@macro\sseq@checkbound{
+%                            \ifnum\sseq@tempy<\sseq@tempyb
+%                                \bool_set_true:N \l_tmpb_bool
+%                            \fi
+%                        }
+                    \fi
+                \fi
+            \fi
+            \if_bool:N \l_tmpb_bool\else:
+                \sseq@error{DoUntilOutOfBounds-no-bound}
+            \fi:
+        }
+    }
+    \bool_until_do:Nn \l_tmpa_bool {
+%        \sseq@tempxb=\sseq@tempx
+%        \sseq@tempyb=\sseq@tempx
+        \edef\iteration{\the\numexpr\iteration+1}
+        #1
+        \sseq_if_out_of_bounds_noparse:nnTF{\lastx{0}}{\lasty{0}}{% we're done
+            \bool_set_true:N \l_tmpa_bool
+        }{% Check descent condition
+%            \sseq@tempx=\lastx{0}\relax % store new last value for comparison
+%            \sseq@tempy=\lasty{0}\relax
+%            \bool_set_false:N \l_tmpb_bool
+%            \sseq@checkbound
+%            \if_bool:N \l_tmpb_bool\else:
+%                \sseq@error{DoUntilOutOfBounds-descent-failed}
+%            \fi:
+        }
+    }
+    \sseq@possible@restorestack % Don't do this if we are inside \DoUntilOutOfBoundsThenNMore
+    \endgroup
+}
+
+\def \sseq@DoUntilOutOfBoundsThenNMore #1#2 {
+    \begingroup
+    \let\sseq@possible@restorestack\relax
+    \DoUntilOutOfBounds { #2 }
+    \prg_replicate:nn {#1} {
+        \edef\iteration{\the\numexpr\iteration+1}
+        #2
+    }
+    \sseq@restorestack
+    \endgroup
+}
+
+
+\ExplSyntaxOff
+
 
 \def\sseq@for@nopatch{\sseq@error{foreach-patch-failed}\def\sseq@patchfor{}\endinput}
 

@@ -18,10 +18,8 @@
 %  Eva's issues:
 %    Input sanitizer to make sure x range values are integers
 %    Input sanitizer to make sure tick step, tick step offset are positive integers
-%    Fix grid with axis style=center
 %    rename "axis style" to "axis type" and make an "axis style" option that styles the axis.
 %    expose \sseq@gridcolor, set it to a default value that makes it look the same across pdf viewers.
-%
 %
 %
 %  Fix all of the bugs we found when we tried to make ppower work:
@@ -32,7 +30,6 @@
 %
 %  Errors:
 %    the new loop constructs need \foreach style error handling
-%    the new loop constructs should have a progress check
 %    define error message for usermacro-failed-patch
 %    give an error if \gettag fails to find a tag
 %    give an error if the user tries to put a shift into a style
@@ -44,6 +41,8 @@
 %
 %
 %  speed up off page edges (uses 10% of the draw time for page 0 of tmfass)
+%
+%  improve \DoUntilOutOfBounds progress check
 %
 %  Don't care:
 %    error messages that should be warnings by default?

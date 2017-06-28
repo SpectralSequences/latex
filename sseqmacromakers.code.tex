@@ -39,12 +39,12 @@
 \@ifpackagelater{xparse}{2017/02/08}{
     % NEW CODE
     \cs_new_protected:Npn \sseq__xparse_grab_U:w #1#2 \__xparse_run_code:
-      { \sseq__xparse_grab_U_aux:nnN {#1} {#2} \cs_set_protected_nopar:Npn }  
+      { \sseq__xparse_grab_U_aux:nnN {#1} {#2} \cs_set_protected_nopar:Npn }
     \cs_new_protected:Npn \sseq__xparse_grab_U_aux:nnN #1#2#3
       {
         \tl_set:Nn \l__xparse_signature_tl {#2}
         \exp_after:wN #3 \l__xparse_fn_tl ##1 #1
-          { \__xparse_add_arg:n {##1} #1 } 
+          { \__xparse_add_arg:n {##1} #1 }
         \l__xparse_fn_tl
       }
     \cs_new_protected:Npn \sseq__xparse_add_type_U:w #1
@@ -90,7 +90,7 @@
 % Expandable commands are a menace to us because they define a bunch of helper commands that we then have to keep track of.
 % We are too lazy to do this, so force \l__xparse_grab_expandably_bool to be false.
 % This is backwards compatible (I think) because \bool_set_false:N just performs a chardef (no existence check)
-% so in old versions, \l__xparse_grab_expandably_bool will be created harmlessly. 
+% so in old versions, \l__xparse_grab_expandably_bool will be created harmlessly.
 \let\sseq__xparse_prepare_signature:n\__xparse_prepare_signature:n
 \pretocmd\sseq__xparse_prepare_signature:n { \bool_set_false:N \l__xparse_grab_expandably_bool } {}{\error}
 
@@ -120,7 +120,7 @@
     \group_begin:
     \cs_set_eq:NN \__xparse_add_type_U:w \sseq__xparse_add_type_U:w
     \cs_set_eq:NN \__xparse_normalize_type_U:w \sseq__xparse_normalize_type_U:w
-    \cs_set_eq:NN \__xparse_prepare_signature:n \sseq__xparse_prepare_signature:n 
+    \cs_set_eq:NN \__xparse_prepare_signature:n \sseq__xparse_prepare_signature:n
     %\cs_set:Npn   \__xparse_declare_cmd_code:Nnn {\bool_set_false:N \l__xparse_grab_expandably_bool\__xparse_declare_cmd_code_aux:Nnn}
     \sseq@installmsghooks
     \def\sseq@error@setup{}
@@ -135,6 +135,12 @@
     \cs_if_exist:cTF{ \cs_to_str:N #2 \c_space_tl code }{
         \cs_gset:Npx #1{
             \begingroup
+            \exp_not:N \cs_set_eq:NN  % force xparse to always ignore spaces!
+                \exp_not:N \peek_meaning:NTF 
+                \exp_not:N \peek_meaning_ignore_spaces:NTF 
+            \exp_not:N \cs_set_eq:NN  % force xparse to always ignore spaces!
+                \exp_not:N \peek_meaning_remove:NTF
+                \exp_not:N \peek_meaning_remove_ignore_spaces:NTF 
             \exp_not:N \cs_set_eq:NN
                 \exp_not:c { \cs_to_str:N #2 \c_space_tl code }
                 \exp_not:c { \cs_to_str:N #1 \c_space_tl code }
@@ -267,7 +273,7 @@
             \the\sseq@temptoks
             \sseq@atbeginusermacro@msgsetup
         }{}{\error\sseq@error@x{usermacro-failed-patch}{\string#1}}
-    }    
+    }
     \cs_gset_eq:cc { sseq @ usermacro @ \cs_to_str:N #2 @ helper } { sseq @ usermacro @ \cs_to_str:N #2 @ helper } % globalize definition
     \let\sseq@parseargspec\sseq@parseargspec@normal
     \sseq@breakpoint

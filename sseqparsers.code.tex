@@ -20,6 +20,7 @@
     }
 }
 
+% WARNING: doesn't work =(
 \def\sseq@ifint#1{
     \ifcat$\romannumeral0#1$
         \prg_return_true:
@@ -534,7 +535,7 @@
 % This is only used in \structline to normalize the name of structure lines, so that sseqpages knows what you are talking about
 % if you say \structline(coorda)(coordb) and then later \structline(coordb)(coorda)
 \cs_new:Npn \sseq_swapmacros:NN #1#2 {
-    \let\sseq@temp#1 \let#1#2 \let#2\sseq@temp   
+    \let\sseq@temp#1 \let#1#2 \let#2\sseq@temp
 }
 \cs_generate_variant:Nn \sseq_swapmacros:NN { cc }
 
@@ -725,6 +726,7 @@
     \egroup
 }
 
+% Note that \class directly calls pushstack@ to avoid reparsing the coordinate
 \def\sseq@pushstack@{\@xp\sseq@pushstack@@}
 
 \def\sseq@pushstack@@(#1,#2,#3){
@@ -817,8 +819,14 @@
 
 \prg_new_conditional:Npnn \sseq_if_out_of_bounds:n #1 { T ,  F , TF } {
     \sseq@parsecoord\coord{#1}{}
+    \sseq_if_out_of_bounds_noparse:nnTF { \xcoord } { \ycoord }{\prg_return_true:}{\prg_return_false:}
+}
+
+% For internal use b/c it's faster not to call \sseq@parsecoord
+% There's no noticeable performance boost though... =(
+\prg_new_conditional:Npnn \sseq_if_out_of_bounds_noparse:nn #1#2 {TF} {
     \sseq@tempiftrue
-    \ifnum\xcoord<\sseq@xmaxpp\relax\ifnum\xcoord>\sseq@xminmm\relax\ifnum\ycoord<\sseq@ymaxpp\relax\ifnum\ycoord>\sseq@yminmm\relax
+    \ifnum#1<\sseq@xmaxpp\relax\ifnum#1>\sseq@xminmm\relax\ifnum#2<\sseq@ymaxpp\relax\ifnum#2>\sseq@yminmm\relax
         \sseq@tempiffalse
     \fi\fi\fi\fi
     \ifsseq@tempif
@@ -836,37 +844,6 @@
 \sseq@DeclareDocumentCommand \IfInBoundsT  { r() } { \sseq_if_out_of_bounds:nF  { #1 } }
 \sseq@DeclareDocumentCommand \IfInBoundsF  { r() } { \sseq_if_out_of_bounds:nT  { #1 } }
 
-\sseq@DeclareDocumentCommand \Do { mm } {
-    \def\iteration{0}
-    \prg_replicate:nn {#1} {
-        \edef\iteration{\the\numexpr\iteration+1}
-        #2
-    }
-}
-
-\sseq@DeclareDocumentCommand \DoUntilOutOfBounds { m } {
-    \sseq_if_out_of_bounds:nTF{\lastclass0}{
-        \bool_set_true:N \l_tmpa_bool
-    }{
-        \bool_set_false:N \l_tmpa_bool
-    }
-    \def\iteration{0}
-    \bool_until_do:Nn \l_tmpa_bool {
-        \edef\iteration{\the\numexpr\iteration+1}
-        #1
-        \sseq_if_out_of_bounds:nT{\lastclass0}{
-            \bool_set_true:N \l_tmpa_bool
-        }
-    }
-}
-
-\sseq@DeclareDocumentCommand \DoUntilOutOfBoundsThenNMore { m m } {
-    \DoUntilOutOfBounds { #2 }
-    \prg_replicate:nn {#1} {
-        \edef\iteration{\the\numexpr\iteration+1}
-        #2
-    }
-}
 
 %%%%%%
 %%%
