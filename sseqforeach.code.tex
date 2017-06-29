@@ -16,13 +16,13 @@
 \def\sseq@Do #1#2 {
     \begingroup
     \sseq@ifintexpr{#1}{
-        \savestack
+        \sseq@savestack
         \def\iteration{0}
         \prg_replicate:nn {#1} {
             \edef\iteration{\the\numexpr\iteration+1}
             #2
         }
-        \restorestack
+        \sseq@restorestack
     }{\sseq@error@xx{Do-invalid-int-expr}{\string\Do}{\unexpanded{#1}}}
     \endgroup
 }
@@ -41,7 +41,7 @@
     \endgroup
 }
 
-\def \sseq@DoUntilOutOfBoundsThenNMore #1#2 {
+\def\sseq@DoUntilOutOfBoundsThenNMore #1#2 {
     \begingroup
     \ifx\xmin\sseq@xmin\else\ifx\ymin\sseq@ymin\else
         \sseq@error@n{DoUntil-no-bound}{\DoUntilOutOfBoundsThenNMore}
@@ -52,6 +52,7 @@
         \sseq@break
     }
     \def\sseq@commandname{\string\DoUntilOutOfBoundsThenNMore}
+    \sseq@savestack
     \sseq@DoUntilOutOfBounds@body{#2}
     \prg_replicate:nn {#1} {
         \edef\iteration{\the\numexpr\iteration+1}
@@ -63,8 +64,9 @@
 }
 
 \def\sseq@DoUntilOutOfBounds@body#1{
-    % If we're already out of bounds, we'll just do nothing do nothing.
+    % If we're already out of bounds, we'll just do nothing.
     \sseq_if_out_of_bounds_noparse:nnTF{\lastx{0}}{\lasty{0}}{
+        \def\iteration{0} % Set iteration so that \DoUntilOutOfBoundsThenNMore doesn't get upset
         \bool_set_true:N \l_tmpa_bool
     }{
         \bool_set_false:N \l_tmpa_bool

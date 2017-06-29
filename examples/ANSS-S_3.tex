@@ -1,9 +1,5 @@
 %%
-%% Package: spectralsequences v1.0.0-dev
-%% Author: Hood Chatham
-%% Email: hood@mit.edu
-%% Date: 2017-06-21
-%% License: Latex Project Public License
+%% Description: Adams Novikov Spectral Sequence for $S_3$
 %%
 %% File: example_anss3.tex
 %%
@@ -35,7 +31,7 @@
 \begin{sseqpage}[
     Adams grading,
     classes = { tooltip = {(\xcoord,\ycoord)}, inner sep=1.2pt },
-    class labels = above left,
+    class labels = below,
     label distance=3pt,
     differentials={-{>[width=4]}, target anchor=-60},
     y range={0}{11},
@@ -60,10 +56,10 @@
 \class["\alpha_{11}"](43,1)
 
 \class["\beta_1"](10,2) \structline(3,1)(10,2)
-\class["\beta_2"](26,2)
-\class["\beta_{3/3}" {xshift = -2pt, yshift=-2pt}](34,2)
-\class["\beta_{3/2}"](38,2)
-\class["\beta_3"](42,2)
+\class["\beta_2" left](26,2)
+\class["\beta_{3/3}" left](34,2)
+\class["\beta_{3/2}" {left}](38,2)
+\class["\beta_3" left](42,2)
 
 % tower off of beta_1
 \alphaclass(10,2)\betaclass
@@ -88,6 +84,11 @@
 % d5s
 \d5(34,2)
 \d5(44,4)
+
+%% Doug's contributions
+\classoptions["{\left<\alpha_1,\alpha_1,\beta_1^3\right>}" {below right=-1.2em, xshift=2pt,yshift=2pt}](37,3)
+\structline[dashed](37,3)(40,8)
+
 \end{sseqpage}
 
 \end{document} 

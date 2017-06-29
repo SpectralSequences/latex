@@ -14,6 +14,8 @@
 %%    the axes ticks was taking about 1/3 of the compile time (a little under 1s out of a 3.2)
 %%
 
+\def\sseq@resettransform{\pgftransformreset}%\pgfsetxvec{\pgfpointxy{1cm}{0cm}}\pgfsetyvec{\pgfpointxy{0cm}{1cm}}}
+\def\sseq@resetnontranslations{\pgftransformresetnontranslations}%\pgfsetxvec{\pgfpointxy{1cm}{0cm}}\pgfsetyvec{\pgfpointxy{0cm}{1cm}}}
 
 
 %%%
@@ -47,41 +49,33 @@
 }
 \def\sseq@drawxaxis{
     \bgroup
-    \pgftransformreset
-    \sseq@globaldetonetransform
-    %
-    \bgroup
     \pgftransformxshift{\sseq@xaxis@end@extend}\pgftransformyshift{-\sseq@xaxisgap}
-    \sseq@globalscaletransform
-    \pgfpathmoveto{\pgfpoint{\sseq@xmax cm}{\sseq@ymin cm}}
+    \pgfpathmoveto{\pgfpointxy{\sseq@xmax+\sseq@xoffset}{\sseq@ymin+\sseq@yoffset}}
     \egroup
+%
     \bgroup
-    \pgftransformxshift{-\sseq@yaxisgap}
-    %\pgftransformxshift{-\sseq@ylabelgap}
-    \pgftransformxshift{-\sseq@xaxis@start@extend}
+    \pgftransformxshift{-\sseq@xaxis@start@extend}\pgftransformxshift{-\sseq@yaxisgap}
     \pgftransformyshift{-\sseq@xaxisgap}
-    \sseq@globalscaletransform
-    \pgfpathlineto{\pgfpoint{\sseq@xmin cm}{\sseq@ymin cm}}
-    \egroup
+    \pgfpathlineto{\pgfpointxy{\sseq@xmin+\sseq@xoffset}{\sseq@ymin+\sseq@yoffset}}
     \egroup
     \pgfusepath{stroke}
 }
 \def\sseq@drawyaxis{
     \bgroup
-    \pgftransformreset
-    \sseq@globaldetonetransform
+    %\sseq@resettransform
+    %\sseq@globaldetonetransform
     \bgroup
     \pgftransformyshift{\sseq@yaxis@end@extend}\pgftransformxshift{-\sseq@yaxisgap}
-    \sseq@globalscaletransform
-    \pgfpathmoveto{\pgfpoint{\sseq@xmin cm}{\sseq@ymax cm}}
+    %\sseq@globalscaletransform
+    \pgfpathmoveto{\pgfpointxy{\sseq@xmin+\sseq@xoffset}{\sseq@ymax+\sseq@yoffset}}
     \egroup
     \bgroup
     \pgftransformyshift{-\sseq@xaxisgap}
     %\pgftransformyshift{-\sseq@xlabelgap}
     \pgftransformyshift{-\sseq@yaxis@start@extend}
     \pgftransformxshift{-\sseq@yaxisgap}
-    \sseq@globalscaletransform
-    \pgfpathlineto{\pgfpoint{\sseq@xmin cm}{\sseq@ymin cm}}
+    %\sseq@globalscaletransform
+    \pgfpathlineto{\pgfpointxy{\sseq@xmin+\sseq@xoffset}{\sseq@ymin+\sseq@yoffset}}
     \egroup
     \egroup
     \pgfusepath{stroke}%
@@ -116,11 +110,11 @@
     \sseq@tempxb=\numexpr\sseq@xmax+1\relax % max
     \loop
         \bgroup
-        \sseq@eval{\@nx\pgftransformshift{\@nx\pgfpoint{\the\sseq@tempx cm}{\the\sseq@tempy cm}}}%
-        \pgftransformresetnontranslations
+        \sseq@eval{\@nx\pgftransformshift{\@nx\pgfpointxy{\the\sseq@tempx+\sseq@xoffset}{\the\sseq@tempy+\sseq@yoffset}}}%
+        \sseq@resetnontranslations
         \sseq@globaldetonetransform
         \pgftransformyshift{-\sseq@xlabelgap}\pgftransformyshift{-\sseq@xaxisgap}%
-        \pgftransformresetnontranslations
+        \sseq@resetnontranslations
         \ifsseq@rotatelabels\sseq@globalrotatetransform\fi
         \sseq@xtickstyle
         \tikz@options
@@ -142,11 +136,11 @@
     \sseq@tempyb=\numexpr\sseq@ymax+1\relax % max
     \loop
         \bgroup
-        \sseq@eval{\@nx\pgftransformshift{\@nx\pgfpoint{\the\sseq@tempx cm}{\the\sseq@tempy cm}}}%
-        \pgftransformresetnontranslations
+        \sseq@eval{\@nx\pgftransformshift{\@nx\pgfpointxy{\the\sseq@tempx+\sseq@xoffset}{\the\sseq@tempy+\sseq@yoffset}}}%
+        \sseq@resetnontranslations
         \sseq@globaldetonetransform
         \pgftransformxshift{-\sseq@ylabelgap}\pgftransformxshift{-\sseq@yaxisgap}%
-        \pgftransformresetnontranslations
+        \sseq@resetnontranslations
         \ifsseq@rotatelabels\sseq@globalrotatetransform\fi
         \sseq@ytickstyle
         \tikz@options
@@ -160,8 +154,8 @@
     \ifsseq@clip
         \ifx\sseq@customclip\pgfutil@empty
             \bgroup
-            \pgftransformreset
-            \sseq@globaldetonetransform
+            %\sseq@resettransform
+            %\sseq@globaldetonetransform
             \ifsseq@borderyaxis
                 \def\xmin{\pgftransformxshift{-\sseq@yaxisgap}\pgftransformxshift{\sseq@yclip@axisgap}}
             \else
@@ -175,20 +169,20 @@
             \def\xmax{\pgftransformxshift{\sseq@xaxis@end@extend}\pgftransformxshift{\sseq@clip@padding@right}}
             \def\ymax{\pgftransformyshift{\sseq@yaxis@end@extend}\pgftransformyshift{\sseq@clip@padding@top}}
             \bgroup
-            \xmin\ymin\sseq@globalscaletransform
-            \pgfpathmoveto{\pgfpoint{\sseq@xmin cm}{\sseq@ymin cm}}
+            \xmin\ymin%\sseq@globalscaletransform
+            \pgfpathmoveto{\pgfpointxy{\sseq@xmin+\sseq@xoffset}{\sseq@ymin+\sseq@yoffset}}
             \egroup
             \bgroup
-            \xmin\ymax\sseq@globalscaletransform
-            \pgfpathlineto{\pgfpoint{\sseq@xmin cm}{\sseq@ymax cm}}
+            \xmin\ymax%\sseq@globalscaletransform
+            \pgfpathlineto{\pgfpointxy{\sseq@xmin+\sseq@xoffset}{\sseq@ymax+\sseq@yoffset}}
             \egroup
             \bgroup
-            \xmax\ymax\sseq@globalscaletransform
-            \pgfpathlineto{\pgfpoint{\sseq@xmax cm}{\sseq@ymax cm}}
+            \xmax\ymax%\sseq@globalscaletransform
+            \pgfpathlineto{\pgfpointxy{\sseq@xmax+\sseq@xoffset}{\sseq@ymax+\sseq@yoffset}}
             \egroup
             \bgroup
-            \xmax\ymin\sseq@globalscaletransform
-            \pgfpathlineto{\pgfpoint{\sseq@xmax cm}{\sseq@ymin cm}}
+            \xmax\ymin%\sseq@globalscaletransform
+            \pgfpathlineto{\pgfpointxy{\sseq@xmax+\sseq@xoffset}{\sseq@ymin+\sseq@yoffset}}
             \egroup
             \egroup
             \pgfpathclose
@@ -196,10 +190,10 @@
             \pgfusepath{discard}% This has to be after the egroup or else the clipping gets screwed up
             \bgroup
                 %\sseq@globalscaletransform
-                \pgfpathmoveto{\pgfpoint{\sseq@xmin cm}{\sseq@ymin cm}}
-                \pgfpathlineto{\pgfpoint{\sseq@xmin cm}{\sseq@ymax cm}}
-                \pgfpathlineto{\pgfpoint{\sseq@xmax cm}{\sseq@ymax cm}}
-                \pgfpathlineto{\pgfpoint{\sseq@xmax cm}{\sseq@ymin cm}}
+                \pgfpathmoveto{\pgfpointxy{\sseq@xmin+\sseq@xoffset}{\sseq@ymin+\sseq@yoffset}}
+                \pgfpathlineto{\pgfpointxy{\sseq@xmin+\sseq@xoffset}{\sseq@ymax+\sseq@yoffset}}
+                \pgfpathlineto{\pgfpointxy{\sseq@xmax+\sseq@xoffset}{\sseq@ymax+\sseq@yoffset}}
+                \pgfpathlineto{\pgfpointxy{\sseq@xmax+\sseq@xoffset}{\sseq@ymin+\sseq@yoffset}}
                 \pgfpathclose
             \egroup
             \pgfgetpath\sseq@therangepath % Only for deciding whether to draw "tricky edges"
@@ -219,6 +213,14 @@
  \bgroup
  \pgfscope
  \sseq@useclip
+ \pgf@process{\pgfpointxy{\sseq@xgridstep}{0}}
+ \pgf@xa=\pgf@x
+ \pgf@process{\pgfpointxy{0}{\sseq@ygridstep}}
+ \pgf@ya=\pgf@y
+ \pgfmathparse{1cm/\pgf@xa}
+ \pgftransformxscale{\pgfmathresult}
+ \pgfmathparse{1cm/\pgf@ya}
+ \pgftransformyscale{\pgfmathresult}
  \pgflowlevelsynccm
  \pgfsetlinewidth{1cm}
  \pgfsetdash{{1cm}{1cm}}{1cm}
@@ -235,7 +237,11 @@
     \pgftransformyshift{-1cm}
     \advance\sseq@tempyb\@ne
  \fi
- \pgfpathgrid[stepx=2cm,stepy=2cm]{\pgfpoint{-0.5cm+\the\sseq@tempx cm}{-0.5cm+\the\sseq@tempy cm}}{\pgfpoint{\the\sseq@tempxb cm+0.499cm}{\the\sseq@tempyb cm+0.499cm}}
+ \sseq@xoffset=\numexpr\sseq@intdivfloor{\sseq@xoffset}{2}*2\relax
+ \sseq@yoffset=\numexpr\sseq@intdivfloor{\sseq@yoffset}{2}*2\relax
+ \pgfpathgrid[stepx=2cm,stepy=2cm]
+    { \pgfpointxy { -0.5+ \the\sseq@tempx + \sseq@xoffset } { -0.5 + \the\sseq@tempy + \sseq@yoffset } }
+    { \pgfpointxy { \the\sseq@tempxb + 0.499 + \sseq@xoffset + 1 }{ \the\sseq@tempyb + 0.499 + \sseq@yoffset + 1 } }
  \pgfusepath{stroke}
  \endpgfscope
  \egroup
@@ -243,12 +249,33 @@
 \def\sseq@grid@crossword{
  \bgroup
  \pgfscope
- \pgfsetlinewidth{\the\sseq@gridstrokethickness}
  \sseq@useclip
  \pgfsetcolor{\sseq@gridcolor}
- \pgftransformxshift{-0.5cm}
- \pgftransformyshift{-0.5cm}
- \pgfpathgrid[stepx=1cm,stepy=1cm]{\pgfpoint{\xmin cm-1cm}{\ymin cm-1cm}}{\pgfpoint{\xmax cm+0.99cm}{\ymax cm+0.99cm}}
+ \pgfsetlinewidth{\the\sseq@gridstrokethickness}
+
+ \pgf@process{\pgfpointxy{1}{0}}
+ \pgf@xa=\pgf@x
+ \pgf@process{\pgfpointxy{0}{1}}
+ \pgf@ya=\pgf@y
+ \sseq@tempx=\numexpr \dimexpr(\sseq@yaxisgap-\sseq@yclip@axisgap)\relax/\pgf@xa+1\relax
+ \sseq@tempy=\numexpr \dimexpr(\sseq@xaxisgap-\sseq@xclip@axisgap)\relax/\pgf@ya+1\relax
+ \sseq@tempxb=\numexpr \dimexpr\sseq@xaxis@end@extend\relax/\pgf@xa+\sseq@xgridstep/2\relax
+ \sseq@tempyb=\numexpr \dimexpr\sseq@yaxis@end@extend\relax/\pgf@ya+\sseq@ygridstep/2\relax
+
+ \pgf@process{\pgfpointxy{\sseq@xgridstep}{0}}
+ \pgf@xa=\pgf@x
+ \pgf@process{\pgfpointxy{0}{\sseq@ygridstep}}
+ \pgf@ya=\pgf@y
+ \pgftransformshift{\pgfpointxy{-\sseq@xgridstep/2}{-\sseq@ygridstep/2}}
+
+ \pgfpathgrid[stepx=\pgf@xa,stepy=\pgf@ya]
+    { \pgfpointxy
+        { \xmin - \sseq@tempx + \sseq@xoffset }
+        { \ymin - \sseq@tempy + \sseq@yoffset} }
+    { \pgfpointxy
+        { \xmax + \sseq@tempxb - 0.01 + \sseq@xoffset }
+        { \ymax + \sseq@tempyb - 0.01 + \sseq@yoffset }
+    }
  \pgfusepath{stroke}
  \endpgfscope
  \egroup
@@ -259,7 +286,29 @@
  \sseq@useclip
  \pgfsetcolor{\sseq@gridcolor}
  \pgfsetlinewidth{\the\sseq@gridstrokethickness}
- \pgfpathgrid[stepx=1cm,stepy=1cm]{\pgfpoint{\xmin cm-1cm}{\ymin cm-1cm}}{\pgfpoint{\xmax cm+0.5cm}{\ymax cm+0.5cm}}
+
+ \pgf@process{\pgfpointxy{1}{0}}
+ \pgf@xa=\pgf@x
+ \pgf@process{\pgfpointxy{0}{1}}
+ \pgf@ya=\pgf@y
+ \sseq@tempx=\numexpr \dimexpr(\sseq@yaxisgap-\sseq@yclip@axisgap)\relax/\pgf@xa+1\relax
+ \sseq@tempy=\numexpr \dimexpr(\sseq@xaxisgap-\sseq@xclip@axisgap)\relax/\pgf@ya+1\relax
+ \sseq@tempxb=\numexpr \dimexpr\sseq@xaxis@end@extend\relax/\pgf@xa\relax
+ \sseq@tempyb=\numexpr \dimexpr\sseq@yaxis@end@extend\relax/\pgf@ya\relax
+
+ \pgf@process{\pgfpointxy{\sseq@xgridstep}{0}}
+ \pgf@xa=\pgf@x
+ \pgf@process{\pgfpointxy{0}{\sseq@ygridstep}}
+ \pgf@ya=\pgf@y
+
+ \pgfpathgrid[stepx=\pgf@xa,stepy=\pgf@ya]
+    { \pgfpointxy
+        { \xmin - \sseq@tempx + \sseq@xoffset }
+        { \ymin - \sseq@tempy + \sseq@yoffset} }
+    { \pgfpointxy
+        { \xmax + \sseq@tempxb - 0.01 + \sseq@xoffset }
+        { \ymax + \sseq@tempyb - 0.01 + \sseq@yoffset }
+    }
  \pgfusepath{stroke}
  \endpgfscope
  \egroup
@@ -269,8 +318,8 @@
  \bgroup
  \pgfscope
  \pgfgettransform\sseq@savetransform
- \pgftransformreset
- \sseq@globalscaletransform
+ %\sseq@resettransform
+ %\sseq@globalscaletransform
  \pgfgettransformentries{\sseq@a}{\sseq@b}{\sseq@c}{\sseq@d}{\sseq@u}{\sseq@v}
  \pgfsettransform\sseq@savetransform
  \sseq@useclip
@@ -282,8 +331,8 @@
  \advance\sseq@tempy\m@ne
  \loop
  \advance\sseq@tempy\@ne
- \pgfpathmoveto{\pgfpoint{\sseq@xmin cm+0.5cm/\sseq@a}{\the\sseq@tempy cm}}
- \pgfpathlineto{\pgfpoint{\sseq@xmax cm+1.01cm }{\the\sseq@tempy cm}}
+ \pgfpathmoveto{\pgfpointxy{\sseq@xmin + 0.5/\sseq@a}{\the\sseq@tempy}}
+ \pgfpathlineto{\pgfpointxy{\sseq@xmax + 1.01 }{\the\sseq@tempy}}
  \ifnum\sseq@tempy<\sseq@ymax\repeat
  %\pgfpathgrid[stepx=1cm,stepy=1cm]{\pgfpoint{-0.5cm}{-0.5cm}}{\pgfpoint{\xmax cm-0.5cm}{\ymax cm-0.5cm}}
  \pgfusepath{stroke}
@@ -311,7 +360,11 @@
     (-0.5,0)(-0.3,0)(-0.1,0)(0.1,0)(0.3,0)(0.5,0);
 }
 \def\sseq@offset#1#2{
-    \sseq@eval{\@nx\pgftransformshift{\@nx\pgfpoint{0\csname sseq@\sseq@classpattern xoffset#1/#2\endcsname cm}{0\csname sseq@\sseq@classpattern yoffset#1/#2\endcsname cm}}}
+    \sseq@eval{\@nx\pgftransformshift{
+        \@nx\pgfpointxy
+            { 0\csname sseq@\sseq@classpattern xoffset#1/#2\endcsname }
+            { 0\csname sseq@\sseq@classpattern xoffset#1/#2\endcsname }
+    }}
 }
 \def\sseq@class@getparts#1(#2,#3,#4)[#5].{
     \sseq@seterrorannotation@drawing{#1}{#2}{#3}{#4}{#5}
@@ -339,6 +392,7 @@
 }
 
 % #1 -- the name of the node object
+% Someday I should document this horrible mess of code here 
 \def\sseq@class@drawnode#1{%
     \begingroup
     \sseq@class@getparts#1.
@@ -379,8 +433,8 @@
             \fi
             \the\sseq@scope@toks
             \sseq@obj{#1.options}%
-        \sseq@eval{\@nx\pgftransformshift{\@nx\pgfpoint{\the\sseq@tempx cm}{\the\sseq@tempy cm}}}
-        \sseq@eval{\@nx\pgftransformshift{\@nx\pgfpoint{-\the\sseq@x cm}{-\the\sseq@y cm}}}
+        \sseq@eval{\@nx\pgftransformshift{\@nx\pgfpointxy{\the\sseq@tempx + \sseq@xoffset}{\the\sseq@tempy}}} %%%%%
+        \sseq@eval{\@nx\pgftransformshift{\@nx\pgfpointxy{-\the\sseq@x}{-\the\sseq@y}}} % someday maybe I should figure 
         \iftikz@fullytransformed\pgfgettransform{\savetransform}\fi
         \pgftransformresetnontranslations
         \sseq@globalrotatetransform
@@ -436,8 +490,8 @@
         \endpgfscope
     \fi\fi\fi\fi
     \ifsseq@outofrange
-        \sseq@eval{\@nx\pgftransformshift{\@nx\pgfpoint{\the\sseq@tempx cm}{\the\sseq@tempy cm}}}%
-        \sseq@eval{\@nx\pgftransformshift{\@nx\pgfpoint{-\the\sseq@x cm}{-\the\sseq@y cm}}}
+        \sseq@eval{\@nx\pgftransformshift{\@nx\pgfpointxy{\sseq@tempx+\sseq@xoffset}{\sseq@tempy+\sseq@yoffset}}}%
+        \sseq@eval{\@nx\pgftransformshift{\@nx\pgfpointxy{-\sseq@x}{-\sseq@y}}}
         \pgftransformresetnontranslations
         \sseq@globalrotatetransform
         \sseq@classplacementtransform
@@ -589,7 +643,7 @@
     \sseq@thesseqstyle
     \sseq@theedgestyle\csname sseq@the#3style\endcsname\the\sseq@scope@toks
     #4%
-    \sseq@eval{\@nx\pgftransformshift{\@nx\pgfpoint{-\the\sseq@x cm}{-\the\sseq@y cm}}}%
+    \sseq@eval{\@nx\pgftransformshift{\@nx\pgfpointxy{-\the\sseq@x}{-\the\sseq@y}}}%
     % First calculate actual start and end of the edge
     \let\tempaf\pgfutil@empty
     \ifx\sseq@edgesourceanchor\pgfutil@empty % Check that the source doesn't have a specified anchor
@@ -774,6 +828,85 @@
     \pgfpointanchor{\tikz@pp@name{#1}}{#2}%
   }%s
 }
+
+
+%%
+%% Patch tikz coords
+%%
+
+% Some of the stuff in tikzlibrarycalc will probably be broken, hopefully not too much
+\let\sseq@tikz@scan@one@point@noshift\tikz@scan@one@point
+\let\sseq@tikz@@@parse@regular@save\tikz@@@parse@regular
+
+\def\sseq@tikz@scan@one@point@noshift@active#1{%
+    \let\tikz@@@parse@regular\sseq@tikz@@@parse@regular@save
+    \def\sseq@scanonepoint@cmd{\let\tikz@@@parse@regular\sseq@tikz@@@parse@regular#1}
+    \tikz@scan@one@point\sseq@scanonepoint@cmd%
+}
+
+% Probably there are more places that shouldn't have shifts inserted.
+\tikzoption{shift}{\tikz@addtransform{\sseq@tikz@scan@one@point@noshift\pgftransformshift#1\relax}}
+%\def\tikz@to@compute@relative{%
+%  \sseq@tikz@scan@one@point@noshift\tikz@@to@compute@relative(\tikztostart)%
+%}
+%\def\tikz@@to@compute@relative#1{%
+%  \def\tikz@tofrom{#1}%
+%  \sseq@tikz@scan@one@point@noshift\tikz@@@to@compute@relative(\tikztotarget)%
+%}
+%
+%\def\tikz@to@compute@distance{\sseq@tikz@scan@one@point@noshift\tikz@@to@compute@distance(\tikz@tofrom)}
+%\def\tikz@@to@compute@distance#1{%
+%  \def\tikz@first@point{#1}%
+%  \sseq@tikz@scan@one@point@noshift\tikz@@@to@compute@distance(\tikz@toto)}
+%
+\def\tikz@to@curve@path{%
+  [every curve to]
+  \pgfextra{\iftikz@to@relative\tikz@to@compute@relative\else\tikz@to@compute\fi}%\show\tikztostart
+  \tikz@computed@path
+  \tikztonodes%
+}
+
+
+\def\sseq@patchtikzcoords{
+    \let\tikz@@@parse@regular\sseq@tikz@@@parse@regular
+    \let\sseq@tikz@scan@one@point@noshift\sseq@tikz@scan@one@point@noshift@active
+    \let\tikz@grid\sseq@tikz@grid
+    \let\tikz@scan@handle@options\sseq@tikz@scan@handle@options
+    \let\tikz@@@parse@polar\sseq@tikz@@@parse@polar
+}
+
+% \tikz@parse@splitxyz we should set up an error to make this unreachable?
+\let\sseq@tikz@grid\tikz@grid % line 3158
+\let\sseq@tikz@scan@handle@options\tikz@scan@handle@options % 4959
+\let\sseq@tikz@@@parse@polar\tikz@@@parse@polar % 5063
+
+\def\sseq@tikz@@@parse@regular#1#2#3){%
+   % \def\temp{#1(#2,#3)}\show\temp
+  \pgfutil@in@,{#3}%
+  \ifpgfutil@in@%
+    \tikz@parse@splitxyz{#1}{#2}#3,%
+  \else%
+    \tikz@checkunit{#2}%
+    \iftikz@isdimension%
+      \tikz@checkunit{#3}%
+      \iftikz@isdimension%
+        \def\@next{#1{\pgfpointxy{(#2)/1cm+\sseq@xoffset}{(#3)/1cm+\sseq@yoffset}}}%
+      \else%
+        \def\@next{#1{\pgfpointxy{(#2)/1cm+\sseq@xoffset}{#3+\sseq@yoffset}}}%
+      \fi%
+    \else%
+      \tikz@checkunit{#3}%
+      \iftikz@isdimension%
+        \def\@next{#1{\pgfpointxy{#2+\sseq@xoffset}{(#3)/1cm+\sseq@yoffset}}}%
+      \else%
+        \def\@next{#1{\pgfpointxy{#2+\sseq@xoffset}{#3+\sseq@yoffset}}}%
+      \fi%
+    \fi%
+  \fi%
+  \@next%
+}
+
+
 
 
 %% New shapes and arrows
@@ -1053,3 +1186,4 @@
     },
     defaults = { length = 0.3cm }
 } 
+

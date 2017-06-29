@@ -12,9 +12,12 @@
 
 %
 % TODO:
+%  comment on problems with commas, equal signs in labels (need braces around whole label)
+%  comment on acrobat "enhance thin lines" problem
+%  document grid step, grid color
+%  document \sseqparseint, \IfOutOfBoundsTF
 %  add "draft" to documentation
 %  perhaps think about ordering, particularly of "Misc commands" section
-%  Add \Do,\DoUntilOutOfBounds, etc
 %
 %  tutorial
 %  explain / cross reference examples folder?
@@ -893,12 +896,12 @@ These handlers create reusable styles to be used in spectral sequences. If this 
 \end{command}
 
 \begin{command}{\foreach }
-This command is from \tikzpkg\space and works in pretty much the same way in \sseqpages, though with slightly better variants. The |\foreach| command is very flexible and has a lot of variants. The basic usage is |\foreach \x in {\meta{xmin},...,\meta{xmax}} \marg{loop body}| which will execute |\meta{loop body}| with |\x| set to each value between \meta{xmin} and \meta{xmax} inclusive. If you want a step greater than 1, try |\foreach \x in {\meta{xmin},\meta{xmin}+\meta{xstep},...,\meta{xmax}} \marg{loop body}|. 
+This command is from \tikzpkg\space and works in pretty much the same way in \sseqpages, though with slightly better variants. The |\foreach| command is very flexible and has a lot of variants. The basic usage is |\foreach \x in {\meta{xmin},...,\meta{xmax}} \marg{loop body}| which will execute |\meta{loop body}| with |\x| set to each value between \meta{xmin} and \meta{xmax} inclusive. If you want a step greater than 1, try |\foreach \x in {\meta{xmin},\meta{xmin}+\meta{xstep},...,\meta{xmax}} \marg{loop body}|.
 
 If you need to do multiple loops with a common body, you can just stack the |\foreach| commands:
 \begin{codeexample}[width=6cm]
 \begin{sseqpage}[xscale=0.5]
-\foreach \x in {0,2,...,6} 
+\foreach \x in {0,2,...,6}
 \foreach \y in {0,...,3}{
     \class(\x,\y)
 }
@@ -926,10 +929,10 @@ There are tons of other things you can do with |\foreach|, though I haven't yet 
 }
 The one use case that |\foreach| doesn't cover all that well is if you want the loop to always repeat until the features you are drawing go off the page. This is what |\DoUntilOutOfBounds| and |\DoUntilOutOfBoundsThenNMore| are for. These help ensure that if you change the range of your diagram, infinite families will automatically be drawn correctly without the need to adjust a bunch of loop bounds. The purpose of |\DoUntilOutOfBoundsThenNMore| is for towers that are receiving a differential. If your spectral sequence is Adams graded, and a tower is receiving a $d_r$ differential from another tower, you should use |\DoUntilOutOfBoundsThenNMore{r}|:
 \begin{codeexample}[width=7cm]
-\begin{sseqpage}[ 
+\begin{sseqpage}[
     Adams grading, classes = fill,
     x range = {0}{10}, y range = {0}{6},
-    x tick step = 2, 
+    x tick step = 2,
     xscale = 0.3,yscale = 0.7,
     run off differentials = {->}
 ]
@@ -948,7 +951,7 @@ The one use case that |\foreach| doesn't cover all that well is if you want the 
 \end{codeexample}
 You can also nest |\DoUntilOutOfBounds| reasonably:
 \begin{codeexample}[width=7cm]
-\begin{sseqpage}[ 
+\begin{sseqpage}[
     x range = {0}{6}, y range = {0}{6},
     tick step = 2,
     scale = 0.6

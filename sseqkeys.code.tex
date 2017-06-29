@@ -532,6 +532,7 @@
     \def\structlineoptions##1)##2){\sseq@setthiscall{\string\structlineoptions##1)##2)}\sseq@error@x{standard-parse}{\string\structlineoptions}}%
 }
 
+
 \def\sseq@nodeparse{%
     \let\sseq@tikzprimitives@coords@maybeclass\sseq@tikzprimitives@coords@maybeclass@save
     \let\sseq@tikzprimitives@coords@maybeclass
@@ -1140,6 +1141,11 @@
     },
     grid/.code={\ifcsname sseq@grid@#1\endcsname\@xp\let\@xp\sseq@grid\csname sseq@grid@#1\endcsname\else\sseq@error@n{unknown-grid}{#1}\fi},
     grid/.sseq default code={\ifcsname sseq@grid@#1\endcsname\@xp\let\@xp\sseq@grid@default\csname sseq@grid@#1\endcsname\else\sseq@error@n{unknown-grid}{#1}\fi},
+    grid color/.sseq store in=\sseq@gridcolor{gray},
+    grid step/.sseq x y alias,
+    grid step/.value required,
+    x grid step/.sseq store in=\sseq@xgridstep{1},
+    y grid step/.sseq store in=\sseq@ygridstep{1},
     math nodes/.sseq is if=mathnodes, % TODO: make this locally toggleable
     custom clip/.sseq store in=\sseq@customclip{},
     clip/.sseq is if=clip,
@@ -1421,6 +1427,9 @@
 \sseq@addtostorelist\sseq@globalrotatetransform{}
 \sseq@addtostorelist\sseq@globalscaletransform{}
 
+\sseq@addtostorelist\sseq@xscale{1cm}
+\sseq@addtostorelist\sseq@yscale{1cm}
+
 \def\sseq@globaldetoneoption#1#2{%
     \ifsseq@globaldetone\else
         \sseq@error@n{det-one-after-scale}{#2}
@@ -1461,7 +1470,9 @@
         \ifnum\pgfmathresult<\z@%
             \sseq@error@nn{negative-scale}{x}{#1}%
         \fi
-        \sseq@globalscaleoption{\pgftransformxscale{#1}}%
+        \sseq@globalscaleoption{\pgfsetxvec{\pgfpointxy{#1}{0cm}}}%
+        \pgfmathparse{\sseq@xscale*#1}
+        \edef\sseq@xscale{\pgfmathresult pt}
     },
     xscale/.value required,
     yscale/.code={%
@@ -1469,7 +1480,8 @@
         \ifnum\pgfmathresult<\z@
             \sseq@error@nn{negative-scale}{y}{#1}%
         \fi
-        \sseq@globalscaleoption{\pgftransformyscale{#1}}%
+        \sseq@globalscaleoption{\pgfsetyvec{\pgfpointxy{0cm}{#1}}}%
+        \edef\sseq@yscale{\the\dimexpr\sseq@yscale*#1}
     },
     yscale/.value required,
     scale/.code={%

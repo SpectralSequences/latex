@@ -1,11 +1,5 @@
 %%
-%% Package: spectralsequences v1.0.0-dev
-%% Author: Hood Chatham
-%% Email: hood@mit.edu
-%% Date: 2017-06-21
-%% License: Latex Project Public License
-%%
-%% File: example_EO2_3.tex
+%% Description: The homotopy fixed point spectral sequence for a maximal finite subgroup of $\mathbb{G}_{p-1}$ acting on $E_{p-1}$ with $p=3$
 %%
 %%    This is the homotopy fixed point spectral sequence for EO_2 at the prime 3. The maximal finite subgroup of the Morava stabilizer for E_{p-1} is
 %%    of size 2p(p-1)^2 = 24, and so there is a norm element v in degree 24. There's also a bunch of trace classes on the zero line, but the trace map
@@ -26,7 +20,8 @@
 \begin{sseqdata}[name=EO(2),Adams grading,
     y range={0}{14},x range={0}{160},
     xscale=0.15, x tick step=5,
-    classes={fill, tooltip={(\xcoord,\ycoord)}}
+    classes={fill, tooltip={(\xcoord,\ycoord)}},
+    title=Page \page
 ]
 \foreach \v in {0,...,8}{
     \foreach \b in {0,...,11}{
@@ -55,20 +50,28 @@
     }
 }
 \end{sseqdata}
-\printpage[name=EO(2),page=0]
+\printpage[name=EO(2),page=0,title={\phantom{Page 5}}]
 \newpage
 \printpage[name=EO(2),page=5]
 \newpage
 \printpage[name=EO(2),page=9]
 \newpage
-\begin{sseqpage}[name=EO(2),page=10]
+\begin{sseqpage}[name=EO(2),page=10,title={Page $\infty$}]
 \classoptions["a" left](3,1)
 \classoptions["b" right](10,2)
 \classoptions["ab" left](13,3)
 \classoptions["b^2" right](20,4)
 \classoptions["b^3" right](30,6)
 \classoptions["b^4" right](40,8)
-
 \classoptions["v^3" right](72,0)
+
+% Doug's additions:
+\classoptions["{\left<a,a,b^2\right>}" {below=-1em}](27,1)
+\structline[dashed](27,1)(30,6)
+\structline[dashed](37,3)(40,8)
+
+\structline[dashed](99,1)(102,6)
+\structline[dashed](109,3)(112,8)
+
 \end{sseqpage}
 \end{document} 

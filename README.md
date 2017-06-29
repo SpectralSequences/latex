@@ -27,7 +27,10 @@ Changelog:
 - The \tagclass command was broken. Now it works.
 - Scopes didn't nest properly, now they do.
 - Fixed a big performance issue with nested scopes and shifts. 
-- Adobe reader grid color is now correct
+- Adobe reader grid color is now correct (or more correct)
+- Fixed the grid drawing so that grids are handled correctly when the range includes negative numbers
 - The package now works with xparse after 2017/02/08 when changes were made that broke my original code
 - Fixed a bug where if you used a structline in two sseqpage environments with the same name, it would give an error. 
 - Now if you say \structline(0,0)(0,1) \structlineoptions(0,1)(0,0) it will work correctly.
+- A range like 600 - 700 no longer will cause an overflow
+- Ranges like 0 - 600 now work, provided that you provide an appropriate scale

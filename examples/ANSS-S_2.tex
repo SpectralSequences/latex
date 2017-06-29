@@ -1,0 +1,165 @@
+%%
+%% Description: Adams Novikov Spectral Sequence for $S_2$
+
+\documentclass{article}
+\usepackage[landscape,paperheight=15in,margin=0.1in,top=0.5in]{geometry}
+\usepackage{spectralsequences}
+
+% figure out how to get width("\noexpand\small 16") working
+\sseqset{ppower/.style={rectangle,font=\tiny,minimum height=10pt,minimum width=10pt,class labels=inside,"#1"}}
+\begin{document}
+
+\NewSseqCommand\etaclass{O{}d()}{
+    \IfNoValueF{#2}{\pushstack(#2)}
+    \class[#1](\lastx+1,\lasty+1)
+    \structline(\lastclass1)(\lastclass)
+}
+
+\NewSseqCommand\divetaclass{O{}d()}{
+    \IfNoValueF{#2}{\pushstack(#2)}
+    \class[#1](\lastx-1,\lasty-1)
+    \structline(\lastclass1)(\lastclass)
+}
+
+\NewSseqCommand\nuclass{O{}d()}{
+    \IfNoValueF{#2}{\pushstack(#2)}
+    \class[#1](\lastx+3,\lasty+1)
+    \structline(\lastclass1)(\lastclass)
+}
+
+\NewSseqCommand\nustruct{d()}{
+    \IfNoValueF{#1}{\pushstack(#1)}
+    \structline(\lastx-3,\lasty-1,-1)(\lastclass)
+}
+
+\begin{sseqdata}[
+    name=ANSS-S_2, Adams grading,
+    class labels={below},
+    %label distance=-1pt,
+    below label distance=0pt,
+    classes={tooltip={(\xcoord,\ycoord)}},
+    class pattern = linear,
+    class placement transform={rotate=90,scale=2},
+    differentials=blue,
+    x range={0}{40},
+    y range={0}{10},
+    xscale=0.7,
+    yscale=1.7,
+    grid=go,
+    right clip padding=2em
+]
+\class[rectangle,fill,inner sep=3pt](0,0)
+\DoUntilOutOfBoundsThenNMore{3}{\etaclass}
+\classoptions["\alpha_1" above left](1,1)
+
+\class["\alpha_{2/2}",circlen=2](3,1)
+\nustruct
+\structline[dashed](3,1)(3,3)
+
+\class["\beta_{2/2}"](6,2)
+\nustruct
+\class["\alpha_3"](5,1)
+\d3(\lastclass)
+\DoUntilOutOfBounds{\etaclass\d3(\lastclass)}
+
+\class["\alpha_{4/4}" {font=\small},ppower=16,"16" {inside,font=\tiny}](7,1)
+\DoUntilOutOfBoundsThenNMore{3}{\etaclass}
+
+\class["\alpha_{5}"](9,1)
+\DoUntilOutOfBoundsThenNMore{3}{\etaclass}
+
+\class["\alpha_{6/3}", circlen=3](11,1)
+\d3(\lastclass)
+\DoUntilOutOfBounds{\etaclass\d3(\lastclass)}
+\replaceclass["\alpha_{6/2}", circlen=2](11,1)
+\structline[dashed](11,1)(11,3)
+
+
+\class["\alpha_{8/5}" {font=\small},ppower=32,"32" {inside,font=\tiny}](15,1)
+\DoUntilOutOfBoundsThenNMore{3}{\etaclass}
+
+\class["\alpha_9"](17,1)
+\DoUntilOutOfBoundsThenNMore{3}{\etaclass}
+
+\class["\alpha_{10/3}",circlen=3](19,1)
+\d3(\lastclass)
+\DoUntilOutOfBounds{\etaclass\d3(\lastclass)}
+\replaceclass["\alpha_{10/2}",circlen=2](19,1)
+\structline[dashed](19,1)(19,3)
+
+\class["\alpha_11"](21,1)
+\d3(\lastclass)
+\DoUntilOutOfBounds{\etaclass\d3(\lastclass)}
+
+\class["\beta_{2}" below](8,2)
+\etaclass\structline(\lastclass)(6,2,1) % This is a *nu
+
+\class["\beta_3" left](14,2)
+\etaclass(14,2,-1)
+\divetaclass["\beta_{4/4}" left]
+\nuclass(14,2,1)\nuclass[circlen=2]\nuclass[circlen=3]\nuclass["P\beta_{2/2}" above left]
+\nuclass\divetaclass["P\beta_2"]
+
+\class["\alpha_7"](13,1)
+\d3(\lastclass)
+\DoUntilOutOfBounds{\etaclass\d3(\lastclass)}
+
+\class["\beta_{4/3}"](16,2)
+\etaclass\etaclass
+\class["\beta_{4/2,2}",circlen=2](18,2)
+\structline[dashed,bend right=20](18,2,-1)(18,4,-1)
+
+\class["\eta_2"](19,3)
+\etaclass
+
+\class["\beta_{4}"below](20,2)
+\structline[dashed](20,2,-1)(20,4,2)
+%\structlineoptions[bend left=20](20,2,-1)(20,4,2) % page=0--3
+\etaclass\etaclass\structline(\lastclass)(\lastx+1,\lasty+1,-1)
+
+\nuclass["\alpha_{4/4}^3" {above left=-1pt}](18,2,-1)
+
+
+
+\class["\eta_{3/2}"](23,3)
+\etaclass\etaclass
+
+\class["\beta_5" below](26,2)
+\d3(\lastclass,-1)
+
+\class["\beta_{8/8}" ](30,2)
+\etaclass
+\class["\beta_{6/2}" left](30,2)
+\d5(\lastclass)
+
+\class["\gamma_3" left](31,3)
+\nuclass
+\class["\eta_{5/3}"](33,4)
+
+\class["\beta_{8/7}"](32,2)
+\etaclass\etaclass\etaclass\etaclass\etaclass\etaclass
+\class["\beta_{6}"left](32,2)\etaclass
+
+\class["x_{32}"](32,4)\etaclass\etaclass["P\beta_{4/4}" right]
+\class["x_{36}"](36,4)
+\nuclass(32,4,-1)\nuclass
+
+\class["P\beta_3" above left](34,6)\etaclass\nuclass(34,6,-1)
+
+\class["\beta_{8/6,2}",circlen=2](34,2)
+\etaclass\nuclass(\lastclass1)
+
+\class["\gamma_{4/2,2}" right](37,3)
+\class["\beta_{8/4,2}",circlen=2](38,2)
+\class["\beta_{7}" right](38,2)
+\class["d_{4/4}\beta_{8/7}" right](39,3)
+\class["x''_{39}" right](39,3)
+\class["\gamma_{4,2}" right](39,3)
+\class["x_{39}'"](39,5)
+\class["P\eta_2"](39,7)
+\end{sseqdata}
+\centering
+\printpage[name=ANSS-S_2]
+\printpage[name=ANSS-S_2,page=5]
+
+\end{document} 

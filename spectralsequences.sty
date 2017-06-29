@@ -11,37 +11,46 @@
 
 
 % TODO:
-%  finish \sseqparseint, \IfOutOfBoundsTF, \DoUntilOutOfBounds (add error trapping, test and document them)
+%  fix \classoptions page key
+%  fix xshift for labels
+%  labels shift down as they get wider for some reason (see HFPSS-EO4_5)
+%  finish \sseqparseint, \IfOutOfBoundsTF, \DoUntilOutOfBounds (add error trapping and test them)
 %  modify class label handler so that if #1 is unused, it is treated reasonably
-%  better flexibility with class pattern arrangement
 %
-%  Eva's issues:
-%    Input sanitizer to make sure x range values are integers
-%    Input sanitizer to make sure tick step, tick step offset are positive integers
-%    rename "axis style" to "axis type" and make an "axis style" option that styles the axis.
-%    expose \sseq@gridcolor, set it to a default value that makes it look the same across pdf viewers.
+%  make pin labels work (say by adding a "pin" key)
+%  rename "axis style" to "axis type" and make an "axis style" option that styles the axis.
 %
 %
 %  Fix all of the bugs we found when we tried to make ppower work:
 %    make "sseq style" work with arguments (ignore keys that are parametrized)
-%    get minimum width=width("\noexpand\small 16") to work
 %    prevent options from leaking from later to earlier labels
+%    make labels work inside of .sseq style or .style keys
+%    get minimum width=width("\noexpand\small 16") to work
 %
+%  try to ensure that crossword / go grids don't end on a line
+%  fix chess and dots grids
 %
 %  Errors:
+%    add error when chart is too big to fit on the page
 %    the new loop constructs need \foreach style error handling
 %    define error message for usermacro-failed-patch
 %    give an error if \gettag fails to find a tag
 %    give an error if the user tries to put a shift into a style
 %    Fix no classes error message for \d (probably I should have kept the MWE for this...)
 %    Add xparse related assumptions (I'm surprised we didn't already have these)
+%    Input sanitizer to make sure x range values are integers
+%    Input sanitizer to make sure tick step, tick step offset are positive integers
+%    Input sanitizer to make sure grid step is positive integer
+%    Input sanitizer to make sure grid color is valid color
+%
+%
+%
 %
 %  Redo sseqerrortest and set up regression test script as part of build (damn I didn't realize we'd lost anything imporant with that find -d disaster)
 %  Maybe we should add some other regression tests too
 %
-%
-%  speed up off page edges (uses 10% of the draw time for page 0 of tmfass)
-%
+%  speed up off page edges (uses 10% of the draw time for page 0 of tmfass) -- use \pgfpointborderrectangle
+%  better flexibility with class pattern arrangement
 %  improve \DoUntilOutOfBounds progress check
 %
 %  Don't care:
@@ -143,14 +152,17 @@
 \newcount\sseq@tempy
 \newcount\sseq@tempxb
 \newcount\sseq@tempyb
+\newcount\sseq@xoffset % We add these to everything to avoid overflow errors as much as we possible
+\newcount\sseq@yoffset
 
 \newcount\sseq@stackdepth
 
+\newdimen\sseq@tempxdimen
+\newdimen\sseq@tempydimen
 \newdimen\sseq@tooltip@height
 \newdimen\sseq@tooltip@width
 \newdimen\sseq@gridstrokethickness
 \sseq@gridstrokethickness=.1pt
-\def\sseq@gridcolor{gray}
 
 % Ensure \@xp and \@nx have the correct values in case that amsmath isn't loaded
 \let\@xp\expandafter

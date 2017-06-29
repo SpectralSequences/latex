@@ -335,7 +335,7 @@
 %% loadstore
 %%
 %%
-\sseq@newerror@internal{illegal-add-background-mode}{\string#1 occurred in background mode.} 
+\sseq@newerror@internal{illegal-add-background-mode}{\string#1 occurred in background mode.}
 
 
 
@@ -475,6 +475,9 @@
 
 \sseq@newerror{no-range}{Empty spectral sequence. For every spectral sequence you must either specify both the "x range" and "y range" or include at least one
 \string\class.} % maybe warning?
+\sseq@newerror{range-overflow}{The #1 range #2 is too large. The maximum #1 range possible with the current #1scale is xmax - xmin = #3. The maximum #1scale possible with the current #1range is #4. Either change the scale or the range as appropriate.}
+\sseq@newerror{range-super-overflow}{The #1 range #2 is too large. The maximum range possible is #1max - #1min = 16383 because of internal limitations of etex. }
+
 \sseq@newerror{index-out-of-bounds}{Index #1 is greater than or equal to the current stack depth #2. Valid indices must be strictly less than the stack depth.}
 \sseq@newerror{incomplete-tikz}{Incomplete tikz expression. What I have so far is #1 and I am stopping because I ran into #2. You probably forgot a semicolon.}
 

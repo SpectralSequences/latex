@@ -192,8 +192,60 @@
 % Here we do all of the work to actually print the page
 \def\endsseqpage{
     \sseq@savedpaths@add{\endgroup} % prevent some of the two-pass user macros horrors
+%
+% check that range is okay
+%
     \ifx\sseq@xmin\sseq@infinity\sseq@error{no-range}\def\sseq@xmin{0}\def\sseq@xmax{0}\@xp\sseq@break\fi % could be warning
     \ifx\sseq@ymin\sseq@infinity\sseq@error{no-range}\def\sseq@ymin{0}\def\sseq@ymax{0}\@xp\sseq@break\fi
+%
+    \ifnum\numexpr\sseq@xmax-\sseq@xmin\relax>\numexpr\maxdimen/\dimexpr1pt\relax-1\relax
+        \sseq@error@xx{range-super-overflow}{x}
+            {from \sseq@xmin\space to \sseq@xmax\space (xmax - xmin = \the\numexpr\sseq@xmax-\sseq@xmin)}
+        \@xp\sseq@break
+    \fi
+    \ifnum\numexpr\sseq@ymax-\sseq@ymin\relax>\numexpr\maxdimen/\dimexpr1pt\relax-1\relax
+        \sseq@error@xx{range-super-overflow}{y}
+            {from \sseq@ymin\space to \sseq@ymax\space (ymax - ymin = \the\numexpr\sseq@ymax-\sseq@ymin)}
+        \@xp\sseq@break
+    \fi
+
+    \ifnum \numexpr\sseq@xmax-\sseq@xmin > \numexpr\maxdimen/\dimexpr\sseq@xscale\relax\relax
+        \pgfmathparse{\maxdimen/1cm/(\sseq@xmax-\sseq@xmin)}
+        \sseq@error@xxxx{range-overflow}{x}
+            {from \sseq@xmin\space to \sseq@xmax\space (xmax - xmin = \the\numexpr\sseq@xmax-\sseq@xmin)}
+            {\the\numexpr\maxdimen/\dimexpr\sseq@xscale\relax-1\relax}% max x range
+            {\pgfmathresult}% max xscale
+        \@xp\sseq@break
+    \fi
+
+    \ifnum \numexpr\sseq@ymax-\sseq@ymin > \numexpr\maxdimen/\dimexpr\sseq@xscale\relax\relax
+        \pgfmathparse{\maxdimen/1cm/(\sseq@ymax-\sseq@ymin)}
+        \sseq@error@xxxx{range-overflow}{y}
+            {from \sseq@ymin\space to \sseq@ymax\space (ymax - ymin = \the\numexpr\sseq@ymax-\sseq@ymin)}
+            {\the\numexpr\maxdimen/\dimexpr\sseq@yscale\relax-1\relax}% max x range
+            {\pgfmathresult}% max xscale
+        \@xp\sseq@break
+    \fi
+
+%    %\showthe\numexpr\textwidth/\dimexpr\sseq@xscale\relax
+%    %\showthe\numexpr\sseq@xmax-\sseq@xmin
+%    \showthe\textwidth
+%    \show\sseq@xscale
+%    \showthe\numexpr\textwidth/\dimexpr\sseq@xscale\relax\relax
+%    \ifnum \numexpr\sseq@xmax-\sseq@xmin - \numexpr\textwidth/\dimexpr\sseq@xscale\relax\relax>0\relax
+%        \hi
+%        \pgfmathparse{\textwidth/1cm/(\sseq@xmax-\sseq@xmin)}
+%        \sseq@error@xxxx{range-overflow}{x}
+%            {from \sseq@xmin\space to \sseq@xmax\space (xmax - xmin = \the\numexpr\sseq@xmax-\sseq@xmin)}
+%            {\the\numexpr\textwidth/\dimexpr\sseq@xscale\relax-1\relax}% max x range
+%            {\pgfmathresult}% max xscale
+%        \@xp\sseq@break
+%    \fi
+
+% Really this could be anything between -\sseq@xmin and -\sseq@xmax and it wouldn't matter. We'll split the difference.
+    \sseq@xoffset=\numexpr(-\sseq@xmin-\sseq@xmax)/2\relax
+    \sseq@yoffset=\numexpr(-\sseq@ymin-\sseq@ymax)/2\relax
+%
 %
     \tikzset{
         z=0pt,
@@ -237,6 +289,7 @@
         \tikzset{execute at begin node=$,execute at end node=$}%
     \fi
     %\let\sseq@error@setup\sseq@error@setup@withinfo
+    \sseq@patchtikzcoords
     \begingroup
     \sseq@savedbackgroundpaths
     \endgroup
@@ -249,7 +302,7 @@
     \ifsseq@drawstructlines\else
         \let\sseq@structline@draw@ifpage\@gobble
     \fi
-%
+%    
     \sseq@usesavedpaths
 %
     \ifsseq@keepchanges
@@ -897,7 +950,7 @@
     \begingroup
     \IfNoValueTF{#2}{
         \sseq@structline@main{structline}{#1}{#2}{#2}
-    }{  
+    }{
         \def\next{\sseq@structline@{structline}{#1}{#2}}%
         \@xptwo\next\sseq@trimleadingspaces
     }
