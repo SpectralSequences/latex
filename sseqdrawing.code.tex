@@ -363,7 +363,7 @@
     \sseq@eval{\@nx\pgftransformshift{
         \@nx\pgfpointxy
             { 0\csname sseq@\sseq@classpattern xoffset#1/#2\endcsname }
-            { 0\csname sseq@\sseq@classpattern xoffset#1/#2\endcsname }
+            { 0\csname sseq@\sseq@classpattern yoffset#1/#2\endcsname }
     }}
 }
 \def\sseq@class@getparts#1(#2,#3,#4)[#5].{
@@ -433,7 +433,7 @@
             \fi
             \the\sseq@scope@toks
             \sseq@obj{#1.options}%
-        \sseq@eval{\@nx\pgftransformshift{\@nx\pgfpointxy{\the\sseq@tempx + \sseq@xoffset}{\the\sseq@tempy}}} %%%%%
+        \sseq@eval{\@nx\pgftransformshift{\@nx\pgfpointxy{\the\sseq@tempx + \sseq@xoffset}{\the\sseq@tempy + \sseq@yoffset}}} %%%%%
         \sseq@eval{\@nx\pgftransformshift{\@nx\pgfpointxy{-\the\sseq@x}{-\the\sseq@y}}} % someday maybe I should figure 
         \iftikz@fullytransformed\pgfgettransform{\savetransform}\fi
         \pgftransformresetnontranslations
@@ -834,6 +834,18 @@
 %% Patch tikz coords
 %%
 
+\def\sseq@patchtikzcoords{
+    \let\sseq@tikz@scan@one@point@noshift\sseq@tikz@scan@one@point@noshift@active
+    \tikzoption{shift}{\sseq@tikzshift{##1}}
+    \let\tikz@@@parse@regular\sseq@tikz@@@parse@regular
+    \let\tikz@to@curve@path\sseq@tikz@to@curve@path
+    \let\tikz@@@to@compute@relative\sseq@tikz@@@to@compute@relative
+    
+    \let\tikz@grid\sseq@tikz@grid
+    \let\tikz@scan@handle@options\sseq@tikz@scan@handle@options
+    \let\tikz@@@parse@polar\sseq@tikz@@@parse@polar
+}
+
 % Some of the stuff in tikzlibrarycalc will probably be broken, hopefully not too much
 \let\sseq@tikz@scan@one@point@noshift\tikz@scan@one@point
 \let\sseq@tikz@@@parse@regular@save\tikz@@@parse@regular
@@ -845,37 +857,35 @@
 }
 
 % Probably there are more places that shouldn't have shifts inserted.
-\tikzoption{shift}{\tikz@addtransform{\sseq@tikz@scan@one@point@noshift\pgftransformshift#1\relax}}
-%\def\tikz@to@compute@relative{%
-%  \sseq@tikz@scan@one@point@noshift\tikz@@to@compute@relative(\tikztostart)%
-%}
-%\def\tikz@@to@compute@relative#1{%
-%  \def\tikz@tofrom{#1}%
-%  \sseq@tikz@scan@one@point@noshift\tikz@@@to@compute@relative(\tikztotarget)%
-%}
-%
-%\def\tikz@to@compute@distance{\sseq@tikz@scan@one@point@noshift\tikz@@to@compute@distance(\tikz@tofrom)}
-%\def\tikz@@to@compute@distance#1{%
-%  \def\tikz@first@point{#1}%
-%  \sseq@tikz@scan@one@point@noshift\tikz@@@to@compute@distance(\tikz@toto)}
-%
-\def\tikz@to@curve@path{%
+\def\sseq@tikzshift#1{\tikz@addtransform{\sseq@tikz@scan@one@point@noshift\pgftransformshift#1\relax}}
+
+
+\def\sseq@tikz@to@curve@path{%
   [every curve to]
-  \pgfextra{\iftikz@to@relative\tikz@to@compute@relative\else\tikz@to@compute\fi}%\show\tikztostart
+  \pgfextra{
+    \let\tikz@@@parse@regular\sseq@tikz@@@parse@regular@save % I added this to prevent repeated offsets from screwing us up
+    %\let\sseq@tikz@scan@one@point@noshift\tikz@scan@one@point
+    \iftikz@to@relative\tikz@to@compute@relative\else\tikz@to@compute\fi    
+  }
   \tikz@computed@path
   \tikztonodes%
 }
 
+\let\sseq@tikz@@@to@compute@relative\tikz@@@to@compute@relative
 
-\def\sseq@patchtikzcoords{
-    \let\tikz@@@parse@regular\sseq@tikz@@@parse@regular
-    \let\sseq@tikz@scan@one@point@noshift\sseq@tikz@scan@one@point@noshift@active
-    \let\tikz@grid\sseq@tikz@grid
-    \let\tikz@scan@handle@options\sseq@tikz@scan@handle@options
-    \let\tikz@@@parse@polar\sseq@tikz@@@parse@polar
-}
 
-% \tikz@parse@splitxyz we should set up an error to make this unreachable?
+\patchcmd\sseq@tikz@@@to@compute@relative{%
+    \let\tikz@second@point=\tikz@toto
+}{%
+    \pgf@process{\pgfpointadd{\tikz@toto}{\pgfpointxy{\sseq@xoffset}{\sseq@yoffset}}}%
+    \edef\tikz@toto{\@nx\pgfpoint{\the\pgf@x}{\the\pgf@y}}%
+    \let\tikz@second@point=\tikz@toto
+}{}{\error}
+
+
+
+
+% \tikz@parse@splitxyz: we should set up an error to make this unreachable?
 \let\sseq@tikz@grid\tikz@grid % line 3158
 \let\sseq@tikz@scan@handle@options\tikz@scan@handle@options % 4959
 \let\sseq@tikz@@@parse@polar\tikz@@@parse@polar % 5063

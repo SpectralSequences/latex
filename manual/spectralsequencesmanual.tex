@@ -38,7 +38,7 @@
 
 \begin{abstract}
 \noindent
-The \sseqpages\space package is a specialized tool built on top of \pgfpkg/\tikzpkg\space for drawing spectral sequences. It provides a powerful, concise syntax for specifying the data of a spectral sequence, and then allows the user to print various pages of spectral sequence, automatically choosing which subset of the classes, differentials, and structure lines to display on each page. It also handles most of the details of the layout. At the same time, \sseqpages\space is extremely flexible. It is closely integrated with \tikzpkg\space to ensure that users can take advantage of as much as possible of its expressive power. It is possible to turn off most of the automated layout features and draw replacements using \tikzpkg\space commands. \sseqpages\space also has a carefully designed error reporting system intended to ensure that it is as clear as possible what is going wrong.
+The \sseqpages\space package is a specialized tool built on top of \pgfpkg/\tikzpkg\space for drawing spectral sequence charts. It provides a powerful, concise syntax for specifying the data of a spectral sequence, and then allows the user to print various pages of a spectral sequence, automatically choosing which subset of the classes, differentials, and structure lines to display on each page. It also handles most of the details of the layout. At the same time, \sseqpages\space is extremely flexible. It is closely integrated with \tikzpkg\space to ensure that users can take advantage of as much as possible of its expressive power. It is possible to turn off most of the automated layout features and draw replacements using \tikzpkg\space commands. \sseqpages\space also has a carefully designed error reporting system intended to ensure that it is as clear as possible what is going wrong.
 
 Many thanks to the authors of \tikzpkg\space for producing such a wonderful package with such thorough documentation. I would have needed to spend a lot more time reading the \tikzpkg\space code if the documentation weren't so excellent. I took ideas or code or both from \tikzcdpkg\ (part of the code for turning quotes into class or edge labels), \pgfplotspkg\ (axes labels), and \sseqpkg\ (the grid styles, the stack). I lifted a fair amount of code from tex stack exchange. Thanks to Eric Peterson for being a very early adopter and reporting many bugs, to Eva Belmont for many productive conversations and for the idea of adding the stack traces for errors and to Vishal Arul and Catherine Ray for helpful suggestions. Also thanks to all my friends, family, and acquaintances listened to me talk about \LaTeX\ programming even though they probably found it dreadfully boring.
 \end{abstract}
@@ -51,7 +51,7 @@ Many thanks to the authors of \tikzpkg\space for producing such a wonderful pack
 \tableofcontents
 \newpage
 \section{Introduction}
-The \sseqpages\space package consists of two main environments -- the \sseqdataenv\space environment, which specifies the data for a named spectral sequence diagram, and the \sseqpageenv\space environment, which prints a single page of a spectral sequence diagram. The |\printpage| command is also available as a synonym for a \sseqpageenv\space environment with an empty body.
+The \sseqpages\space package consists of two main environments -- the \sseqdataenv\space environment, which specifies the data for a named spectral sequence, and the \sseqpageenv\space environment, which prints a single page of a spectral sequence. The |\printpage| command is also available as a synonym for a \sseqpageenv\space environment with an empty body.
 
 Here is a basic example:
 \begin{codeexample}[width = 9cm]
@@ -78,7 +78,7 @@ The \sseqdataenv\space environment is for storing a spectral sequence to be prin
 \end{environment}
 
 \begin{environment}{{sseqpage}\ooptions}
-This environment is used for printing a page of existing spectral sequence that was already specified using the \sseqdataenv\space environment. The body of the environment adds local changes -- classes, differentials, structure lines, and arbitrary \tikzpkg\space options that are by default only printed on this particular page. The \sseqpageenv\space environment can also be used to print a standalone page of a spectral sequence -- that is, if you only want to print a single page of the spectral sequence, you can skip using the \sseqdataenv\space environment.
+This environment is used for printing a page of existing spectral sequence that was already specified using the \sseqdataenv\space environment. The body of the environment adds local changes -- classes, differentials, structure lines, and arbitrary \tikzpkg\space options that are by default only printed on this particular page. The \sseqpageenv\space environment can also be used to print a stand-alone page of a spectral sequence -- that is, if you only want to print a single page of the spectral sequence, you can skip using the \sseqdataenv\space environment.
 \end{environment}
 
 \needspace{5\baselineskip}
@@ -551,7 +551,7 @@ By default, a class uses the offset specified by |class pattern|. Occasionally t
 \end{key}
 
 \begin{key}{tooltip = \meta{text}}
-This key generates a ``tooltip'' over the given class. That is, if you hover your mouse over it, a little window will popup with the tooltip text. This is particularly useful to give the coordinates or names of classes in large diagrams where it may be hard to tell from looking at the picture what position the class is in, or there may not be room to supply names to classes.
+This key generates a ``tooltip'' over the given class. That is, if you hover your mouse over it, a little window will popup with the tooltip text. This is particularly useful to give the coordinates or names of classes in large charts where it may be hard to tell from looking at the picture what position the class is in, or there may not be room to supply names to classes.
 
 The tooltip is made using the |\pdftooltip| command from the |pdfcomment| package. This cannot handle math, but it will print math expressions into tex input form. Not all pdf viewers will display the tooltip correctly. If this concerns you, the command |\sseqtooltip| is used to produce the tooltip, and you can redefine it as any other command that takes |\sseqtooltip|\marg{text}\marg{tooltip text} and produces a tooltip. For instance, on \href{https://tex.stackexchange.com/a/164186/23866}{this stack exchange post}, there is code that supposedly produces tooltips that work with Evince. I have not tested whether it works by itself or whether it works with my package, but you could. You could potentially figure out how to get math to work in tooltips too -- if you find a satisfactory method, please let me know.
 
@@ -927,7 +927,7 @@ There are tons of other things you can do with |\foreach|, though I haven't yet 
     \DoUntilOutOfBoundsThenNMore\marg{extra iterations}\meta{loop body},
     \iteration
 }
-The one use case that |\foreach| doesn't cover all that well is if you want the loop to always repeat until the features you are drawing go off the page. This is what |\DoUntilOutOfBounds| and |\DoUntilOutOfBoundsThenNMore| are for. These help ensure that if you change the range of your diagram, infinite families will automatically be drawn correctly without the need to adjust a bunch of loop bounds. The purpose of |\DoUntilOutOfBoundsThenNMore| is for towers that are receiving a differential. If your spectral sequence is Adams graded, and a tower is receiving a $d_r$ differential from another tower, you should use |\DoUntilOutOfBoundsThenNMore{r}|:
+The one use case that |\foreach| doesn't cover all that well is if you want the loop to always repeat until the features you are drawing go off the page. This is what |\DoUntilOutOfBounds| and |\DoUntilOutOfBoundsThenNMore| are for. These help ensure that if you change the range of your chart, infinite families will automatically be drawn correctly without the need to adjust a bunch of loop bounds. The purpose of |\DoUntilOutOfBoundsThenNMore| is for towers that are receiving a differential. If your spectral sequence is Adams graded, and a tower is receiving a $d_r$ differential from another tower, you should use |\DoUntilOutOfBoundsThenNMore{r}|:
 \begin{codeexample}[width=7cm]
 \begin{sseqpage}[
     Adams grading, classes = fill,
@@ -969,7 +969,7 @@ You can also nest |\DoUntilOutOfBounds| reasonably:
 \end{codeexample}
 One important difference between |\foreach| and the |\Do| family of commands is that |\Do| has no effect on the stack. This is in order to ensure that they nest properly.
 
-Note that if you are using these commands and you are planning to draw several pictures of the diagram with restricted range, you need to specify a range for the \sseqdataenv\ that contains all of the ranges of pages that you want to draw. If you then want to set a smaller default range, use \sseqpageenv with |keep changes|.
+Note that if you are using these commands and you are planning to draw several pictures of the chart with restricted range, you need to specify a range for the \sseqdataenv\ that contains all of the ranges of pages that you want to draw. If you then want to set a smaller default range, use \sseqpageenv with |keep changes|.
 %TODO: test that this would work.
 
 The |\Do| command is less general than |\foreach|; the purpose is to provide a syntax for stack-based looping that is similar to |\DoUntilOutOfBounds| but with a fixed range. So |\Do{n}\marg{loop body}| repeats \meta{loop body} |n| times. The assumption is that the loop body draws something relative to the position of the |\lastclass|.
@@ -1144,7 +1144,7 @@ Sets \meta{macro} equal to the coordinates of the target position of a length \m
 \end{command}
 
 \begin{command}{\nameclass\marg{name}\pararg{coordinate}}
-The |\nameclass| command gives a name to a class. It's similar to saying |\doptions[name = |\meta{name}|]|, but faster. It's also similar to saying |\pushstack|\pararg{coordinate}. Giving temporary names to coordinates that you are going to use repeatedly makes the code easier to read and is faster (though this only matters in very large diagrams). See |\getdtarget| for an example.
+The |\nameclass| command gives a name to a class. It's similar to saying |\doptions[name = |\meta{name}|]|, but faster. It's also similar to saying |\pushstack|\pararg{coordinate}. Giving temporary names to coordinates that you are going to use repeatedly makes the code easier to read and is faster (though this only matters in very large charts). See |\getdtarget| for an example.
 \end{command}
 
 \begin{command}{\tagclass\marg{tag}\pararg{coordinate}}
@@ -1723,9 +1723,9 @@ This key instructs \sseqpages\space to put all labels in math mode automatically
 
 
 \subsection{Global Coordinate Transformations}
-Of the normal \tikzpkg\ coordinate transformations, only the following can be applied to a sseq diagram:
+Of the normal \tikzpkg\ coordinate transformations, only the following can be applied to a \sseqpages\space chart:
 \begin{keylist}{scale = \meta{factor},xscale = \meta{factor}, yscale = \meta{factor}, xmirror, ymirror}
-Scale the diagram by \meta{factor}. Under normal circumstances, you can tell \tikzpkg\ to mirror a diagram by saying, for instance, |xscale = -1|, but \sseqpages\space needs to be aware that the diagram has been mirrored in order to draw the axes correctly. Thus, if you want to mirror a spectral sequence, use the |xmirror| and |ymirror| options as appropriate.
+Scale the chart by \meta{factor}. Under normal circumstances, you can tell \tikzpkg\ to mirror a chart by saying, for instance, |xscale = -1|, but \sseqpages\space needs to be aware that the chart has been mirrored in order to draw the axes correctly. Thus, if you want to mirror a spectral sequence, use the |xmirror| and |ymirror| options as appropriate.
 \end{keylist}
 
 \begin{key}{rotate = \meta{angle}}
@@ -1963,11 +1963,11 @@ Give a custom clipping. The clipping specified must be in the form of a valid \t
 \end{key}
 
 \begin{key}{clip = \meta{boolean} (default true)(initially true)}
-If this is false the spectral sequence won't be clipped. I'm not really sure why you would want that, but there might be some use case. Setting this to be false is not fully supported, and it's possible that weird things will happen with some of the edges that go out of range.
+If this is false the spectral sequence chart won't be clipped. I'm not really sure why you would want that, but there might be some use case. Setting this to be false is not fully supported, and it's possible that weird things will happen with some of the edges that go out of range.
 \end{key}
 
 
 \begin{key}{rotate labels = \meta{boolean} (default true)(initially false)}
-If you use |rotate = 90| but also want the labels rotated (so that the whole diagram is sideways) use this key.
+If you use |rotate = 90| but also want the labels rotated (so that the whole chart is sideways) use this key.
 \end{key}
 \end{document} 

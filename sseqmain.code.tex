@@ -208,41 +208,30 @@
             {from \sseq@ymin\space to \sseq@ymax\space (ymax - ymin = \the\numexpr\sseq@ymax-\sseq@ymin)}
         \@xp\sseq@break
     \fi
-
-    \ifnum \numexpr\sseq@xmax-\sseq@xmin > \numexpr\maxdimen/\dimexpr\sseq@xscale\relax\relax
-        \pgfmathparse{\maxdimen/1cm/(\sseq@xmax-\sseq@xmin)}
-        \sseq@error@xxxx{range-overflow}{x}
+%
+    \sseq@tempdimen = \dimexpr \textwidth -\sseq@clip@padding@right - \sseq@xaxis@end@extend - \sseq@xaxis@start@extend - \sseq@yaxisgap \relax
+    \sseq@tempcount = \numexpr -1 +\sseq@tempdimen / \dimexpr\sseq@xscale cm \relax \relax
+    \ifnum \numexpr\sseq@xmax-\sseq@xmin > \sseq@tempcount
+      \pgfmathparse{\sseq@tempdimen/1cm/(\sseq@xmax-\sseq@xmin)}
+      \sseq@error@xxxx{range-overflow}{x}
             {from \sseq@xmin\space to \sseq@xmax\space (xmax - xmin = \the\numexpr\sseq@xmax-\sseq@xmin)}
-            {\the\numexpr\maxdimen/\dimexpr\sseq@xscale\relax-1\relax}% max x range
+            {\the\sseq@tempcount}% max x range
             {\pgfmathresult}% max xscale
         \@xp\sseq@break
     \fi
-
-    \ifnum \numexpr\sseq@ymax-\sseq@ymin > \numexpr\maxdimen/\dimexpr\sseq@xscale\relax\relax
-        \pgfmathparse{\maxdimen/1cm/(\sseq@ymax-\sseq@ymin)}
+%    
+    \sseq@tempdimen = \dimexpr \textheight - \sseq@clip@padding@top - \sseq@yaxis@end@extend - \sseq@yaxis@start@extend - \sseq@xaxisgap \relax
+    \sseq@tempcount = \numexpr -1 +\sseq@tempdimen / \dimexpr\sseq@yscale cm \relax \relax
+    \ifnum \numexpr\sseq@ymax-\sseq@ymin > \sseq@tempcount
+        \pgfmathparse{\sseq@tempdimen/1cm/(\sseq@ymax-\sseq@ymin)}
         \sseq@error@xxxx{range-overflow}{y}
             {from \sseq@ymin\space to \sseq@ymax\space (ymax - ymin = \the\numexpr\sseq@ymax-\sseq@ymin)}
-            {\the\numexpr\maxdimen/\dimexpr\sseq@yscale\relax-1\relax}% max x range
+            {\the\sseq@tempcount}% max x range
             {\pgfmathresult}% max xscale
         \@xp\sseq@break
-    \fi
-
-%    %\showthe\numexpr\textwidth/\dimexpr\sseq@xscale\relax
-%    %\showthe\numexpr\sseq@xmax-\sseq@xmin
-%    \showthe\textwidth
-%    \show\sseq@xscale
-%    \showthe\numexpr\textwidth/\dimexpr\sseq@xscale\relax\relax
-%    \ifnum \numexpr\sseq@xmax-\sseq@xmin - \numexpr\textwidth/\dimexpr\sseq@xscale\relax\relax>0\relax
-%        \hi
-%        \pgfmathparse{\textwidth/1cm/(\sseq@xmax-\sseq@xmin)}
-%        \sseq@error@xxxx{range-overflow}{x}
-%            {from \sseq@xmin\space to \sseq@xmax\space (xmax - xmin = \the\numexpr\sseq@xmax-\sseq@xmin)}
-%            {\the\numexpr\textwidth/\dimexpr\sseq@xscale\relax-1\relax}% max x range
-%            {\pgfmathresult}% max xscale
-%        \@xp\sseq@break
-%    \fi
-
-% Really this could be anything between -\sseq@xmin and -\sseq@xmax and it wouldn't matter. We'll split the difference.
+    \fi  
+%
+    % Really this could be anything between -\sseq@xmin and -\sseq@xmax and it wouldn't matter. We'll split the difference.
     \sseq@xoffset=\numexpr(-\sseq@xmin-\sseq@xmax)/2\relax
     \sseq@yoffset=\numexpr(-\sseq@ymin-\sseq@ymax)/2\relax
 %
@@ -255,7 +244,7 @@
     \let\errmessage\sseq@errmessage@std
     \begin{tikzpicture}[/sseqpages/global/{default} options,\ifsseq@hasname/sseqpages/global/{\sseq@thename} options\fi,/sseqpages/global/{this page} options]%
     \sseq@sseqstyle@globalpart
-    \pgftransformreset
+    %\pgftransformreset
     \sseq@globaldetonetransform
     \sseq@globalscaletransform
 %
@@ -302,7 +291,7 @@
     \ifsseq@drawstructlines\else
         \let\sseq@structline@draw@ifpage\@gobble
     \fi
-%    
+%
     \sseq@usesavedpaths
 %
     \ifsseq@keepchanges

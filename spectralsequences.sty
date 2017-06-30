@@ -31,17 +31,14 @@
 %  fix chess and dots grids
 %
 %  Errors:
-%    add error when chart is too big to fit on the page
+%    Input sanitizer to make sure grid color is valid color
 %    the new loop constructs need \foreach style error handling
 %    define error message for usermacro-failed-patch
 %    give an error if \gettag fails to find a tag
 %    give an error if the user tries to put a shift into a style
 %    Fix no classes error message for \d (probably I should have kept the MWE for this...)
 %    Add xparse related assumptions (I'm surprised we didn't already have these)
-%    Input sanitizer to make sure x range values are integers
-%    Input sanitizer to make sure tick step, tick step offset are positive integers
-%    Input sanitizer to make sure grid step is positive integer
-%    Input sanitizer to make sure grid color is valid color
+%    add error when chart is too big to fit on the page
 %
 %
 %
@@ -157,6 +154,7 @@
 
 \newcount\sseq@stackdepth
 
+\newdimen\sseq@tempdimen
 \newdimen\sseq@tempxdimen
 \newdimen\sseq@tempydimen
 \newdimen\sseq@tooltip@height

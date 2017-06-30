@@ -429,7 +429,12 @@
     You can only use '#1' as an option for tikz primitives, not for \@nx\class, \@nx\replaceclass, \@nx\classoptions, \@nx\d, \@nx\doptions, \@nx\structline, or \@nx\structlineoptions.%
 }
 
+\sseq@newerror{invalid-value-not-intexpr}{The value #2 provided for key '#1' is not a valid integer expression.}
+\sseq@newerror{invalid-value-not-positive-intexpr}{The value #2 provided for key '#1' does not evaluate to a positive integer.}
+
 \sseq@newerror{det-one-after-scale}{You cannot use the option '#1\ifx\pgfkeyscurrentvalue\pgfkeysnovalue@text\else=\pgfkeyscurrentvalue\fi' as a global option after using 'xscale', 'yscale', or 'scale'. Please move '#1\ifx\pgfkeyscurrentvalue\pgfkeysnovalue@text\else=\pgfkeyscurrentvalue\fi' before any scaling options.}
+\sseq@newerror{invalid-scale}{You said '#1scale=#2' as a global option, but '#2' is not a valid pgf math expression.}
+\sseq@newerror{unit-scale}{You said '#1scale=#2' as a global option, but '#2' is not a scalar.}
 \sseq@newerror{negative-scale}{You said '#1scale=#2' as a global option, but scaling by negative numbers is not allowed as a global option. Instead, please use the option '#1mirror', and then scale by the absolute value.}
 
 \sseq@newerror{illegal-transform}{%
@@ -475,7 +480,7 @@
 
 \sseq@newerror{no-range}{Empty spectral sequence. For every spectral sequence you must either specify both the "x range" and "y range" or include at least one
 \string\class.} % maybe warning?
-\sseq@newerror{range-overflow}{The #1 range #2 is too large. The maximum #1 range possible with the current #1scale is xmax - xmin = #3. The maximum #1scale possible with the current #1range is #4. Either change the scale or the range as appropriate.}
+\sseq@newerror{range-overflow}{The #1 range #2 is too large. The maximum #1 range to fit on the page with the current #1scale and plot options is #1max - #1min = #3. The maximum #1scale possible with the current #1range is #4. Either change the scale or the range as appropriate.}
 \sseq@newerror{range-super-overflow}{The #1 range #2 is too large. The maximum range possible is #1max - #1min = 16383 because of internal limitations of etex. }
 
 \sseq@newerror{index-out-of-bounds}{Index #1 is greater than or equal to the current stack depth #2. Valid indices must be strictly less than the stack depth.}

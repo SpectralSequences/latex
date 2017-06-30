@@ -44,23 +44,28 @@
 % #3 -- false case
 % This tests true if \pgfmathparse{#1} throws an error or not. Luckily, \pgfmathparse pipes its errors through \pgfmath@error so this is easy.
 \def\sseq@ifpgfmathexpr#1{
-    \bgroup
+    \begingroup
     \let\protect\pgfutil@empty
     \global\sseq@gtempiftrue
-    \def\pgfmath@error##1##2{\global\sseq@gtempiffalse}
+    \def\pgfmath@error##1##2{\global\sseq@gtempiffalse\sseq@closegroups\sseq@break}
+    \def\sseq@groupflag{}
     \pgfmathparse{#1}
+    \global\let\ifpgfmathunitsdeclared\ifpgfmathunitsdeclared
     \ifpgfmathunitsdeclared
         \xdef\sseq@mathresult{\pgfmathresult pt}
     \else
         \xdef\sseq@mathresult{\pgfmathresult}
     \fi
-    \egroup
+    \endgroup
+    \sseq@breakpoint
     \ifsseq@gtempif
         \@xp\@firstoftwo
     \else
         \@xp\@secondoftwo
     \fi
 }
+
+\def\sseq@closegroups{\ifx\sseq@groupflag\empty\endgroup\@xp\sseq@closegroups\fi}
 
 
 % Test if single token input is a digit
@@ -908,7 +913,7 @@
 \def\sseq@defer@tikzcommand@option[#1]{%
     \sseq@processoptions{tikz ~ primitives}{#1}%
     \ifx\sseq@savedoptioncode\pgfutil@empty\else
-        \sseq@x@addto@macro\sseq@thepathsofar{[/utils/exec={\unexpanded\@xp{\sseq@savedoptioncode}}]}%\@nx\tracingall
+        \sseq@x@addto@macro\sseq@thepathsofar{[/utils/exec={\unexpanded\@xp{\sseq@savedoptioncode}}]}%
     \fi
     \sseq@g@addto@macro\sseq@whattheusersaid{[#1]}
     \sseq@defer@tikzcommand@

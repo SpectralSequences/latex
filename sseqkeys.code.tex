@@ -882,6 +882,23 @@
     \edef\sseq@temp@ii{\pgfkeyscurrentkey}%
 }
 
+\def\sseq@sanitize@intexpr#1#2{
+    \sseq@ifintexpr{#1}{
+        \edef\sseq@sanitize@output{\the\numexpr#1}
+    }{
+        \sseq@error@xx{invalid-value-not-intexpr}{\unexpanded{#2}}{#1}
+        \sseq@break
+    }
+}
+
+\def\sseq@sanitize@positiveintexpr#1#2{
+    \sseq@sanitize@intexpr{#1}{#2}
+    \ifnum\sseq@sanitize@output<1\relax
+        \sseq@error@xx{invalid-value-not-positive-intexpr}{\unexpanded{#2}}{#1}
+        \sseq@break
+    \fi
+}
+
 \pgfqkeys{/handlers}{
     .sseq store in/.code 2 args={%
         \sseq@addtostorelist#1{#2}%
@@ -890,6 +907,23 @@
             \sseq@temp@ii/.store in=#1,%
             /sseqpages/global/default/\sseq@temp/.store in/.expand once=\csname \sseq@macroname#1@default\endcsname
         }%
+    },
+    .sseq store in sanitize/.code n args={3}{%
+        \sseq@addtostorelist#1{#2}%
+        \sseq@keys@lastpart
+        \pgfkeys{%
+            \sseq@temp@ii/.code/.expanded={%
+                \unexpanded{#3{##1}}{\sseq@temp=\unexpanded{##1}}%
+                \unexpanded{\edef#1{\unexpanded\@xp{\sseq@sanitize@output}}}%
+                \sseq@breakpoint
+            },
+            /sseqpages/global/default/\sseq@temp/.store in/.code/.expanded={%
+                \unexpanded{#3{##1}}{\sseq@temp=\unexpanded{##1}}%
+                \edef\@xp\@nx\csname \sseq@macroname#1@default\endcsname\unexpanded{{\unexpanded\@xp{\sseq@sanitize@output}}}%
+                \sseq@breakpoint
+            }
+        }%
+
     },
     .sseq append to style/.code 2 args={%
         \sseq@addkeytostorelist{#1}{\pgfkeysalso{#2}}%
@@ -1144,8 +1178,8 @@
     grid color/.sseq store in=\sseq@gridcolor{gray},
     grid step/.sseq x y alias,
     grid step/.value required,
-    x grid step/.sseq store in=\sseq@xgridstep{1},
-    y grid step/.sseq store in=\sseq@ygridstep{1},
+    x grid step/.sseq store in sanitize=\sseq@xgridstep{1}\sseq@sanitize@positiveintexpr,
+    y grid step/.sseq store in sanitize=\sseq@ygridstep{1}\sseq@sanitize@positiveintexpr,
     math nodes/.sseq is if=mathnodes, % TODO: make this locally toggleable
     custom clip/.sseq store in=\sseq@customclip{},
     clip/.sseq is if=clip,
@@ -1156,7 +1190,7 @@
     draw orphan edges/.sseq is if=draworphanedges,
     no orphan edges/.sseq is if false={draworphanedges},
     class pattern/.sseq store in=\sseq@classpattern{standard},
-    class pattern/.append code={\ifcsname sseq@\sseq@classpattern xoffset1/1\endcsname\else\sseq@error{unknown-class-pattern}\fi},
+    class pattern/.add code={\ifcsname sseq@##1 xoffset1/1\endcsname\else\sseq@error{unknown-class-pattern}\@xp\sseq@break\fi}{\sseq@breakpoint},
     class placement transform/.code={%
         \bgroup
         \let\tikz@transform\pgfutil@empty
@@ -1229,16 +1263,21 @@
 
 \def\sseq@xrange#1#2{%
     \global\let\sseq@xminmax\@gobbletwo % Don't need to calculate range of nodes if user specifies it
-    \gdef\sseq@xmin{#1}%
-    \gdef\sseq@xmax{#2}%
+    \sseq@sanitize@intexpr{#1}{x range={#1}{#2}}{#1}
+    \sseq@sanitize@intexpr{#2}{x range={#1}{#2}}{#2}
+    \xdef\sseq@xmin{\the\numexpr#1}%
+    \xdef\sseq@xmax{\the\numexpr#2}%
     \let\xmin\sseq@xmin
     \let\xmax\sseq@xmax
     % Need to know decremented \xmin and incremented \xmax to decide which nodes to print
     \sseq@tempcount=#1 \advance\sseq@tempcount-1\xdef\sseq@xminmm{\the\sseq@tempcount}%
     \sseq@tempcount=#2 \advance\sseq@tempcount1\xdef\sseq@xmaxpp{\the\sseq@tempcount}%
+    \sseq@breakpoint
 }
 \def\sseq@yrange#1#2{%
     \global\let\sseq@yminmax\@gobbletwo %
+    \sseq@sanitize@intexpr{#1}{x range={#1}{#2}}{#1}
+    \sseq@sanitize@intexpr{#2}{x range={#1}{#2}}{#2}
     \gdef\sseq@ymin{#1}%
     \gdef\sseq@ymax{#2}%
     \let\ymin\sseq@ymin
@@ -1355,12 +1394,12 @@
     draw ticks/.default=true,
     tick step/.sseq x y alias,
     tick step/.value required,
-    x tick step/.sseq store in=\sseq@xtickstep{1},
-    y tick step/.sseq store in=\sseq@ytickstep{1},
+    x tick step/.sseq store in sanitize=\sseq@xtickstep{1}\sseq@sanitize@positiveintexpr,
+    y tick step/.sseq store in sanitize=\sseq@ytickstep{1}\sseq@sanitize@positiveintexpr,
     tick offset/.sseq x y alias,
     tick offset/.value required,
-    x tick offset/.sseq store in=\sseq@xtickstepoffset{0},
-    y tick offset/.sseq store in=\sseq@ytickstepoffset{0},
+    x tick offset/.sseq store in sanitize=\sseq@xtickstepoffset{0}\sseq@sanitize@intexpr,
+    y tick offset/.sseq store in sanitize=\sseq@ytickstepoffset{0}\sseq@sanitize@intexpr,
     x tick handler/.code={\def\sseq@xtickfn##1{#1}},
     x tick handler/.sseq default code={\def\sseq@xtickfn@default##1{#1}},
     y tick handler/.code={\def\sseq@ytickfn##1{#1}},
@@ -1385,8 +1424,8 @@
     ~y axis style/center/.code={\sseq@drawyaxistrue\sseq@borderyaxisfalse\ifx\sseq@yaxisgap\sseq@yaxisgap@default\def\sseq@yaxisgap{0cm}\fi},
     ~x axis style/none/.code={\sseq@drawxaxisfalse},
     ~y axis style/none/.code={\sseq@drawyaxisfalse},
-    x axis origin/.sseq store in=\sseq@xaxisorigin{0},
-    y axis origin/.sseq store in=\sseq@yaxisorigin{0},
+    x axis origin/.sseq store in sanitize=\sseq@xaxisorigin{0}\sseq@sanitize@intexpr,
+    y axis origin/.sseq store in sanitize=\sseq@yaxisorigin{0}\sseq@sanitize@intexpr,
     axes origin/.sseq x y alias=axis origin,
 }
 \pgfqkeys{/sseqpages}{%
@@ -1427,8 +1466,8 @@
 \sseq@addtostorelist\sseq@globalrotatetransform{}
 \sseq@addtostorelist\sseq@globalscaletransform{}
 
-\sseq@addtostorelist\sseq@xscale{1cm}
-\sseq@addtostorelist\sseq@yscale{1cm}
+\sseq@addtostorelist\sseq@xscale{1}
+\sseq@addtostorelist\sseq@yscale{1}
 
 \def\sseq@globaldetoneoption#1#2{%
     \ifsseq@globaldetone\else
@@ -1439,7 +1478,7 @@
 }
 \def\sseq@globalscaleoption#1{%
     \sseq@globaldetonefalse
-    \@xp\gdef\@xp\sseq@globalscaletransform\@xp{\sseq@globalscaletransform#1}#1%
+    \@xp\gdef\@xp\sseq@globalscaletransform\@xp{\sseq@globalscaletransform#1}%
 }
 \pgfqkeys{/sseqpages/global}{%
     x/.sseq @ illegal,
@@ -1466,31 +1505,44 @@
     mirror/.forward to=/sseqpages/global/xmirror,
     mirror/.forward to=/sseqpages/global/ymirror,
     xscale/.code={%
-        \pgfmathparse{int(#1-1)}%
-        \ifnum\pgfmathresult<\z@%
-            \sseq@error@nn{negative-scale}{x}{#1}%
+        \sseq@ifpgfmathexpr{int(#1-1)}{}{
+            \sseq@error@nn{invalid-scale}{x}{#1}%
+            \sseq@break
+        }
+        \ifpgfmathunitsdeclared
+            \sseq@error@nn{unit-scale}{x}{#1}%
+            \sseq@break
         \fi
-        \sseq@globalscaleoption{\pgfsetxvec{\pgfpointxy{#1}{0cm}}}%
+        \ifnum\sseq@mathresult<\z@
+            \sseq@error@nn{negative-scale}{x}{#1}%
+            \sseq@break
+        \fi
+        \sseq@globalscaleoption{\pgfsetxvec{\pgfpointxy{#1}{0}}}%
         \pgfmathparse{\sseq@xscale*#1}
-        \edef\sseq@xscale{\pgfmathresult pt}
+        \edef\sseq@xscale{\pgfmathresult}
+        \sseq@breakpoint
     },
     xscale/.value required,
     yscale/.code={%
-        \pgfmathparse{int(#1-1)}%
-        \ifnum\pgfmathresult<\z@
-            \sseq@error@nn{negative-scale}{y}{#1}%
+        \sseq@ifpgfmathexpr{int(#1-1)}{}{
+            \sseq@error@nn{invalid-scale}{y}{#1}%
+            \sseq@break
+        }
+        \ifpgfmathunitsdeclared
+            \sseq@error@nn{unit-scale}{y}{#1}%
+            \sseq@break
         \fi
-        \sseq@globalscaleoption{\pgfsetyvec{\pgfpointxy{0cm}{#1}}}%
-        \edef\sseq@yscale{\the\dimexpr\sseq@yscale*#1}
+        \ifnum\sseq@mathresult<\z@
+            \sseq@error@nn{negative-scale}{y}{#1}%
+            \sseq@break
+        \fi
+        \sseq@globalscaleoption{\pgfsetyvec{\pgfpointxy{0}{#1}}}%
+        \pgfmathparse{\sseq@yscale*#1}
+        \edef\sseq@yscale{\pgfmathresult}
+        \sseq@breakpoint
     },
     yscale/.value required,
-    scale/.code={%
-        \pgfmathparse{int(#1-1)}%
-        \ifnum\pgfmathresult<\z@
-            \sseq@error@nn{negative-scale}{}{#1}%
-        \fi
-        \sseq@globalscaleoption{\pgftransformscale{#1}}%
-    },
+    scale/.sseq x y alias=#1scale,
     scale/.value required
 }
 
@@ -1508,11 +1560,11 @@
     x/.code={\sseq@error@n{option-illegal}{#1}},
     y/.code={\sseq@error@n{option-illegal}{#1}},
     z/.code={\sseq@error@n{option-illegal}{#1}},
-    xshift/.sseq @ second pass code={\sseq@shifttransform{x}{#1}}, % I don't know why it has to be this way,
-    xshift/.sseq @ first pass append code={\sseq@firstpass@shifttransform{x}{#1}}, % but it definitely breaks if I change it...
+    xshift/.sseq @ first pass code=\sseq@tikz@firstpass@checkshifttransform{x}{#1},
+    yshift/.sseq @ first pass code=\sseq@tikz@firstpass@checkshifttransform{y}{#1},
+    xshift/.append code=\sseq@options@scopeshiftsecondpass{\sseq@tikz@shifttransform{x}{#1}},%% Note special scopeshiftsecondpass command
+    yshift/.append code=\sseq@options@scopeshiftsecondpass{\sseq@tikz@shifttransform{y}{#1}},%%
     xshift/.value required,
-    yshift/.sseq @ second pass code={\sseq@shifttransform{y}{#1}},
-    yshift/.sseq @ first pass append code={\sseq@firstpass@shifttransform{y}{#1}},
     yshift/.value required,
     shift/.sseq @ transform, shift/.value required,
     shift only/.sseq @ transform,
@@ -1529,7 +1581,6 @@
     transform canvas/.sseq @ transform, transform canvas/.value required
 }
 
-% These two should be exactly the same
 \def\sseq@shift@firstpassprocess#1{\sseq@shift@firstpassprocess@#1\sseq@nil}
 \def\sseq@shift@firstpassprocess@#1#2\sseq@nil{\ifx#1\pgfpointxy\sseq@shift@firstpassprocess@@#2\else\sseq@standardparse\fi}
 \def\sseq@shift@firstpassprocess@@#1#2{
@@ -1581,7 +1632,7 @@
 \let\sseq@firstpass@shifttransform\sseq@firstpass@checkshifttransform
 
 \def\sseq@checkshifttransform#1#2{%
-    \pgfmathparse{#2}%
+    \pgfmathparse{(#2)}%
     \sseq@ifpgfmathresultisunitlessint{%
         \@xp\pgfmathint\@xp{\pgfmathresult}%
         \@xp\advance\csname sseq@#1\endcsname\pgfmathresult\relax
@@ -1611,7 +1662,7 @@
     \sseq@ifpgfmathresultisunitlessint{%
         \@xp\pgfmathint\@xp{\pgfmathresult}%
         \@xp\advance\csname sseq@\sseq@getfirstchar#1\sseq@nil\endcsname\pgfmathresult\relax
-        \sseq@pgfkeysdocommand{#1shift}{#2cm}
+        \sseq@pgfkeysdocommand{#1shift}{#2cm*\csname sseq@#1scale\endcsname}
     }{
         \sseq@standardparse
         \ifpgfmathunitsdeclared
