@@ -240,8 +240,8 @@
  \sseq@xoffset=\numexpr\sseq@intdivfloor{\sseq@xoffset}{2}*2\relax
  \sseq@yoffset=\numexpr\sseq@intdivfloor{\sseq@yoffset}{2}*2\relax
  \pgfpathgrid[stepx=2cm,stepy=2cm]
-    { \pgfpointxy { -0.5+ \the\sseq@tempx + \sseq@xoffset } { -0.5 + \the\sseq@tempy + \sseq@yoffset } }
-    { \pgfpointxy { \the\sseq@tempxb + 0.499 + \sseq@xoffset + 1 }{ \the\sseq@tempyb + 0.499 + \sseq@yoffset + 1 } }
+    { \pgfpointxy { -0.5+ \the\sseq@tempx +\sseq@xoffset } { -0.5 + \the\sseq@tempy +\sseq@yoffset } }
+    { \pgfpointxy { \the\sseq@tempxb + 0.499 +\sseq@xoffset + 1 }{ \the\sseq@tempyb + 0.499 +\sseq@yoffset + 1 } }
  \pgfusepath{stroke}
  \endpgfscope
  \egroup
@@ -270,11 +270,11 @@
 
  \pgfpathgrid[stepx=\pgf@xa,stepy=\pgf@ya]
     { \pgfpointxy
-        { \xmin - \sseq@tempx + \sseq@xoffset }
-        { \ymin - \sseq@tempy + \sseq@yoffset} }
+        { \xmin - \sseq@tempx +\sseq@xoffset }
+        { \ymin - \sseq@tempy +\sseq@yoffset} }
     { \pgfpointxy
-        { \xmax + \sseq@tempxb - 0.01 + \sseq@xoffset }
-        { \ymax + \sseq@tempyb - 0.01 + \sseq@yoffset }
+        { \xmax + \sseq@tempxb - 0.01 +\sseq@xoffset }
+        { \ymax + \sseq@tempyb - 0.01 +\sseq@yoffset }
     }
  \pgfusepath{stroke}
  \endpgfscope
@@ -303,11 +303,11 @@
 
  \pgfpathgrid[stepx=\pgf@xa,stepy=\pgf@ya]
     { \pgfpointxy
-        { \xmin - \sseq@tempx + \sseq@xoffset }
-        { \ymin - \sseq@tempy + \sseq@yoffset} }
+        { \xmin - \sseq@tempx +\sseq@xoffset }
+        { \ymin - \sseq@tempy +\sseq@yoffset} }
     { \pgfpointxy
-        { \xmax + \sseq@tempxb - 0.01 + \sseq@xoffset }
-        { \ymax + \sseq@tempyb - 0.01 + \sseq@yoffset }
+        { \xmax + \sseq@tempxb - 0.01 +\sseq@xoffset + 1 }
+        { \ymax + \sseq@tempyb - 0.01 +\sseq@yoffset + 1 }
     }
  \pgfusepath{stroke}
  \endpgfscope
@@ -351,6 +351,7 @@
     (-0.16,-0.16)(0.16,-0.16)(-0.16,0.16)(0.16,0.16)(0,0);
     (-0.13,-0.2)(-0.13,0)(-0.13,0.2)(0.13,-0.2)(0.13,0)(0.13,0.2);
 }
+
 \sseqnewclasspattern{linear}{
     (0,0);
     (-0.13,0)(0.13,0);
@@ -392,7 +393,7 @@
 }
 
 % #1 -- the name of the node object
-% Someday I should document this horrible mess of code here 
+% Someday I should document this horrible mess of code here
 \def\sseq@class@drawnode#1{%
     \begingroup
     \sseq@class@getparts#1.
@@ -433,8 +434,8 @@
             \fi
             \the\sseq@scope@toks
             \sseq@obj{#1.options}%
-        \sseq@eval{\@nx\pgftransformshift{\@nx\pgfpointxy{\the\sseq@tempx + \sseq@xoffset}{\the\sseq@tempy + \sseq@yoffset}}} %%%%%
-        \sseq@eval{\@nx\pgftransformshift{\@nx\pgfpointxy{-\the\sseq@x}{-\the\sseq@y}}} % someday maybe I should figure 
+        \sseq@eval{\@nx\pgftransformshift{\@nx\pgfpointxy{\the\sseq@tempx +\sseq@xoffset}{\the\sseq@tempy + \sseq@yoffset}}} %%%%%
+        \sseq@eval{\@nx\pgftransformshift{\@nx\pgfpointxy{-\the\sseq@x}{-\the\sseq@y}}} % someday maybe I should figure
         \iftikz@fullytransformed\pgfgettransform{\savetransform}\fi
         \pgftransformresetnontranslations
         \sseq@globalrotatetransform
@@ -840,7 +841,7 @@
     \let\tikz@@@parse@regular\sseq@tikz@@@parse@regular
     \let\tikz@to@curve@path\sseq@tikz@to@curve@path
     \let\tikz@@@to@compute@relative\sseq@tikz@@@to@compute@relative
-    
+
     \let\tikz@grid\sseq@tikz@grid
     \let\tikz@scan@handle@options\sseq@tikz@scan@handle@options
     \let\tikz@@@parse@polar\sseq@tikz@@@parse@polar
@@ -865,7 +866,7 @@
   \pgfextra{
     \let\tikz@@@parse@regular\sseq@tikz@@@parse@regular@save % I added this to prevent repeated offsets from screwing us up
     %\let\sseq@tikz@scan@one@point@noshift\tikz@scan@one@point
-    \iftikz@to@relative\tikz@to@compute@relative\else\tikz@to@compute\fi    
+    \iftikz@to@relative\tikz@to@compute@relative\else\tikz@to@compute\fi
   }
   \tikz@computed@path
   \tikztonodes%
@@ -1195,5 +1196,5 @@
         \pgfusepathqfill
     },
     defaults = { length = 0.3cm }
-} 
+}
 

@@ -429,8 +429,10 @@
     You can only use '#1' as an option for tikz primitives, not for \@nx\class, \@nx\replaceclass, \@nx\classoptions, \@nx\d, \@nx\doptions, \@nx\structline, or \@nx\structlineoptions.%
 }
 
-\sseq@newerror{invalid-value-not-intexpr}{The value #2 provided for key '#1' is not a valid integer expression.}
-\sseq@newerror{invalid-value-not-positive-intexpr}{The value #2 provided for key '#1' does not evaluate to a positive integer.}
+\sseq@newerror{invalid-intexpr}{The value '#2' provided for key '#1' is not a valid integer expression.}
+\sseq@newerror{invalid-positive-intexpr}{The value '#2' provided for key '#1' does not evaluate to a positive integer.}
+\sseq@newerror{invalid-dimenexpr}{The value '#2' provided for key '#1' is not a valid dimension expression.}
+\sseq@newerror{invalid-color}{The value '#2' provided for key '#1' is not a valid color or color expression.}
 
 \sseq@newerror{det-one-after-scale}{You cannot use the option '#1\ifx\pgfkeyscurrentvalue\pgfkeysnovalue@text\else=\pgfkeyscurrentvalue\fi' as a global option after using 'xscale', 'yscale', or 'scale'. Please move '#1\ifx\pgfkeyscurrentvalue\pgfkeysnovalue@text\else=\pgfkeyscurrentvalue\fi' before any scaling options.}
 \sseq@newerror{invalid-scale}{You said '#1scale=#2' as a global option, but '#2' is not a valid pgf math expression.}

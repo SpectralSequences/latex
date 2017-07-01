@@ -12,11 +12,16 @@
 %%
 
 \documentclass{article}
-\usepackage[landscape]{geometry}
+\usepackage[landscape,margin=0.1cm]{geometry}
+\makeatletter
+\let\@texttop\vfill
+\let\@textbottom\vfill
+\makeatother
 \usepackage{spectralsequences}
 
 \begin{document}
 
+\centering
 \sseqset{
     M3M2/.sseq style = { fill },
     M4M3/.sseq style = { circlen = 2, fill }
@@ -72,6 +77,7 @@
 \d2(16,1)\d2(17,2)\d2(18,3)
 \d2(18,2)\d2(18,1)
 \end{sseqdata}
+
 
 \printpage[ name = SO_UASS, page = 2 ]
 \newpage

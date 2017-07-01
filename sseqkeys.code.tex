@@ -886,7 +886,7 @@
     \sseq@ifintexpr{#1}{
         \edef\sseq@sanitize@output{\the\numexpr#1}
     }{
-        \sseq@error@xx{invalid-value-not-intexpr}{\unexpanded{#2}}{#1}
+        \sseq@error@xx{invalid-intexpr}{\unexpanded{#2}}{#1}
         \sseq@break
     }
 }
@@ -894,8 +894,35 @@
 \def\sseq@sanitize@positiveintexpr#1#2{
     \sseq@sanitize@intexpr{#1}{#2}
     \ifnum\sseq@sanitize@output<1\relax
-        \sseq@error@xx{invalid-value-not-positive-intexpr}{\unexpanded{#2}}{#1}
+        \sseq@error@xx{invalid-positive-intexpr}{\unexpanded{#2}}{#1}
+        \@xp\sseq@break
+    \fi
+}
+
+\def\sseq@sanitize@dimenexpr#1#2{
+    \sseq@ifpgfmathexpr{#1}{
+        \ifpgfmathunitsdeclared\else
+            \sseq@error@xx{invalid-dimenexpr}{\unexpanded{#2}}{#1}
+            \@xp\sseq@break
+        \fi
+        \def\sseq@sanitize@output{#1}
+    }{
+        \sseq@error@xx{invalid-dimenexpr}{\unexpanded{#2}}{#1}
         \sseq@break
+    }
+}
+
+\def\sseq@sanitize@color#1#2{
+    \begingroup
+        \global\sseq@gtempiffalse
+        \def\c@lor@error##1{\global\sseq@gtempiftrue}
+        \color{#1}
+    \endgroup
+    \ifsseq@gtempif
+        \sseq@error@xx{invalid-color}{\unexpanded{#2}}{#1}
+        \@xp\sseq@break
+    \else
+        \def\sseq@sanitize@output{#1}
     \fi
 }
 
@@ -917,13 +944,33 @@
                 \unexpanded{\edef#1{\unexpanded\@xp{\sseq@sanitize@output}}}%
                 \sseq@breakpoint
             },
-            /sseqpages/global/default/\sseq@temp/.store in/.code/.expanded={%
+            \sseq@temp@ii/.value required,
+            /sseqpages/global/default/\sseq@temp/.code/.expanded={%
                 \unexpanded{#3{##1}}{\sseq@temp=\unexpanded{##1}}%
                 \edef\@xp\@nx\csname \sseq@macroname#1@default\endcsname\unexpanded{{\unexpanded\@xp{\sseq@sanitize@output}}}%
                 \sseq@breakpoint
-            }
+            },
+            /sseqpages/global/default/\sseq@temp/.value required
         }%
 
+    },
+    .sseq store int in/.code 2 args={
+        \sseq@keys@lastpart
+        \pgfkeysalso{%
+            \sseq@temp@ii/.sseq store in sanitize={#1}{#2}\sseq@sanitize@intexpr
+        }
+    },
+    .sseq store positive int in/.code 2 args={
+        \sseq@keys@lastpart
+        \pgfkeysalso{%
+            \sseq@temp@ii/.sseq store in sanitize={#1}{#2}\sseq@sanitize@positiveintexpr
+        }
+    },
+    .sseq store dimen in/.code 2 args={
+        \sseq@keys@lastpart
+        \pgfkeysalso{%
+            \sseq@temp@ii/.sseq store in sanitize={#1}{#2}\sseq@sanitize@dimenexpr
+        }
     },
     .sseq append to style/.code 2 args={%
         \sseq@addkeytostorelist{#1}{\pgfkeysalso{#2}}%
@@ -1175,11 +1222,11 @@
     },
     grid/.code={\ifcsname sseq@grid@#1\endcsname\@xp\let\@xp\sseq@grid\csname sseq@grid@#1\endcsname\else\sseq@error@n{unknown-grid}{#1}\fi},
     grid/.sseq default code={\ifcsname sseq@grid@#1\endcsname\@xp\let\@xp\sseq@grid@default\csname sseq@grid@#1\endcsname\else\sseq@error@n{unknown-grid}{#1}\fi},
-    grid color/.sseq store in=\sseq@gridcolor{gray},
+    grid color/.sseq store in sanitize=\sseq@gridcolor{gray}\sseq@sanitize@color,
     grid step/.sseq x y alias,
     grid step/.value required,
-    x grid step/.sseq store in sanitize=\sseq@xgridstep{1}\sseq@sanitize@positiveintexpr,
-    y grid step/.sseq store in sanitize=\sseq@ygridstep{1}\sseq@sanitize@positiveintexpr,
+    x grid step/.sseq store positive int in=\sseq@xgridstep{1},
+    y grid step/.sseq store positive int in=\sseq@ygridstep{1},
     math nodes/.sseq is if=mathnodes, % TODO: make this locally toggleable
     custom clip/.sseq store in=\sseq@customclip{},
     clip/.sseq is if=clip,
@@ -1190,7 +1237,7 @@
     draw orphan edges/.sseq is if=draworphanedges,
     no orphan edges/.sseq is if false={draworphanedges},
     class pattern/.sseq store in=\sseq@classpattern{standard},
-    class pattern/.add code={\ifcsname sseq@##1 xoffset1/1\endcsname\else\sseq@error{unknown-class-pattern}\@xp\sseq@break\fi}{\sseq@breakpoint},
+    class pattern/.add code={\ifcsname sseq@#1xoffset1/1\endcsname\else\sseq@error{unknown-class-pattern}\@xp\sseq@break\fi}{\sseq@breakpoint},
     class placement transform/.code={%
         \bgroup
         \let\tikz@transform\pgfutil@empty
@@ -1263,8 +1310,8 @@
 
 \def\sseq@xrange#1#2{%
     \global\let\sseq@xminmax\@gobbletwo % Don't need to calculate range of nodes if user specifies it
-    \sseq@sanitize@intexpr{#1}{x range={#1}{#2}}{#1}
-    \sseq@sanitize@intexpr{#2}{x range={#1}{#2}}{#2}
+    \sseq@sanitize@intexpr{#1}{x range={#1}{#2}}
+    \sseq@sanitize@intexpr{#2}{x range={#1}{#2}}
     \xdef\sseq@xmin{\the\numexpr#1}%
     \xdef\sseq@xmax{\the\numexpr#2}%
     \let\xmin\sseq@xmin
@@ -1276,8 +1323,8 @@
 }
 \def\sseq@yrange#1#2{%
     \global\let\sseq@yminmax\@gobbletwo %
-    \sseq@sanitize@intexpr{#1}{x range={#1}{#2}}{#1}
-    \sseq@sanitize@intexpr{#2}{x range={#1}{#2}}{#2}
+    \sseq@sanitize@intexpr{#1}{x range={#1}{#2}}
+    \sseq@sanitize@intexpr{#2}{x range={#1}{#2}}
     \gdef\sseq@ymin{#1}%
     \gdef\sseq@ymax{#2}%
     \let\ymin\sseq@ymin
@@ -1394,12 +1441,12 @@
     draw ticks/.default=true,
     tick step/.sseq x y alias,
     tick step/.value required,
-    x tick step/.sseq store in sanitize=\sseq@xtickstep{1}\sseq@sanitize@positiveintexpr,
-    y tick step/.sseq store in sanitize=\sseq@ytickstep{1}\sseq@sanitize@positiveintexpr,
+    x tick step/.sseq store positive int in=\sseq@xtickstep{1},
+    y tick step/.sseq store positive int in=\sseq@ytickstep{1},
     tick offset/.sseq x y alias,
     tick offset/.value required,
-    x tick offset/.sseq store in sanitize=\sseq@xtickstepoffset{0}\sseq@sanitize@intexpr,
-    y tick offset/.sseq store in sanitize=\sseq@ytickstepoffset{0}\sseq@sanitize@intexpr,
+    x tick offset/.sseq store int in=\sseq@xtickstepoffset{0},
+    y tick offset/.sseq store int in=\sseq@ytickstepoffset{0},
     x tick handler/.code={\def\sseq@xtickfn##1{#1}},
     x tick handler/.sseq default code={\def\sseq@xtickfn@default##1{#1}},
     y tick handler/.code={\def\sseq@ytickfn##1{#1}},
@@ -1424,8 +1471,8 @@
     ~y axis style/center/.code={\sseq@drawyaxistrue\sseq@borderyaxisfalse\ifx\sseq@yaxisgap\sseq@yaxisgap@default\def\sseq@yaxisgap{0cm}\fi},
     ~x axis style/none/.code={\sseq@drawxaxisfalse},
     ~y axis style/none/.code={\sseq@drawyaxisfalse},
-    x axis origin/.sseq store in sanitize=\sseq@xaxisorigin{0}\sseq@sanitize@intexpr,
-    y axis origin/.sseq store in sanitize=\sseq@yaxisorigin{0}\sseq@sanitize@intexpr,
+    x axis origin/.sseq store int in=\sseq@xaxisorigin{0},
+    y axis origin/.sseq store int in=\sseq@yaxisorigin{0},
     axes origin/.sseq x y alias=axis origin,
 }
 \pgfqkeys{/sseqpages}{%
@@ -1435,25 +1482,25 @@
 \sseq@globalkeys{
     axes gap/.sseq x y alias=axis gap,
     axes gap/.value required,
-    x axis gap/.sseq store in=\sseq@xaxisgap{0.5cm},
-    y axis gap/.sseq store in=\sseq@yaxisgap{0.5cm},
+    x axis gap/.sseq store dimen in=\sseq@xaxisgap{0.5cm},
+    y axis gap/.sseq store dimen in=\sseq@yaxisgap{0.5cm},
     tick gap/.sseq x y alias,
     tick gap/.value required,
-    x tick gap/.sseq store in=\sseq@xlabelgap{0.5cm},
-    y tick gap/.sseq store in=\sseq@ylabelgap{0.5cm},
-    x axis extend start/.sseq store in=\sseq@xaxis@start@extend{0.9cm},
-    y axis extend start/.sseq store in=\sseq@yaxis@start@extend{0.9cm},
+    x tick gap/.sseq store dimen in=\sseq@xlabelgap{0.5cm},
+    y tick gap/.sseq store dimen in=\sseq@ylabelgap{0.5cm},
+    x axis extend start/.sseq store dimen in=\sseq@xaxis@start@extend{0.9cm},
+    y axis extend start/.sseq store dimen in=\sseq@yaxis@start@extend{0.9cm},
     axes extend start/.sseq x y alias=axis extend start,
-    x axis extend end/.sseq store in=\sseq@xaxis@end@extend{0.5cm},
-    y axis extend end/.sseq store in=\sseq@yaxis@end@extend{0.5cm},
+    x axis extend end/.sseq store dimen in=\sseq@xaxis@end@extend{0.5cm},
+    y axis extend end/.sseq store dimen in=\sseq@yaxis@end@extend{0.5cm},
     axes extend end/.sseq x y alias=axis extend end,
-    x axis clip padding/.sseq store in=\sseq@xclip@axisgap{0.1cm},
-    y axis clip padding/.sseq store in=\sseq@yclip@axisgap{0.1cm},
+    x axis clip padding/.sseq store dimen in=\sseq@xclip@axisgap{0.1cm},
+    y axis clip padding/.sseq store dimen in=\sseq@yclip@axisgap{0.1cm},
     axes clip padding/.sseq x y alias=axis clip padding,
-    right clip padding/.sseq store in=\sseq@clip@padding@right{0.1cm},
-    left clip padding/.sseq store in=\sseq@clip@padding@left{0.4cm},
-    top clip padding/.sseq store in=\sseq@clip@padding@top{0.1cm},
-    bottom clip padding/.sseq store in=\sseq@clip@padding@bottom{0.4cm}
+    right clip padding/.sseq store dimen in=\sseq@clip@padding@right{0.1cm},
+    left clip padding/.sseq store dimen in=\sseq@clip@padding@left{0.4cm},
+    top clip padding/.sseq store dimen in=\sseq@clip@padding@top{0.1cm},
+    bottom clip padding/.sseq store dimen in=\sseq@clip@padding@bottom{0.4cm}
 }
 
 %%%

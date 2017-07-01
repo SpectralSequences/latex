@@ -219,7 +219,7 @@
             {\pgfmathresult}% max xscale
         \@xp\sseq@break
     \fi
-%    
+%
     \sseq@tempdimen = \dimexpr \textheight - \sseq@clip@padding@top - \sseq@yaxis@end@extend - \sseq@yaxis@start@extend - \sseq@xaxisgap \relax
     \sseq@tempcount = \numexpr -1 +\sseq@tempdimen / \dimexpr\sseq@yscale cm \relax \relax
     \ifnum \numexpr\sseq@ymax-\sseq@ymin > \sseq@tempcount
@@ -229,7 +229,7 @@
             {\the\sseq@tempcount}% max x range
             {\pgfmathresult}% max xscale
         \@xp\sseq@break
-    \fi  
+    \fi
 %
     % Really this could be anything between -\sseq@xmin and -\sseq@xmax and it wouldn't matter. We'll split the difference.
     \sseq@xoffset=\numexpr(-\sseq@xmin-\sseq@xmax)/2\relax
