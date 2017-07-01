@@ -49,34 +49,25 @@
 }
 \def\sseq@drawxaxis{
     \bgroup
-    \pgftransformxshift{\sseq@xaxis@end@extend}\pgftransformyshift{-\sseq@xaxisgap}
-    \pgfpathmoveto{\pgfpointxy{\sseq@xmax+\sseq@xoffset}{\sseq@ymin+\sseq@yoffset}}
+    \pgftransformshift{\pgfqpoint{\sseq@xaxis@end@extend}{-\sseq@xaxisgap}}
+    \pgfpathmoveto{\pgfqpointxy{\numexpr\sseq@xmax+\sseq@xoffset\relax}{\numexpr\sseq@ymin+\sseq@yoffset\relax}}
     \egroup
 %
     \bgroup
-    \pgftransformxshift{-\sseq@xaxis@start@extend}\pgftransformxshift{-\sseq@yaxisgap}
-    \pgftransformyshift{-\sseq@xaxisgap}
-    \pgfpathlineto{\pgfpointxy{\sseq@xmin+\sseq@xoffset}{\sseq@ymin+\sseq@yoffset}}
+    \pgftransformshift{\pgfqpoint{\dimexpr-\sseq@xaxis@start@extend-\sseq@yaxisgap\relax}{-\sseq@xaxisgap}}
+    \pgfpathlineto{\pgfqpointxy{\numexpr\sseq@xmin+\sseq@xoffset\relax}{\numexpr\sseq@ymin+\sseq@yoffset\relax}}
     \egroup
     \pgfusepath{stroke}
 }
 \def\sseq@drawyaxis{
     \bgroup
-    %\sseq@resettransform
-    %\sseq@globaldetonetransform
-    \bgroup
-    \pgftransformyshift{\sseq@yaxis@end@extend}\pgftransformxshift{-\sseq@yaxisgap}
-    %\sseq@globalscaletransform
-    \pgfpathmoveto{\pgfpointxy{\sseq@xmin+\sseq@xoffset}{\sseq@ymax+\sseq@yoffset}}
+    \pgftransformshift{\pgfqpoint{-\sseq@yaxisgap}{\sseq@yaxis@end@extend}}
+    \pgfpathmoveto{\pgfqpointxy{\numexpr\sseq@xmin+\sseq@xoffset\relax}{\numexpr\sseq@ymax+\sseq@yoffset\relax}}
     \egroup
+%
     \bgroup
-    \pgftransformyshift{-\sseq@xaxisgap}
-    %\pgftransformyshift{-\sseq@xlabelgap}
-    \pgftransformyshift{-\sseq@yaxis@start@extend}
-    \pgftransformxshift{-\sseq@yaxisgap}
-    %\sseq@globalscaletransform
-    \pgfpathlineto{\pgfpointxy{\sseq@xmin+\sseq@xoffset}{\sseq@ymin+\sseq@yoffset}}
-    \egroup
+    \pgftransformshift{\pgfqpoint{-\sseq@yaxisgap}{\dimexpr-\sseq@xaxisgap-\sseq@yaxis@start@extend\relax}}
+    \pgfpathlineto{\pgfqpointxy{\numexpr\sseq@xmin+\sseq@xoffset\relax}{\numexpr\sseq@ymin+\sseq@yoffset\relax}}
     \egroup
     \pgfusepath{stroke}%
 }
@@ -110,10 +101,10 @@
     \sseq@tempxb=\numexpr\sseq@xmax+1\relax % max
     \loop
         \bgroup
-        \sseq@eval{\@nx\pgftransformshift{\@nx\pgfpointxy{\the\sseq@tempx+\sseq@xoffset}{\the\sseq@tempy+\sseq@yoffset}}}%
+        \sseq@eval{\@nx\pgftransformshift{\@nx\pgfqpointxy{\the\numexpr\sseq@tempx+\sseq@xoffset\relax}{\the\numexpr\sseq@tempy+\sseq@yoffset\relax}}}%
         \sseq@resetnontranslations
         \sseq@globaldetonetransform
-        \pgftransformyshift{-\sseq@xlabelgap}\pgftransformyshift{-\sseq@xaxisgap}%
+        \pgftransformshift{\pgfqpoint{0pt}{\dimexpr-\sseq@xlabelgap-\sseq@xaxisgap\relax}}%
         \sseq@resetnontranslations
         \ifsseq@rotatelabels\sseq@globalrotatetransform\fi
         \sseq@xtickstyle
@@ -136,10 +127,10 @@
     \sseq@tempyb=\numexpr\sseq@ymax+1\relax % max
     \loop
         \bgroup
-        \sseq@eval{\@nx\pgftransformshift{\@nx\pgfpointxy{\the\sseq@tempx+\sseq@xoffset}{\the\sseq@tempy+\sseq@yoffset}}}%
+        \sseq@eval{\@nx\pgftransformshift{\@nx\pgfqpointxy{\the\numexpr\sseq@tempx+\sseq@xoffset}{\the\numexpr\sseq@tempy+\sseq@yoffset}}}%
         \sseq@resetnontranslations
         \sseq@globaldetonetransform
-        \pgftransformxshift{-\sseq@ylabelgap}\pgftransformxshift{-\sseq@yaxisgap}%
+        \pgftransformshift{\pgfqpoint{\dimexpr-\sseq@ylabelgap-\sseq@yaxisgap\relax}{0pt}}%
         \sseq@resetnontranslations
         \ifsseq@rotatelabels\sseq@globalrotatetransform\fi
         \sseq@ytickstyle
@@ -157,43 +148,82 @@
             %\sseq@resettransform
             %\sseq@globaldetonetransform
             \ifsseq@borderyaxis
-                \def\xmin{\pgftransformxshift{-\sseq@yaxisgap}\pgftransformxshift{\sseq@yclip@axisgap}}
+                \def\xmin{\pgftransformshift{\pgfqpoint{\dimexpr-\sseq@yaxisgap+\sseq@yclip@axisgap\relax}{0pt}}}
             \else
-                \def\xmin{\pgftransformxshift{-\sseq@xaxis@start@extend}\pgftransformxshift{-\sseq@clip@padding@left}}
+                \def\xmin{\pgftransformshift{\pgfqpoint{\dimexpr-\sseq@xaxis@start@extend-\sseq@clip@padding@left\relax}{0pt}}}
             \fi
             \ifsseq@borderxaxis
-                \def\ymin{\pgftransformyshift{-\sseq@xaxisgap}\pgftransformyshift{\sseq@xclip@axisgap}}
+                \def\ymin{\pgftransformshift{\pgfqpoint{0pt}{\dimexpr-\sseq@xaxisgap+\sseq@xclip@axisgap\relax}}}
             \else
-                \def\ymin{\pgftransformyshift{-\sseq@yaxis@start@extend}\pgftransformyshift{-\sseq@clip@padding@bottom}}
+                \def\ymin{\pgftransformshift{\pgfqpoint{0pt}{\dimexpr-\sseq@yaxis@start@extend-\sseq@clip@padding@bottom\relax}}}
             \fi
-            \def\xmax{\pgftransformxshift{\sseq@xaxis@end@extend}\pgftransformxshift{\sseq@clip@padding@right}}
-            \def\ymax{\pgftransformyshift{\sseq@yaxis@end@extend}\pgftransformyshift{\sseq@clip@padding@top}}
+            \def\xmax{\pgftransformshift{\pgfqpoint{\dimexpr\sseq@xaxis@end@extend+\sseq@clip@padding@right\relax}{0pt}}}
+            \def\ymax{\pgftransformshift{\pgfqpoint{0pt}{\sseq@yaxis@end@extend+\sseq@clip@padding@top}}}
             \bgroup
             \xmin\ymin%\sseq@globalscaletransform
-            \pgfpathmoveto{\pgfpointxy{\sseq@xmin+\sseq@xoffset}{\sseq@ymin+\sseq@yoffset}}
+            \pgfpathmoveto{\pgfqpointxy{\numexpr\sseq@xmin+\sseq@xoffset\relax}{\numexpr\sseq@ymin+\sseq@yoffset\relax}}
             \egroup
             \bgroup
             \xmin\ymax%\sseq@globalscaletransform
-            \pgfpathlineto{\pgfpointxy{\sseq@xmin+\sseq@xoffset}{\sseq@ymax+\sseq@yoffset}}
+            \pgfpathlineto{\pgfqpointxy{\numexpr\sseq@xmin+\sseq@xoffset\relax}{\numexpr\sseq@ymax+\sseq@yoffset\relax}}
             \egroup
             \bgroup
             \xmax\ymax%\sseq@globalscaletransform
-            \pgfpathlineto{\pgfpointxy{\sseq@xmax+\sseq@xoffset}{\sseq@ymax+\sseq@yoffset}}
+            \pgfpathlineto{\pgfqpointxy{\numexpr\sseq@xmax+\sseq@xoffset\relax}{\numexpr\sseq@ymax+\sseq@yoffset\relax}}
             \egroup
             \bgroup
             \xmax\ymin%\sseq@globalscaletransform
-            \pgfpathlineto{\pgfpointxy{\sseq@xmax+\sseq@xoffset}{\sseq@ymin+\sseq@yoffset}}
+            \pgfpathlineto{\pgfqpointxy{\numexpr\sseq@xmax+\sseq@xoffset\relax}{\numexpr\sseq@ymin+\sseq@yoffset\relax}}
             \egroup
             \egroup
             \pgfpathclose
-            \pgfgetpath\sseq@theclippath % This stores the clipping so I can find intersections later
+            \pgfgetpath\sseq@theclippath % This stores the clipping so I can apply it later
             \pgfusepath{discard}% This has to be after the egroup or else the clipping gets screwed up
+            % This is supposed to go in a \pgftransformshift later that shifts the center of the clipping rectangle to the origin
+            % to prepare to use \pgfpointborderrectangle for off page edge handling.
+            \edef\sseq@clip@corner{
+                \@nx\pgfqpoint{
+                    \the\dimexpr
+                        \numexpr\sseq@xmax-\sseq@xmin\relax\sseq@xscalecm
+                       +\sseq@clip@padding@right
+                       +\sseq@yaxisgap
+                    \relax
+                }{
+                    \the\dimexpr
+                        \numexpr\sseq@ymax-\sseq@ymin\relax\sseq@yscalecm
+                       +\sseq@clip@padding@top
+                       +\sseq@xaxisgap
+                    \relax
+                }
+            }
+            \sseq@clip@corner
+            \edef\sseq@clip@center{
+                \@nx\pgfqpoint{
+                    \the\dimexpr
+                        -\dimexpr
+                            \pgf@x + \sseq@yclip@axisgap
+                        \relax/2
+                       -\sseq@xoffset\sseq@xscalecm
+                    \relax
+                }{
+                    \the\dimexpr
+                        -\dimexpr
+                            \pgf@y + \sseq@xclip@axisgap
+                        \relax/2
+                       -\sseq@yoffset\sseq@yscalecm
+                    \relax
+                }
+            }
+            % Now we find the offset from the center of the clip to the top right corner.
+            \pgf@process{\pgfpointadd{\sseq@clip@center}{\sseq@clip@corner}}
+            \edef\sseq@clip@corner{\@nx\pgfqpoint{\the\pgf@x}{\the\pgf@y}}
+%
             \bgroup
                 %\sseq@globalscaletransform
-                \pgfpathmoveto{\pgfpointxy{\sseq@xmin+\sseq@xoffset}{\sseq@ymin+\sseq@yoffset}}
-                \pgfpathlineto{\pgfpointxy{\sseq@xmin+\sseq@xoffset}{\sseq@ymax+\sseq@yoffset}}
-                \pgfpathlineto{\pgfpointxy{\sseq@xmax+\sseq@xoffset}{\sseq@ymax+\sseq@yoffset}}
-                \pgfpathlineto{\pgfpointxy{\sseq@xmax+\sseq@xoffset}{\sseq@ymin+\sseq@yoffset}}
+                \pgfpathmoveto{\pgfqpointxy{\numexpr\sseq@xmin+\sseq@xoffset\relax}{\numexpr\sseq@ymin+\sseq@yoffset\relax}}
+                \pgfpathlineto{\pgfqpointxy{\numexpr\sseq@xmin+\sseq@xoffset\relax}{\numexpr\sseq@ymax+\sseq@yoffset\relax}}
+                \pgfpathlineto{\pgfqpointxy{\numexpr\sseq@xmax+\sseq@xoffset\relax}{\numexpr\sseq@ymax+\sseq@yoffset\relax}}
+                \pgfpathlineto{\pgfqpointxy{\numexpr\sseq@xmax+\sseq@xoffset\relax}{\numexpr\sseq@ymin+\sseq@yoffset\relax}}
                 \pgfpathclose
             \egroup
             \pgfgetpath\sseq@therangepath % Only for deciding whether to draw "tricky edges"
@@ -213,9 +243,9 @@
  \bgroup
  \pgfscope
  \sseq@useclip
- \pgf@process{\pgfpointxy{\sseq@xgridstep}{0}}
+ \pgf@process{\pgfqpointxy{\sseq@xgridstep}{0}}
  \pgf@xa=\pgf@x
- \pgf@process{\pgfpointxy{0}{\sseq@ygridstep}}
+ \pgf@process{\pgfqpointxy{0}{\sseq@ygridstep}}
  \pgf@ya=\pgf@y
  \pgfmathparse{1cm/\pgf@xa}
  \pgftransformxscale{\pgfmathresult}
@@ -230,11 +260,11 @@
  \sseq@tempxb=\sseq@xmax\relax
  \sseq@tempyb=\sseq@ymax\relax
  \ifodd\sseq@xmin
-    \pgftransformxshift{-1cm}
+    \pgftransformshift{\pgfqpoint{-1cm}{0pt}}
     \advance\sseq@tempxb\@ne
  \fi
  \ifodd\sseq@ymin
-    \pgftransformyshift{-1cm}
+    \pgftransformshift{\pgfqpoint{0pt}{-1cm}}
     \advance\sseq@tempyb\@ne
  \fi
  \sseq@xoffset=\numexpr\sseq@intdivfloor{\sseq@xoffset}{2}*2\relax
@@ -253,28 +283,28 @@
  \pgfsetcolor{\sseq@gridcolor}
  \pgfsetlinewidth{\the\sseq@gridstrokethickness}
 
- \pgf@process{\pgfpointxy{1}{0}}
+ \pgf@process{\pgfqpointxy{1}{0}}
  \pgf@xa=\pgf@x
- \pgf@process{\pgfpointxy{0}{1}}
+ \pgf@process{\pgfqpointxy{0}{1}}
  \pgf@ya=\pgf@y
  \sseq@tempx=\numexpr \dimexpr(\sseq@yaxisgap-\sseq@yclip@axisgap)\relax/\pgf@xa+1\relax
  \sseq@tempy=\numexpr \dimexpr(\sseq@xaxisgap-\sseq@xclip@axisgap)\relax/\pgf@ya+1\relax
  \sseq@tempxb=\numexpr \dimexpr\sseq@xaxis@end@extend\relax/\pgf@xa+\sseq@xgridstep/2\relax
  \sseq@tempyb=\numexpr \dimexpr\sseq@yaxis@end@extend\relax/\pgf@ya+\sseq@ygridstep/2\relax
 
- \pgf@process{\pgfpointxy{\sseq@xgridstep}{0}}
+ \pgf@process{\pgfqpointxy{\sseq@xgridstep}{0}}
  \pgf@xa=\pgf@x
- \pgf@process{\pgfpointxy{0}{\sseq@ygridstep}}
+ \pgf@process{\pgfqpointxy{0}{\sseq@ygridstep}}
  \pgf@ya=\pgf@y
  \pgftransformshift{\pgfpointxy{-\sseq@xgridstep/2}{-\sseq@ygridstep/2}}
 
  \pgfpathgrid[stepx=\pgf@xa,stepy=\pgf@ya]
+    { \pgfqpointxy
+        { \numexpr\sseq@xmin - \sseq@tempx +\sseq@xoffset\relax }
+        { \numexpr\sseq@ymin - \sseq@tempy +\sseq@yoffset \relax} }
     { \pgfpointxy
-        { \xmin - \sseq@tempx +\sseq@xoffset }
-        { \ymin - \sseq@tempy +\sseq@yoffset} }
-    { \pgfpointxy
-        { \xmax + \sseq@tempxb - 0.01 +\sseq@xoffset }
-        { \ymax + \sseq@tempyb - 0.01 +\sseq@yoffset }
+        { \sseq@xmax + \sseq@tempxb - 0.01 +\sseq@xoffset }
+        { \sseq@ymax + \sseq@tempyb - 0.01 +\sseq@yoffset }
     }
  \pgfusepath{stroke}
  \endpgfscope
@@ -287,27 +317,27 @@
  \pgfsetcolor{\sseq@gridcolor}
  \pgfsetlinewidth{\the\sseq@gridstrokethickness}
 
- \pgf@process{\pgfpointxy{1}{0}}
+ \pgf@process{\pgfqpointxy{1}{0}}
  \pgf@xa=\pgf@x
- \pgf@process{\pgfpointxy{0}{1}}
+ \pgf@process{\pgfqpointxy{0}{1}}
  \pgf@ya=\pgf@y
  \sseq@tempx=\numexpr \dimexpr(\sseq@yaxisgap-\sseq@yclip@axisgap)\relax/\pgf@xa+1\relax
  \sseq@tempy=\numexpr \dimexpr(\sseq@xaxisgap-\sseq@xclip@axisgap)\relax/\pgf@ya+1\relax
  \sseq@tempxb=\numexpr \dimexpr\sseq@xaxis@end@extend\relax/\pgf@xa\relax
  \sseq@tempyb=\numexpr \dimexpr\sseq@yaxis@end@extend\relax/\pgf@ya\relax
 
- \pgf@process{\pgfpointxy{\sseq@xgridstep}{0}}
+ \pgf@process{\pgfqpointxy{\sseq@xgridstep}{0}}
  \pgf@xa=\pgf@x
- \pgf@process{\pgfpointxy{0}{\sseq@ygridstep}}
+ \pgf@process{\pgfqpointxy{0}{\sseq@ygridstep}}
  \pgf@ya=\pgf@y
 
  \pgfpathgrid[stepx=\pgf@xa,stepy=\pgf@ya]
+    { \pgfqpointxy
+        { \numexpr\sseq@xmin - \sseq@tempx +\sseq@xoffset\relax }
+        { \numexpr\sseq@ymin - \sseq@tempy +\sseq@yoffset\relax} }
     { \pgfpointxy
-        { \xmin - \sseq@tempx +\sseq@xoffset }
-        { \ymin - \sseq@tempy +\sseq@yoffset} }
-    { \pgfpointxy
-        { \xmax + \sseq@tempxb - 0.01 +\sseq@xoffset + 1 }
-        { \ymax + \sseq@tempyb - 0.01 +\sseq@yoffset + 1 }
+        { \sseq@xmax + \sseq@tempxb - 0.01 +\sseq@xoffset + 1 }
+        { \sseq@ymax + \sseq@tempyb - 0.01 +\sseq@yoffset + 1 }
     }
  \pgfusepath{stroke}
  \endpgfscope
@@ -323,8 +353,7 @@
  \pgfgettransformentries{\sseq@a}{\sseq@b}{\sseq@c}{\sseq@d}{\sseq@u}{\sseq@v}
  \pgfsettransform\sseq@savetransform
  \sseq@useclip
- \pgftransformxshift{-1.5cm}
- \pgftransformyshift{-0.5cm}
+ \pgftransformshift{\pgfqpoint{-1.5cm}{-0.5cm}}
  \pgfsetdash{{1pt}{\sseq@a*1cm-1pt}}{0.5cm+.5pt}
  \pgfsetlinewidth{1pt}
  \sseq@tempy=\sseq@ymin\relax
@@ -362,9 +391,9 @@
 }
 \def\sseq@offset#1#2{
     \sseq@eval{\@nx\pgftransformshift{
-        \@nx\pgfpointxy
-            { 0\csname sseq@\sseq@classpattern xoffset#1/#2\endcsname }
-            { 0\csname sseq@\sseq@classpattern yoffset#1/#2\endcsname }
+        \@nx\pgfqpointxy
+            { \csname sseq@\sseq@classpattern xoffset#1/#2\endcsname }
+            { \csname sseq@\sseq@classpattern yoffset#1/#2\endcsname }
     }}
 }
 \def\sseq@class@getparts#1(#2,#3,#4)[#5].{
@@ -434,8 +463,7 @@
             \fi
             \the\sseq@scope@toks
             \sseq@obj{#1.options}%
-        \sseq@eval{\@nx\pgftransformshift{\@nx\pgfpointxy{\the\sseq@tempx +\sseq@xoffset}{\the\sseq@tempy + \sseq@yoffset}}} %%%%%
-        \sseq@eval{\@nx\pgftransformshift{\@nx\pgfpointxy{-\the\sseq@x}{-\the\sseq@y}}} % someday maybe I should figure
+        \pgftransformshift{\pgfqpointxy{\numexpr\sseq@tempx +\sseq@xoffset-\sseq@x\relax}{\numexpr\sseq@tempy + \sseq@yoffset-\sseq@y\relax}}
         \iftikz@fullytransformed\pgfgettransform{\savetransform}\fi
         \pgftransformresetnontranslations
         \sseq@globalrotatetransform
@@ -711,7 +739,7 @@
     \endpgfscope\endgroup
 }
 
-% TODO: this macro is super expensive. Make it faster (avoid
+% TODO: this macro is super expensive. Make it faster
 \def\sseq@handleoffpageedge#1#2#3{
     \pgfpathmoveto{\tempaf}%
     \pgfpathlineto{\tempbf}%

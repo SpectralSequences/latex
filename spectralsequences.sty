@@ -15,7 +15,6 @@
 %  fix xshift for labels
 %  labels shift down as they get wider for some reason (see HFPSS-EO4_5)
 %  finish \sseqparseint, \IfOutOfBoundsTF, \DoUntilOutOfBounds (add error trapping and test them)
-%  modify class label handler so that if #1 is unused, it is treated reasonably
 %
 %  make pin labels work (say by adding a "pin" key)
 %  rename "axis style" to "axis type" and make an "axis style" option that styles the axis.
@@ -31,15 +30,12 @@
 %  fix chess and dots grids
 %
 %  Errors:
-%    Input sanitizer to make sure grid color is valid color
 %    the new loop constructs need \foreach style error handling
 %    define error message for usermacro-failed-patch
 %    give an error if \gettag fails to find a tag
 %    give an error if the user tries to put a shift into a style
 %    Fix no classes error message for \d (probably I should have kept the MWE for this...)
 %    Add xparse related assumptions (I'm surprised we didn't already have these)
-%    add error when chart is too big to fit on the page
-%
 %
 %
 %
@@ -157,6 +153,10 @@
 \newdimen\sseq@tempdimen
 \newdimen\sseq@tempxdimen
 \newdimen\sseq@tempydimen
+\newdimen\sseq@xscalecm
+\newdimen\sseq@yscalecm
+\newdimen\sseq@clip@xcenter
+\newdimen\sseq@clip@ycenter
 \newdimen\sseq@tooltip@height
 \newdimen\sseq@tooltip@width
 \newdimen\sseq@gridstrokethickness

@@ -1,3 +1,4 @@
 *.txt
 *.zip
 *.html
+!timetest.txt

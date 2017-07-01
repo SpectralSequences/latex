@@ -358,7 +358,7 @@
 
 
 \sseq@addtostorelist\sseq@classlabeltextfn{} % \sseq@classlabeltextfn is public via "class label handler"
-\let\sseq@classlabeltextfn@default\@gobble
+\def\sseq@classlabeltextfn@default#1{\def\processedlabel{#1}}
 \def\sseq@labeltextfn#1{#1} % labeltextfn is private
 \def\sseq@labeltextfn@rotatescale#1{%
     \@nx\ifmmode
@@ -449,17 +449,13 @@
     \the\sseq@scope@toks
     \sseq@options@normalmode
     \sseq@processoptions{class/label}{#2}%
-    \ifx\sseq@classlabeltextfn\@gobble
-        \def\processedlabel{#1}%
-    \else
-        \sseq@classlabeltextfn{#1}% labeltextfn is a private handler, classlabeltextfn is exposed via "class label handler"
-    \fi
+    \sseq@classlabeltextfn{#1}% labeltextfn is a private handler, classlabeltextfn is exposed via "class label handler"
     \ifsseq@classlabel
         \sseq@options@firstpassmode
         \the\sseq@outerclasslabelstyle
         \sseq@x@addto@macro\sseq@classlabelnodes{%
             \@nx\sseq@drawlabel{%
-                \unexpanded\@xp{\processedlabel}}%
+                \sseq@maybemathswitch\unexpanded\@xp{\processedlabel}\sseq@maybemathswitch}%
                 {% This is setup to prevent a bug where \classoptions and class label style don't work correctly together
                     \the\sseq@sseqstyle\@nx\the\sseq@sseqstyle@page
                     \the\sseq@labelstyle\@nx\the\sseq@labelstyle@page
@@ -473,7 +469,7 @@
         \the\sseq@innerclasslabelstyle
         \sseq@options@normalmode
         \sseq@protectedeval{\@nx\pgfqkeys{/sseqpages/class/label}{#2}}%
-        \sseq@protected@xdef\sseq@classnodetext{\processedlabel}%
+        \sseq@protected@xdef\sseq@classnodetext{\sseq@maybemathswitch\processedlabel\sseq@maybemathswitch}%
         \xdef\sseq@classnodetextoptions{%
             %\unexpanded{\def\pgfkeysdefaultpath{/sseqpages/class/node texts/}}%
             \sseq@thelabelstyle\sseq@theinnerclasslabelstyle\unexpanded\@xp{\sseq@savedoptioncode}%
@@ -1451,8 +1447,30 @@
     x tick handler/.sseq default code={\def\sseq@xtickfn@default##1{#1}},
     y tick handler/.code={\def\sseq@ytickfn##1{#1}},
     y tick handler/.sseq default code={\def\sseq@ytickfn@default##1{#1}},
-    class label handler/.code = {\long\def\sseq@classlabeltextfn##1{#1}}, % \long so that \ifx\classlabeltextfn\@gobble compares true if this is empty (\@gobble is long...)
-    class label handler/.sseq default code={\long\def\sseq@classlabeltextfn@default##1{#1}},
+    class label handler/.code = { % \long so that \ifx\classlabeltextfn\@gobble compares true if this is empty (\@gobble is long...)
+        \long\def\sseq@classlabeltextfn##1{#1}
+        \ifx\sseq@classlabeltextfn\@gobble
+            \def\sseq@classlabeltextfn##1{\def\processedlabel{##1}}
+        \else
+            \edef\sseq@tempa{\unexpanded\@xp{\sseq@classlabeltextfn{}}}
+            \edef\sseq@tempb{\unexpanded\@xp{\sseq@classlabeltextfn{blah}}}
+            \ifx\sseq@tempa\sseq@tempb
+                \long\def\sseq@classlabeltextfn##1{#1{##1}}
+            \fi
+        \fi
+    }, 
+    class label handler/.sseq default code={
+        \long\def\sseq@classlabeltextfn@default##1{#1}
+        \ifx\sseq@classlabeltextfn@default\@gobble
+            \def\sseq@classlabeltextfn@default##1{\def\processedlabel{##1}}
+        \else
+            \edef\sseq@tempa{\unexpanded\@xp{\sseq@classlabeltextfn@default{}}}
+            \edef\sseq@tempb{\unexpanded\@xp{\sseq@classlabeltextfn@default{blah}}}
+            \ifx\sseq@tempa\sseq@tempb
+                \long\def\sseq@classlabeltextfn@default##1{#1{##1}}
+            \fi
+        \fi
+    },
     x tick style/.sseq store in=\sseq@xtickstyle{},
     y tick style/.sseq store in=\sseq@ytickstyle{},
     tick style/.sseq x y alias,
@@ -1476,7 +1494,18 @@
     axes origin/.sseq x y alias=axis origin,
 }
 \pgfqkeys{/sseqpages}{%
-    class label handler/.code = {\long\def\sseq@classlabeltextfn##1{#1}}
+    class label handler/.code = { % \long so that \ifx\classlabeltextfn\@gobble compares true if this is empty (\@gobble is long...)
+        \long\def\sseq@classlabeltextfn##1{#1}
+        \ifx\sseq@classlabeltextfn\@gobble
+            \def\sseq@classlabeltextfn##1{\def\processedlabel{##1}}
+        \else
+            \edef\sseq@tempa{\unexpanded\@xp{\sseq@classlabeltextfn{}}}
+            \edef\sseq@tempb{\unexpanded\@xp{\sseq@classlabeltextfn{blah}}}
+            \ifx\sseq@tempa\sseq@tempb
+                \long\def\sseq@classlabeltextfn##1{#1{##1}}
+            \fi
+        \fi
+    }
 }
 
 \sseq@globalkeys{

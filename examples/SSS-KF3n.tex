@@ -15,7 +15,7 @@
 \sseqset{
     cohomological Serre grading,
     title={Page \page},
-    class placement transform={scale=3, rotate=90},
+    class placement transform={rotate=90},
     class pattern=linear,
     classes={draw=none},
     class label handler = {\sseqnormalizemonomial{#1}},
@@ -133,6 +133,7 @@
 \end{sseqdata}
 
 \printpage[name=K(Z/3;2),page=2]
+\end{document}
 \newpage
 \printpage[name=K(Z/3;2),page=3]
 \newpage
@@ -158,11 +159,13 @@
 \draw[->]  (7,0,2) to[bend left=30, "\beta^1"] (8,0,2);
 \draw[->]  (8,0,1) to[bend right=30, "\beta^1"' {pos = 0.46}] (9,0);
 
+
 \class["\Z\{1\}"](0,-1)
 \class["\Z/3\{\beta\iota_3\}"](2,-1)
 \class["\Z/3\{\beta\iota_2^2\}"](5,-1)
 \class["\Z/9\{\beta\iota_2^3\}"](7,-1)
 \class["\Z/3\{\beta P^1\iota_2\}"](8,-1)
+
 \end{sseqpage}
 
 
@@ -177,7 +180,7 @@
     \class["\ylabel\xlabel"](\x,\y)
 }
 
-\sseqset{class label handler = {}}
+%\sseqset{class label handler = {}}
 
 \class["P^1\beta\iota_2"](0,7)
 \class["\iota_2^2\beta\iota_2"](0,7)

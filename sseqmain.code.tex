@@ -126,9 +126,9 @@
 %
     \let\sseq@xminmax\sseq@xminmax@active
     \let\sseq@yminmax\sseq@yminmax@active
-    \ifsseq@mathnodes
-        \let\sseq@maybemathswitch=$\@gobble$
-    \fi
+%    \ifsseq@mathnodes
+%        \let\sseq@maybemathswitch=$\@gobble$
+%    \fi
 %
     % Copy commands into user namespace
     \sseq@installmacros
@@ -193,6 +193,9 @@
 \def\endsseqpage{
     \sseq@savedpaths@add{\endgroup} % prevent some of the two-pass user macros horrors
 %
+    \sseq@xscalecm=\sseq@xscale cm
+    \sseq@yscalecm=\sseq@yscale cm
+%
 % check that range is okay
 %
     \ifx\sseq@xmin\sseq@infinity\sseq@error{no-range}\def\sseq@xmin{0}\def\sseq@xmax{0}\@xp\sseq@break\fi % could be warning
@@ -210,7 +213,7 @@
     \fi
 %
     \sseq@tempdimen = \dimexpr \textwidth -\sseq@clip@padding@right - \sseq@xaxis@end@extend - \sseq@xaxis@start@extend - \sseq@yaxisgap \relax
-    \sseq@tempcount = \numexpr -1 +\sseq@tempdimen / \dimexpr\sseq@xscale cm \relax \relax
+    \sseq@tempcount = \numexpr -1 +\sseq@tempdimen /\sseq@xscalecm \relax
     \ifnum \numexpr\sseq@xmax-\sseq@xmin > \sseq@tempcount
       \pgfmathparse{\sseq@tempdimen/1cm/(\sseq@xmax-\sseq@xmin)}
       \sseq@error@xxxx{range-overflow}{x}
@@ -221,7 +224,7 @@
     \fi
 %
     \sseq@tempdimen = \dimexpr \textheight - \sseq@clip@padding@top - \sseq@yaxis@end@extend - \sseq@yaxis@start@extend - \sseq@xaxisgap \relax
-    \sseq@tempcount = \numexpr -1 +\sseq@tempdimen / \dimexpr\sseq@yscale cm \relax \relax
+    \sseq@tempcount = \numexpr -1 +\sseq@tempdimen /\sseq@yscalecm \relax
     \ifnum \numexpr\sseq@ymax-\sseq@ymin > \sseq@tempcount
         \pgfmathparse{\sseq@tempdimen/1cm/(\sseq@ymax-\sseq@ymin)}
         \sseq@error@xxxx{range-overflow}{y}
@@ -252,23 +255,36 @@
     \let\sseq@shifttransform\sseq@checkshifttransform % Allow shifts as long as they are by integers and have no units.
 %
     \sseq@setupclip
+%
+    \sseq@patchtikzcoords
+%    
     \pgfonlayer{background}%
     % Axes labels only occur once per page, so the cost of typesetting them with tikz doesn't matter ... THANK GOD
     \ifx\sseq@title\pgfutil@empty\else
         \ifsseq@drawtitle
-            \sseq@eval{\unexpanded{\path (0.5*\xmin+0.5*\xmax,\ymax) node[
+            \sseq@eval{\@nx\path (0,-\sseq@yoffset) node[
                 /sseqpages/global/every title,
                 above=\sseq@clip@padding@top+\sseq@yaxis@end@extend+10pt
-            ]} {\unexpanded\expandafter{\sseq@title}};}
+                ] {\unexpanded\expandafter{\sseq@title}};
+            }
+%            \sseq@eval{\unexpanded{\path (\sseq@xoffset,\sseq@yoffset) 
         \fi
     \fi
     % Don't touch the shifts -- they are very persnickety.
     \ifx\sseq@xaxislabel\pgfutil@empty\else\ifsseq@drawxaxislabel
-        \sseq@eval{\noexpand\node[/sseqpages/global/every x axis label, yshift=-\sseq@xaxisgap-\sseq@yaxis@start@extend-10pt] {\unexpanded\expandafter{\sseq@xaxislabel}};}
+        \sseq@eval{\noexpand\node[
+            /sseqpages/global/every x axis label, 
+            yshift=-\sseq@xaxisgap-\sseq@yaxis@start@extend-10pt
+        ] {\unexpanded\expandafter{\sseq@xaxislabel}};}
     \fi\fi
     \ifx\sseq@yaxislabel\pgfutil@empty\else\ifsseq@drawyaxislabel
-        \sseq@eval{\noexpand\node[/sseqpages/global/every y axis label,rotate=90,yshift=\sseq@yaxisgap+\sseq@xaxis@start@extend+10pt] {\unexpanded\expandafter{\sseq@yaxislabel}};}
+        \sseq@eval{\noexpand\node[
+            /sseqpages/global/every y axis label,
+            rotate=90,
+            yshift=\sseq@yaxisgap+\sseq@xaxis@start@extend+10pt
+        ] {\unexpanded\expandafter{\sseq@yaxislabel}};}
     \fi\fi
+%
     \sseq@handlexaxis % Draw the axis with pgf primitives. These are defined in sseqdrawing.code.tex
     \sseq@handleyaxis
     \sseq@grid
@@ -278,7 +294,7 @@
         \tikzset{execute at begin node=$,execute at end node=$}%
     \fi
     %\let\sseq@error@setup\sseq@error@setup@withinfo
-    \sseq@patchtikzcoords
+    
     \begingroup
     \sseq@savedbackgroundpaths
     \endgroup
