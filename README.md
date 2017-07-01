@@ -21,11 +21,14 @@ Changelog:
 - \IfInBoundsTF, \IfOutOfBoundsTF
 - \Do, \DoUntilOutOfBounds, \DoUntilOutOfBoundsThenNMore
 - Defaults for \structline: a single missing coordinate is replaced with \lastclass, if both are missing, same as \structline(\lastclass1)(\lastclass)
+
+### Changed:
 - Ticks are now placed at values congruent to tick offset mod tick step, tick offset defaults to 0
+- What was called "x axis style" is now called "x axis type".
 
 ### Fixed: 
-- The \tagclass command was broken. Now it works.
-- Scopes didn't nest properly, now they do.
+- The \tagclass command works now.
+- Scopes now nest properly.
 - Fixed a big performance issue with nested scopes and shifts. 
 - Adobe reader grid color is now correct (or more correct)
 - Fixed the grid drawing so that grids are handled correctly when the range includes negative numbers

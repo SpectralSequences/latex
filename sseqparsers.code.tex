@@ -913,7 +913,7 @@
 \def\sseq@defer@tikzcommand@option[#1]{%
     \sseq@processoptions{tikz ~ primitives}{#1}%
     \ifx\sseq@savedoptioncode\pgfutil@empty\else
-        \sseq@x@addto@macro\sseq@thepathsofar{[/utils/exec={\unexpanded\@xp{\sseq@savedoptioncode}}]}%
+        \sseq@x@addto@macro\sseq@thepathsofar{[/utils/exec={\unexpanded\@xp{\@xp\sseq@options@bothpassmode\sseq@savedoptioncode}}]}%
     \fi
     \sseq@g@addto@macro\sseq@whattheusersaid{[#1]}
     \sseq@defer@tikzcommand@

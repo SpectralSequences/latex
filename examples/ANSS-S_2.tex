@@ -6,7 +6,11 @@
 \usepackage{spectralsequences}
 
 % figure out how to get width("\noexpand\small 16") working
-\sseqset{ppower/.style={rectangle,font=\tiny,minimum height=10pt,minimum width=10pt,class labels=inside,"#1"}}
+\sseqset{ppower/.sseq style={
+    rectangle,"#1" {inside, font=\tiny},
+    minimum height=width("16"),
+    minimum width=width("16")
+}}
 \begin{document}
 
 \NewSseqCommand\etaclass{O{}d()}{
@@ -62,7 +66,7 @@
 \d3(\lastclass)
 \DoUntilOutOfBounds{\etaclass\d3(\lastclass)}
 
-\class["\alpha_{4/4}" {font=\small},ppower=16,"16" {inside,font=\tiny}](7,1)
+\class["\alpha_{4/4}",ppower=16](7,1)
 \DoUntilOutOfBoundsThenNMore{3}{\etaclass}
 
 \class["\alpha_{5}"](9,1)
@@ -75,7 +79,7 @@
 \structline[dashed](11,1)(11,3)
 
 
-\class["\alpha_{8/5}" {font=\small},ppower=32,"32" {inside,font=\tiny}](15,1)
+\class["\alpha_{8/5}",ppower=32](15,1)
 \DoUntilOutOfBoundsThenNMore{3}{\etaclass}
 
 \class["\alpha_9"](17,1)
@@ -160,6 +164,7 @@
 \end{sseqdata}
 \centering
 \printpage[name=ANSS-S_2]
+
 \printpage[name=ANSS-S_2,page=5]
 
 \end{document} 

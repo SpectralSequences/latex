@@ -179,13 +179,13 @@
             \@xp\pgfutil@in@\@xp-\@xp{\tikz@key}%
             \ifpgfutil@in@%
               % Ah, an arrow spec!
-              \sseq@add@tikzkey@to@options{\@nx\tikz@processarrows{\tikz@key}}%
+              \sseq@add@tikzkey@to@options{\@nx\sseq@options@secondpass{\@nx\tikz@processarrows{\tikz@key}}}%
             \else%
               % Ok, third chance: A shape!
               \@xp\ifx\csname pgf@sh@s@\tikz@key\endcsname\relax%
                     \sseq@keys@unknown@error%
               \else%
-                \sseq@add@tikzkey@to@options{\def\@nx\tikz@shape{\tikz@key}}%
+                \sseq@add@tikzkey@to@options{\@nx\sseq@options@secondpass{\def\@nx\tikz@shape{\tikz@key}}}%
               \fi%
             \fi%
           }%
@@ -194,8 +194,8 @@
 }
 
 \def\sseq@keys@unknown@handlecolor{%
-  \sseq@add@tikzkey@to@options{\@nx\tikz@addoption{\@nx\tikz@compat@color@set{\tikz@key}}}%
-  \sseq@add@tikzkey@to@options{\def\@nx\tikz@textcolor{\tikz@key}}%
+  \sseq@add@tikzkey@to@options{\@nx\sseq@options@secondpass{\@nx\tikz@addoption{\@nx\tikz@compat@color@set{\tikz@key}}}}%
+  \sseq@add@tikzkey@to@options{\@nx\sseq@options@secondpass{\def\@nx\tikz@textcolor{\tikz@key}}}%
 }
 
 %%% \sseq@keys@try@addtooptions
@@ -235,7 +235,7 @@
     }{%
         \pgfkeysifdefined{#1/\pgfkeyscurrentname}{%
             \egroup
-            \sseq@add@tikzkey@to@options{\@nx\pgfkeyssetvalue{#1/\pgfkeyscurrentname}{\unexpanded\@xp{\pgfkeyscurrentvalue}}}%
+            \sseq@add@tikzkey@to@options{\@nx\sseq@options@secondpass{\@nx\pgfkeyssetvalue{#1/\pgfkeyscurrentname}{\unexpanded\@xp{\pgfkeyscurrentvalue}}}}%
             \def\next{\@xp\@firstoftwo\sseq@gobble@to@nil}%
         }{}%
     }%
@@ -253,9 +253,19 @@
         \let\pgfkeys@case@one\sseq@pgfkeys@case@one@save
         \let\pgfkeys@case@two@extern\sseq@pgfkeys@case@two@extern@save
     \else
-        \pgfkeysalso{#2}%
-        \@xp\sseq@keys@addtooptions@checkalso@
+        \ifx\expandafter#2 % if they wanted to expand the first token, handle that
+            \sseq@add@tikzkey@to@options{\relax\relax} % The last token was an \expandafter, we need to keep it from doing anything
+            \@xptwo\sseq@keys@addtooptions@checkalso@xp
+        \else
+            \pgfkeysalso{#2}%
+            \@xptwo\sseq@keys@addtooptions@checkalso@
+        \fi
     \fi
+}
+
+\def\sseq@keys@addtooptions@checkalso@xp#1{
+    \@xp\pgfkeysalso\@xp{#1}
+    \sseq@keys@addtooptions@checkalso@
 }
 
 \let\sseq@pgfkeys@case@one@save\pgfkeys@case@one
@@ -265,7 +275,7 @@
         \pgfkeysgetvalue{\pgfkeyscurrentkey/.@cmd}{\pgfkeys@code}%
         % The following line is the only change, it used to be \@xp\pgfkeys@code\pgfkeyscurrentvalue\pgfeov which would just run the code.
         % Instead we recursively expand the \pgfkeysalso's and then store in it \sseq@savedoptioncode
-        \sseq@eval{\@nx\sseq@keys@addtooptions@checkalso{\unexpanded\@xptwo{\@xp\pgfkeys@code\pgfkeyscurrentvalue\pgfeov}}}%
+        \sseq@eval{\@nx\sseq@keys@addtooptions@checkalso{\@nx\sseq@options@secondpass{\unexpanded\@xptwo{\@xp\pgfkeys@code\pgfkeyscurrentvalue\pgfeov}}}}%
     }{\pgfkeys@case@two}%
 }
 \def\sseq@pgfkeys@case@two@extern@store{%
@@ -274,7 +284,7 @@
   \else%
     % The following line is the only change, it used to be (roughly) \pgfkeyssetvalue{\pgfkeyscurrentkey}{\pgfkeyscurrentvalue}
     % which would immediately set the value. Instead we store in it \sseq@savedoptioncode
-    \sseq@add@tikzkey@to@options{\@nx\pgfkeyssetvalue{\pgfkeyscurrentkey}{\unexpanded\@xp{\pgfkeyscurrentvalue}}}%
+    \sseq@add@tikzkey@to@options{\@nx\sseq@options@secondpass{\@nx\pgfkeyssetvalue{\pgfkeyscurrentkey}{\unexpanded\@xp{\pgfkeyscurrentvalue}}}}%
   \fi%
 }
 
@@ -1037,32 +1047,36 @@
     }
 }
 
-\def\sseq@add@tikzkey@to@options@forstylehander#1{\sseq@e@addto@options{\@nx\sseq@options@secondpass{#1}}}
+\def\sseq@patchrepeat#1#2#3{%
+    \patchcmd#1{#2}{#3}{\sseq@patchrepeat{#1}{#2}{#3}}{}%
+}
+
+\def\sseq@stylehandler@processpath#1#2{
+    \def\sseq@savedoptioncode{}%
+    \sseq@eval{\@nx\sseq@addstylecodetooptions{/sseqpages/#1}{\unexpanded\@xp{\sseq@keybody{*1}}}}%
+    \edef\sseq@savedoptioncode##1{\unexpanded\@xp{\sseq@savedoptioncode}}
+    \sseq@patchrepeat\sseq@savedoptioncode{*1}{##1}
+    \sseq@eval{\@nx\pgfqkeys{/sseqpages/#1}{\sseq@temp/.#2={\unexpanded\@xp{\sseq@savedoptioncode{##1}}}}}%
+}
+
+\def\sseq@add@tikzkey@to@options@forstylehander#1{\sseq@e@addto@options{#1}}
 \pgfqkeys{/handlers}{ % defines sseq style, etc
     sseq @@ make style handler/.style 2 args={%
         .sseq #1/.code={%
+            \def\sseq@keybody####1{##1}
             \sseq@keys@lastpart
             \let\sseq@savedoptioncode@store\sseq@savedoptioncode
             \def\sseq@keys@unknown@error{}%
-            \def\sseq@savedoptioncode{}%
             \let\sseq@add@tikzkey@to@options\sseq@add@tikzkey@to@options@forstylehander
-            \sseq@addstylecodetooptions{/sseqpages/scope}{##1}%
-            \sseq@eval{\@nx\pgfkeys{/sseqpages/scope/\sseq@temp/.#2={\unexpanded\@xp{\sseq@savedoptioncode}}}}%
-            \def\sseq@savedoptioncode{}%
-            \sseq@addstylecodetooptions{/sseqpages/class}{##1}%
-            \sseq@eval{\@nx\pgfkeys{/sseqpages/class/\sseq@temp/.#2={\unexpanded\@xp{\sseq@savedoptioncode}}}}%
-            \def\sseq@savedoptioncode{}%
-            \sseq@addstylecodetooptions{/sseqpages/differential}{##1}%
-            \sseq@eval{\@nx\pgfkeys{/sseqpages/differential/\sseq@temp/.#2={\unexpanded\@xp{\sseq@savedoptioncode}}}}%
-            \def\sseq@savedoptioncode{}%
-            \sseq@addstylecodetooptions{/sseqpages/struct line}{##1}%
-            \sseq@eval{\@nx\pgfkeys{/sseqpages/struct line/\sseq@temp/.#2={\unexpanded\@xp{\sseq@savedoptioncode}}}}%
-            \def\sseq@savedoptioncode{}%
-            \sseq@addstylecodetooptions{/sseqpages/circle classes}{##1}
-            \sseq@eval{\@nx\pgfkeys{/sseqpages/circle classes/\sseq@temp/.#2={\unexpanded\@xp{\sseq@savedoptioncode}}}}%
-            \def\sseq@savedoptioncode{}%
-            \sseq@addstylecodetooptions{/sseqpages/tikz primitives}{##1}%
-            \sseq@eval{\@nx\pgfkeys{/sseqpages/tikz primitives/\sseq@temp/.#2={\unexpanded\@xp{\sseq@savedoptioncode}}}}%
+%                        
+            \sseq@stylehandler@processpath{scope}{#2}%
+            %\tracingall
+            \sseq@stylehandler@processpath{class}{#2}
+            \sseq@stylehandler@processpath{differential}{#2}%
+            \sseq@stylehandler@processpath{struct line}{#2}%
+            \sseq@stylehandler@processpath{circle classes}{#2}%
+            \sseq@stylehandler@processpath{tikz primitives}{#2}%
+%            
             \let\sseq@savedoptioncode\sseq@savedoptioncode@store
             \let\sseq@addstylecodetooptions@unknown\sseq@keys@unknown
             \let\sseq@keys@unknown@error\sseq@keys@unknown@error@normal
@@ -1458,7 +1472,7 @@
                 \long\def\sseq@classlabeltextfn##1{#1{##1}}
             \fi
         \fi
-    }, 
+    },
     class label handler/.sseq default code={
         \long\def\sseq@classlabeltextfn@default##1{#1}
         \ifx\sseq@classlabeltextfn@default\@gobble
@@ -1475,20 +1489,20 @@
     y tick style/.sseq store in=\sseq@ytickstyle{},
     tick style/.sseq x y alias,
 %
-    x axis style/.is choice,
-    y axis style/.is choice,
-    axes style/.sseq x y alias=axis style,
-    ~x axis style/border/.code={\sseq@drawxaxistrue\sseq@borderxaxistrue},
-    ~y axis style/border/.code={\sseq@drawyaxistrue\sseq@borderyaxistrue},
-    ~x axis style/center/.code={
+    x axis type/.is choice,
+    y axis type/.is choice,
+    axes type/.sseq x y alias=axis style,
+    ~x axis type/border/.code={\sseq@drawxaxistrue\sseq@borderxaxistrue},
+    ~y axis type/border/.code={\sseq@drawyaxistrue\sseq@borderyaxistrue},
+    ~x axis type/center/.code={
         \sseq@drawxaxistrue\sseq@borderxaxisfalse
         \ifx\sseq@xaxisgap\sseq@xaxisgap@default
             \def\sseq@xaxisgap{0cm}
         \fi
     },
-    ~y axis style/center/.code={\sseq@drawyaxistrue\sseq@borderyaxisfalse\ifx\sseq@yaxisgap\sseq@yaxisgap@default\def\sseq@yaxisgap{0cm}\fi},
-    ~x axis style/none/.code={\sseq@drawxaxisfalse},
-    ~y axis style/none/.code={\sseq@drawyaxisfalse},
+    ~y axis type/center/.code={\sseq@drawyaxistrue\sseq@borderyaxisfalse\ifx\sseq@yaxisgap\sseq@yaxisgap@default\def\sseq@yaxisgap{0cm}\fi},
+    ~x axis type/none/.code={\sseq@drawxaxisfalse},
+    ~y axis type/none/.code={\sseq@drawyaxisfalse},
     x axis origin/.sseq store int in=\sseq@xaxisorigin{0},
     y axis origin/.sseq store int in=\sseq@yaxisorigin{0},
     axes origin/.sseq x y alias=axis origin,
@@ -1593,7 +1607,7 @@
             \sseq@error@nn{negative-scale}{x}{#1}%
             \sseq@break
         \fi
-        \sseq@globalscaleoption{\pgfsetxvec{\pgfpointxy{#1}{0}}}%
+        \sseq@globalscaleoption{\pgfsetxvec{\pgfpointxy{#1}{0}}}
         \pgfmathparse{\sseq@xscale*#1}
         \edef\sseq@xscale{\pgfmathresult}
         \sseq@breakpoint
@@ -1612,7 +1626,7 @@
             \sseq@error@nn{negative-scale}{y}{#1}%
             \sseq@break
         \fi
-        \sseq@globalscaleoption{\pgfsetyvec{\pgfpointxy{0}{#1}}}%
+        \sseq@globalscaleoption{\pgfsetyvec{\pgfpointxy{0}{#1}}}
         \pgfmathparse{\sseq@yscale*#1}
         \edef\sseq@yscale{\pgfmathresult}
         \sseq@breakpoint

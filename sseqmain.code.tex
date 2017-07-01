@@ -257,7 +257,7 @@
     \sseq@setupclip
 %
     \sseq@patchtikzcoords
-%    
+%
     \pgfonlayer{background}%
     % Axes labels only occur once per page, so the cost of typesetting them with tikz doesn't matter ... THANK GOD
     \ifx\sseq@title\pgfutil@empty\else
@@ -267,13 +267,13 @@
                 above=\sseq@clip@padding@top+\sseq@yaxis@end@extend+10pt
                 ] {\unexpanded\expandafter{\sseq@title}};
             }
-%            \sseq@eval{\unexpanded{\path (\sseq@xoffset,\sseq@yoffset) 
+%            \sseq@eval{\unexpanded{\path (\sseq@xoffset,\sseq@yoffset)
         \fi
     \fi
     % Don't touch the shifts -- they are very persnickety.
     \ifx\sseq@xaxislabel\pgfutil@empty\else\ifsseq@drawxaxislabel
         \sseq@eval{\noexpand\node[
-            /sseqpages/global/every x axis label, 
+            /sseqpages/global/every x axis label,
             yshift=-\sseq@xaxisgap-\sseq@yaxis@start@extend-10pt
         ] {\unexpanded\expandafter{\sseq@xaxislabel}};}
     \fi\fi
@@ -287,14 +287,14 @@
 %
     \sseq@handlexaxis % Draw the axis with pgf primitives. These are defined in sseqdrawing.code.tex
     \sseq@handleyaxis
-    \sseq@grid
+    \sseq@grid                
     \endpgfonlayer
 %
     \ifsseq@mathnodes
         \tikzset{execute at begin node=$,execute at end node=$}%
     \fi
     %\let\sseq@error@setup\sseq@error@setup@withinfo
-    
+%
     \begingroup
     \sseq@savedbackgroundpaths
     \endgroup

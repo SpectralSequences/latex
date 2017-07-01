@@ -876,7 +876,7 @@ You can also use |\sseqset| to create styles to be used in spectral sequences.
 These handlers create reusable styles to be used in spectral sequences. If this style is a set of global options, then use the |.global sseq style| handler, whereas if it is supposed to be applied to individual features (classes, differentials, struct lines, circle classes, and tikz primitives) then use the |.sseq style| handler.
 \begin{codeexample}[width=6cm]
 \sseqset{
-    mysseq/.style = {
+    mysseq/.global sseq style = {
         Adams grading, title = Page \page,
         x range = {0}{4}, y range = {0}{2},
         xscale = 0.5, yscale = 1.35
@@ -1856,7 +1856,7 @@ The value for |x tick handler| should be a function that takes in the current $\
 
 \needspace{5\baselineskip}
 \subsection{Layout}
-\begin{keylist}{x axis style = \meta{style} (initially border), y axis style = \meta{style} (initially border),axes style = \meta{style} (initially border)}
+\begin{keylist}{x axis type = \meta{style} (initially border), y axis type = \meta{style} (initially border),axes type = \meta{style} (initially border)}
 The \meta{style} is either |border| or |center|. The |border| option puts the axes on the bottom and left of the picture; the center option by default places the axes at $\mathtt{x = y = 0}$. This option is only worth using for multi-quadrant spectral sequences. See \example{KRAHSS} and \example{KUHFPSS} for examples where this is used.
 %TODO: example?
 \end{keylist}
@@ -1888,7 +1888,10 @@ If you use |axes style = center|, these keys change the position of the axes. Ot
 \end{keylist}
 
 \begin{center}
-\pgfkeys{/sseqpages/tikz primitives/distance label/.style = {orange,{<[width = 4pt]}-}, /sseqpages/tikz primitives/description/.style = {black,/tikz/align = center}}
+\sseqset{
+    distance label/.sseq style = {orange,{<[width = 4pt]}-}, 
+    description/.sseq style = {black, align = center}
+}
 \begin{sseqpage}[ grid = chess,
     x range = {0}{5}, y range = {0}{5}, math nodes = false,
     x axis clip padding = 0.15cm, y axis clip padding = 0.15cm,
