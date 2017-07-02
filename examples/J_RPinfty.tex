@@ -12,10 +12,8 @@
 %%   Looking back, I seem to have inferred a bunch of stuff that wasn't actually written down on the page, but I'm not sure how so there's a chance some of it is wrong.
 %%
 
-\documentclass{article}
-\usepackage[landscape,margin=0cm,top=2cm]{geometry}
+\documentclass{spectralsequence-example}
 \usepackage{amssymb}
-\usepackage{spectralsequences}
 
 \NewSseqCommand\row { m } {\foreach \x in {1,...,35}{\class(\x,#1)}}
 \NewSseqCommand\twoptrow { m } {\foreach \x in {1,...,35}{\class(\x,#1)\class(\x,#1)}}

@@ -12,9 +12,8 @@
 
 % TODO:
 %  finish \sseqparseint, \IfOutOfBoundsTF, \DoUntilOutOfBounds, \kill (add error trapping and test them)
-%  fix axes gap, x y alias thing
-%
 %  make pin labels work (say by adding a "pin" key)
+%  default argument for \d, \classoptions, \replaceclass
 %
 %
 %  Errors:
@@ -25,19 +24,20 @@
 %  try to ensure that crossword / go grids don't end on a line
 %  fix chess and dots grids
 %
-%
 %  Redo sseqerrortest and set up regression test script as part of build (damn I didn't realize we'd lost anything imporant with that find -d disaster)
 %  Maybe we should add some other regression tests too
 %
 %  speed up off page edges (uses 10% of the draw time for page 0 of tmfass) -- use \pgfpointborderrectangle
 %  better flexibility with class pattern arrangement
-%  improve \DoUntilOutOfBounds progress check
 %
-%  Don't care:
-%    error messages that should be warnings by default?
-%    make an "axis style" option that styles the axis.
-%    improve axes options? allow axis to be centered on coordinate or centered between coordinates
-%    should we specify our favorite conditionals library?
+%  Lower priority:
+%   custom groups with styles that can be modified from drawing to drawing
+%   make an "axis style" option that styles the axis.
+%   improve \DoUntilOutOfBounds progress check
+%   error messages that should be warnings by default?
+%   improve axes options? allow axis to be centered on coordinate or centered between coordinates
+%   should we specify our favorite conditionals library?
+%
 
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{spectralsequences}[2017/06/21 v1.0.0-dev]

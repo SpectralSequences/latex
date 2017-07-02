@@ -7,13 +7,7 @@
 %%
 
 
-\documentclass{article}
-\usepackage{spectralsequences}
-\usepackage[landscape,margin=0.1cm]{geometry}
-\makeatletter
-\let\@texttop\vfill
-\let\@textbottom\vfill
-\makeatother
+\documentclass{spectralsequence-example}
 
 \NewSseqCommand\tower {} {
     \class(0,0)
@@ -30,8 +24,7 @@
     }
 }
 
-\begin{document}    
-\centering
+\begin{document}
 \begin{sseqdata}[
     name=A1 May,
     x range={0}{10}, y range={0}{10},

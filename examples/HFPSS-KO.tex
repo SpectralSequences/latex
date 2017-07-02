@@ -14,9 +14,7 @@
 %%    In particular, it's not even connective.
 %%
 
-\documentclass{article}
-\usepackage[landscape,margin=2cm]{geometry}
-\usepackage{spectralsequences}
+\documentclass{spectralsequence-example}
 \begin{document}
 \sseqset{
     Z2class/.sseq style={circle,inner sep=0.3ex,fill=black},
@@ -33,15 +31,17 @@
     classes=Z2class,
     differentials=->,
     degree={-1}{#1-1},
-    scale=0.85,
+    scale=1.4,
     right clip padding=0.1cm,
     top clip padding=0.05cm,
     x axis extend start=0cm,
     x axis extend end=0.33cm,
     y axis extend end=0.3cm,
+    grid=go
 ]
 
-\draw[background,xshift=-0.5cm,yshift=-0.51cm,step=1cm,gray,very thin] (\xmin+0.01,\ymin+0.01) grid (\xmax+0.9,\ymax+0.9);
+% This is just to make sure the bounding box doesn't move around
+\path[background] (\xmin-1,\ymin-1) rectangle (\xmax+1,\ymax+1);
 
 \sseqparseint\xitstart{\xmin/8*8-16} % division is integer division (I think with rounding towards 0...) so /8*8 rounds up to the nearest multiple of 8?
 \sseqparseint\xitgap{\xitstart+4}
@@ -74,7 +74,7 @@
 \newpage
 \begin{sseqpage}[name=KRHFPSS,page=0,keep changes]
 \pgfmathsetmacro\antidiag{min(-\xmin,\ymax+0.8)}
-\clip[background,xshift=0.28cm,yshift=-0.4cm](-\antidiag,\antidiag)--(-1,1)--(-0.4,0)--(\xmax+2,0)--(\xmax+2,\antidiag)--cycle;
+\clip[background,xshift=0.2cm,yshift=-0.33cm](-\antidiag,\antidiag)--(-1,1)--(-0.4,0)--(\xmax + 0.28,0)--(\xmax+0.28,\antidiag)--cycle;
 \foreach \z in {2,6}{
     \doptions[draw=none]4(-\z-1,\z-1)
     \structlineoptions[draw=none](-\z-1,\z-1)(-\z,\z)

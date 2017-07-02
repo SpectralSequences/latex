@@ -933,7 +933,7 @@
             \sseq@error@xx{invalid-dimenexpr}{\unexpanded{#2}}{#1}
             \@xp\sseq@break
         \fi
-        \def\sseq@sanitize@output{#1}
+        \edef\sseq@sanitize@output{\sseq@mathresult}
     }{
         \sseq@error@xx{invalid-dimenexpr}{\unexpanded{#2}}{#1}
         \sseq@break
@@ -970,6 +970,7 @@
             \sseq@temp@ii/.code/.expanded={%
                 \unexpanded{#3{##1}}{\sseq@temp=\unexpanded{##1}}%
                 \unexpanded{\edef#1{\unexpanded\@xp{\sseq@sanitize@output}}}%
+                %\show\@nx#1
                 \sseq@breakpoint
             },
             \sseq@temp@ii/.value required,
