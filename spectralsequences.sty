@@ -11,24 +11,24 @@
 
 
 % TODO:
+%  \kill command
 %  finish \sseqparseint, \IfOutOfBoundsTF, \DoUntilOutOfBounds (add error trapping and test them)
 %
 %  make pin labels work (say by adding a "pin" key)
-%  make an "axis style" option that styles the axis.
 %
 %  speed up off page edges (uses 10% of the draw time for page 0 of tmfass) -- use \pgfpointborderrectangle
 %
-%  try to ensure that crossword / go grids don't end on a line
-%  fix chess and dots grids
 %
 %  Errors:
 %    the new loop constructs need \foreach style error handling
 %    Add xparse related assumptions (I'm surprised we didn't already have these)
-%    Fix no classes error message for \d (probably I should have kept the MWE for this...)
+%    Fix no classes error message for \d
 %    define error message for usermacro-failed-patch
 %    give an error if \gettag fails to find a tag
 %    give an error if the user tries to put a shift into a style
 %
+%  try to ensure that crossword / go grids don't end on a line
+%  fix chess and dots grids
 %
 %
 %  Redo sseqerrortest and set up regression test script as part of build (damn I didn't realize we'd lost anything imporant with that find -d disaster)
@@ -39,6 +39,7 @@
 %
 %  Don't care:
 %    error messages that should be warnings by default?
+%    make an "axis style" option that styles the axis.
 %    improve axes options? allow axis to be centered on coordinate or centered between coordinates
 %    should we specify our favorite conditionals library?
 
@@ -72,7 +73,7 @@
 \def\sseq@macrolist{%
     \xcoord\ycoord\page %\xmin\xmax\ymin\ymax % these just get protected
     % These are defined in sseqmain:
-    \class\replaceclass\d\structline\classoptions\doptions\structlineoptions\circleclasses
+    \class\classoptions\replaceclass\d\doptions\kill\structline\structlineoptions\circleclasses
     % The following are defined in sseqparsers:
     \pgfmathparse\isalive\lastx\lasty\lastclass\savestack\restorestack\pushstack\nameclass\tagclass
     \parsecoordinate\parsedifferential\getdtarget\gettag

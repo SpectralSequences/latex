@@ -761,8 +761,22 @@
     \egroup
 }
 %%%
-%%% \d and \doptions
+%%% \kill, \d and \doptions
 %%%
+
+\sseq@DeclareDocumentCommand\kill{U(r()}{%
+    \begingroup
+    \sseq@setthiscall{\kill#1(#2)}%
+    \sseq@parsecoord\coordinate{#2}{}%
+    \sseq@ifintexpr{#1}{%
+        \sseq@tempcount=\numexpr#1\relax % this is a convenient way to get rid of spaces because #3 has to be a number
+    }{%
+        \sseq@error@n{d-invalid-page}{#1}\sseq@break%
+    }%    
+    \sseq@d@setpageminrec{class.\coordinate}{\the\sseq@tempcount}{coordinate}%  automatically handles \sseq@cleanup@obj
+    \sseq@breakpoint
+    \endgroup
+}
 
 \sseq@DeclareDocumentCommand\d{oU(r()d()}{%
     \sseq@d@{d}{#1}{#2}{#3}{#4}%
