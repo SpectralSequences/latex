@@ -12,14 +12,44 @@
 %%    All of the \foreach stuff we are modifying is defined by tikz in the file /pgf/utilities/pgffor.code.tex
 %%
 
+\def\sseq@for@vars{}
+\def\sseq@for@savemacro#1{\sseq@d@addto@macro\sseq@for@vars{\sseq@for@vars@do#1}}
+\def\sseq@for@savemacro@noslash#1{\sseq@d@addto@macro\sseq@for@vars{\sseq@for@vars@do@noslash#1}}
+\def\sseq@for@vars@do#1{; \string#1 = #1}
+\def\sseq@for@vars@do@noslash#1{; \sseq@macroname#1 = #1}
+
 \ExplSyntaxOn
-\def\sseq@Do #1#2 {
+\def\sseq@for@printvars{\ifx\sseq@for@vars\pgfutil@empty\else\exp_last_unbraced:Nf\@gobble\sseq@for@vars\fi}
+
+\newcount\sseq@Do@depth
+
+\def\sseq@save@Do@var{
+    \sseq@atbeginforeach@msgsetup
+    \advance\sseq@Do@depth\@ne
+    \exp_args:Nc \sseq@for@savemacro@noslash { iteration ~ \the \sseq@Do@depth }
+    \def\iteration{0}
+}
+
+\def\sseq@stepiteration{
+    \edef\iteration{\the\numexpr\iteration+1}
+    \cs_set_eq:cN { iteration ~ \the \sseq@Do@depth } \iteration
+}
+
+\def\sseq@Do{
     \begingroup
+    \edef\sseq@inputline{\the\inputlineno}
+    \sseq@callas{\Do}
+    \sseq@call{\sseq@Do@}
+}
+
+\def\sseq@Do@#1#2{
+    \sseq@esetthiscall{\string\Do\unexpanded{#1}}
+    \sseq@opushstacktrace{\string\Do{#1}}
     \sseq@ifintexpr{#1}{
         \sseq@savestack
-        \def\iteration{0}
+        \sseq@save@Do@var
         \prg_replicate:nn {#1} {
-            \edef\iteration{\the\numexpr\iteration+1}
+            \sseq@stepiteration
             #2
         }
         \sseq@restorestack
@@ -27,8 +57,16 @@
     \endgroup
 }
 
-\def\sseq@DoUntilOutOfBounds #1 {
+\def\sseq@DoUntilOutOfBounds{
     \begingroup
+    \edef\sseq@inputline{\the\inputlineno}
+    \sseq@callas{\DoUntilOutOfBounds}
+    \sseq@call{\sseq@DoUntilOutOfBounds@}
+}
+
+\def\sseq@DoUntilOutOfBounds@ #1 {
+    \sseq@esetthiscall{\string\DoUntilOutOfBoundsThenNMore}
+    \sseq@opushstacktrace{\string\DoUntilOutOfBounds}
     \ifx\xmin\sseq@xmin\else\ifx\ymin\sseq@ymin\else
         \sseq@error@x{DoUntil-no-bound}{\string\DoUntilOutOfBounds}
         \sseq@breakfifi
@@ -41,8 +79,16 @@
     \endgroup
 }
 
-\def\sseq@DoUntilOutOfBoundsThenNMore #1#2 {
+\def\sseq@DoUntilOutOfBoundsThenNMore{
     \begingroup
+    \edef\sseq@inputline{\the\inputlineno}
+    \sseq@callas{\DoUntilOutOfBoundsThenNMore}
+    \sseq@call{\sseq@DoUntilOutOfBoundsThenNMore@}
+}
+
+\def\sseq@DoUntilOutOfBoundsThenNMore@ #1#2 {
+    \sseq@esetthiscall{\string\DoUntilOutOfBoundsThenNMore\unexpanded{#1}}
+    \sseq@opushstacktrace{\string\DoUntilOutOfBoundsThenNMore{#1}}
     \ifx\xmin\sseq@xmin\else\ifx\ymin\sseq@ymin\else
         \sseq@error@n{DoUntil-no-bound}{\DoUntilOutOfBoundsThenNMore}
         \sseq@breakfifi
@@ -55,7 +101,7 @@
     \sseq@savestack
     \sseq@DoUntilOutOfBounds@body{#2}
     \prg_replicate:nn {#1} {
-        \edef\iteration{\the\numexpr\iteration+1}
+        \sseq@stepiteration
         #2
     }
     \sseq@restorestack
@@ -64,16 +110,16 @@
 }
 
 \def\sseq@DoUntilOutOfBounds@body#1{
+    \sseq@save@Do@var % Set iteration so that \DoUntilOutOfBoundsThenNMore doesn't get upset if we're already out of bounds
     % If we're already out of bounds, we'll just do nothing.
     \sseq_if_out_of_bounds_noparse:nnTF{\lastx{0}}{\lasty{0}}{
-        \def\iteration{0} % Set iteration so that \DoUntilOutOfBoundsThenNMore doesn't get upset
         \bool_set_true:N \l_tmpa_bool
     }{
         \bool_set_false:N \l_tmpa_bool
         % Now we need to set up the loop descent condition.
         \sseq@tempxb=\lastx{0}\relax % Record current x and y values
         \sseq@tempyb=\lasty{0}\relax
-        \def\iteration{1}
+        \sseq@stepiteration
         #1 % run loop body once
         \sseq_if_out_of_bounds_noparse:nnTF{\lastx{0}}{\lasty{0}}{ % If we're out of bounds now, we can quit
             \bool_set_true:N \l_tmpa_bool
@@ -126,7 +172,7 @@
         }
     }
     \bool_until_do:Nn \l_tmpa_bool {
-        \edef\iteration{\the\numexpr\iteration+1}
+        \sseq@stepiteration
         #1
         \sseq_if_out_of_bounds_noparse:nnTF{\lastx{0}}{\lasty{0}}{% we're done
             \bool_set_true:N \l_tmpa_bool
@@ -155,13 +201,12 @@
 
 \newtoks\sseq@foreachcall
 
-\def\sseq@for@vars{}
-\def\sseq@for@savemacro#1{\sseq@d@addto@macro\sseq@for@vars{\sseq@for@vars@do#1}}
-\def\sseq@for@vars@do#1{; \string#1 = #1}
-\def\sseq@for@vars@donx#1{; \string#1= #1}
-\ExplSyntaxOn
-\def\sseq@for@printvars{\ifx\sseq@for@vars\pgfutil@empty\else\exp_last_unbraced:Nf\@gobble\sseq@for@vars\fi}
-\ExplSyntaxOff
+\def\sseq@pgffor@atbeginforeach{%
+    \begingroup %
+    \sseq@atbeginforeach@msgsetup
+    % \pgffor@macro@list calls \pgffor@normal@list, so we need to mark that the list has already been added to foreachcall.
+    \sseq@tempiftrue
+}
 
 
 \def\sseq@patchfor{%
@@ -185,16 +230,7 @@
 }
 
 
-
 \bgroup\lccode`\*=`\#\lowercase{\egroup
-
-
-\def\sseq@pgffor@atbeginforeach{%
-    \begingroup %
-    \sseq@atbeginforeach@msgsetup
-    % \pgffor@macro@list calls \pgffor@normal@list, so we need to mark that the list has already been added to foreachcall.
-    \sseq@tempiftrue
-}
 
 % Modify the foreach argument parser commands to put the call into \sseq@foreachcall and to tell us what the variables are
 \def\sseq@pgffor@@vars@opt[#1]{\sseq@foreachcall\@xp{\the\sseq@foreachcall#1}\pgfkeys{/sseqpages/foreach/.cd,#1}\pgffor@vars}

@@ -66,6 +66,16 @@
 % Stack, thiscall, foreachcall.
 % Here we record what the user has said (as best we can tell)
 \newtoks\sseq@thiscalltoks
+
+% These guys are set up because I want \sseq@DeclareDocumentCommandAs@setinputline to work
+% but I want the definition of \sseq@inputline to be local, and it would be really bad to
+% open a group inside of sseq@DeclareDocumentCommandAs that has to be closed in the code.
+% So what I do is globally put it into \sseq@globalinputline using \sseq@setinputline
+% and then after starting the group at the beginning of the actual macro body,
+% call \sseq@loadinputline
+\def\sseq@setinputline{\xdef\sseq@globalinputline{\the\inputlineno}}
+\def\sseq@loadinputline{\let\sseq@inputline\sseq@globalinputline}
+
 \def\sseq@thiscall{\the\sseq@thiscalltoks}
 \def\sseq@setthiscall#1{\sseq@seterrorannotation{call}\sseq@thiscalltoks{#1}}
 \def\sseq@esetthiscall#1{\sseq@seterrorannotation{call}\sseq@eval{\sseq@thiscalltoks{#1}}}
@@ -85,7 +95,9 @@
     \ifx\sseq@temp\pgfutil@empty\else
         \edef\sseq@restofstacktrace{\unexpanded{\\\ \ \ }\@nx\sseq@stack@unexpanded{\the\sseq@topofstacktrace}\unexpanded\@xp{\sseq@restofstacktrace}}
     \fi
-    \sseq@topofstacktrace{#1}
+    \sseq@eval{\sseq@topofstacktrace{\unexpanded{#1}\sseq@possibleoninputlinedash}}
+    \let\sseq@possibleoninputlinedash\empty
+    \let\sseq@possibleoninputlinepar\empty
 }
 \def\sseq@opushstacktrace#1{\@xp\sseq@pushstacktrace\@xp{#1}}
 \def\sseq@stack@unexpanded#1{\@nx\sseq@stack@unexpanded\unexpanded{{#1}}}
@@ -116,10 +128,13 @@
 
 \sseq@seterrorannotation{aftercall}
 
-
-\def\sseq@error@inforeachloop{\sseq@possibleperiod}
-\def\sseq@error@inforeachloop@active{\sseq@possiblecomma in \foreach block with variable values:\sseq@for@printvars\sseq@possibleperiodb}
+\def\sseq@inputline{\the\inputlineno}
+\def\sseq@error@inforeachloop{\sseq@possibleoninputlinepar\sseq@possibleperiod}
+\def\sseq@error@inforeachloop@active{\sseq@possiblecomma in loop with variable values:\sseq@for@printvars\sseq@possibleperiodb}
 \def\sseq@error@setup@errorinfo{}% Changed during \foreach and user commands
+
+\def\sseq@possibleoninputlinepar{ (on input line \sseq@inputline)} % let this to a no-op at beginning of usermacros
+\def\sseq@possibleoninputlinedash{ -- on input line \sseq@inputline}
 
 \def\sseq@possiblecomma{,\space}
 \def\sseq@possibleperiod{.}
@@ -151,8 +166,8 @@
     \sseq@error@hook
 }
 
-\def\sseq@error@setup@noinfo  {\bgroup\def\foreach{\@nx\foreach}\let\sseq@stack@unexpanded\unexpanded\def\sseq@error@annotation{}\sseq@error@hook}
-\let\sseq@error@setup\sseq@error@setup@noinfo
+\def\sseq@error@setup@noinfo{\bgroup\def\foreach{\@nx\foreach}\let\sseq@stack@unexpanded\unexpanded\def\sseq@error@annotation{}\sseq@error@hook}
+\let\sseq@error@setup\sseq@error@setup@withinfo
 \def\sseq@error@cleanup{\egroup\sseq@errortrue} % If the error was thrown in NewDocumentCommand, we need to process it. Just used in sseqmacromakers.
 
 
@@ -195,10 +210,11 @@
 
 \def\sseq@atbeginforeach@msgsetup{%
     \let\protect\empty % prevent issues if protected variables like \xmax are used as the loop max
+    \let\sseq@error@setup@errorinfo\sseq@error@setup@errorinfo@active
     \let\sseq@error@build@foreachvarsinfo\sseq@error@build@foreachvarsinfo@active % Install stack annotation
     \let\sseq@error@inforeachloop\sseq@error@inforeachloop@active  % install message indicating foreach variable values
     \let\sseq@error@setup\sseq@error@setup@withinfo
-    \sseq@foreachcall{\foreach} % Stack gets pushed at the beginning of the body of the foreach loop once we know what the call looks like
+    \sseq@foreachcall\@xp{\string\foreach} % Stack gets pushed at the beginning of the body of the foreach loop once we know what the call looks like
 }
 
 
@@ -366,10 +382,10 @@
     If you need to have this many classes in this position, you can make your own class pattern with \string\sseqnewclasspattern, but you might want to consider alternatives like using one class to represent multiple generators in some way -- it is hard to make a diagram look good with large numbers of classes in one position.%
 }
 
-\sseq@newerror{invalid-coordinate}{Invalid #1coordinate\sseq@printerrortype.}
-\sseq@newerror{no-classes}{No classes yet exist in #1.}
-\sseq@newerror{index-too-large}{Index '#1' provided\sseq@printerrortype\ is too large -- only #2 classes exist at position #3.}
-\sseq@newerror{undefined-tag}{Index '#1' provided\sseq@printerrortype\ is not a valid integer expression or known tag in position #2.}
+\sseq@newerror{invalid-coordinate}{Invalid #1coordinate\sseq@printforerrortype.}
+\sseq@newerror{no-classes}{No classes yet exist in #1\sseq@printerrortype{, the }.}
+\sseq@newerror{index-too-large}{Index '#1' provided\sseq@printforerrortype\ is too large -- only #2 classes exist at position #3.}
+\sseq@newerror{undefined-tag}{Index '#1' provided\sseq@printforerrortype\ is not a valid integer expression or known tag in position #2.}
 \sseq@newerror{class-no-tag}{The class #1 has no tag so I cannot get it.}
 
 \sseq@newerror{class-extra-coords}{Too many coordinates. Ignoring the extra ones.}

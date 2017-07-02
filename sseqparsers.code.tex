@@ -403,7 +403,8 @@
 %      inside of an hbox.
 
 \def\sseq@errortype{}
-\def\sseq@printerrortype{\@xp\sseq@ifempty\@xp{\sseq@errortype}{}{~ for ~ \sseq@errortype}}
+\def\sseq@printerrortype#1{\@xp\sseq@ifempty\@xp{\sseq@errortype}{}{#1 \sseq@errortype}}
+\def\sseq@printforerrortype{\sseq@printerrortype{~for~}}
 
 %% Pulls off x,y and evaluates them, puts n or empty into a separate variable.
 % #1 -- a coordinate of the form {x,y} or {x,y,stuff}
@@ -588,7 +589,7 @@
         \@xp\pgfkeys@spdef\@xp\sseq@rawsindex\@xp{\sseq@rawsindex}
         \edef\sseq@rawtindex{\@xp\sseq@dparsecoord@getyindex\@xp{\sseq@restcoord}}%
         \@xp\pgfkeys@spdef\@xp\sseq@rawtindex\@xp{\sseq@rawtindex}
-    %
+%
         \let\sseq@rawindex\sseq@rawsindex
         \def\sseq@errortype{source ~ of ~ differential}
         \@xp\sseq@parsecoord@index % the \@xp is needed so that \sseq@break inside of parsecoordindex works properly.
@@ -874,6 +875,8 @@
 \def\sseq@defer@tikzcommand#1{%
     \begingroup
     \let\sseq@isaliveprotect\sseq@isaliveprotect@protect
+    \sseq@setinputline
+    \sseq@loadinputline
     \sseq@callas{#1}%
     \gdef\sseq@thepathsofar{#1[/utils/exec={\sseq@thesseqstyle\sseq@thetikzprimitivestyle\the\sseq@scope@toks\sseq@savedoptioncode}]}%
     \xdef\sseq@whattheusersaid{\string#1}

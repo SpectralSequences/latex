@@ -374,6 +374,7 @@
     % All we want to do here is record the range. Have to process options in order to figure out where it is.
     \sseq@DeclareDocumentCommand\class{or()}{%
         \begingroup
+        \sseq@loadinputline
         \IfNoValueT{#2}{\sseq@break}%
         \sseq@xsetthiscall{\string\class\IfNoValueF{#1}{[\unexpanded{#1}]}\unexpanded{(#2)}}%
         \sseq@options@firstpassmode
@@ -436,6 +437,7 @@
 %%% \class, \classoptions, \replaceclass
 \sseq@DeclareDocumentCommand\class{or()}{%
     \begingroup
+    \sseq@loadinputline
     \IfNoValueT{#2}{\sseq@break}
     \sseq@xsetthiscall{\string\class\IfNoValueF{#1}{[\unexpanded{#1}]}\unexpanded{(#2)}}%
     \sseq@options@firstpassmode
@@ -516,6 +518,7 @@
 
 \sseq@DeclareDocumentCommand\classoptions{or()}{%
     \begingroup
+    \sseq@loadinputline
     \sseq@xsetthiscall{\string\classoptions\IfNoValueF{#1}{[\unexpanded{#1}]}\unexpanded{(#2)}}%
     \IfNoValueT{#1}{\sseq@error@x{cmdoptions-without-options}{\string\classoptions}\sseq@break}% could be warning
     \IfNoValueT{#2}{\sseq@break}%
@@ -667,6 +670,7 @@
 }
 \sseq@DeclareDocumentCommand\replaceclass{or()}{%
     \begingroup
+    \sseq@loadinputline
     \sseq@xsetthiscall{\string\replaceclass\IfNoValueF{#1}{[\unexpanded{#1}]}\unexpanded{(#2)}}
     \sseq@options@firstpassmode
     \the\sseq@sseqstyle
@@ -766,33 +770,37 @@
 
 \sseq@DeclareDocumentCommand\kill{U(r()}{%
     \begingroup
+    \sseq@loadinputline
     \sseq@setthiscall{\kill#1(#2)}%
     \sseq@parsecoord\coordinate{#2}{}%
     \sseq@ifintexpr{#1}{%
         \sseq@tempcount=\numexpr#1\relax % this is a convenient way to get rid of spaces because #3 has to be a number
     }{%
         \sseq@error@n{d-invalid-page}{#1}\sseq@break%
-    }%    
+    }%
     \sseq@d@setpageminrec{class.\coordinate}{\the\sseq@tempcount}{coordinate}%  automatically handles \sseq@cleanup@obj
     \sseq@breakpoint
     \endgroup
 }
 
+
 \sseq@DeclareDocumentCommand\d{oU(r()d()}{%
+    \begingroup
+    \sseq@loadinputline
     \sseq@d@{d}{#1}{#2}{#3}{#4}%
+    \endgroup
 }
 \sseq@DeclareDocumentCommand\doptions{oU(r()d()}{%
     \begingroup
+    \sseq@loadinputline
     \IfNoValueT{#1}{
         \sseq@xsetthiscall{\@xp\string\csname#1\endcsname\unexpanded{#2(#3)}\IfNoValueF{#4}{\unexpanded{(#4)}}}%
-        \sseq@error@x{cmdoptions-without-options}{\string\doptions}\sseq@break % could be warning
     }
     \sseq@d@{doptions}{#1}{#2}{#3}{#4}%
     \sseq@breakpoint
     \endgroup
 }
 \def\sseq@d@#1#2#3#4#5{%
-    \begingroup
     \sseq@options@firstpassmode
     \the\sseq@sseqstyle
     \the\sseq@edgestyle
@@ -811,7 +819,6 @@
     \@xp\sseq@dparsecoord\@xp{\the\sseq@tempcount}{#4}{#5}%
     \sseq@eval{\unexpanded{\csname sseq@d@#1\endcsname{#2}}{\the\sseq@tempcount}}%
     \sseq@breakpoint
-    \endgroup
 }
 
 % #1 -- options
@@ -908,9 +915,9 @@
     \let\sseq@possibleperiod\empty
     \let\sseq@possibleperiodb\empty
     \sseq@obj@xdef{\sseq@classgenname.deathlocation}{%
-        on input line \the\inputlineno\sseq@error@inforeachloop
+        on input line \sseq@inputline\sseq@error@inforeachloop
     }
-    \sseq@obj@xdef{\sseq@classgenname.deathline}{\the\inputlineno}
+    \sseq@obj@xdef{\sseq@classgenname.deathline}{\sseq@inputline}
     \sseq@tempiffalse
     \edef\sseq@temp{\the\sseq@foreachcall}
     \ifx\sseq@temp\pgfutil@empty\else\sseq@tempiftrue\fi
@@ -928,7 +935,7 @@
 \def\sseq@preparestacktrace{
     \def\foreach{\@nx\foreach}
     \edef\sseq@temp@i{\unexpanded\@xpthree{\sseq@obj{\sseq@deadclass@genname.deathline}}}
-    \edef\sseq@temp@ii{\the\inputlineno}
+    \edef\sseq@temp@ii{\sseq@inputline}
     \ifx\sseq@temp@i\sseq@temp@ii
         \sseq@temptoks\@xpthree{\sseq@obj{\sseq@deadclass@genname.deathinfo} (in the same \foreach loop)}
     \else
@@ -965,26 +972,33 @@
 %%%
 %%% \structline and \structlineoptions
 %%%
+
 \sseq@DeclareDocumentCommand\structline{od()}{%
     \begingroup
+    \sseq@loadinputline
     \IfNoValueTF{#2}{
         \sseq@structline@main{structline}{#1}{#2}{#2}
     }{
-        \def\next{\sseq@structline@{structline}{#1}{#2}}%
+        \def\next{\sseq@structline@@{structline}{#1}{#2}}%
         \@xptwo\next\sseq@trimleadingspaces
     }
 }
 \sseq@DeclareDocumentCommand\structlineoptions{od()}{%
     \begingroup
+    \sseq@loadinputline
     \IfNoValueTF{#2}{
         \sseq@structline@main{structlineoptions}{#1}{#2}{#2}
     }{
-        \def\next{\sseq@structline@{structlineoptions}{#1}{#2}}%
+        \def\next{\sseq@structlineoptions@@{structlineoptions}{#1}{#2}}%
         \@xptwo\next\sseq@trimleadingspaces
     }
 }
 
-\sseq@DeclareDocumentCommandAs\sseq@structline@\structline{mmmd()}{%
+\sseq@DeclareDocumentCommandAs\sseq@structline@@\structline{mmmd()}{%
+    \sseq@structline@main{#1}{#2}{#3}{#4}
+}
+
+\sseq@DeclareDocumentCommandAs\sseq@structlineoptions@@\structlineoptions{mmmd()}{%
     \sseq@structline@main{#1}{#2}{#3}{#4}
 }
 
@@ -1186,6 +1200,7 @@
 \newcount\sseq@circleclassuid
 \sseq@DeclareDocumentCommand\circleclasses{or()r()}{
     \begingroup
+    \sseq@loadinputline
     \def\sseq@keysfortikzprim{}
     \IfNoValueF{#1}{
         \sseq@processoptions{fit}{#1}

@@ -104,7 +104,12 @@
 % so the result is that it defines \sseq@somecommand intended to be \let to \somecommand later.
 
 \cs_new_protected:Npn\sseq@DeclareDocumentCommand#1{%
-    \exp_args:Nc \sseq@DeclareDocumentCommandAs { sseq @ \cs_to_str:N #1 }#1
+    \exp_args:Nc \sseq@DeclareDocumentCommandAs@setinputline { sseq @ \cs_to_str:N #1 }#1
+}
+
+\cs_new_protected:Npn\sseq@DeclareDocumentCommandAs@setinputline#1{
+    \edef #1 { \@nx\sseq@setinputline \@xp\@nx\csname \cs_to_str:N #1 @@unique@@ start \endcsname } 
+    \exp_args:Nc \sseq@DeclareDocumentCommandAs { \cs_to_str:N #1 @@unique@@ start }
 }
 
 %%% \sseq@DeclareDocumentCommandAS
@@ -136,14 +141,14 @@
         \cs_gset:Npx #1{
             \begingroup
             \exp_not:N \cs_set_eq:NN  % force xparse to always ignore spaces!
-                \exp_not:N \peek_meaning:NTF 
-                \exp_not:N \peek_meaning_ignore_spaces:NTF 
+                \exp_not:N \peek_meaning:NTF
+                \exp_not:N \peek_meaning_ignore_spaces:NTF
             \exp_not:N \cs_set_eq:NN  % force xparse to always ignore spaces!
                 \exp_not:N \peek_meaning_remove:NTF
-                \exp_not:N \peek_meaning_remove_ignore_spaces:NTF 
-            \exp_not:N \cs_set_eq:NN
-                \exp_not:c { \cs_to_str:N #2 \c_space_tl code }
-                \exp_not:c { \cs_to_str:N #1 \c_space_tl code }
+                \exp_not:N \peek_meaning_remove_ignore_spaces:NTF
+            \exp_not:N \cs_set_eq:cc
+                \exp_not:n {{ \cs_to_str:N #2 \c_space_tl code }}
+                \exp_not:n {{ \cs_to_str:N #1 \c_space_tl code }}
             \exp_not:N \cs_set_eq:NN
                 \exp_not:c { \cs_to_str:N #2 \c_space_tl }
                 \exp_not:c { \cs_to_str:N #1 \c_space_tl }
@@ -169,7 +174,8 @@
 \cs_new_protected:Npn\NewSseqCommand#1{%
     \cs_if_free:cTF { sseq @ usermacro @ \cs_to_str:N #1 } { \DeclareSseqCommand#1 } { \sseq@error@x{usermacro-not-free}{\string#1} \use_none:nn }
 }
-
+\let\begingroupa\begingroup
+\let\begingroupb\begingroup
 \cs_new_protected:Npn\DeclareSseqCommand#1#2#3{%
     \cs_if_exist:cTF { sseq @ builtin @ \cs_to_str:N #1 } {\sseq@error@x{wont-override-system-macro}{\string#1}\sseq@break} {}
     \cs_if_free:cT { sseq @ usermacro @ \cs_to_str:N #1 } {
@@ -177,8 +183,10 @@
     }
     % Make sure \cs_if_exist doesn't pass because there was a previously defined user macro with same name
     \cs_undefine:c { sseq @ usermacro @ \cs_to_str:N #1 \c_space_tl code }
-    \exp_args:Nc \sseq@DeclareDocumentCommandAs { sseq @ usermacro @ \cs_to_str:N #1 } #1 { #2 } {
-                #3
+    \exp_args:Nc \sseq@DeclareDocumentCommandAs@setinputline { sseq @ usermacro @ \cs_to_str:N #1 } #1 { #2 } {%
+            \sseq@loadinputline
+            \sseq@atbeginusermacro@msgsetup
+                {}#3{} % prevent space patching space hazards with these {}'s
             \endgroup
         }%
     \ifsseq@error
@@ -189,22 +197,22 @@
     % You might think we could skip this patching, and it's probably possible.
     % However, this is responsible for turning the #'s of catcode other into #'s of catcode arg. I don't have as good of a way to do that.
     % Also, this allows me to use \sseq@parseargspec after defining the command, so I don't have to run any error checking inside of it
-    % because if the argspec is invalid, \DeclareDocumentCommand will let me know.
-    \cs_if_exist:cTF{ sseq @ usermacro @ \cs_to_str:N #1  \c_space_tl code }{
-        \patchcmd:cnfnn{ sseq @ usermacro @ \cs_to_str:N #1  \c_space_tl code }{\endgroup{}}{
+    % because if the argspec is invalid, \DeclareDocumentCommand will let me know.\sseq@temptoks
+    \cs_if_exist:cTF{ sseq @ usermacro @ \cs_to_str:N #1 @@unique@@ start \c_space_tl code }{
+        \patchcmd:cnfnn{ sseq @ usermacro @ \cs_to_str:N #1 @@unique@@ start \c_space_tl code }{\endgroup{}}{
             \@xp\endgroup
-            \@xp\begingroup
+            \@xp\begingroupa
             \the\sseq@temptoks
-            \sseq@atbeginusermacro@msgsetup
         }{}{\error\sseq@error@x{usermacro-failed-patch}{\string#1}}
-    }{
-        \pretocmd:cfnn{ sseq @ usermacro @ \cs_to_str:N #1 }{
-            \@xp\begingroup
+        \cs_gset_eq:cc { sseq @ usermacro @ \cs_to_str:N #1 @@unique@@ start \c_space_tl code } { sseq @ usermacro @ \cs_to_str:N #1 @@unique@@ start \c_space_tl code}
+    }{ 
+        \pretocmd:cfnn{ sseq @ usermacro @ \cs_to_str:N #1 @@unique@@ start }{
+            \@xp\begingroupb
             \the\sseq@temptoks
-            \sseq@atbeginusermacro@msgsetup
         }{}{\error\sseq@error@x{usermacro-failed-patch}{\string#1}}
     }
     \cs_gset_eq:cc { sseq @ usermacro @ \cs_to_str:N #1 } { sseq @ usermacro @ \cs_to_str:N #1 }
+    \cs_gset_eq:cc { sseq @ usermacro @ \cs_to_str:N #1 @@unique@@ start } { sseq @ usermacro @ \cs_to_str:N #1 @@unique@@ start}
     \ifsseq@inprogress
         \cs_set_eq:Nc #1 { sseq @ usermacro @ \cs_to_str:N #1 }
     \fi
@@ -212,12 +220,6 @@
 }
 
 %%% Commands to help the user define "groups" of commands to be reused
-\def\sseqnewgroup@splitcoord#1,#2\sseq@nil{%
-    \sseq@eval{
-        \@nx\begin{scope}[xshift=#1,yshift=#2,\unexpanded\@xp{\sseq@options}]
-    }
-}
-
 % #1 -- command
 % #2 -- argspec
 % #3 -- body of function (long)
@@ -231,8 +233,7 @@
 \long\def\DeclareSseqGroup@#1#2#3#4{%
     \group_begin:
     \let\sseq@parseargspec\@gobbletwo % Get rid of argparse so we can change what gets added for setting up thiscall
-    \sseq@temptoks\@xp{\sseq@SseqGroup@argspec} % This gets added to the outer command by DeclareSseqCommand
-%
+% why are we doing these things here?
     \sseq@installmsghooks
     \def\sseq@error@setup{}
     \def\sseq@error@cleanup{\sseq@errortrue}
@@ -241,22 +242,27 @@
 % undefine so we can tell whether we need to patch \command<space>code or \command
     \cs_undefine:c { sseq @ usermacro @ \cs_to_str:N #2 @ helper  \c_space_tl code }
     \exp_args:Nc \sseq@DeclareDocumentCommandAs { sseq @ usermacro @ \cs_to_str:N #2 @ helper } #2 { #3 } {
-            #4
+        \sseq@loadinputline
+        \sseq@usermacro@esetthiscall{\the\sseq@groupthiscalltoks}
+        \sseq@atbeginusermacro@msgsetup % the stack push happens in here
+        \sseq@scopecall
+            {}#4{}
         \end{scope}
+        \endgroup
     }%
     \ifsseq@error
         \@xp\sseq@break
     \fi
+    \sseq@temptoks\@xp{\sseq@SseqGroup@argspec} % This gets added to the command by DeclareSseqCommand
     #1#2{od()}{%
+        %can't use \sseq@atbeginusermacro@msgsetup until next spot b/c don't know what the whole call looks like yet
         \IfNoValueTF{##1}{\def\sseq@options{}}{\def\sseq@options{##1}}%
         \IfNoValueTF{##2}{%
-            \sseq@eval{
-                \@nx\begin{scope}[\unexpanded\@xp{\sseq@options}]
-            }%
+            \edef\sseq@scopecall{\@nx\begin{scope}[\unexpanded\@xp{\sseq@options}]}
         }{%
             \sseqnewgroup@splitcoord##2\sseq@nil
         }%
-        \csname sseq @ usermacro @ \sseq@macroname #2 @ helper \@xp\endcsname \@gobble % This gobble eats the endgroup added by sseqDeclareDocumentCommand
+        \csname sseq @ usermacro @ \sseq@macroname #2 @ helper \@xp\endcsname\@gobbletwo % This gobble eats the endgroup added by sseqDeclareDocumentCommand
     }%
 
     \sseq@parseargspec@newgroup{#2}{#3}%
@@ -265,13 +271,12 @@
     \cs_if_exist:cTF{ sseq @ usermacro @ \cs_to_str:N #2 @ helper \c_space_tl code }{
         \pretocmd:cfnn { sseq @ usermacro @ \cs_to_str:N #2 @ helper \c_space_tl code }{
             \the\sseq@temptoks
-            \sseq@atbeginusermacro@msgsetup
         }{}{\error\sseq@error@x{usermacro-failed-patch}{\string#1}}
-        \cs_gset_eq:cc { sseq @ usermacro @ \cs_to_str:N #2 @ helper \c_space_tl code } { sseq @ usermacro @ \cs_to_str:N #2 @ helper \c_space_tl code } % globalize definition
+        % globalize definition:
+        \cs_gset_eq:cc { sseq @ usermacro @ \cs_to_str:N #2 @ helper \c_space_tl code } { sseq @ usermacro @ \cs_to_str:N #2 @ helper \c_space_tl code } 
     }{
         \pretocmd:cfnn { sseq @ usermacro @ \cs_to_str:N #2 @ helper }{
             \the\sseq@temptoks
-            \sseq@atbeginusermacro@msgsetup
         }{}{\error\sseq@error@x{usermacro-failed-patch}{\string#1}}
     }
     \cs_gset_eq:cc { sseq @ usermacro @ \cs_to_str:N #2 @ helper } { sseq @ usermacro @ \cs_to_str:N #2 @ helper } % globalize definition
@@ -279,11 +284,21 @@
     \sseq@breakpoint
     \group_end:
 }
-\let\sseqnewgroup\NewSseqGroup
+
+\def\sseqnewgroup@splitcoord#1,#2\sseq@nil{%
+    \edef\sseq@scopecall{
+        \@nx\begin{scope}[xshift=#1,yshift=#2,\unexpanded\@xp{\sseq@options}]
+    }
+}
 
 
+\newtoks\sseq@groupargspectoks
+\newtoks\sseq@groupthiscalltoks
 \bgroup\catcode`\#=12\relax
-    \gdef\sseq@SseqGroup@argspec{\sseq@eval{\sseq@temptoks{\IfNoValueF{#1}{\unexpanded{[#1]}}\IfNoValueF{#2}{\unexpanded{(#2)}}}}\@gobble}
+    \gdef\sseq@SseqGroup@argspec{
+        \sseq@eval{\global\sseq@groupargspectoks{\IfNoValueF{#1}{\unexpanded{[#1]}}\IfNoValueF{#2}{\unexpanded{(#2)}}}}
+        \@gobbletwo
+    }
     \gdef\sseq@thearg{#\the\sseq@tempcount}
 \egroup
 
@@ -305,7 +320,18 @@
     \sseq@temptoks{}
     \sseq@temptoksii{}%
     \sseq@parseargspec@#2\sseq@nil
-    \sseq@eval{\sseq@temptoks{\the\sseq@temptoksii\@nx\sseq@usermacro@esetthiscall{\@nx\@nx\@nx#1\@nx\the\sseq@temptoks\the\sseq@temptoks}}}
+    % What's the second temptoks for?
+    \sseq@eval{
+        \sseq@temptoks{
+            \the\sseq@temptoksii
+            \@nx\sseq@esetthiscall{
+                \@nx\@nx\@nx#1
+                \@nx\the\sseq@groupargspectoks
+                \the\sseq@temptoks
+            }
+            \global\sseq@groupthiscalltoks\@nx\@xp{\@nx\the\sseq@thiscalltoks}
+        }
+    }
 }
 
 
