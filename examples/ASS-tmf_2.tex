@@ -33,13 +33,10 @@
 
 \NewSseqGroup\tower {} {% 25
     \class(0,0)
-    \DoUntilOutOfBounds{
+    \DoUntilOutOfBoundsThenNMore{2}{
         \class(\lastx,\lasty+1)
         \structline(\lastclass1) (\lastclass)
     }
-    % We need one extra class to accept a differential
-    \class(\lastx,\lasty+1)
-    \class(\lastx,\lasty+1)
 }
 
 \NewSseqGroup\towergroup {} {%9 + 25 = 36
@@ -163,6 +160,7 @@
     x tick step=2,
     Adams grading,
     classes={fill,inner sep=0.3ex,tooltip={(\xcoord,\ycoord)}},
+    class placement transform={scale=1.5},
     differentials={->,blue},
     struct lines=red, %no struct lines, no differentials,
     yscale=0.6, xscale=0.5,

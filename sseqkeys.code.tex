@@ -133,21 +133,23 @@
 
 \def\sseq@pgfkeysdocommand#1#2{
     \sseq@tempiffalse
-    \sseq@pgfkeysdocommand@try{/tikz/#1}{#2}
-    \sseq@pgfkeysdocommand@try{/pgf/#1}{#2}
+    \sseq@pgfkeysdocommand@try{/tikz}{#1}{#2}
+    \sseq@pgfkeysdocommand@try{/pgf}{#1}{#2}
     \ifsseq@tempif\else\sseq@error@internal@nn{do-command-failed}{#1}{#2}\fi
 }
 
-\def\sseq@pgfkeysdocommand@try#1#2{
+\def\sseq@pgfkeysdocommand@try#1#2#3{
     \ifsseq@tempif\else
-        \pgfkeysifdefined{#1/.@cmd}{
+        \pgfkeysifdefined{#1/#2/.@cmd}{
             \sseq@tempiftrue
-            \pgfkeysgetvalue{#1/.@cmd}{\pgfkeys@code}%
-            \pgfkeys@code#2\pgfeov
+            \def\pgfkeysdefaultpath{#1/}
+            \edef\pgfkeyscurrentkey{#1/#2}
+            \pgfkeysgetvalue{#1/#2/.@cmd}{\pgfkeys@code}%
+            \pgfkeys@code#3\pgfeov
         }{
-            \pgfkeysifdefined{#1}{
+            \pgfkeysifdefined{#1/#2}{
                 \sseq@tempiftrue
-                \pgfkeyssetvalue{#1}{#2}
+                \pgfkeyssetvalue{#1/#2}{#3}
             }{}
         }
     \fi
@@ -222,6 +224,7 @@
     \def\pgfkeysdefaultpath{#1/}%
     \def\next{\egroup\@ifnextchar\sseq@nil{\@xp\@secondoftwo\@gobble}{\sseq@keys@try@addtooptions@}}%
     \pgfkeysifdefined{#1/\pgfkeyscurrentname/.@cmd}{%
+        \edef\pgfkeyscurrentkey{#1/\pgfkeyscurrentname}
         \ifx\pgfkeyscurrentvalue\pgfkeysnovalue@text% Hmm... no value
           \pgfkeysifdefined{#1/\pgfkeyscurrentname/.@def}%
           {\pgfkeysgetvalue{#1/\pgfkeyscurrentname/.@def}{\pgfkeyscurrentvalue}}
@@ -248,13 +251,15 @@
     \sseq@keys@addtooptions@checkalso@#1\pgfkeysalso\sseq@nil
 }
 \def\sseq@keys@addtooptions@checkalso@#1\pgfkeysalso#2{%
-    \sseq@add@tikzkey@to@options{\unexpanded{#1}}%
+    \def\sseq@tempa{/tikz/}
+    \def\sseq@tempb{/pgf/}
+    \sseq@add@tikzkey@to@options{\sseq@options@secondpass@iftikz{\unexpanded{#1}}}%
     \ifx\sseq@nil#2%
         \let\pgfkeys@case@one\sseq@pgfkeys@case@one@save
         \let\pgfkeys@case@two@extern\sseq@pgfkeys@case@two@extern@save
     \else
         \ifx\expandafter#2 % if they wanted to expand the first token, handle that
-            \sseq@add@tikzkey@to@options{\relax\relax} % The last token was an \expandafter, we need to keep it from doing anything
+            \sseq@add@tikzkey@to@options{\sseq@options@secondpass@iftikz{\relax\relax}} % The last token was an \expandafter, we need to keep it from doing anything
             \@xptwo\sseq@keys@addtooptions@checkalso@xp
         \else
             \pgfkeysalso{#2}%
@@ -268,6 +273,19 @@
     \sseq@keys@addtooptions@checkalso@
 }
 
+% This has to be expandable, so \sseq@tempa and \sseq@tempb are set to "/tikz/" and "/pgf/" ahead of time
+\def\sseq@options@secondpass@iftikz{%
+    \ifx\pgfkeysdefaultpath\sseq@tempa
+        \@nx\sseq@options@secondpass
+    \else
+        \ifx\pgfkeysdefaultpath\sseq@tempb
+            \@nx\sseq@options@secondpass
+        \else
+            \@xptwo\@firstofone
+        \fi
+    \fi
+}
+
 \let\sseq@pgfkeys@case@one@save\pgfkeys@case@one
 \let\sseq@pgfkeys@case@two@extern@save\pgfkeys@case@two@extern
 \def\sseq@pgfkeys@case@one@store{%
@@ -275,7 +293,7 @@
         \pgfkeysgetvalue{\pgfkeyscurrentkey/.@cmd}{\pgfkeys@code}%
         % The following line is the only change, it used to be \@xp\pgfkeys@code\pgfkeyscurrentvalue\pgfeov which would just run the code.
         % Instead we recursively expand the \pgfkeysalso's and then store in it \sseq@savedoptioncode
-        \sseq@eval{\@nx\sseq@keys@addtooptions@checkalso{\@nx\sseq@options@secondpass{\unexpanded\@xptwo{\@xp\pgfkeys@code\pgfkeyscurrentvalue\pgfeov}}}}%
+        \sseq@eval{\@nx\sseq@keys@addtooptions@checkalso{\unexpanded\@xptwo{\@xp\pgfkeys@code\pgfkeyscurrentvalue\pgfeov}}}%
     }{\pgfkeys@case@two}%
 }
 \def\sseq@pgfkeys@case@two@extern@store{%
@@ -452,6 +470,8 @@
 
 \def\sseq@handleclassquotes@inner#1#2{%
     \begingroup\pgfscope
+    \def\sseq@classquotes@smugglehook{}
+    \def\sseq@classquotes@smugglehook@inner{}
     \sseq@options@firstpassmode
     \sseq@thesseqstyle
     \sseq@thelabelstyle
@@ -475,6 +495,7 @@
                 }%
         }%
     \else
+        \let\sseq@classquotes@smugglehook\sseq@classquotes@smugglehook@inner
         \sseq@options@firstpassmode
         \the\sseq@innerclasslabelstyle
         \sseq@options@normalmode
@@ -485,7 +506,8 @@
             \sseq@thelabelstyle\sseq@theinnerclasslabelstyle\unexpanded\@xp{\sseq@savedoptioncode}%
         }%
     \fi
-    \endpgfscope\endgroup
+    \@xp\endpgfscope\@xp\endgroup
+    \sseq@classquotes@smugglehook
 }
 
 \def\sseq@handleedgequotes#1#2{% We use this via \let\tikz@quotes@as\sseq@handleedgequotes
@@ -1068,7 +1090,7 @@
             \let\sseq@savedoptioncode@store\sseq@savedoptioncode
             \def\sseq@keys@unknown@error{}%
             \let\sseq@add@tikzkey@to@options\sseq@add@tikzkey@to@options@forstylehander
-%                        
+%
             \sseq@stylehandler@processpath{scope}{#2}%
             %\tracingall
             \sseq@stylehandler@processpath{class}{#2}
@@ -1076,7 +1098,7 @@
             \sseq@stylehandler@processpath{struct line}{#2}%
             \sseq@stylehandler@processpath{circle classes}{#2}%
             \sseq@stylehandler@processpath{tikz primitives}{#2}%
-%            
+%
             \let\sseq@savedoptioncode\sseq@savedoptioncode@store
             \let\sseq@addstylecodetooptions@unknown\sseq@keys@unknown
             \let\sseq@keys@unknown@error\sseq@keys@unknown@error@normal
@@ -1100,7 +1122,7 @@
     sseq @@ make code handler=code,
     sseq @@ make code handler=prefix code,
     sseq @@ make code handler=append code,
-%
+% these just are the same as /.style, etc.
     .global sseq style/.code={\pgfkeys{\pgfkeyscurrentpath/.code=\pgfkeysalso{#1}}},
     .global sseq prefix style/.code={\pgfkeys{\pgfkeyscurrentpath/.add code={\pgfkeysalso{#1}}{}}},
     .global sseq append style/.code={\pgfkeys{\pgfkeyscurrentpath/.add code={}{\pgfkeysalso{#1}}}},
@@ -1688,6 +1710,11 @@
 % special second pass handler for scopes to prevent shifts from causing out of memory style errors,
 % see the longer comment at the definition of sseq@scope in main.code.tex
 \def\sseq@options@scopeshiftsecondpass{\sseq@options@secondpass}
+
+\sseq@pgfqkeysdirlist{/sseqpages/scope,/sseqpages/tikz primitives,/sseqpages,/sseqpages/label,/sseqpages/class/label}{
+    align/.sseq @ second pass code=\tikzset{align/#1},
+    align/.sseq @ first pass append code={\sseq@needstikztrue\def\sseq@classquotes@smugglehook@inner{\sseq@needstikztrue\tikzset{align/#1}}}
+}
 
 \sseq@pgfqkeysdirlist{/sseqpages/scope,/sseqpages/tikz primitives}{
     shift/.code={

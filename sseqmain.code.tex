@@ -287,7 +287,7 @@
 %
     \sseq@handlexaxis % Draw the axis with pgf primitives. These are defined in sseqdrawing.code.tex
     \sseq@handleyaxis
-    \sseq@grid                
+    \sseq@grid
     \endpgfonlayer
 %
     \ifsseq@mathnodes
@@ -963,9 +963,9 @@
 \sseq@DeclareDocumentCommand\structlineoptions{od()}{%
     \begingroup
     \IfNoValueTF{#2}{
-        \sseq@structline@main{structline}{#1}{#2}{#2}
+        \sseq@structline@main{structlineoptions}{#1}{#2}{#2}
     }{
-        \def\next{\sseq@structline@{structline}{#1}{#2}}%
+        \def\next{\sseq@structline@{structlineoptions}{#1}{#2}}%
         \@xptwo\next\sseq@trimleadingspaces
     }
 }

@@ -482,7 +482,6 @@
                 ] (\sseq@thisnodename) {\unexpanded\@xpthree{\sseq@obj{#1.nodetext}}}
                 [every text node part/.code={}];
             }%
-            \sseq@obj{#1.labelnodes}
         \else
             \tikz@node@textfont
             \edef\sseq@classnodetextoptions{\@xptwo\@nx\sseq@obj{#1.nodetext.options}}
@@ -491,8 +490,10 @@
             \let\tikz@fig@name\sseq@thisnodename
             \pgfmultipartnode{\tikz@shape}{\tikz@anchor}{\tikz@fig@name}{\sseq@drawnode}%
             \tikz@alias
-            \sseq@obj{#1.labelnodes}
         \fi
+        %\tracingall
+        \sseq@obj{#1.labelnodes}
+        %\error
         \sseq@obj@ifdef{#1.tooltip}{
             \pgfpointanchor{\sseq@thisnodename}{west}
             \pgf@xa=\pgf@x
@@ -623,13 +624,17 @@
     \bgroup\pgfscope
     \def\tikz@mode{}
     \let\sseq@tikz@transform@save\tikz@transform
-    \let\tikz@transform\relax % The next line was set up to fix the classlabelstyle glitch
+    \def\tikz@shape{rectangle}
+    \let\tikz@transform\empty % The next line was set up to fix the classlabelstyle glitch
     \sseq@options@secondpassmode
     \sseq@thesseqstyle\sseq@thelabelstyle\sseq@theclasslabelstyle#2
     \tikz@options
-    \let\tikz@transform\sseq@tikz@transform@save
+    \pgftransformreset
     \pgftransformshift{\tikz@node@at}
     \tikz@lib@pos@call
+    \tikz@transform
+    \tikz@mode
+    \let\tikz@transform\sseq@tikz@transform@save
     \sseq@setnodetext{\sseq@labeltextfn{#1}}{}
     \pgfmultipartnode{\tikz@shape}{\tikz@anchor}{}{\sseq@drawnode}%
     \endpgfscope\egroup
@@ -820,6 +825,7 @@
         \let\tikz@lib@fit@scan@handle\sseq@fit@tikz@lib@fit@scan@handle % install fit modifications.
         \let\tikz@calc@anchor\sseq@fit@tikz@calc@anchor
         \sseq@tempiftrue
+        \sseq@options@secondpassmode
         \node[
             rotate fit=\tempangle,
             /utils/exec={\sseq@thesseqstyle\sseq@thecircleclassstyle\the\sseq@scope@toks\sseq@savedoptioncode

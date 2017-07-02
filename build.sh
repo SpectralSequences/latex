@@ -11,12 +11,12 @@ fi
 cd ..
 
 echo "Compiling examples"
-./compileexamples.sh | tee timetest.txt 
-sed -r --in-place "s/\x1B\[([0-9]{1,3}((;[0-9]{1,3})*)?)?[m|K]//g" timetest.txt
-if [ $? -gt 0 ] ; then
+./compileexamples.sh | tee timetest.txt
+if [ ${PIPESTATUS[0]} -gt 0 ] ; then
     echo "Examples failed; quitting."
     exit 1
 fi
+sed -r --in-place "s/\x1B\[([0-9]{1,3}((;[0-9]{1,3})*)?)?[m|K]//g" timetest.txt
 
 echo "Cleanup tex output files"
 /usr/bin/find -regextype egrep -regex ".*\.aux|.*\.bbl|.*\.dvi|.*\.log|.*\.synctex.*|.*\.toc|.*\.out|.*\.up.*" -delete
