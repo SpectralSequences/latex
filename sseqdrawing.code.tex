@@ -209,31 +209,33 @@
  \pgf@xa=\pgf@x
  \pgf@process{\pgfqpointxy{0}{\sseq@ygridstep}}
  \pgf@ya=\pgf@y
- \pgfmathparse{1cm/\pgf@xa}
- \pgftransformxscale{\pgfmathresult}
- \pgfmathparse{1cm/\pgf@ya}
- \pgftransformyscale{\pgfmathresult}
+ \pgfsetxvec{\pgfpoint{1cm}{0cm}}
+ \pgfsetyvec{\pgfpoint{0cm}{1cm}}
+ %\pgfmathparse{\sseq@xscalecm/\pgf@xa}
+ \pgftransformxscale{\sseq@xscale}
+ \pgftransformyscale{\sseq@yscale}
+ %\pgfmathparse{\sseq@yscalecm/\pgf@ya}
  \pgflowlevelsynccm
  \pgfsetlinewidth{1cm}
- \pgfsetdash{{1cm}{1cm}}{1cm}
+ \pgfsetdash{{1cm}{1cm}}{0cm}
  \pgfsetcolor{\sseq@gridcolor}
- \sseq@tempx=\numexpr\sseq@intdivceiling{\sseq@xmin}{2}*2\relax
- \sseq@tempy=\numexpr\sseq@intdivceiling{\sseq@ymin}{2}*2\relax
+ \sseq@tempx=\numexpr\sseq@intdivceiling{\sseq@xmin}{2*\sseq@xscale}*2*\sseq@xscale\relax
+ \sseq@tempy=\numexpr\sseq@intdivceiling{\sseq@ymin}{2*\sseq@xscale}*2*\sseq@xscale\relax
  \sseq@tempxb=\sseq@xmax\relax
  \sseq@tempyb=\sseq@ymax\relax
- \ifodd\sseq@xmin
-    \pgftransformshift{\pgfqpoint{-1cm}{0pt}}
-    \advance\sseq@tempxb\@ne
- \fi
- \ifodd\sseq@ymin
-    \pgftransformshift{\pgfqpoint{0pt}{-1cm}}
-    \advance\sseq@tempyb\@ne
- \fi
- \sseq@xoffset=\numexpr\sseq@intdivfloor{\sseq@xoffset}{2}*2\relax
- \sseq@yoffset=\numexpr\sseq@intdivfloor{\sseq@yoffset}{2}*2\relax
- \pgfpathgrid[stepx=2cm,stepy=2cm]
-    { \pgfpointxy { -0.5+ \the\sseq@tempx +\sseq@xoffset } { -0.5 + \the\sseq@tempy +\sseq@yoffset } }
-    { \pgfpointxy { \the\sseq@tempxb + 0.499 +\sseq@xoffset + 1 }{ \the\sseq@tempyb + 0.499 +\sseq@yoffset + 1 } }
+% \ifodd\sseq@xmin
+%    \pgftransformshift{\pgfqpoint{-1cm}{0pt}}
+%    \advance\sseq@tempxb\@ne
+% \fi
+% \ifodd\sseq@ymin
+%    \pgftransformshift{\pgfqpoint{0pt}{-1cm}}
+%    \advance\sseq@tempyb\@ne
+% \fi
+% \sseq@xoffset=\numexpr\sseq@intdivfloor{\sseq@xoffset}{2}*2\relax
+% \sseq@yoffset=\numexpr\sseq@intdivfloor{\sseq@yoffset}{2}*2\relax
+ \pgfpathgrid[stepx= 2cm,stepy=2cm]
+    { \pgfpointxy { (-0.5+ \the\sseq@tempx +\sseq@xoffset) } { ( -0.5 + \the\sseq@tempy +\sseq@yoffset )} }
+    { \pgfpointxy { (\the\sseq@tempxb +\sseq@xoffset ) }{ (\the\sseq@tempyb + \sseq@yoffset ) } }
  \pgfusepath{stroke}
  \endpgfscope
  \egroup
@@ -249,8 +251,8 @@
  \pgf@xa=\pgf@x
  \pgf@process{\pgfqpointxy{0}{1}}
  \pgf@ya=\pgf@y
- \sseq@tempx=\numexpr \dimexpr(\sseq@yaxisgap-\sseq@yclip@axisgap)\relax/\pgf@xa+1\relax
- \sseq@tempy=\numexpr \dimexpr(\sseq@xaxisgap-\sseq@xclip@axisgap)\relax/\pgf@ya+1\relax
+ \sseq@tempx=\numexpr \dimexpr(\sseq@yaxisgap-\sseq@yclip@axisgap)\relax/\pgf@xa\relax
+ \sseq@tempy=\numexpr \dimexpr(\sseq@xaxisgap-\sseq@xclip@axisgap)\relax/\pgf@ya\relax
  \sseq@tempxb=\numexpr \dimexpr\sseq@xaxis@end@extend\relax/\pgf@xa+\sseq@xgridstep/2\relax
  \sseq@tempyb=\numexpr \dimexpr\sseq@yaxis@end@extend\relax/\pgf@ya+\sseq@ygridstep/2\relax
 
@@ -285,21 +287,35 @@
  \pgf@ya=\pgf@y
  \sseq@tempx=\numexpr \dimexpr(\sseq@yaxisgap-\sseq@yclip@axisgap)\relax/\pgf@xa+1\relax
  \sseq@tempy=\numexpr \dimexpr(\sseq@xaxisgap-\sseq@xclip@axisgap)\relax/\pgf@ya+1\relax
- \sseq@tempxb=\numexpr \dimexpr\sseq@xaxis@end@extend\relax/\pgf@xa\relax
- \sseq@tempyb=\numexpr \dimexpr\sseq@yaxis@end@extend\relax/\pgf@ya\relax
 %
  \pgf@process{\pgfqpointxy{\sseq@xgridstep}{0}}
- \pgf@xa=\pgf@x
+ \pgf@xb=\pgf@x
  \pgf@process{\pgfqpointxy{0}{\sseq@ygridstep}}
- \pgf@ya=\pgf@y
+ \pgf@yb=\pgf@y
 %
- \pgfpathgrid[stepx=\pgf@xa,stepy=\pgf@ya]
+ \sseq@tempdimen=\dimexpr\sseq@xaxis@end@extend\relax
+ \ifdim\sseq@tempdimen<\pgf@xb
+    \pgfmathparse{\sseq@tempdimen/\pgf@xa}
+    \let\sseq@tempa\pgfmathresult
+ \else
+    \def\sseq@tempa{\sseq@xgridstep}
+ \fi
+%
+ \sseq@tempdimen=\dimexpr\sseq@yaxis@end@extend\relax
+ \ifdim\sseq@tempdimen<\pgf@yb
+     \pgfmathparse{\sseq@tempdimen/\pgf@ya}
+      \let\sseq@tempb\pgfmathresult
+ \else
+    \def\sseq@tempb{\sseq@ygridstep}
+ \fi 
+%
+ \pgfpathgrid[stepx=\pgf@xb,stepy=\pgf@yb]
     { \pgfqpointxy
         { \numexpr\sseq@xmin - \sseq@tempx +\sseq@xoffset\relax }
         { \numexpr\sseq@ymin - \sseq@tempy +\sseq@yoffset\relax} }
     { \pgfpointxy
-        { \sseq@xmax + \sseq@tempxb - 0.01 +\sseq@xoffset + 1 }
-        { \sseq@ymax + \sseq@tempyb - 0.01 +\sseq@yoffset + 1 }
+        { \sseq@xmax + \sseq@tempa - 0.01 +\sseq@xoffset  }
+        { \sseq@ymax + \sseq@tempb - 0.01 +\sseq@yoffset  }
     }
  \pgfusepath{stroke}
  \endpgfscope

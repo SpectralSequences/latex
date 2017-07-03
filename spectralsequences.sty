@@ -11,26 +11,24 @@
 
 
 % TODO:
-%  finish \sseqparseint, \IfOutOfBoundsTF, \DoUntilOutOfBounds, \kill (add error trapping and test them)
 %  make pin labels work (say by adding a "pin" key)
-%  default argument for \d, \classoptions, \replaceclass
-%
+%  default argument for \d, \doptions
 %
 %  Errors:
-%    give an error if \gettag fails to find a tag
 %    give an error if the user tries to put a shift into a style
 %    Add xparse related assumptions (I'm surprised we didn't already have these)
 %
-%  try to ensure that crossword / go grids don't end on a line
+%  ensure that crossword doesn't start or end too close to a line
 %  fix chess and dots grids
+%
 %
 %  Redo sseqerrortest and set up regression test script as part of build (damn I didn't realize we'd lost anything imporant with that find -d disaster)
 %  Maybe we should add some other regression tests too
 %
-%  speed up off page edges (uses 10% of the draw time for page 0 of tmfass) -- use \pgfpointborderrectangle
-%  better flexibility with class pattern arrangement
 %
 %  Lower priority:
+%   speed up off page edges (uses 10% of the draw time for page 0 of tmfass) -- use \pgfpointborderrectangle
+%   better flexibility with class pattern arrangement
 %   custom groups with styles that can be modified from drawing to drawing
 %   make an "axis style" option that styles the axis.
 %   improve \DoUntilOutOfBounds progress check
@@ -233,8 +231,9 @@
 }
 
 \let\sseq@breakpoint\relax
+\let\sseq@breakpointfinally\@gobble
 \def\sseq@break#1\sseq@breakpoint{}
-\def\sseq@break@withcleanup#1\sseq@breakpoint#2{#2}
+\def\sseq@break@finally#1\sseq@breakpoint#2{#2}
 
 \def\sseq@breakfi{\fi\sseq@break}
 \def\sseq@breakfifi{\fi\fi\sseq@break}

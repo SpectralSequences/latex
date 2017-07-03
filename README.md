@@ -19,7 +19,8 @@ Changelog:
 ### Added:
 - \sseqparseint
 - \IfInBoundsTF, \IfOutOfBoundsTF
-- \Do, \DoUntilOutOfBounds, \DoUntilOutOfBoundsThenNMore
+- New loop constructs \Do, \DoUntilOutOfBounds, \DoUntilOutOfBoundsThenNMore
+- \kill which kills a class without having to put a differential
 - Defaults for \structline: a single missing coordinate is replaced with \lastclass, if both are missing, same as \structline(\lastclass1)(\lastclass)
 
 ### Changed:

@@ -191,6 +191,7 @@
 
 % Here we do all of the work to actually print the page
 \def\endsseqpage{
+    \let\sseq@error@setup\sseq@error@setup@noinfo
     \sseq@savedpaths@add{\endgroup} % prevent some of the two-pass user macros horrors
 %
     \sseq@xscalecm=\sseq@xscale cm
@@ -213,9 +214,9 @@
     \fi
 %
     \sseq@tempdimen = \dimexpr \textwidth -\sseq@clip@padding@right - \sseq@xaxis@end@extend - \sseq@xaxis@start@extend - \sseq@yaxisgap \relax
-    \sseq@tempcount = \numexpr -1 +\sseq@tempdimen /\sseq@xscalecm \relax
-    \ifnum \numexpr\sseq@xmax-\sseq@xmin > \sseq@tempcount
-      \pgfmathparse{\sseq@tempdimen/1cm/(\sseq@xmax-\sseq@xmin)}
+    \sseq@tempcount = \numexpr \sseq@tempdimen /\sseq@xscalecm \relax
+    \ifnum \numexpr\sseq@xmax-\sseq@xmin + 1 > \sseq@tempcount
+      \pgfmathparse{\sseq@tempdimen/1cm/(\sseq@xmax-\sseq@xmin+1)}
       \sseq@error@xxxx{range-overflow}{x}
             {from \sseq@xmin\space to \sseq@xmax\space (xmax - xmin = \the\numexpr\sseq@xmax-\sseq@xmin)}
             {\the\sseq@tempcount}% max x range
@@ -224,9 +225,9 @@
     \fi
 %
     \sseq@tempdimen = \dimexpr \textheight - \sseq@clip@padding@top - \sseq@yaxis@end@extend - \sseq@yaxis@start@extend - \sseq@xaxisgap \relax
-    \sseq@tempcount = \numexpr -1 +\sseq@tempdimen /\sseq@yscalecm \relax
-    \ifnum \numexpr\sseq@ymax-\sseq@ymin > \sseq@tempcount
-        \pgfmathparse{\sseq@tempdimen/1cm/(\sseq@ymax-\sseq@ymin)}
+    \sseq@tempcount = \numexpr \sseq@tempdimen /\sseq@yscalecm \relax
+    \ifnum \numexpr\sseq@ymax-\sseq@ymin +1 > \sseq@tempcount
+        \pgfmathparse{\sseq@tempdimen/1cm/(\sseq@ymax-\sseq@ymin+1)}
         \sseq@error@xxxx{range-overflow}{y}
             {from \sseq@ymin\space to \sseq@ymax\space (ymax - ymin = \the\numexpr\sseq@ymax-\sseq@ymin)}
             {\the\sseq@tempcount}% max x range
@@ -416,11 +417,11 @@
     }
 
     % Now the rest of these can be no-ops
-    \sseq@DeclareDocumentCommand\classoptions{or()}{}
-    \sseq@DeclareDocumentCommand\replaceclass{or()}{}
+    \sseq@DeclareDocumentCommand\classoptions{od()}{}
+    \sseq@DeclareDocumentCommand\replaceclass{od()}{}
     \sseq@DeclareDocumentCommand\d{oU(r()d()}{}
     \sseq@DeclareDocumentCommand\doptions{oU(r()d()}{}
-    \sseq@DeclareDocumentCommand\structline{od()d()}{} % TODO: make these absorb second optional argument if there's a space (source) (target)
+    \sseq@DeclareDocumentCommand\structline{od()d()}{} 
     \sseq@DeclareDocumentCommand\structlineoptions{od()d()}{}
     \sseq@DeclareDocumentCommand\circleclasses{or()r()}{}
     \endinput
@@ -516,12 +517,11 @@
 }
 \def\sseq@setoffset#1{\sseq@obj@gdef{\classname.offset}{\pgftransformshift{#1}}}
 
-\sseq@DeclareDocumentCommand\classoptions{or()}{%
+\sseq@DeclareDocumentCommand\classoptions{od()}{%
     \begingroup
     \sseq@loadinputline
     \sseq@xsetthiscall{\string\classoptions\IfNoValueF{#1}{[\unexpanded{#1}]}\unexpanded{(#2)}}%
     \IfNoValueT{#1}{\sseq@error@x{cmdoptions-without-options}{\string\classoptions}\sseq@break}% could be warning
-    \IfNoValueT{#2}{\sseq@break}%
     \sseq@options@firstpassmode
     \the\sseq@sseqstyle
     \the\sseq@classstyle
@@ -530,7 +530,12 @@
     \let\sseq@processlabels\sseq@processlabels@default % Don't double dip on labels from the scope or classstyle
     \sseq@processoptions{class}{#1}% Outputs result into \sseq@savedoptioncode
 %
-    \sseq@parsecoord\coord{#2}{\string\classoptions}%
+    \IfNoValueTF{#2}{
+        \def\sseq@coord{\lastclass0}
+    }{
+        \def\sseq@coord{#2}
+    }
+    \sseq@parsecoord\coord{\sseq@coord}{\string\classoptions}%
 %
     \sseq@processlabels
 %
@@ -668,7 +673,7 @@
         \sseq@smuggle@macro\sseq@gen
     \egroup
 }
-\sseq@DeclareDocumentCommand\replaceclass{or()}{%
+\sseq@DeclareDocumentCommand\replaceclass{od()}{%
     \begingroup
     \sseq@loadinputline
     \sseq@xsetthiscall{\string\replaceclass\IfNoValueF{#1}{[\unexpanded{#1}]}\unexpanded{(#2)}}
@@ -681,7 +686,12 @@
         \sseq@processoptions{class}{#1}% Outputs result into \sseq@savedoptioncode
     }%
 %
-    \sseq@parsecoord\coord{#2}{\string\replaceclass}
+    \IfNoValueTF{#2}{
+        \def\sseq@coord{\lastclass0}
+    }{
+        \def\sseq@coord{#2}
+    }
+    \sseq@parsecoord\coord{\sseq@coord}{\string\classoptions}%
     \sseq@processlabels
 %
     \sseq@ifundefcoord\coord{\sseq@error@x{replaceclass-no-class}{\coordname}\sseq@break}{}

@@ -790,16 +790,21 @@
 }
 
 
-\def\sseq@nameclass#1(#2){
+\sseq@DeclareDocumentCommand\nameclass {mr()} {
     \bgroup
+    \sseq@setthiscall{\sseq@nameclass#1(#2)}
+    \let\sseq@possibleoninputlinepar\empty    
     \sseq@parsecoord\coord{#2}{}
     \sseq@cleanup@obj{class.namedclass.#1}
     \sseq@obj@xdef{class.namedclass.#1}{\coordnopar}
+    \sseq@breakpoint
     \egroup
 }
 
 \sseq@DeclareDocumentCommand\tagclass{mr()}{
     \bgroup
+    \sseq@setthiscall{\tagclass#1(#2)}
+    \let\sseq@possibleoninputlinepar\empty
     \def\sseq@class@tag{#1}
     \sseq@parsecoord\coord{#2}{}%
     \sseq@obj@ifdef{partcoord.(\sseq@xycoord).tag.\sseq@class@tagprefix\sseq@class@tag}{%
@@ -809,23 +814,35 @@
     \sseq@obj@xdef{class.\coord.tag}{\sseq@class@tagprefix\sseq@class@tag}%
     \sseq@cleanup@obj{partcoord.(\sseq@xycoord).tag.\sseq@class@tagprefix\sseq@class@tag}%
     \sseq@obj@xdef{partcoord.(\sseq@xycoord).tag.\sseq@class@tagprefix\sseq@class@tag}{\sseq@index}%
+    \sseq@breakpoint
     \egroup
 }
 
 \sseq@DeclareDocumentCommand\gettag{mr()}{
     \bgroup
+    \sseq@setthiscall{\gettag#1(#2)}
+    \let\sseq@possibleoninputlinepar\empty
     \sseq@parsecoord\coord{#2}{}
     \sseq@obj@ifdef{class.\coord.tag}{
         \xdef#1{\sseq@obj{class.\coord.tag}}
     }{
         \sseq@error@n{class-no-tag}{(#2)}
     }
+    \sseq@breakpoint
     \egroup
 }
 
 \prg_new_conditional:Npnn \sseq_if_out_of_bounds:n #1 { T ,  F , TF } {
+    \bgroup
+    \sseq@tempiftrue
     \sseq@parsecoord\coord{#1}{}
-    \sseq_if_out_of_bounds_noparse:nnTF { \xcoord } { \ycoord }{\prg_return_true:}{\prg_return_false:}
+    \@gobbletwo\sseq@breakpoint\sseq@tempiffalse % this executes \sseq@tempiffalse if we broke, otherwise it gets gobbled
+    \ifsseq@tempif
+        \sseq_if_out_of_bounds_noparse:nnTF { \xcoord } { \ycoord }{\egroup\prg_return_true:}{\egroup\prg_return_false:}
+    \else
+        \egroup
+        \prg_return_false
+    \fi
 }
 
 % For internal use b/c it's faster not to call \sseq@parsecoord

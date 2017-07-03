@@ -12,10 +12,10 @@
 
 %
 % TODO:
-%   document:
+%   document and use as appropriate:
 %      grid step, grid color
 %      \sseqparseint, \IfOutOfBoundsTF
-%      \kill
+%      \kill -- use this in catherine ex 
 %      "draft"
 %      the defaults
 %
@@ -1122,8 +1122,8 @@ Sets \meta{macro} equal to the coordinates of the target position of a length \m
            name path = circ, page = #2--#2 ]
                 (target1)(target2)            % Circle the classes, use differential style
 %
-    \d[invisible]#2(source)(target1)     % don't draw anything, but record source and targets as hit.
-    \d[invisible]#2(source)(target2)
+    % record source and targets as hit.
+    \kill#2(source) \kill#2(target1) \kill#2(target2)
 %
     \path(target1)--(target2)
                 coordinate[midway](midpt);% put a coordinate in the center of the two classes
@@ -1755,7 +1755,7 @@ Makes \sseqpages\space draw a grid. The grid styles and a significant part of th
 \class(3,3)
 \end{sseqdata}
 \hbox{
-\printpage[ name = grid example, grid = chess ]
+%\printpage[ name = grid example, grid = chess ]
 \qquad
 \printpage[ name = grid example, grid = crossword ]
 \qquad
