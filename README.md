@@ -21,7 +21,7 @@ Changelog:
 - \IfInBoundsTF, \IfOutOfBoundsTF
 - New loop constructs \Do, \DoUntilOutOfBounds, \DoUntilOutOfBoundsThenNMore
 - \kill which kills a class without having to put a differential
-- Defaults for \structline: a single missing coordinate is replaced with \lastclass, if both are missing, same as \structline(\lastclass1)(\lastclass)
+- \lastclass as default arguments for \replaceclass, \classoptions, \d/\doptions, \structline/\structlineoptions
 - Pin key for labels
 
 ### Changed:

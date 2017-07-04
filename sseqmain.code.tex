@@ -102,10 +102,12 @@
 
 % Just store all the settings
 \def\endsseqdata{
+    \sseq@checkend{sseqdata}
     \sseq@savedpaths@add{\endgroup} % prevent some of the two-pass user macros horrors
     \xdef\sseq@restorestyles{\sseq@stylelist}
     \sseq@storecmds
     \ignorespacesafterend
+    \sseq@breakpoint
 }
 
 \def\sseqpage{\@ifnextchar[{\sseqpage@}{\sseqpage@[]}} %]
@@ -192,7 +194,7 @@
 
 % Here we do all of the work to actually print the page
 \def\endsseqpage{
-    \let\sseq@error@setup\sseq@error@setup@noinfo
+    \sseq@checkend{sseqpage}
     \sseq@savedpaths@add{\endgroup} % prevent some of the two-pass user macros horrors
 %
     \sseq@xscalecm=\sseq@xscale cm
@@ -778,21 +780,25 @@
 %%% \kill, \d and \doptions
 %%%
 
-\sseq@DeclareDocumentCommand\kill{U(r()}{%
+\protected\def\sseq@kill{%
     \begingroup
+    \sseq@setinputline
     \sseq@loadinputline
-    \sseq@setthiscall{\kill#1(#2)}%
-    \sseq@parsecoord\coordinate{#2}{}%
-    \sseq@ifintexpr{#1}{%
-        \sseq@tempcount=\numexpr#1\relax % this is a convenient way to get rid of spaces because #3 has to be a number
+    \sseq@d@grabpage\sseq@kill@
+}
+
+\sseq@DeclareDocumentCommandAs\sseq@kill@\kill {d()} {
+    \sseq@xsetthiscall{\string\kill\unexpanded\@xp{\sseq@dpage}\IfNoValueF{#1}{(#1)}}%
+    \sseq@parsecoord\coordinate{\IfNoValueTF{#1}{\lastclass}{#1}}{}%
+    \sseq@ifintexpr{\sseq@dpage}{%
+        \sseq@tempcount=\numexpr\sseq@dpage\relax % this is a convenient way to get rid of spaces because #3 has to be a number
     }{%
-        \sseq@error@n{d-invalid-page}{#1}\sseq@break%
+        \sseq@error@x{d-invalid-page}{\unexpanded\@xp{\sseq@dpage}}\sseq@break%
     }%
     \sseq@d@setpageminrec{class.\coordinate}{\the\sseq@tempcount}{coordinate}%  automatically handles \sseq@cleanup@obj
     \sseq@breakpoint
     \endgroup
 }
-
 
 
 \sseq@DeclareDocumentCommand\d{o}{%
@@ -814,7 +820,7 @@
 \def\sseq@d@{
     \ifsseq@tempif
         \csname sseq@\sseq@dtype @grabcoord\@xp\endcsname
-    \else    
+    \else
         \sseq@eval{\@nx\sseq@d@main{\sseq@dtype}{\unexpanded\@xp{\sseq@d@theoptions}}{\sseq@dpage}{\sseq@NoValue}{\sseq@NoValue}}
         \sseq@breakpoint
         \endgroup
@@ -834,7 +840,7 @@
 }
 
 
-\def\sseq@d@main#1#2#3#4#5{%    
+\def\sseq@d@main#1#2#3#4#5{%
     \sseq@options@firstpassmode
     \the\sseq@sseqstyle
     \the\sseq@edgestyle

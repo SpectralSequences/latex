@@ -235,6 +235,19 @@
     \fi
 }
 
+%%
+%%  \sseq@checkend
+%%
+\def\sseq@checkend#1{
+    \let\sseq@error@setup\sseq@error@setup@noinfo
+    \def\sseq@tempa{#1}
+    \ifx\sseq@tempa\@currenvir\else % mismatch
+        \sseq@error@n{endenv-mismatch}{#1}
+        \csname end\@currenvir\endcsname % run the \end code for the correct environment
+        \def\@currenvir{#1} % Prevent \@checkend from throwing a second redundant error
+        \@xp\sseq@break % don't run the code \end for this environment
+    \fi
+}
 
 
 
@@ -487,6 +500,7 @@
 %%
 %%
 
+\sseq@newerror{endenv-mismatch}{\string\begin {\@currenvir }\@currenvline \space ended by \string\end {#1}. I'm going to run the code for \string\end{\@currenvir} instead.}
 \sseq@newerror{env-inside-tikz}{#1 environment started inside tikz.}
 \sseq@newerror{env-inside-sseq}{#1 environment started inside other sseq environment.}
 \sseq@newerror{env-data-no-name}{Every 'sseqdata' environment must have a name. Specify one by saying 'name=your sseq name'.}
