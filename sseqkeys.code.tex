@@ -27,7 +27,7 @@
 % These are the things that are used outside of this section:
 \let\sseq@pgfkeys@error@save\pgfkeys@error
 \pgfkeys{/sseqpages/userstyles/.unknown/.code={\sseq@passoptionto{\sseq@sseqsetdirectory}}}
-\def\sseqset#1{\pgfqkeys{/sseqpages/userstyles}{#1}}
+\protected\def\sseqset#1{\pgfqkeys{/sseqpages/userstyles}{#1}}
 
 \def\sseq@sseqsetdirectory{/sseqpages/global/default}
 
@@ -323,6 +323,7 @@
     /sseqpages/class/.is family,
     /sseqpages/class/label/.is family,
     /sseqpages/class/label/.unknown/.code={\sseq@keys@unknown},
+    /sseqpages/class/label/pin/.unknown/.code={\sseq@keys@unknown},
     /sseqpages/class/node texts/.is family,
     /sseqpages/class/node texts/.unknown/.code={\sseq@passoptionto{/tikz}},
     /sseqpages/differential/.is family,
@@ -341,10 +342,18 @@
 
 \pgfqkeys{/sseqpages/class}{shape/.code={\edef\tikz@shape{\pgfkeyscurrentname}}} % shape=whatever shape passing
 
+\newif\ifsseq@pin
 \pgfqkeys{/sseqpages/class/label}{% maybe implement multipart node labels this way? No way!
     node/.sseq @ first pass code={\sseq@classlabelfalse},
-    inside/.sseq @ first pass code={\sseq@classlabelfalse}
+    inside/.sseq @ first pass code={\sseq@classlabelfalse},
+    pin/.sseq @ first pass code = {
+        \let\sseq@savedoptioncode@save\sseq@savedoptioncode
+        \sseq@processoptions{class/label/pin}{#1}
+        \edef\sseq@savedoptioncode{\unexpanded\@xp{\sseq@savedoptioncode@save}\@nx\sseq@d@addto@macro\@nx\sseq@pinoptions{\unexpanded\@xp{\sseq@savedoptioncode}}}
+    },
+    pin/.sseq @ second pass append code = {\sseq@pintrue}
 }
+\def\sseq@pinoptions{}
 
 %% label directions
 \def\sseq@labeldirectionlist{\\{above}\\{below}\\{left}\\{right}\\{above left}\\{above right}\\{below left}\\{below right}}
@@ -848,6 +857,7 @@
 \sseq@newstyles{/sseqpages/differential,/sseqpages}{differential}
 \sseq@newstyles{/sseqpages/struct line,/sseqpages}{struct line, this page struct line}
 \sseq@newstyles{/sseqpages/class/label}{class label, inner class label, outer class label}
+\sseq@newstyles{/sseqpages/class/label/pin}{pin}
 \sseq@newstyles{/sseqpages/tikz primitives}{tikz primitive}
 \sseq@newstyles{/sseqpages/fit}{circle class}
 

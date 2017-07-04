@@ -11,16 +11,14 @@
 
 
 % TODO:
-%  make pin labels work (say by adding a "pin" key)
-%  default argument for \d, \doptions
 %
 %  Errors:
 %    give an error if the user tries to put a shift into a style
 %    Add xparse related assumptions (I'm surprised we didn't already have these)
 %
+%
 %  ensure that crossword doesn't start or end too close to a line
 %  fix chess and dots grids
-%
 %
 %  Redo sseqerrortest and set up regression test script as part of build (damn I didn't realize we'd lost anything imporant with that find -d disaster)
 %  Maybe we should add some other regression tests too
@@ -72,6 +70,7 @@
     \pgfmathparse\isalive\lastx\lasty\lastclass\savestack\restorestack\pushstack\nameclass\tagclass
     \parsecoordinate\parsedifferential\getdtarget\gettag
     \IfOutOfBoundsTF\IfOutOfBoundsT\IfOutOfBoundsF\IfInBoundsTF\IfInBoundsT\IfInBoundsF
+    % sseqforeach
     \Do\DoUntilOutOfBounds\DoUntilOutOfBoundsThenNMore
 }
 
@@ -299,7 +298,8 @@
     circle classes={newellipse, ellipse ratio=1.2,draw, inner sep=2pt},
     edges=draw,
     math nodes,
-    differentials=->
+    differentials=->,
+    pins=help lines
 }
 
 % Extra commands to expose:

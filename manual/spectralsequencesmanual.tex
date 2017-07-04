@@ -15,9 +15,13 @@
 %   document and use as appropriate:
 %      grid step, grid color
 %      \sseqparseint, \IfOutOfBoundsTF
-%      \kill -- use this in catherine ex 
+%      \kill -- use this in catherine ex
 %      "draft"
 %      the defaults
+%      pin 
+%
+%    \parsecoordinate and \parsedifferential?
+%    \sseqifempty   
 %
 %  comment on TeXLive installation issue?
 %  comment on problems with commas, equal signs in labels (need braces around whole label)
@@ -260,11 +264,11 @@ If the source or target has had multiple generations (i.e., they got hit and you
     \class(0,0)
     \foreach \y in {1,...,5} {
         \class(0,\y)
-        \structline(\lastclass1)(\lastclass)
+        \structline
     }
     \class(0,2)
-    \structline(0,1,-1)(\lastclass)
-    \structline(\lastclass)(0,3,-1)
+    \structline(0,1,-1)
+    \structline(0,3,-1)
 }
 \begin{sseqdata}[ name = structline example,
                   classes = { circle, fill },
@@ -951,7 +955,7 @@ The one use case that |\foreach| doesn't cover all that well is if you want the 
 \DoUntilOutOfBounds{
     \class(\lastx+1,\lasty+1)
     \structline
-    \d3(\lastclass)
+    \d3
 }
 \end{sseqpage}
 \end{codeexample}
@@ -1046,7 +1050,7 @@ An example where this is actually useful:
 \DeclareSseqCommand\etaclass{ O{} d() }{
     \IfNoValueF{#2}{ \pushstack(#2) }
     \class[#1] (\lastx+1, \lasty+1)
-    \structline (\lastclass) (\lastclass1)
+    \structline
 }
 \begin{sseqpage}[ classes = fill, yscale = 0.55 ]
 \class(0,0)
@@ -1164,7 +1168,7 @@ The |\gettag| command finds the most recent tag applied to the coordinate and st
     \begin{scope}[#1]
     \foreach\i in {1,...,7}{
         \class(\lastx,\lasty+1)
-        \structline(\lastclass1)(\lastclass)
+        \structline
     }
     \end{scope}
     \restorestack
@@ -1176,12 +1180,12 @@ The |\gettag| command finds the most recent tag applied to the coordinate and st
     \begin{scope}[#1]
     \gettag\thetag(\lastclass)
     \class(\lastx+3,\lasty+1)
-    \structline[gray](\lastclass)(\lastclass1)
+    \structline[gray]
     \savestack
     \foreach\i in {1,...,7}{
         \class(\lastx,\lasty+1)
-        \structline(\lastclass1)(\lastclass)
-        \structline[gray](\lastx-3,\lasty-1,\thetag)(\lastclass)
+        \structline
+        \structline[gray](\lastx-3,\lasty-1,\thetag)
     }
     \restorestack
     \end{scope}
@@ -1213,18 +1217,18 @@ The command |\lastclass| evaluates to the coordinate of the most recent class on
 \begin{codeexample}[width=6cm]
 \DeclareSseqCommand \etaclass {}{
     \class(\lastx+1,\lasty+1)
-    \structline(\lastclass1)(\lastclass)
+    \structline
 }
 \DeclareSseqCommand \divtwoclass {}{
     \class(\lastx,\lasty-1)
-    \structline(\lastclass1)(\lastclass)
+    \structline
 }
 \begin{sseqpage}
 \class(0,0)
 \savestack
 \foreach \y in { 1,...,5 }{
     \class(0,\y)
-    \structline(\lastclass1)(\lastclass)
+    \structline
 }
 \restorestack
 \etaclass\etaclass\etaclass
@@ -1239,7 +1243,7 @@ You can use |\lastx| and |\lasty| in other contexts than in the body of a \sseqp
     \sseqparseint\numclasses{\ymax-\lasty0}
     \foreach \n in {1,...,\numclasses}{
         \class(\lastx,\lasty+1)
-        \structline(\lastclass1)(\lastclass)
+        \structline
     }
     \restorestack
 }

@@ -35,7 +35,7 @@
     \cs_set_eq:cN { iteration ~ \the \sseq@Do@depth } \iteration
 }
 
-\def\sseq@Do{
+\protected\def\sseq@Do{
     \begingroup
     \edef\sseq@inputline{\the\inputlineno}
     \sseq@callas{\Do}
@@ -51,13 +51,14 @@
         \prg_replicate:nn {#1} {
             \sseq@stepiteration
             #2
+            \relax
         }
         \sseq@restorestack
     }{\sseq@error@xx{Do-invalid-int-expr}{\string\Do}{\unexpanded{#1}}}
     \endgroup
 }
 
-\def\sseq@DoUntilOutOfBounds{
+\protected\def\sseq@DoUntilOutOfBounds{
     \begingroup
     \edef\sseq@inputline{\the\inputlineno}
     \sseq@callas{\DoUntilOutOfBounds}
@@ -79,7 +80,7 @@
     \endgroup
 }
 
-\def\sseq@DoUntilOutOfBoundsThenNMore{
+\protected\def\sseq@DoUntilOutOfBoundsThenNMore{
     \begingroup
     \edef\sseq@inputline{\the\inputlineno}
     \sseq@callas{\DoUntilOutOfBoundsThenNMore}
@@ -103,6 +104,7 @@
     \prg_replicate:nn {#1} {
         \sseq@stepiteration
         #2
+        \relax
     }
     \sseq@restorestack
     \sseq@breakpoint
@@ -121,6 +123,7 @@
         \sseq@tempyb=\lasty{0}\relax
         \sseq@stepiteration
         #1 % run loop body once
+        \relax % protect from \d page grabber
         \sseq_if_out_of_bounds_noparse:nnTF{\lastx{0}}{\lasty{0}}{ % If we're out of bounds now, we can quit
             \bool_set_true:N \l_tmpa_bool
         }{ % Otherwise, determine descent check
@@ -174,6 +177,7 @@
     \bool_until_do:Nn \l_tmpa_bool {
         \sseq@stepiteration
         #1
+        \relax
         \sseq_if_out_of_bounds_noparse:nnTF{\lastx{0}}{\lasty{0}}{% we're done
             \bool_set_true:N \l_tmpa_bool
         }{% Check descent condition

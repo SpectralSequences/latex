@@ -26,9 +26,10 @@
 \sseq@addtostorelist\sseq@savedbackgroundpaths{}
 \sseq@addtostorelist\sseq@restorestyles{}
 
-\def\sseqdata{\@ifnextchar[{\sseqdata@}{\sseqdata@[]}}%}
-
 \def\sseq@page{\protect\sseq@thepage}
+
+
+\def\sseqdata{\@ifnextchar[{\sseqdata@}{\sseqdata@[]}}%}
 
 \def\sseqdata@[#1]{%
     \edef\sseq@restorefont{\font@name}
@@ -419,9 +420,8 @@
     % Now the rest of these can be no-ops
     \sseq@DeclareDocumentCommand\classoptions{od()}{}
     \sseq@DeclareDocumentCommand\replaceclass{od()}{}
-    \sseq@DeclareDocumentCommand\d{oU(r()d()}{}
-    \sseq@DeclareDocumentCommand\doptions{oU(r()d()}{}
-    \sseq@DeclareDocumentCommand\structline{od()d()}{} 
+    \def\sseq@d@main#1#2#3#4#5{} % makes both \d and \doptions do nothing
+    \sseq@DeclareDocumentCommand\structline{od()d()}{}
     \sseq@DeclareDocumentCommand\structlineoptions{od()d()}{}
     \sseq@DeclareDocumentCommand\circleclasses{or()r()}{}
     \endinput
@@ -794,23 +794,47 @@
 }
 
 
-\sseq@DeclareDocumentCommand\d{oU(r()d()}{%
+
+\sseq@DeclareDocumentCommand\d{o}{%
     \begingroup
     \sseq@loadinputline
-    \sseq@d@{d}{#1}{#2}{#3}{#4}%
-    \endgroup
+    \def\sseq@dtype{d}
+    \def\sseq@d@theoptions{#1}
+    \sseq@d@grabpage\sseq@d@
 }
-\sseq@DeclareDocumentCommand\doptions{oU(r()d()}{%
+
+\sseq@DeclareDocumentCommand\doptions{o}{%
     \begingroup
     \sseq@loadinputline
-    \IfNoValueT{#1}{
-        \sseq@xsetthiscall{\@xp\string\csname#1\endcsname\unexpanded{#2(#3)}\IfNoValueF{#4}{\unexpanded{(#4)}}}%
-    }
-    \sseq@d@{doptions}{#1}{#2}{#3}{#4}%
+    \def\sseq@dtype{doptions}
+    \def\sseq@d@theoptions{#1}
+    \sseq@d@grabpage\sseq@d@
+}
+
+\def\sseq@d@{
+    \ifsseq@tempif
+        \csname sseq@\sseq@dtype @grabcoord\@xp\endcsname
+    \else    
+        \sseq@eval{\@nx\sseq@d@main{\sseq@dtype}{\unexpanded\@xp{\sseq@d@theoptions}}{\sseq@dpage}{\sseq@NoValue}{\sseq@NoValue}}
+        \sseq@breakpoint
+        \endgroup
+    \fi
+}
+
+\sseq@DeclareDocumentCommandAs\sseq@d@grabcoord\d{d()d()}{
+    \sseq@eval{\@nx\sseq@d@main{\sseq@dtype}{\unexpanded\@xp{\sseq@d@theoptions}}{\sseq@dpage}}{#1}{#2}
     \sseq@breakpoint
     \endgroup
 }
-\def\sseq@d@#1#2#3#4#5{%
+
+\sseq@DeclareDocumentCommandAs\sseq@doptions@grabcoord\doptions{d()d()}{
+    \sseq@eval{\@nx\sseq@d@main{\sseq@dtype}{\unexpanded\@xp{\sseq@d@theoptions}}{\sseq@dpage}}{#1}{#2}
+    \sseq@breakpoint
+    \endgroup
+}
+
+
+\def\sseq@d@main#1#2#3#4#5{%    
     \sseq@options@firstpassmode
     \the\sseq@sseqstyle
     \the\sseq@edgestyle
@@ -820,13 +844,13 @@
     \IfNoValueF{#2}{
         \sseq@processoptions{differential}{#2}% Outputs result into \sseq@savedoptioncode
     }
-    \sseq@xsetthiscall{\@xp\string\csname#1\endcsname\IfNoValueF{#2}{\unexpanded{[#2]}}\unexpanded{#3(#4)}\IfNoValueF{#5}{\unexpanded{(#5)}}}%
+    \sseq@xsetthiscall{\@xp\string\csname#1\endcsname\IfNoValueF{#2}{\unexpanded{[#2]}}\unexpanded{#3}\IfNoValueF{#4}{\unexpanded{(#4)}}\IfNoValueF{#5}{\unexpanded{(#5)}}}%
     \sseq@ifintexpr{#3}{%
         \sseq@tempcount=\numexpr#3\relax % this is a convenient way to get rid of spaces because #3 has to be a number
     }{%
         \sseq@error@n{d-invalid-page}{#3}\sseq@break%
     }%
-    \@xp\sseq@dparsecoord\@xp{\the\sseq@tempcount}{#4}{#5}%
+    \sseq@eval{\@nx\sseq@dparsecoord{\the\sseq@tempcount}{\IfNoValueTF{#4}{\lastclass0}{\unexpanded{#4}}}{\unexpanded{#5}}}
     \sseq@eval{\unexpanded{\csname sseq@d@#1\endcsname{#2}}{\the\sseq@tempcount}}%
     \sseq@breakpoint
 }

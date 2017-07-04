@@ -307,7 +307,7 @@
       \let\sseq@tempb\pgfmathresult
  \else
     \def\sseq@tempb{\sseq@ygridstep}
- \fi 
+ \fi
 %
  \pgfpathgrid[stepx=\pgf@xb,stepy=\pgf@yb]
     { \pgfqpointxy
@@ -602,6 +602,8 @@
     \bgroup\pgfscope
     \def\tikz@mode{}
     \let\sseq@tikz@transform@save\tikz@transform
+    \pgfkeyssetvalue{/pgf/inner xsep}{2pt}
+    \pgfkeyssetvalue{/pgf/inner ysep}{2pt}
     \def\tikz@shape{rectangle}
     \let\tikz@transform\empty % The next line was set up to fix the classlabelstyle glitch
     \sseq@options@secondpassmode
@@ -614,7 +616,25 @@
     \tikz@mode
     \let\tikz@transform\sseq@tikz@transform@save
     \sseq@setnodetext{\sseq@labeltextfn{#1}}{}
-    \pgfmultipartnode{\tikz@shape}{\tikz@anchor}{}{\sseq@drawnode}%
+    \pgfmultipartnode{\tikz@shape}{\tikz@anchor}{label}{\sseq@drawnode}%
+    \ifsseq@pin        
+        \def\sseq@pinoptions{}
+        \let\tikz@options\empty
+        \let\tikz@mode\empty
+        \sseq@thepinstyle
+        #2
+        \sseq@pinoptions
+        \tikz@options
+        \tikz@mode
+        \sseq@drawedge@findsourcetarget{\tikz@fig@name}{}{label}{}
+        \pgfpathmoveto{\sseq@sourcecoord}%
+        \pgfpathlineto{\sseq@targetcoord}%
+        \sseq@eval{\noexpand\pgfusepath{%
+            draw
+            \iftikz@mode@fill fill,\fi
+            \iftikz@mode@draw draw,\fi
+        }}%
+    \fi
     \endpgfscope\egroup
 }
 
@@ -636,6 +656,34 @@
     \fi
 }
 
+% #1 -- source node
+% #2 -- source anchor
+% #3 -- target node
+% #4 -- target anchor
+% Calculate actual start and end of the edge (node borders), return the results stored in \sseq@sourcecoord, \sseq@targetcoord
+\def\sseq@drawedge@findsourcetarget#1#2#3#4{
+    \edef\sseq@edgesourceanchor{#2}
+    \edef\sseq@edgetargetanchor{#4}
+    \let\tempaf\pgfutil@empty
+    \ifx\sseq@edgesourceanchor\pgfutil@empty % Check that the source doesn't have a specified anchor
+        \def\tempa{\pgfpointanchor{#1}{center}}% if so, start by taking the center of that coordinate
+    \else
+        \edef\tempa{\@nx\pgfpointanchor{#1}{\sseq@edgesourceanchor}} % If it has an anchor, use that
+        \let\tempaf\tempa
+    \fi
+    \ifx\sseq@edgetargetanchor\pgfutil@empty % check that the target doesn't have a specified anchor
+        \def\tempb{\pgfpointshapeborder{#3}{\tempa}}% if so, our end point is the point on the boundary of node b that is in the direction of our initial start coordinate
+    \else
+        \edef\tempb{\@nx\pgfpointanchor{#3}{\sseq@edgetargetanchor}}% If it has a specified anchor, use that
+    \fi
+    \let\tempbf\tempb
+    \ifx\tempaf\pgfutil@empty%
+        \def\tempaf{\pgfpointshapeborder{#1}{\tempb}}%
+    \fi
+    \let\sseq@sourcecoord\tempaf
+    \let\sseq@targetcoord\tempbf
+}
+
 \def\sseq@fullcoord@to@partialcoord(#1){\sseq@fullcoord@to@partialcoord@#1,\@nil}
 \def\sseq@fullcoord@to@partialcoord@#1,#2,#3\@nil{{#1cm}{#2cm}}
 % #1 -- source (full)
@@ -654,31 +702,16 @@
     \sseq@thesseqstyle
     \sseq@theedgestyle\csname sseq@the#3style\endcsname\the\sseq@scope@toks
     #4%
-    \sseq@eval{\@nx\pgftransformshift{\@nx\pgfqpointxy{-\the\sseq@x}{-\the\sseq@y}}}%
-    % First calculate actual start and end of the edge
-    \let\tempaf\pgfutil@empty
-    \ifx\sseq@edgesourceanchor\pgfutil@empty % Check that the source doesn't have a specified anchor
-        \def\tempa{\pgfpointanchor{sseq{#1}}{center}}% if so, start by taking the center of that coordinate
-    \else
-        \edef\tempa{\@nx\pgfpointanchor{sseq{#1}}{\sseq@edgesourceanchor}} % If it has an anchor, use that
-        \let\tempaf\tempa
-    \fi
-    \ifx\sseq@edgetargetanchor\pgfutil@empty % check that the target doesn't have a specified anchor
-        \def\tempb{\pgfpointshapeborder{sseq{#2}}{\tempa}}% if so, our end point is the point on the boundary of node b that is in the direction of our initial start coordinate
-    \else
-        \edef\tempb{\@nx\pgfpointanchor{sseq{#2}}{\sseq@edgetargetanchor}}% If it has a specified anchor, use that
-    \fi
-    \let\tempbf\tempb
-    \ifx\tempaf\pgfutil@empty%
-        \def\tempaf{\pgfpointshapeborder{sseq{#1}}{\tempb}}%
-    \fi
+    \pgftransformshift{\pgfqpointxy{-\the\sseq@x}{-\the\sseq@y}}%
+    % puts results into \sseq@sourcecoord and \sseq@targetcoord
+    \sseq@drawedge@findsourcetarget{sseq{#1}}{\sseq@edgesourceanchor}{sseq{#2}}{\sseq@edgetargetanchor}
 %
     \tikz@options
     \tikz@mode
     \def\temparrowstartspec{}%
     \def\temparrowendspec{}%
-    \pgfcoordinate{tempa}{\tempaf}%
-    \pgfcoordinate{tempb}{\tempbf}%
+    \pgfcoordinate{tempa}{\sseq@sourcecoord}%
+    \pgfcoordinate{tempb}{\sseq@targetcoord}%
     \pgftransformreset
     \sseq@ifinrange(#1){\sseq@ifinrange(#2){\sseq@outofrangefalse}{\sseq@outofrangetrue}}{\sseq@outofrangetrue}%
     \ifsseq@outofrange
@@ -687,7 +720,7 @@
     \ifsseq@drawedge
         % TODO: should some sort of transformation manipulation be here? Maybe allow user to specify preference?
         % Don't draw dots on very short segments
-        \pgfpointdiff{\tempbf}{\tempaf}
+        \pgfpointdiff{\sseq@targetcoord}{\sseq@sourcecoord}
         \pgfmathveclen{\pgf@x}{\pgf@y}%
         \@xp\pgfmathint\@xp{\pgfmathresult}%
         \ifnum\pgfmathresult<10\relax%%17? % TODO: Fix this predicate
@@ -723,8 +756,8 @@
 
 % TODO: this macro is super expensive. Make it faster
 \def\sseq@handleoffpageedge#1#2#3{
-    \pgfpathmoveto{\tempaf}%
-    \pgfpathlineto{\tempbf}%
+    \pgfpathmoveto{\sseq@sourcecoord}%
+    \pgfpathlineto{\sseq@targetcoord}%
     \pgfgetpath\thispath
     \pgfusepath{discard}%
     \pgfintersectionofpaths{\pgfsetpath\sseq@theclippath}{\pgfsetpath\thispath}%
@@ -739,14 +772,14 @@
         }%
     \or
         \sseq@ifinrange(#1){% If the startpoint is in range, the intersection must be the end.
-            \def\tempbf{\pgfpointintersectionsolution{1}}
+            \def\sseq@targetcoord{\pgfpointintersectionsolution{1}}
             \edef\temparrowendspec{\@nx\pgfsetarrowsend{\csname sseq@runoffarrow@end@#3@spec\endcsname}}
-            \pgfcoordinate{tempb}{\tempbf}
+            \pgfcoordinate{tempb}{\sseq@targetcoord}
         }{%
             \sseq@ifinrange(#2){% If the startpoint is out of range and the endpoint is in range, the intersection must be the start
-                \def\tempaf{\pgfpointintersectionsolution{1}}%
+                \def\sseq@sourcecoord{\pgfpointintersectionsolution{1}}%
                 \edef\temparrowstartspec{\@nx\pgfsetarrowsstart{\csname sseq@runoffarrow@start@#3@spec\endcsname}}%
-                \pgfcoordinate{tempa}{\tempaf}%
+                \pgfcoordinate{tempa}{\sseq@sourcecoord}%
             }{\sseq@drawedge@handletrickyedge}% Uh-oh, both ends are out of range.
         }
     \or% an orphan
@@ -783,12 +816,12 @@
 
 
 \def\sseq@drawedge@handleorphan{%
-    \def\tempaf{\pgfpointintersectionsolution{1}}%
-    \def\tempbf{\pgfpointintersectionsolution{2}}%
+    \def\sseq@sourcecoord{\pgfpointintersectionsolution{1}}%
+    \def\sseq@targetcoord{\pgfpointintersectionsolution{2}}%
     \edef\temparrowstartspec{\@nx\pgfsetarrowsstart{\csname sseq@runoffarrow@start@\sseq@edgetype @spec\endcsname}}%
     \edef\temparrowendspec{\@nx\pgfsetarrowsend{\csname sseq@runoffarrow@end@\sseq@edgetype @spec\endcsname}}%
-    \pgfcoordinate{tempa}{\tempaf}%
-    \pgfcoordinate{tempb}{\tempbf}%
+    \pgfcoordinate{tempa}{\sseq@sourcecoord}%
+    \pgfcoordinate{tempb}{\sseq@targetcoord}%
 }
 
 

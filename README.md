@@ -22,6 +22,7 @@ Changelog:
 - New loop constructs \Do, \DoUntilOutOfBounds, \DoUntilOutOfBoundsThenNMore
 - \kill which kills a class without having to put a differential
 - Defaults for \structline: a single missing coordinate is replaced with \lastclass, if both are missing, same as \structline(\lastclass1)(\lastclass)
+- Pin key for labels
 
 ### Changed:
 - Ticks are now placed at values congruent to tick offset mod tick step, tick offset defaults to 0

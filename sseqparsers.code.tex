@@ -11,8 +11,9 @@
 %%    ExplSyntaxOn for this whole file!
 
 \ExplSyntaxOn
+\let\sseq@NoValue\c__xparse_no_value_tl
 
-\def\sseqparseint#1#2{
+\protected\def\sseqparseint#1#2{
     \sseq@ifintexpr{#2+0}{ % +0 here to prevent \lastx from freaking out if it's at the end of #2.
         \edef#1{\the\numexpr#2\relax}
     }{
@@ -35,7 +36,7 @@
 
 % Prevent \protect from causing trouble for \pgfmathparse
 \let\sseq@pgfmathparse@orig\pgfmathparse
-\def\sseq@pgfmathparse#1{\let\@@protect\protect\def\protect{}\sseq@pgfmathparse@orig{#1}\restore@protect}
+\protected\def\sseq@pgfmathparse#1{\let\@@protect\protect\def\protect{}\sseq@pgfmathparse@orig{#1}\restore@protect}
 
 
 %%% ifpgfmathexpr
@@ -100,21 +101,13 @@
 % so we make spaces into catcode other and use \scantokens
 \def\sseq@ifintexpr#1{%
     \bgroup
-    \char_set_catcode_other:N \ %
     \sseq@tempcount\z@
-    \makeatletter
-    \scantokens{\sseq@ifintexpr@first{needsint}#1\sseq@nil}%
+    \sseq@ifintexpr@{needsint}#1\sseq@nil%
     \@xp\egroup\next
 }
-\@xp\let\@xp\sseq@otherspace\c_catcode_other_space_tl % This has to be a let, no idea why
-%\def\sseq@ifintexpr#1{\@firstoftwo}
-
-% Gobble the space of catcode other that scantokens inserts after \sseq@ifintexpr@first
-\def\sseq@ifintexpr@first#1#2{\sseq@ifintexpr@{#2}}
 
 % We need to use \futurelet so that we can detect open braces even when they only surround one token like {1}
-% so we have to store the state in \sseq@ifintexpr@state
-
+% also we use it to detect spaces. Store the state in \sseq@ifintexpr@state first.
 \def\sseq@ifintexpr@#1{\def\sseq@ifintexpr@state{#1}\futurelet\testtok\sseq@ifintexpr@@}
 \def\sseq@ifintexpr@@{%
     \ifx\testtok\bgroup%
@@ -123,12 +116,10 @@
         \ifx\testtok\sseq@nil
             \@xp\let\@xp\next\csname sseq@ifintexpr@@\sseq@ifintexpr@state @done\endcsname
         \else
-            % Even though I \let \sseq@otherspace to a space of catcode other up there,
-            % I still need this freaking expandafter here. God only knows why. Figured this out by trial and error.
             % We need to check here for a space because \string<space> produces NO OUTPUT regardless of the catcode of the space.
-            % This fucks over \sseq@ifintexpr@@@ real hard because it doesn't expect \string#1 to produce no characters.
-            \@xp\ifx\sseq@otherspace\testtok
-                \def\next{\sseq@ifintexpr@next{~}\@xp\next\@gobble}
+            % This messes up \sseq@ifintexpr@@@ because it doesn't expect \string#1 to produce no characters.
+            \@xp\ifx\space\testtok
+                \def\next{\sseq@ifintexpr@next{\space}\@xp\next\romannumeral-`0}
             \else
                 \let\next\sseq@ifintexpr@@@
             \fi
@@ -141,20 +132,19 @@
     \ifcat$\@xp\@gobble\string#1$%
         \@xp\sseq@ifintexpr@@@@\@xp#1
     \else
-        % scantokens puts an extra space character after control sequences, so to give them the best shot at working, eat that space character
+        % This is a macro, so fexpand it
         % Then use f expansion.
-        \@xp\@xp\@xp\sseq@ifintexpr@@@fexpcs\@xp\@xp\@xp#1\@xp\@gobble
+        \@xp\sseq@ifintexpr@@@fexpcs\@xp#1
     \fi
 }
 
-% Unfortunately, if we have a macro that takes an argument inside another macro that takes an argument, this will fail (the inside macro will get a space) but such is life.
 \def\sseq@ifintexpr@@@fexpcs{\exp_last_unbraced:Nf\sseq@ifintexpr@@@fexpcs@}
 \def\sseq@ifintexpr@@@fexpcs@{\futurelet\testtok\sseq@ifintexpr@@@fexpcs@@}
 \def\sseq@ifintexpr@@@fexpcs@@{
     \ifx\testtok\bgroup
-        \@xp\sseq@ifintexpr@false
+        \@xp\sseq@ifintexpr@false % We already tested for groups above, so we need to check if this expanded to a group 
     \else
-        \@xp\sseq@ifintexpr@@@@
+        \@xp\sseq@ifintexpr@@@@ % If it's still a control sequence, then this will fail in the \pgfutil@ifundefined step
     \fi
 }
 
@@ -186,7 +176,9 @@
                             \ifx#1/%
                                 \sseq@ifintexpr@next{*/}
                             \else
-                                \pgfutil@ifundefined{sseq@ifintexpr@@\sseq@ifintexpr@state @#1}%
+                                % This extra \string here is so that if a control sequence fexpanded and still gave a control sequence, 
+                                % we don't get a missing \endcsname error here, it just returns false
+                                \pgfutil@ifundefined{sseq@ifintexpr@@\sseq@ifintexpr@state @\string#1}%
                                     {\let\next\sseq@ifintexpr@false}%
                                     {\sseq@ifintexpr@next{#1}}%
                             \fi
@@ -198,11 +190,9 @@
     \next
 }
 
-% This has to eat the space
-%\bgroup\lccode`\*=`\ \lowercase{\egroup
-    \def\sseq@ifintexpr@true#1\sseq@nil{\ifnum\sseq@tempcount=\z@ \let\next\@firstoftwo\else\let\next\@secondoftwo\fi}
-    \def\sseq@ifintexpr@false#1\sseq@nil{\let\next\@secondoftwo}
-%}
+\def\sseq@ifintexpr@true#1\sseq@nil{\ifnum\sseq@tempcount=\z@ \let\next\@firstoftwo\else\let\next\@secondoftwo\fi}
+\def\sseq@ifintexpr@false#1\sseq@nil{\let\next\@secondoftwo}
+
 \def\sseq@makeifint#1#2#3{\@xp\def\csname sseq@ifintexpr@@#1@#2\endcsname{#3}}
 \def\sseq@ifintexpr@next#1{\@xp\let\@xp\next\csname sseq@ifintexpr@@\sseq@ifintexpr@state @#1\endcsname}
 
@@ -243,6 +233,83 @@
     \fi{nointallowed}
 }
 \sseq@makeifint{nointallowed}{\space}{\sseq@ifintexpr@{nointallowed}}
+
+
+\def\sseq@d@grabpage#1{
+    \let\sseq@grabdpage@return#1
+    \futurelet\testtok\sseq@grabdpage@
+}
+
+\def\sseq@grabdpage@{
+    \sseq@tempiftrue
+    \ifx\testtok\bgroup
+        \let\next\sseq@grabdpage@group
+    \else
+        \def\sseq@dpage{}
+        \let\next\sseq@grabdpage@norm 
+    \fi
+    \next
+}
+
+\def\sseq@grabdpage@group#1{\def\sseq@dpage{#1}\sseq@grabdpage@return}
+
+\def\sseq@grabdpage@norm{
+    \futurelet\testtok\sseq@grabdpage@norm@
+}
+
+\def\sseq@grabdpage@norm@{
+    \let\next\sseq@grabdpage@token
+    \ifx\testtok\bgroup
+        \sseq@tempiffalse
+        \let\next\sseq@grabdpage@return
+    \else
+        \ifx\testtok\par
+            \sseq@tempiffalse
+            \let\next\sseq@grabdpage@return
+        \else
+            \ifx\testtok(
+                \let\next\sseq@grabdpage@return
+            \else
+                \@xp\ifx\space\testtok
+                    \let\next\sseq@grabdpage@space
+                \fi
+            \fi
+        \fi
+    \fi
+    \next
+}
+
+\def\sseq@grabdpage@space{\sseq@d@addto@macro\sseq@dpage{~}\@xp\sseq@grabdpage@norm\romannumeral-`0}
+
+\def\sseq@grabdpage@token#1{
+    \ifcat$\@xp\@gobble\string#1$%
+        \sseq@d@addto@macro\sseq@dpage{#1}
+        \@xp\sseq@grabdpage@norm
+    \else
+        \@xp\sseq@grabdpage@token@fexpcs\@xp#1
+    \fi
+}
+
+\def\sseq@grabdpage@token@fexpcs{\exp_last_unbraced:Nf\sseq@grabdpage@token@fexpcs@}
+\def\sseq@grabdpage@token@fexpcs@{\futurelet\testtok\sseq@grabdpage@token@fexpcs@@}
+\def\sseq@grabdpage@token@fexpcs@@{
+    \ifx\testtok\bgroup
+        \sseq@tempiffalse
+        \@xp\sseq@grabdpage@return
+    \else
+        \@xp\sseq@grabdpage@token@fexpcs@@@
+    \fi
+}
+\def\sseq@grabdpage@token@fexpcs@@@#1{
+    \ifcat$\@xp\@gobble\string#1$%
+        \sseq@d@addto@macro\sseq@dpage{#1}
+        \@xp\sseq@grabdpage@norm
+    \else
+        \sseq@tempiffalse
+        \@xp\sseq@grabdpage@return
+    \fi
+}
+
 
 %%
 %%
@@ -636,7 +703,7 @@
 \def\sseq@differential@gettarget@#1#2,#3\sseq@nil{\the\numexpr#2+\sseq@targetx{#1}\relax,\the\numexpr#3+\sseq@targety{#1}\relax}
 
 \def\sseq@getfirsttwoelts#1,#2,#3\sseq@nil{#1,#2}
-\def\sseq@getdtarget#1#2#3{\sseq@eval{\edef\@nx#1{\@nx\sseq@differential@gettarget{#2}{\sseq@getfirsttwoelts#3,,\sseq@nil}}}}
+\protected\def\sseq@getdtarget#1#2#3{\sseq@eval{\edef\@nx#1{\@nx\sseq@differential@gettarget{#2}{\sseq@getfirsttwoelts#3,,\sseq@nil}}}}
 
 % Takes a comma separated list that can be empty, have one element, or two elements, returns first element (or empty if list is empty).
 \def\sseq@dparsecoord@getxindex#1{\sseq@dparsecoord@getxindex@#1,\sseq@nil}
@@ -725,7 +792,7 @@
 }
 
 
-\def\sseq@pushstack(#1){
+\protected\def\sseq@pushstack(#1){
     \bgroup
     \sseq@parsecoord\temp{#1}{}
     \sseq@pushstack@\temp
@@ -747,11 +814,11 @@
 
 
 \newcount\sseq@userstacksavecount
-\def\sseq@savestack{
+\protected\def\sseq@savestack{
     \global\advance\sseq@userstacksavecount\@ne
     \sseq@savestack@name{usersave@\the\sseq@userstacksavecount}
 }
-\def\sseq@restorestack{
+\protected\def\sseq@restorestack{
     \sseq@restorestack@name{usersave@\the\sseq@userstacksavecount}
     \global\advance\sseq@userstacksavecount\m@ne
 }
@@ -793,7 +860,7 @@
 \sseq@DeclareDocumentCommand\nameclass {mr()} {
     \bgroup
     \sseq@setthiscall{\sseq@nameclass#1(#2)}
-    \let\sseq@possibleoninputlinepar\empty    
+    \let\sseq@possibleoninputlinepar\empty
     \sseq@parsecoord\coord{#2}{}
     \sseq@cleanup@obj{class.namedclass.#1}
     \sseq@obj@xdef{class.namedclass.#1}{\coordnopar}
@@ -883,7 +950,7 @@
 }
 \def\sseq@modtikzcommands@#1{%
     \ifx#1\sseq@nil\else
-        \edef#1{\@xp\@nx\csname\sseq@macroname#1\space\endcsname\@nx#1}%
+        \protected\edef#1{\@xp\@nx\csname\sseq@macroname#1\space\endcsname\@nx#1}%
         \@xp\let\csname\sseq@macroname#1\space\endcsname\sseq@defer@tikzcommand % This is just for error reporting so that it will say "Paragraph ended before \draw  was complete"
         \@xp\sseq@modtikzcommands@
     \fi
@@ -1358,17 +1425,6 @@
     \sseqnormalizemonomial@testend
 }
 
-% This is supposed to take a space out of the input stream. For some reason \futurelet grabs it even though it's not supposed to...
-% Make sure braces go around argument, except that if they go around \sseq@nil, \futurelet will grab the the open brace and not see
-% the \sseq@nil. So we use a full expansion and don't put braces around \sseq@nil if that's our argument.
-% MOTHERFUCKING SPACES.
-\def\sseqnormalizemonomial@id#1{
-    \ifx\sseq@nil#1
-        \@xp\@firstoftwo
-    \else
-        \@xp\@secondoftwo
-    \fi{\@nx\sseq@nil}{{#1}}
-}
 
 \def\sseqnormalizemonomial@testend{
     \ifx\testtok\sseq@nil
@@ -1377,12 +1433,8 @@
         \egroup
         \let\next\@gobble
     \else
-        \@xp\ifx\space\testtok % not sure why I have to test for spaces like this -- figured it out with trial and error, like in \ifintexpr
-            % I'm not really sure why a space can show up here, but it crashes the macro and we don't care about spaces.
-            % I can't \@gobble the space because it will ignore it and take the next argument. What I can do is \@firstofone it away, but that deletes braces
-            % and in our case it's safe to put in extra braces but not to delete them. So I have \sseqnormalizemonomial@id...
-            % LaTeX is really really weird.
-            \def\next{\@xp\futurelet\@xp\testtok\@xp\sseqnormalizemonomial@testend\romannumeral-`0\sseqnormalizemonomial@id}
+        \@xp\ifx\space\testtok 
+            \def\next{\@xp\futurelet\@xp\testtok\@xp\sseqnormalizemonomial@testend\romannumeral-`0}
         \else
             \let\next\sseqnormalizemonomial@
         \fi

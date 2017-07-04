@@ -108,7 +108,7 @@
 }
 
 \cs_new_protected:Npn\sseq@DeclareDocumentCommandAs@setinputline#1{
-    \edef #1 { \@nx\sseq@setinputline \@xp\@nx\csname \cs_to_str:N #1 @@unique@@ start \endcsname } 
+   \protected\edef #1 { \@nx\sseq@setinputline \@xp\@nx\csname \cs_to_str:N #1 @@unique@@ start \endcsname }
     \exp_args:Nc \sseq@DeclareDocumentCommandAs { \cs_to_str:N #1 @@unique@@ start }
 }
 
@@ -205,7 +205,7 @@
             \the\sseq@temptoks
         }{}{\error\sseq@error@x{usermacro-failed-patch}{\string#1}}
         \cs_gset_eq:cc { sseq @ usermacro @ \cs_to_str:N #1 @@unique@@ start \c_space_tl code } { sseq @ usermacro @ \cs_to_str:N #1 @@unique@@ start \c_space_tl code}
-    }{ 
+    }{
         \pretocmd:cfnn{ sseq @ usermacro @ \cs_to_str:N #1 @@unique@@ start }{
             \@xp\begingroupb
             \the\sseq@temptoks
@@ -273,7 +273,7 @@
             \the\sseq@temptoks
         }{}{\error\sseq@error@x{usermacro-failed-patch}{\string#1}}
         % globalize definition:
-        \cs_gset_eq:cc { sseq @ usermacro @ \cs_to_str:N #2 @ helper \c_space_tl code } { sseq @ usermacro @ \cs_to_str:N #2 @ helper \c_space_tl code } 
+        \cs_gset_eq:cc { sseq @ usermacro @ \cs_to_str:N #2 @ helper \c_space_tl code } { sseq @ usermacro @ \cs_to_str:N #2 @ helper \c_space_tl code }
     }{
         \pretocmd:cfnn { sseq @ usermacro @ \cs_to_str:N #2 @ helper }{
             \the\sseq@temptoks
