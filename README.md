@@ -23,6 +23,7 @@ Changelog:
 - \kill which kills a class without having to put a differential
 - \lastclass as default arguments for \replaceclass, \classoptions, \d/\doptions, \structline/\structlineoptions
 - Pin key for labels
+- Families
 
 ### Changed:
 - Ticks are now placed at values congruent to tick offset mod tick step, tick offset defaults to 0

@@ -98,10 +98,12 @@
     }
     \sseq@savedpaths@xadd{\sseq@stylelist}
     \sseq@savedpaths@add{\begingroup} % prevent some of the two-pass user macros horrors
+    \let\sseq@error@setup\sseq@error@setup@withinfo
 }
 
 % Just store all the settings
 \def\endsseqdata{
+    \let\sseq@error@setup\sseq@error@setup@noinfo
     \sseq@checkend{sseqdata}
     \sseq@savedpaths@add{\endgroup} % prevent some of the two-pass user macros horrors
     \xdef\sseq@restorestyles{\sseq@stylelist}
@@ -190,10 +192,12 @@
     \ifx\sseq@targetx\pgfutil@empty\else
         \sseq@hasdegreetrue
     \fi
+    \let\sseq@error@setup\sseq@error@setup@withinfo
 }
 
 % Here we do all of the work to actually print the page
 \def\endsseqpage{
+    \let\sseq@error@setup\sseq@error@setup@noinfo
     \sseq@checkend{sseqpage}
     \sseq@savedpaths@add{\endgroup} % prevent some of the two-pass user macros horrors
 %
@@ -496,6 +500,7 @@
 %
 %
     \sseq@obj@gdef{class.\coord.num}{0}% For \replaceclass
+    \sseq@obj@xodef{\classname.familylist}{\sseq@familylist}    
     \sseq@obj@xdef{\classname.page}{\sseq@infinity}%
     \sseq@obj@xodef{\classname.options}{\sseq@savedoptioncode}%
     \sseq@obj@xodef{\classname.nodetext}{\sseq@classnodetext}%
@@ -633,6 +638,10 @@
             \sseq@cleanup@obj{\classname.labelnodes}
             \sseq@classoptions@obj@addto@withpagerange{\classname.labelnodes}{\sseq@classlabelnodes}
         \fi
+        \ifx\sseq@familylist\pgfutil@empty\else
+            \sseq@cleanup@obj{\classname.familylist}
+            \sseq@classoptions@obj@addto@withpagerange{\classname.familylist}{\sseq@familylist}
+        \fi
         \@ifundefined{sseq@tempoffset}{}{
             \sseq@cleanup@obj{\classname.offset}
             \tikz@scan@one@point\sseq@setoffset\sseq@tempoffset
@@ -734,6 +743,7 @@
     \fi
     \edef\classname{class.\coord[\sseq@obj{class.\coord.num}]}
 %
+    \sseq@obj@xodef{\classname.familylist}{\sseq@familylist}
     \sseq@obj@xdef{\classname.page}{\sseq@infinity}
     \sseq@obj@xodef{\classname.options}{\sseq@savedoptioncode}
     \sseq@obj@xodef{\classname.nodetext}{\sseq@classnodetext}
@@ -753,8 +763,12 @@
         \ifnum\sseq@obj{#1[\sseq@gen].page}=\sseq@thepagecount
             \sseq@thispagetrue
         \fi
-        \sseq@gsetthiscall{class #1}
-        \sseq@class@drawnode{#1[\sseq@gen]}
+        \sseq@drawtrue
+        \sseq@obj{#1[\sseq@gen].familylist}
+        \ifsseq@draw
+            \sseq@gsetthiscall{class #1}
+            \sseq@class@drawnode{#1[\sseq@gen]}
+        \fi
     \fi
     \egroup
 }
@@ -842,6 +856,7 @@
 
 \def\sseq@d@main#1#2#3#4#5{%
     \sseq@options@firstpassmode
+    \def\sseq@edgetype{differential}
     \the\sseq@sseqstyle
     \the\sseq@edgestyle
     \the\sseq@differentialstyle
@@ -868,7 +883,8 @@
     \sseq@d@setpageminrec{class.\source}{#2}{source}%  automatically handles \sseq@cleanup@obj
     \sseq@d@setpageminrec{class.\target}{#2}{target}
 %
-    \ifsseq@drawdifferential
+    \ifsseq@drawdifferential % TODO: probably should get rid of invisible now that we have \kill...
+        \sseq@obj@xodef{d.#2\source\target.familylist}{\sseq@familylist}
         \sseq@obj@gdef{d.#2\source\target.page}{#2}
         \sseq@obj@gdef{d.#2\source\target.style}{}%
         \sseq@obj@xdef{d.#2\source\target.source}{\source}
@@ -891,6 +907,8 @@
         }%
     \fi
 %
+    \sseq@cleanup@obj{d.#2\source\target.familylist}
+    \sseq@obj@xoaddto{d.#2\source\target.familylist}{\sseq@familylist}
     \sseq@cleanup@obj{d.#2\source\target.options}
     \sseq@obj@xoaddto{d.#2\source\target.options}{\sseq@savedoptioncode}
 }
@@ -992,11 +1010,15 @@
     \fi
 }
 \def\sseq@differential@draw@ifpage#1{
-    \ifnum\sseq@thepagecount=\z@
-        \sseq@drawdifferential{#1}
-    \else
-        \ifnum\sseq@obj{#1.page}=\sseq@thepagecount\relax
+    \sseq@drawtrue
+    \sseq@obj{#1.familylist}
+    \ifsseq@draw
+        \ifnum\sseq@thepagecount=\z@
             \sseq@drawdifferential{#1}
+        \else
+            \ifnum\sseq@obj{#1.page}=\sseq@thepagecount\relax
+                \sseq@drawdifferential{#1}
+            \fi
         \fi
     \fi
 }
@@ -1044,6 +1066,7 @@
 
 \def\sseq@structline@main#1#2#3#4{
     \sseq@xsetthiscall{\string\structline\IfNoValueF{#2}{\unexpanded{[#2]}}\IfNoValueF{#3}{\unexpanded{(#3)}\IfNoValueF{#4}{\unexpanded{(#4)}}}}%
+    \def\sseq@edgetype{structline}
     \sseq@options@firstpassmode
     \the\sseq@sseqstyle
     \the\sseq@edgestyle
@@ -1123,14 +1146,17 @@
         \sseq@obj@gdef{structline.\source\target.num}{0}
         \sseq@savedpaths@addstructline{structline.\source\target}
     }
-    \edef\sseq@structlinename{structline.\source\target[\sseq@obj{structline.\source\target.num}]}
-    \sseq@cleanup@obj{\sseq@structlinename.page}
+    \edef\sseq@structlinename{structline.\source\target[\sseq@obj{structline.\source\target.num}]} 
+    % The following cleanup call is needed to prevent a glitch where if a \structline is made inside of a temporary sseqpage environment, then later attempts
+    % to put a structline throw a "structline already exists" error
+    \sseq@cleanup@obj{\sseq@structlinename.page} 
     \sseq@obj@xdef{\sseq@structlinename.page}{\sseq@infinity}
     \sseq@obj@xdef{\sseq@structlinename.pagemin}{\sseq@pagemin}
     \sseq@obj@xdef{\sseq@structlinename.source}{\source}
     \sseq@obj@xdef{\sseq@structlinename.target}{\target}
     \sseq@class@adddependence{class.\source}{\sseq@structlinename}% If the source or target is already dead, this will set structlinename.page
     \sseq@class@adddependence{class.\target}{\sseq@structlinename}
+    \sseq@obj@xodef{\sseq@structlinename.familylist}{\sseq@familylist}
     \sseq@cleanup@obj{\sseq@structlinename.options}
     \sseq@obj@xdef{\sseq@structlinename.options}{\ifsseq@needstikz\@nx\sseq@needstikztrue\fi\unexpanded\@xp{\sseq@savedoptioncode}}
 }
@@ -1163,20 +1189,24 @@
         \advance\sseq@tempcount\@ne
         \edef\sseq@structlinename{structline.\source\target[\the\sseq@tempcount]}
         \sseq@cleanup@obj{\sseq@structlinename.options}
+        \sseq@cleanup@obj{\sseq@structlinename.familylist}
         \ifsseq@needstikz
             \sseq@obj@gaddto{\sseq@structlinename.options}{\sseq@needstikztrue}
         \fi
         \ifnum\sseq@tempcount=\sseq@gen\relax
             \@ifundefined{sseq@structline@page}{}{
                 \edef\sseq@savedoptioncode{\@nx\ifnum\sseq@thepagecount>\sseq@structline@page\relax\unexpanded\@xp{\sseq@savedoptioncode}\@nx\fi}
+                \edef\sseq@familylist{\@nx\ifnum\sseq@thepagecount>\sseq@structline@page\relax\unexpanded\@xp{\sseq@familylist}\@nx\fi}
             }
         \fi
         \ifnum\sseq@tempcount=\sseq@genmax\relax
             \@ifundefined{sseq@structline@pagemax}{}{
                 \edef\sseq@savedoptioncode{\@nx\ifnum\sseq@thepagecount<\sseq@structline@pagemax\relax\unexpanded\@xp{\sseq@savedoptioncode}\@nx\fi}
+                \edef\sseq@familylist{\@nx\ifnum\sseq@thepagecount<\sseq@structline@pagemax\relax\unexpanded\@xp{\sseq@familylist}\@nx\fi}
             }
         \fi
         \sseq@obj@xoaddto{\sseq@structlinename.options}{\sseq@savedoptioncode}
+        \sseq@obj@xoaddto{\sseq@structlinename.familylist}{\sseq@familylist}
     \ifnum\sseq@tempcount<\sseq@genmax\repeat
 }
 \def\sseq@structline@getgen#1{
@@ -1215,7 +1245,11 @@
     \bgroup
     \ifnum\sseq@thepagecount=\z@
         \ifnum\sseq@obj{#1[0].pagemin}=\z@
-            \sseq@structline@draw{#1[0]}
+            \sseq@drawtrue
+            \sseq@obj{#1[0].familylist}
+            \ifsseq@draw
+                \sseq@structline@draw{#1[0]}
+            \fi
         \fi
     \else
         \sseq@obj@pagetogen{#1}{\sseq@thepage} % sets \sseq@gen
@@ -1224,7 +1258,11 @@
                 \sseq@thispagetrue
             \fi
             \ifnum\sseq@obj{#1[\sseq@gen].pagemin}<\sseq@thepagecount
-                \sseq@structline@draw{#1[\sseq@gen]}
+                \sseq@drawtrue
+                \sseq@obj{#1[\sseq@gen].familylist}
+                \ifsseq@draw
+                    \sseq@structline@draw{#1[\sseq@gen]}
+                \fi
             \fi
         \fi
     \fi
@@ -1273,6 +1311,7 @@
 %
 %
     \sseq@obj@xodef{\circleclassobjname.options}{\sseq@savedoptioncode}
+    \sseq@obj@xodef{\circleclassobjname.familylist}{\sseq@familylist}    
     \sseq@obj@xodef{\circleclassobjname.tikzprimoptions}{\sseq@keysfortikzprim}
     \sseq@obj@xdef{\circleclassobjname.fitnodes}{\@nx\tikz@lib@fit{(sseq{\coordanopar})(sseq{\coordbnopar})\sseq@fitalso}}
     %\edef\temp{\@nx\sseq@circleclass@draw{\coorda@internalname}{\coordb@internalname}{\unexpanded\@xp{\sseq@savedoptioncode}}}
@@ -1296,12 +1335,16 @@
 \fi
 
 \def\sseq@circleclass@draw@ifpage#1#2#3{
-    \ifnum\sseq@thepagecount<\numexpr\sseq@obj{#1.page}+\@ne
-        \ifnum\sseq@obj{#1.page}=\sseq@thepagecount
-            \sseq@thispagetrue
-        \fi
-        \ifnum\sseq@obj{#1.pagemin}<\sseq@thepagecount
-            \sseq@circleclass@draw{#1}{#2}{#3}
+    \sseq@drawtrue
+    \sseq@obj{#1.familylist}
+    \ifsseq@draw
+        \ifnum\sseq@thepagecount<\numexpr\sseq@obj{#1.page}+\@ne
+            \ifnum\sseq@obj{#1.page}=\sseq@thepagecount
+                \sseq@thispagetrue
+            \fi
+            \ifnum\sseq@obj{#1.pagemin}<\sseq@thepagecount
+                \sseq@circleclass@draw{#1}{#2}{#3}
+            \fi
         \fi
     \fi
 } 

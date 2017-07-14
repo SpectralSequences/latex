@@ -253,7 +253,7 @@
 \def\sseq@keys@addtooptions@checkalso@#1\pgfkeysalso#2{%
     \def\sseq@tempa{/tikz/}
     \def\sseq@tempb{/pgf/}
-    \sseq@add@tikzkey@to@options{\sseq@options@secondpass@iftikz{\unexpanded{#1}}}%
+    \sseq@keys@addtooptions@checkdo#1\sseq@keys@do\sseq@nil
     \ifx\sseq@nil#2%
         \let\pgfkeys@case@one\sseq@pgfkeys@case@one@save
         \let\pgfkeys@case@two@extern\sseq@pgfkeys@case@two@extern@save
@@ -271,6 +271,15 @@
 \def\sseq@keys@addtooptions@checkalso@xp#1{
     \@xp\pgfkeysalso\@xp{#1}
     \sseq@keys@addtooptions@checkalso@
+}
+
+% Used to get collections code to run right.
+\def\sseq@keys@addtooptions@checkdo#1\sseq@keys@do#2{
+    \sseq@add@tikzkey@to@options{\sseq@options@secondpass@iftikz{\unexpanded{#1}}}
+    \ifx#2\sseq@nil\else
+        #2%
+        \@xp\sseq@keys@addtooptions@checkdo
+    \fi    
 }
 
 % This has to be expandable, so \sseq@tempa and \sseq@tempb are set to "/tikz/" and "/pgf/" ahead of time
@@ -335,6 +344,7 @@
     /sseqpages/tikz primitives/.is family,
     /sseqpages/tikz primitives/.unknown/.code={\sseq@keys@unknown},
     % One off directories
+    /sseqpages/fit/.is family,
     /sseqpages/fit/.unknown/.code={\sseq@passoptionto{/sseqpages}},
     /sseqpages/foreach/.unknown/.code={\sseq@passoptionto{/pgf/foreach}},
     /sseqpages/class placement/.unknown/.code={\sseq@passoptionto{/tikz}}
@@ -390,7 +400,7 @@
     label distance/.code={\sseq@setdefaultlabeldistances{#1}}
 }
 
-\def\sseq@class@positionlabel#1#2{\sseq@pgfkeysdocommand{#1}{#2 of \tikz@fig@name}}
+\def\sseq@class@positionlabel#1#2{\ifx\tikz@fig@name\undefined\else\sseq@pgfkeysdocommand{#1}{#2 of \tikz@fig@name}\fi}
 
 
 
@@ -484,7 +494,7 @@
     \sseq@options@firstpassmode
     \sseq@thesseqstyle
     \sseq@thelabelstyle
-    \sseq@theclasslabelstyle
+    \sseq@theclasslabelstyle    
     \the\sseq@scope@toks
     \sseq@options@normalmode
     \sseq@processoptions{class/label}{#2}%
@@ -500,6 +510,9 @@
                     \the\sseq@labelstyle\@nx\the\sseq@labelstyle@page
                     \the\sseq@classlabelstyle\@nx\the\sseq@classlabelstyle@page
                     \sseq@theouterclasslabelstyle
+                    \@nx\sseq@collections@labels@hook
+                    \@nx\sseq@collections@classlabels@hook
+                    \@nx\sseq@collections@outerclasslabels@hook
                     \unexpanded\@xp{\sseq@savedoptioncode}%
                 }%
         }%
@@ -512,7 +525,11 @@
         \sseq@protected@xdef\sseq@classnodetext{\sseq@maybemathswitch\processedlabel\sseq@maybemathswitch}%
         \xdef\sseq@classnodetextoptions{%
             %\unexpanded{\def\pgfkeysdefaultpath{/sseqpages/class/node texts/}}%
-            \sseq@thelabelstyle\sseq@theinnerclasslabelstyle\unexpanded\@xp{\sseq@savedoptioncode}%
+            \sseq@thelabelstyle\sseq@theclasslabelstyle\sseq@theinnerclasslabelstyle
+            \@nx\sseq@collections@labels@hook
+            \@nx\sseq@collections@classlabels@hook
+            \@nx\sseq@collections@innerclasslabels@hook
+            \unexpanded\@xp{\sseq@savedoptioncode}%
         }%
     \fi
     \@xp\endpgfscope\@xp\endgroup
@@ -536,6 +553,10 @@
                                 \let\@nx\sseq@tikz@transform@save\@nx\tikz@transform
                                 \let\@nx\tikz@transform\relax
                                 \@nx\sseq@thelabelstyle\@nx\sseq@theedgelabelstyle
+                                \@xp\@nx\csname sseq@the\sseq@edgetype labelstyle\endcsname
+                                \@nx\sseq@collections@labels@hook
+                                \@nx\sseq@collections@edgelabels@hook
+                                \@xp\@nx\csname sseq@collections@\sseq@edgetype labels@hook\endcsname
                                 \unexpanded\@xp{\sseq@temp}
                                 \ifsseq@rotatelabels\iftikz@fullytransformed\else\@nx\tikz@fullytransformedtrue\@nx\tikz@addtransform{\@nx\pgftransformresetnontranslations\@nx\sseq@globalrotatetransform}\fi\fi
                                  \unexpanded\@xp{\sseq@edgeoptionhook} % this is just to make description work
@@ -777,7 +798,30 @@
 \def\sseq@newstyles#1#2{\def\sseq@temppath{#1}\sseq@newstyles@#2,\sseq@nil}
 \def\sseq@newstyles@#1,{\sseq@newsseqstyle{\sseq@trimleadingspaces#1}\@ifnextchar\sseq@nil{\@gobble}{\sseq@newstyles@}}
 
-\def\sseq@set@newstyle#1{\pgfqkeys{/sseqpages}{#1}\pgfqkeys{/sseqpages/global}{#1}\pgfqkeys{/sseqpages/global/default}{#1}\pgfqkeys{/sseqpages/first pass}{#1}}
+\def\sseq@set@newstyle#1{\pgfqkeys{/sseqpages}{#1}\pgfqkeys{/sseqpages/global}{#1}\pgfqkeys{/sseqpages/global/default}{#1}}
+
+% #1 -- token list
+% #2 -- path
+% #3 -- code
+\def\sseq@addstylecodetotoks#1#2#3{
+    \let\sseq@savedoptioncode@store\sseq@savedoptioncode
+    \edef\sseq@savedoptioncode{\the#1}%
+    \sseq@addstylecodetooptions{#2}{#3}%
+    #1\@xp{\sseq@savedoptioncode}%
+    \let\sseq@savedoptioncode\sseq@savedoptioncode@store
+}
+
+% #1 -- macro
+% #2 -- path
+% #3 -- code
+\def\sseq@addstylecodetomacro#1#2#3{
+    \let\sseq@savedoptioncode@store\sseq@savedoptioncode
+    \let\sseq@savedoptioncode#1%
+    \sseq@addstylecodetooptions{#2}{#3}%
+    \let#1\sseq@savedoptioncode
+    \let\sseq@savedoptioncode\sseq@savedoptioncode@store
+}
+
 
 \def\sseq@newsseqstyle#1{%
     \sseq@setmacronospaces\sseq@tempcmd{sseq@#1style}%
@@ -790,23 +834,15 @@
     \sseq@x@addto@macro\sseq@clearchangestyles{\sseq@tempcmdb{}}%
     \sseq@set@newstyle{%
         #1s/.ecode={%
-            \let\@nx\sseq@savedoptioncode@store\@nx\sseq@savedoptioncode
-            \edef\@nx\sseq@savedoptioncode{\@nx\the\sseq@tempcmd}%
-            \@nx\sseq@addstylecodetooptions{\sseq@temppath}{##1}%
-            \sseq@tempcmd\@nx\@xp{\@nx\sseq@savedoptioncode}%
+            \@nx\sseq@addstylecodetotoks{\sseq@tempcmd}{\sseq@temppath}{##1}
             \@nx\ifsseq@inprogress
                 \@nx\sseq@savedpaths@xadd{\sseq@tempcmd{\@nx\the\sseq@tempcmd}}%
             \@nx\fi
-            \let\@nx\sseq@savedoptioncode\@nx\sseq@savedoptioncode@store
         },%
         change #1s/.ecode={%
             \@nx\ifsseq@ispageenv\@nx\else\@nx\sseq@error@nn{change-style-data}{#1}{##1}\@nx\fi
             \@nx\ifsseq@hasname\@nx\else\@nx\sseq@error@nn{change-style-standalone}{#1}{##1}\@nx\fi
-            \let\@nx\sseq@savedoptioncode@store\@nx\sseq@savedoptioncode
-            \edef\@nx\sseq@savedoptioncode{\@nx\the\sseq@tempcmdb}%
-            \@nx\sseq@addstylecodetooptions{\sseq@temppath}{##1}%
-            \sseq@tempcmdb\@nx\@xp{\@nx\sseq@savedoptioncode}%
-            \let\@nx\sseq@savedoptioncode\@nx\sseq@savedoptioncode@store
+            \@nx\sseq@addstylecodetotoks{\sseq@tempcmdb}{\sseq@temppath}{##1}
         }
     }%
 }
@@ -822,8 +858,6 @@
 \sseq@g@addto@macro\sseq@clearchangestyles{\sseq@sseqstyle@page{}}%
 \sseq@set@newstyle{
     sseqs/.code={%
-        \let\sseq@savedoptioncode@store\sseq@savedoptioncode
-        \let\sseq@savedoptioncode\sseq@sseqstyle@globalpart
         \def\sseq@addstylecodetooptions@unknown{%
             \let\sseq@sseqstyle@globalpart\sseq@savedoptioncode
             \edef\sseq@savedoptioncode{\the\sseq@sseqstyle}%
@@ -831,26 +865,21 @@
             \sseq@sseqstyle\@xp{\sseq@savedoptioncode}%
             \let\sseq@savedoptioncode\sseq@sseqstyle@globalpart
         }%
-        \sseq@addstylecodetooptions{/sseqpages/global}{#1}%
-        \let\sseq@sseqstyle@globalpart\sseq@savedoptioncode
+        \sseq@addstylecodetomacro\sseq@sseqstyle@globalpart{/sseqpages/global}{#1}%
         \ifsseq@inprogress
             \sseq@savedpaths@xadd{\sseq@sseqstyle{\the\sseq@sseqstyle}}%
         \fi
         \let\sseq@addstylecodetooptions@unknown\sseq@keys@unknown
-        \let\sseq@savedoptioncode\sseq@savedoptioncode@store
     },%
     change sseqs/.code={%
         \ifsseq@ispageenv\else\sseq@error@nn{change-style-data}{sseq}{#1}\fi
         \ifsseq@hasname\else\sseq@error@nn{change-style-standalone}{sseq}{#1}\fi
-        \let\sseq@savedoptioncode@store\sseq@savedoptioncode
-        \edef\sseq@savedoptioncode{\the\sseq@sseqstyle@page}%
-        \sseq@addstylecodetooptions{\sseq@temppath}{#1}%
-        \sseq@sseqstyle@page\@xp{\sseq@savedoptioncode}%
-        \let\sseq@savedoptioncode\sseq@savedoptioncode@store
+        \sseq@addstylecodetotoks{\sseq@sseqstyle@page}{\sseq@temppath}{#1}%
     }
 }
 
 
+% sseq needs special handling, so is done by hand above.
 %\sseq@newstyles{/sseqpages/}{sseq}% DON'T make this /global/default! Bad things will happen.
 \sseq@newstyles{/sseqpages/label,/sseqpages}{edge, label, edge label, differential label, struct line label}
 \sseq@newstyles{/sseqpages/class,/sseqpages}{class, permanent cycle, transient cycle, this page cycle}
@@ -871,11 +900,6 @@
     permanent classes/.code={\pgfkeysalso{permanent cycles={#1}}},
     transient classes/.code={\pgfkeysalso{transient cycles={#1}}},
     this page classes/.code={\pgfkeysalso{this page cycles={#1}}},
-    cycle style/.code={\pgfkeysalso{class style={#1}}},
-    permanent class style/.code={\pgfkeysalso{permanent cycle style={#1}}},
-    transient class style/.code={\pgfkeysalso{transient cycle style={#1}}},
-    this page class style/.code={\pgfkeysalso{this page cycle style={#1}}},
-    class label position/.code={\pgfkeysalso{class label positions={#1}}}
 }%
 
 \def\sseq@newplotstyle#1{
@@ -885,21 +909,13 @@
     \@xp\def\sseq@tempcmdb{}
     \pgfqkeys{/sseqpages/global}{%
         #1 style/.ecode={
-            \unexpanded{\let\sseq@savedoptioncode@store\sseq@savedoptioncode}
-            \let\@nx\sseq@savedoptioncode\@xp\@nx\sseq@tempcmd
-            \unexpanded{\sseq@addstylecodetooptions{/tikz}}{##1}
-            \let\@xp\@nx\sseq@tempcmd\@nx\sseq@savedoptioncode
-            \unexpanded{\let\sseq@savedoptioncode\sseq@savedoptioncode@store}
+            \@nx\sseq@addstylecodetomacro{\@xp\@nx\sseq@tempcmd}{/tikz}{##1}
         }
     }
     % Only difference here is \sseq@tempcmdb -- which puts it in the default code -- instead of \sseq@tempcmd
     \pgfqkeys{/sseqpages/global/default}{%
         #1 style/.ecode={
-            \unexpanded{\let\sseq@savedoptioncode@store\sseq@savedoptioncode}
-            \let\@nx\sseq@savedoptioncode\@xp\@nx\sseq@tempcmdb
-            \unexpanded{\sseq@addstylecodetooptions{/tikz}}{##1}
-            \let\@xp\@nx\sseq@tempcmdb\@nx\sseq@savedoptioncode
-            \unexpanded{\let\sseq@savedoptioncode\sseq@savedoptioncode@store}
+            \@nx\sseq@addstylecodetomacro{\@xp\@nx\sseq@tempcmdb}{/tikz}{##1}
         }
     }
 }
@@ -909,6 +925,154 @@
 \def\sseq@newplotstyles@#1,{\sseq@newplotstyle{\sseq@trimleadingspaces#1}\@ifnextchar\sseq@nil{\@gobble}{\sseq@newplotstyles@}}
 
 \sseq@newplotstyles{x tick, y tick}
+
+\def\sseq@featurelist{\\{class}\\{differential}\\{structline}\\{circleclass}\\{tikzprimitive}}
+\def\sseq@mapfeaturelist#1{\def\\##1{#1}\sseq@featurelist}
+
+\def\sseq@familylist{}
+
+\def\sseq@collections@class@hook{}
+\def\sseq@collections@differential@hook{}
+\def\sseq@collections@structline@hook{}
+\def\sseq@collections@circleclass@hook{}
+\def\sseq@collections@tikzprimitive@hook{}
+
+\def\sseq@collections@classlabels@hook{}
+\def\sseq@collections@innerclasslabels@hook{}
+\def\sseq@collections@outerclasslabels@hook{}
+\def\sseq@collections@pins@hook{}
+
+\def\sseq@collections@labels@hook{}
+\def\sseq@collections@edgelabels@hook{}
+\def\sseq@collections@differentiallabels@hook{}
+\def\sseq@collections@structlinelabels@hook{}
+
+\def\sseq@collections@setempty#1{\sseq@collections@setempty@#1,\sseq@nil}
+\def\sseq@collections@setempty@#1,{
+    \pgfqkeys{/sseqpages/collections}{
+        class/#1/.code={},
+        differential/#1/.code={},
+        struct line/#1/.code={},
+        fit/#1/.code={},
+        tikz primitives/#1/.code={}
+    }
+    \@ifnextchar\sseq@nil{\@gobble}{\sseq@collections@setempty@}
+}
+
+\sseq@collections@setempty{%
+    classes, cycles, permanent classes, permanent cycles, transient classes, transient cycles, this page classes, this page cycles, 
+    edges, differentials,struct lines, this page struct lines,circleclasses, tikz primitives,
+    labels, edge labels, differential labels, struct line labels,
+    class labels, inner class labels, outer class labels,pins
+}
+
+% #1 -- path
+% #2 -- hook name
+% #3 -- code
+\def\sseq@collections@addtohook#1#2#3{
+    \sseq@keys@do{
+        \let\sseq@savedoptioncode@store\sseq@savedoptioncode\let\sseq@savedoptioncode\empty
+        \pgfqkeys{#1}{#3}
+        \edef\sseq@savedoptioncode{\unexpanded\@xp{\sseq@savedoptioncode@store}\def\@nx#2{\unexpanded\@xp{\sseq@savedoptioncode}}}
+    }
+}
+
+\pgfqkeys{/sseqpages/collections}{
+    class/classes/.style={/sseqpages/class/.cd,#1},
+    class/cycles/.style={/sseqpages/class/.cd,#1},
+    class/permanent classes/.code={\ifsseq@permanentcycle\pgfkeysalso{/sseqpages/class/.cd,#1}\fi},
+    class/permanent cycles/.code={\ifsseq@permanentcycle\pgfkeysalso{/sseqpages/class/.cd,#1}\fi},
+    class/transient classes/.code={\ifsseq@permanentcycle\else\pgfkeysalso{/sseqpages/class/.cd,#1}\fi},
+    class/transient cycles/.code={\ifsseq@permanentcycle\else\pgfkeysalso{/sseqpages/class/.cd,#1}\fi},   
+    class/this page classes/.code={\ifsseq@thispage\pgfkeysalso{/sseqpages/class/.cd,#1}\fi},
+    class/this page cycles/.code={\ifsseq@thispage\pgfkeysalso{/sseqpages/class/.cd,#1}\fi},
+    differential/edges/.style={/sseqpages/differential/.cd,#1},
+    differential/differentials/.style={/sseqpages/differential/.cd,#1},
+    struct line/edges/.style={/sseqpages/struct line/.cd,#1},
+    struct line/struct lines/.style={/sseqpages/struct line/.cd,#1},
+    struct line/this page struct lines/.code={\ifsseq@thispage\pgfkeysalso{/sseqpages/struct line/.cd,#1}\fi},
+    fit/circleclasses/.style={/sseqpages/fit/.cd,#1},
+    tikz primitives/tikz primitives/.style={/sseqpages/tikz primitives/.cd,#1},
+% labels    
+    class/class labels/.code/.expanded={\unexpanded\@xp{\sseq@collections@addtohook{/sseqpages/class/label}{\sseq@collections@classlabels@hook}{#1}}},
+    class/inner class labels/.code/.expanded={\unexpanded\@xp{\sseq@collections@addtohook{/sseqpages/class/label}{\sseq@collections@innerclasslabels@hook}{#1}}},
+    class/outer class labels/.code/.expanded={\unexpanded\@xp{\sseq@collections@addtohook{/sseqpages/class/label}{\sseq@collections@outerclasslabels@hook}{#1}}},
+    class/pins/.code/.expanded={\unexpanded\@xp{\sseq@collections@addtohook{/sseqpages/class/label/pin}{\sseq@collections@pins@hook}{#1}}},
+%    
+    class/labels/.code/.expanded={\unexpanded\@xp{\sseq@collections@addtohook{/sseqpages/label}{\sseq@collections@labels@hook}{#1}}}, 
+    differential/labels/.code/.expanded={\unexpanded\@xp{\sseq@collections@addtohook{/sseqpages/label}{\sseq@collections@labels@hook}{#1}}}, 
+    struct line/labels/.code/.expanded={\unexpanded\@xp{\sseq@collections@addtohook{/sseqpages/label}{\sseq@collections@labels@hook}{#1}}}, 
+%
+    differential/edge labels/.code/.expanded=
+        {\unexpanded\@xp{\sseq@collections@addtohook{/sseqpages/label}{\sseq@collections@edgelabels@hook}{#1}}},
+    struct line/edge labels/.code/.expanded=
+        {\unexpanded\@xp{\sseq@collections@addtohook{/sseqpages/label}{\sseq@collections@edgelabels@hook}{#1}}}, 
+    differential/differential labels/.code/.expanded=
+        {\unexpanded\@xp{\sseq@collections@addtohook{/sseqpages/label}{\sseq@collections@differentiallabels@hook}{#1}}},
+    struct line/struct line labels/.code/.expanded=
+        {\unexpanded\@xp{\sseq@collections@addtohook{/sseqpages/label}{\sseq@collections@structlinelabels@hook}{#1}}},
+}
+
+\def\sseqnewfamily#1{%
+    \sseq@mapfeaturelist{
+        \@xp\sseq@setmacronospaces\csname sseq@tempcmd@##1\endcsname{sseq@user@#1@##1@style}
+        \@xp\sseq@setmacronospaces\csname sseq@tempcmd@##1@default\endcsname{sseq@user@#1@##1@style@default}
+        \sseq@eval{\@nx\sseq@addtostorelist\@xptwo\@nx\csname sseq@tempcmd@##1\endcsname{\@xptwo\@nx\csname sseq@tempcmd@##1@default\endcsname}}
+        \@xptwo\def\csname sseq@user@#1@##1@style@default\endcsname{}
+    }                
+%
+    \@xp\sseq@addtostorelist\csname sseq@#1@maybedraw\endcsname{}
+    \pgfqkeys{/sseqpages/global}{%
+        #1 style/.ecode={%
+            \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@class{/sseqpages/class,/sseqpages/collections/class}{##1}%
+            \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@differential{/sseqpages/differential,/sseqpages/collections/differential}{##1}%
+            \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@structline{/sseqpages/struct line,/sseqpages/collections/struct line}{##1}%
+            \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@circleclass{/sseqpages/fit,/sseqpages/collections/fit}{##1}%
+            \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@tikzprimitive{/sseqpages/tikz primitives,/sseqpages/collections/tikz primitives}{##1}%
+        },
+        draw #1/.ecode = {\def\@xp\@nx\csname sseq@#1@maybedraw\endcsname{\@nx\sseq@drawtrue}},
+        no #1/.ecode = {\def\@xp\@nx\csname sseq@#1@maybedraw\endcsname{\@nx\sseq@drawfalse}}
+    }%
+    \pgfqkeys{/sseqpages/global/default}{%
+        #1 style/.ecode={%
+            \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@class@default{/sseqpages/class}{##1}%
+            \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@differential@default{/sseqpages/differential}{##1}%
+            \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@structline@default{/sseqpages/struct line}{##1}%
+            \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@circleclass@default{/sseqpages/fit}{##1}%
+            \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@tikzprimitive@default{/sseqpages/tikz primitives}{##1}%
+        },
+        draw #1/.ecode = {\def\@xp\@nx\csname sseq@#1@maybedraw@default\endcsname{\@nx\sseq@drawtrue}},
+        no #1/.ecode = {\def\@xp\@nx\csname sseq@#1@maybedraw@default\endcsname{\@nx\sseq@drawfalse}}        
+    }%    
+%
+    \pgfqkeys{/sseqpages}{
+        #1/.ecode={
+            \@nx\sseq@d@addto@macro\@nx\sseq@familylist{\@nx\csname sseq@#1@maybedraw\endcsname}
+            \@nx\sseq@options@secondpass{
+                \@nx\sseq@d@addto@macro\@nx\sseq@collections@class@hook{\unexpanded\@xptwo{\csname sseq@tempcmd@class\endcsname}}
+                \@nx\sseq@d@addto@macro\@nx\sseq@collections@differential@hook{\unexpanded\@xptwo{\csname sseq@tempcmd@differential\endcsname}}
+                \@nx\sseq@d@addto@macro\@nx\sseq@collections@structline@hook{\unexpanded\@xptwo{\csname sseq@tempcmd@structline\endcsname}}
+                \@nx\sseq@d@addto@macro\@nx\sseq@collections@circleclass@hook{\unexpanded\@xptwo{\csname sseq@tempcmd@circleclass\endcsname}}
+                \@nx\sseq@d@addto@macro\@nx\sseq@collections@tikzprimitive@hook{\unexpanded\@xptwo{\csname sseq@tempcmd@tikzprimitive\endcsname}}
+            }
+        },        
+        class/#1/.ecode={
+            \@nx\sseq@options@secondpass{\unexpanded\@xptwo{\csname sseq@tempcmd@class\endcsname}}%\showthe\@xptwo\@nx\csname sseq@tempcmd@class\endcsname
+        },
+        differential/#1/.code={
+            \@nx\sseq@options@secondpass{\unexpanded\@xptwo{\csname sseq@tempcmd@differential\endcsname}}
+        },
+        struct line/#1/.code={
+            \@nx\sseq@options@secondpass{\unexpanded\@xptwo{\csname sseq@tempcmd@structline\endcsname}}
+        },       
+        fit/#1/.code={
+            \@nx\sseq@options@secondpass{\unexpanded\@xptwo{\csname sseq@tempcmd@fit\endcsname}}
+        },
+        tikz primitives/#1/.code={
+            \@nx\sseq@options@secondpass{\unexpanded\@xptwo{\csname sseq@tempcmd@tikzprimitive\endcsname}}
+        }
+    }
+}
 
 
 %%% Global keys handlers and infrastructure

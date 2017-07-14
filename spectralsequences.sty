@@ -12,24 +12,26 @@
 
 % TODO:
 %
+%  better flexibility with class pattern arrangement
+%
 %  Errors:
 %    give an error if the user tries to put a shift into a style
 %    Add xparse related assumptions (I'm surprised we didn't already have these)
 %
-%  ensure that crossword doesn't start or end too close to a line
-%  fix chess and dots grids
+%  Layout:
+%    improve axes options?
+%    ensure that crossword doesn't start or end too close to a line
+%    fix chess and dots grids
+%
 %
 %  Redo sseqerrortest and set up regression test script as part of build (damn I didn't realize we'd lost anything imporant with that find -d disaster)
 %  Maybe we should add some other regression tests too
 %
 %  Lower priority:
 %   speed up off page edges (uses 10% of the draw time for page 0 of tmfass) -- use \pgfpointborderrectangle
-%   better flexibility with class pattern arrangement
-%   custom groups with styles that can be modified from drawing to drawing
 %   make an "axis style" option that styles the axis.
 %   improve \DoUntilOutOfBounds progress check
 %   error messages that should be warnings by default?
-%   improve axes options? allow axis to be centered on coordinate or centered between coordinates
 %   should we specify our favorite conditionals library?
 %
 
@@ -101,6 +103,7 @@
 \newif\ifsseq@outofrange
 \newif\ifsseq@classlabel
 \newif\ifsseq@draworphanedges
+\newif\ifsseq@draw
 \newif\ifsseq@drawedge
 \newif\ifsseq@tikzprims@integershift
 \newif\ifsseq@anchor
@@ -193,7 +196,8 @@
 % Used in sseqkeys to delete spaces from style commands.
 \def\sseq@setmacronospaces#1#2{%
     \bgroup\catcode`\ =9\relax
-        \scantokens{\@xp\egroup\@xp\def\@xp#1\@xp{\csname #2\endcsname}}%
+        \makeatletter
+        \scantokens{\expandafter\egroup\expandafter\def\expandafter#1\expandafter{\csname #2\endcsname}}%
 }
 
 

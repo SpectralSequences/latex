@@ -142,7 +142,7 @@
 \def\sseq@ifintexpr@@@fexpcs@{\futurelet\testtok\sseq@ifintexpr@@@fexpcs@@}
 \def\sseq@ifintexpr@@@fexpcs@@{
     \ifx\testtok\bgroup
-        \@xp\sseq@ifintexpr@false % We already tested for groups above, so we need to check if this expanded to a group 
+        \@xp\sseq@ifintexpr@false % We already tested for groups above, so we need to check if this expanded to a group
     \else
         \@xp\sseq@ifintexpr@@@@ % If it's still a control sequence, then this will fail in the \pgfutil@ifundefined step
     \fi
@@ -176,7 +176,7 @@
                             \ifx#1/%
                                 \sseq@ifintexpr@next{*/}
                             \else
-                                % This extra \string here is so that if a control sequence fexpanded and still gave a control sequence, 
+                                % This extra \string here is so that if a control sequence fexpanded and still gave a control sequence,
                                 % we don't get a missing \endcsname error here, it just returns false
                                 \pgfutil@ifundefined{sseq@ifintexpr@@\sseq@ifintexpr@state @\string#1}%
                                     {\let\next\sseq@ifintexpr@false}%
@@ -246,7 +246,7 @@
         \let\next\sseq@grabdpage@group
     \else
         \def\sseq@dpage{}
-        \let\next\sseq@grabdpage@norm 
+        \let\next\sseq@grabdpage@norm
     \fi
     \next
 }
@@ -962,7 +962,7 @@
     \sseq@setinputline
     \sseq@loadinputline
     \sseq@callas{#1}%
-    \gdef\sseq@thepathsofar{#1[/utils/exec={\sseq@thesseqstyle\sseq@thetikzprimitivestyle\the\sseq@scope@toks\sseq@savedoptioncode}]}%
+    \gdef\sseq@thepathsofar{#1[/utils/exec={\sseq@thesseqstyle\sseq@thetikzprimitivestyle\the\sseq@scope@toks\sseq@savedoptioncode\sseq@collections@tikzprimitive@hook}]}%
     \xdef\sseq@whattheusersaid{\string#1}
     \sseq@defer@tikzcommand@
 }
@@ -1433,7 +1433,7 @@
         \egroup
         \let\next\@gobble
     \else
-        \@xp\ifx\space\testtok 
+        \@xp\ifx\space\testtok
             \def\next{\@xp\futurelet\@xp\testtok\@xp\sseqnormalizemonomial@testend\romannumeral-`0}
         \else
             \let\next\sseqnormalizemonomial@

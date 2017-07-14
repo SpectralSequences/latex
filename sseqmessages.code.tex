@@ -167,7 +167,7 @@
 }
 
 \def\sseq@error@setup@noinfo{\bgroup\def\foreach{\@nx\foreach}\let\sseq@stack@unexpanded\unexpanded\def\sseq@error@annotation{}\sseq@error@hook}
-\let\sseq@error@setup\sseq@error@setup@withinfo
+\let\sseq@error@setup\sseq@error@setup@noinfo
 \def\sseq@error@cleanup{\egroup\sseq@errortrue} % If the error was thrown in NewDocumentCommand, we need to process it. Just used in sseqmacromakers.
 
 
@@ -239,7 +239,6 @@
 %%  \sseq@checkend
 %%
 \def\sseq@checkend#1{
-    \let\sseq@error@setup\sseq@error@setup@noinfo
     \def\sseq@tempa{#1}
     \ifx\sseq@tempa\@currenvir\else % mismatch
         \sseq@error@n{endenv-mismatch}{#1}

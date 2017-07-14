@@ -401,6 +401,7 @@
 
 % #1 -- the name of the node object
 % Someday I should document this horrible mess of code here
+\newif\ifsseq@permanentcycle
 \def\sseq@class@drawnode#1{%
     \begingroup
     \sseq@class@getparts#1.
@@ -432,8 +433,10 @@
             \sseq@thesseqstyle
             \sseq@theclassstyle
             \ifnum\sseq@obj{#1.page}=\sseq@infinitycount
+                \sseq@permanentcycletrue % This is to communicate with family style code...
                 \sseq@thepermanentcyclestyle
             \else
+                \sseq@permanentcyclefalse
                 \sseq@thetransientcyclestyle
                 \ifsseq@thispage
                     \sseq@thethispagecyclestyle
@@ -441,6 +444,7 @@
             \fi
             \the\sseq@scope@toks
             \sseq@obj{#1.options}%
+            \sseq@collections@class@hook
         \pgftransformshift{\pgfqpointxy{\numexpr\sseq@tempx +\sseq@xoffset-\sseq@x\relax}{\numexpr\sseq@tempy + \sseq@yoffset-\sseq@y\relax}}
         \iftikz@fullytransformed\pgfgettransform{\savetransform}\fi
         \pgftransformresetnontranslations
@@ -469,9 +473,7 @@
             \pgfmultipartnode{\tikz@shape}{\tikz@anchor}{\tikz@fig@name}{\sseq@drawnode}%
             \tikz@alias
         \fi
-        %\tracingall
         \sseq@obj{#1.labelnodes}
-        %\error
         \sseq@obj@ifdef{#1.tooltip}{
             \pgfpointanchor{\sseq@thisnodename}{west}
             \pgf@xa=\pgf@x
@@ -617,7 +619,7 @@
     \let\tikz@transform\sseq@tikz@transform@save
     \sseq@setnodetext{\sseq@labeltextfn{#1}}{}
     \pgfmultipartnode{\tikz@shape}{\tikz@anchor}{label}{\sseq@drawnode}%
-    \ifsseq@pin        
+    \ifsseq@pin
         \def\sseq@pinoptions{}
         \let\tikz@options\empty
         \let\tikz@mode\empty
@@ -702,6 +704,7 @@
     \sseq@thesseqstyle
     \sseq@theedgestyle\csname sseq@the#3style\endcsname\the\sseq@scope@toks
     #4%
+    \csname sseq@collections@#3@hook\endcsname
     \pgftransformshift{\pgfqpointxy{-\the\sseq@x}{-\the\sseq@y}}%
     % puts results into \sseq@sourcecoord and \sseq@targetcoord
     \sseq@drawedge@findsourcetarget{sseq{#1}}{\sseq@edgesourceanchor}{sseq{#2}}{\sseq@edgetargetanchor}
@@ -713,9 +716,17 @@
     \pgfcoordinate{tempa}{\sseq@sourcecoord}%
     \pgfcoordinate{tempb}{\sseq@targetcoord}%
     \pgftransformreset
-    \sseq@ifinrange(#1){\sseq@ifinrange(#2){\sseq@outofrangefalse}{\sseq@outofrangetrue}}{\sseq@outofrangetrue}%
+    \sseq@outofrangefalse
+    \sseq@ifinrange(#1){}{
+        \edef\temparrowstartspec{\@nx\pgfsetarrowsstart{\csname sseq@runoffarrow@start@#3@spec\endcsname}}
+        \sseq@outofrangetrue
+    }%
+    \sseq@ifinrange(#2){}{
+        \edef\temparrowendspec{\@nx\pgfsetarrowsend{\csname sseq@runoffarrow@end@#3@spec\endcsname}}
+        \sseq@outofrangetrue
+    }
     \ifsseq@outofrange
-        \sseq@handleoffpageedge{#1}{#2}{#3}%
+        \sseq@handleoffpageedge{#1}{#2}%
     \fi
     \ifsseq@drawedge
         % TODO: should some sort of transformation manipulation be here? Maybe allow user to specify preference?
@@ -755,7 +766,7 @@
 }
 
 % TODO: this macro is super expensive. Make it faster
-\def\sseq@handleoffpageedge#1#2#3{
+\def\sseq@handleoffpageedge#1#2{
     \pgfpathmoveto{\sseq@sourcecoord}%
     \pgfpathlineto{\sseq@targetcoord}%
     \pgfgetpath\thispath
@@ -766,19 +777,15 @@
         \sseq@ifinrange(#1){% If the first endpoint is in range, the second must be out of range b/c sseq@outofrange is true.
             %\edef\temparrowendspec{\@nx\pgfsetarrowsend{\csname sseq@runoffarrow@end@#3@spec\endcsname}}
         }{%
-            \sseq@ifinrange(#2){%
-                \edef\temparrowstartspec{\@nx\pgfsetarrowsstart{\csname sseq@runoffarrow@start@#3@spec\endcsname}}
-            }{\sseq@drawedge@handletrickyedge}% uh-oh, both ends are out of range
+            \sseq@ifinrange(#2){}{\sseq@drawedge@handletrickyedge}% uh-oh, both ends are out of range
         }%
     \or
         \sseq@ifinrange(#1){% If the startpoint is in range, the intersection must be the end.
             \def\sseq@targetcoord{\pgfpointintersectionsolution{1}}
-            \edef\temparrowendspec{\@nx\pgfsetarrowsend{\csname sseq@runoffarrow@end@#3@spec\endcsname}}
             \pgfcoordinate{tempb}{\sseq@targetcoord}
         }{%
             \sseq@ifinrange(#2){% If the startpoint is out of range and the endpoint is in range, the intersection must be the start
                 \def\sseq@sourcecoord{\pgfpointintersectionsolution{1}}%
-                \edef\temparrowstartspec{\@nx\pgfsetarrowsstart{\csname sseq@runoffarrow@start@#3@spec\endcsname}}%
                 \pgfcoordinate{tempa}{\sseq@sourcecoord}%
             }{\sseq@drawedge@handletrickyedge}% Uh-oh, both ends are out of range.
         }
@@ -841,6 +848,7 @@
             rotate fit=\tempangle,
             /utils/exec={\sseq@thesseqstyle\sseq@thecircleclassstyle\the\sseq@scope@toks\sseq@savedoptioncode
                 \sseq@obj{#1.options}
+                \sseq@collections@circleclass@hook
                 \sseq@obj{#1.fitnodes}
                 \@xp\pgfkeysalso\@xp{\romannumeral0\sseq@obj{#1.tikzprimoptions}}
             }
