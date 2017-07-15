@@ -43,7 +43,7 @@
 %%
 %%    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 %%    !
-%%    ! sseqpages error: "index-too-large"
+%%    ! spectralsequences error: "index-too-large"
 %%    !
 %%    ! Index '-3' provided for target of structure line is too large -- only 1
 %%    ! classes exist at position (32,8).
@@ -55,7 +55,7 @@
 %%    !    \towergroupb (8*\n ,4*\n )                                           % Produced by \sseq@printstacktrace
 %%    !    \foreach \n in {2,3,4}
 %%    !
-%%    ! See the sseqpages documentation for further information.
+%%    ! See the spectralsequences documentation for further information.
 %%    !
 %%    ! Type <return> to continue.
 %%    !...............................................
@@ -260,21 +260,21 @@
 \ExplSyntaxOn
 \char_set_catcode_space:N\ % Needed to make pretocmd work -- there are always spaces after every command, and they need to be retokenized as spaces
 
-\def\sseqerrortowarning#1{ \msg_redirect_name:nnn { sseqpages } { #1 } { warning } }
+\def\sseqerrortowarning#1{ \msg_redirect_name:nnn { spectralsequences } { #1 } { warning } }
 
-\def\sseq@error     {\msg_error:nn    {sseqpages}}
-\def\sseq@error@n   {\msg_error:nnn   {sseqpages}}
-\def\sseq@error@nn  {\msg_error:nnnn  {sseqpages}}
-\def\sseq@error@nnn {\msg_error:nnnnn {sseqpages}}
-\def\sseq@error@nnnn{\msg_error:nnnnnn{sseqpages}}
-\def\sseq@error@x   {\msg_error:nnx   {sseqpages}}
-\def\sseq@error@xx  {\msg_error:nnxx  {sseqpages}}
-\def\sseq@error@xxx {\msg_error:nnxxx {sseqpages}}
-\def\sseq@error@xxxx{\msg_error:nnxxxx{sseqpages}}
-\def\sseq@warning   {\msg_warning:nn{sseqpages}}
+\def\sseq@error     {\msg_error:nn    {spectralsequences}}
+\def\sseq@error@n   {\msg_error:nnn   {spectralsequences}}
+\def\sseq@error@nn  {\msg_error:nnnn  {spectralsequences}}
+\def\sseq@error@nnn {\msg_error:nnnnn {spectralsequences}}
+\def\sseq@error@nnnn{\msg_error:nnnnnn{spectralsequences}}
+\def\sseq@error@x   {\msg_error:nnx   {spectralsequences}}
+\def\sseq@error@xx  {\msg_error:nnxx  {spectralsequences}}
+\def\sseq@error@xxx {\msg_error:nnxxx {spectralsequences}}
+\def\sseq@error@xxxx{\msg_error:nnxxxx{spectralsequences}}
+\def\sseq@warning   {\msg_warning:nn{spectralsequences}}
 
-\def\sseq@newerror#1#2{\msg_new:nnn{sseqpages}{#1}{#2}}
-\def\sseq@newerror@internal#1#2{\msg_new:nnn{sseqpages}{#1}{Internal error: #2 \sseq@contactpackageauthor}}
+\def\sseq@newerror#1#2{\msg_new:nnn{spectralsequences}{#1}{#2}}
+\def\sseq@newerror@internal#1#2{\msg_new:nnn{spectralsequences}{#1}{Internal error: #2 \sseq@contactpackageauthor}}
 \edef\sseq@contactpackageauthor{Contact package author \sseq@authorname\space at \sseq@authoremail.}
 
 
@@ -297,7 +297,7 @@
 \sseq@newerror@internal{msg-patch-failed}{Failed to patch the latex 3 message system. The errors will not be as expressive.}
 
 \def\sseq@msgpatchfailed{
-    \msg_error:nn{sseqpages}{msg-patch-failed}
+    \msg_error:nn{spectralsequences}{msg-patch-failed}
     \def\sseq@installmsghooks{}
     \sseq@break
 }
@@ -335,20 +335,20 @@
 %%
 %%
 \@ifpackagelater{tikz}{2015/07/08}{
-    \sseq@newerror@internal{pgfkeys-patch-failed}{Failed to patch the key value system. Setting all commands to do nothing and quitting. Your copy of tikz is newer than the version sseqpages was designed for and seems to be incompatible with core features.}
-    \sseq@newerror@internal{fit-patch-failed}{Failed to patch fit. \@nx\circleclasses won't work. Your copy of tikz is newer than the version sseqpages was designed for and seems to be incompatible with \string\circleclasses.}
-    \sseq@newerror@internal{foreach-patch-failed}{Failed to patch \string\foreach. The errors sseqpages provides will be less comprehensive. Your copy of tikz is newer than the version sseqpages was designed for and seems to be incompatible with parts of the error handling system.}
+    \sseq@newerror@internal{pgfkeys-patch-failed}{Failed to patch the key value system. Setting all commands to do nothing and quitting. Your copy of tikz is newer than the version spectralsequences was designed for and seems to be incompatible with core features.}
+    \sseq@newerror@internal{fit-patch-failed}{Failed to patch fit. \@nx\circleclasses won't work. Your copy of tikz is newer than the version spectralsequences was designed for and seems to be incompatible with \string\circleclasses.}
+    \sseq@newerror@internal{foreach-patch-failed}{Failed to patch \string\foreach. The errors spectralsequences provides will be less comprehensive. Your copy of tikz is newer than the version spectralsequences was designed for and seems to be incompatible with parts of the error handling system.}
     \sseq@newerror@internal{circleclasses-not-provided}{\@nx\circleclasses won't work because your copy of tikz is too new. Instead I'm doing nothing.}
 }{
-    \sseq@newerror{pgfkeys-patch-failed}{Failed to patch the key value system. Setting all commands to do nothing and quitting. Your copy of tikz is older than the version sseqpages was designed for and seems to be incompatible with core features. Update tikz!}
-    \sseq@newerror{fit-patch-failed}{Failed to patch fit. \@nx\circleclasses won't work. Your copy of tikz is older than the version sseqpages was designed for and seems to be incompatible with \string\circleclasses. Update tikz!}
-    \sseq@newerror{foreach-patch-failed}{Failed to patch \string\foreach. The errors sseqpages provides will be less comprehensive. Your  copy of tikz is older than the version sseqpages was designed for and seems to be incompatible with parts of the error handling system.}
+    \sseq@newerror{pgfkeys-patch-failed}{Failed to patch the key value system. Setting all commands to do nothing and quitting. Your copy of tikz is older than the version spectralsequences was designed for and seems to be incompatible with core features. Update tikz!}
+    \sseq@newerror{fit-patch-failed}{Failed to patch fit. \@nx\circleclasses won't work. Your copy of tikz is older than the version spectralsequences was designed for and seems to be incompatible with \string\circleclasses. Update tikz!}
+    \sseq@newerror{foreach-patch-failed}{Failed to patch \string\foreach. The errors spectralsequences provides will be less comprehensive. Your  copy of tikz is older than the version spectralsequences was designed for and seems to be incompatible with parts of the error handling system.}
     \sseq@newerror{circleclasses-not-provided}{\@nx\circleclasses won't work because your copy of tikz is too old. Instead I'm doing nothing. Update tikz!}
 }
 
 
 \def\sseq@pgfkeyspatchfailed {
-    \msg_critical:nn { sseqpages } { pgfkeys-patch-failed }
+    \msg_critical:nn { spectralsequences } { pgfkeys-patch-failed }
 }
 
 
@@ -372,7 +372,8 @@
 %% macromakers
 %%
 %%
-\sseq@newerror{won't-override-builtin}{Macro '#1' is a sseqpages builtin and I won't override it. Try a different name.}
+\sseq@newerror@internal{U-xparse-incompatible}{The 'U' argument type is incompatible with the current version of xparse.}
+\sseq@newerror{won't-override-builtin}{Macro '#1' is a spectralsequences builtin and I won't override it. Try a different name.}
 \sseq@newerror{usermacro-not-free}{Macro '#1' has already been defined using \string\DeclareSseqCommand, \string\NewSseqCommand, \string\DeclareSseqGroup, or \string\NewSseqGroup. I am overriding it. If this is what you intended, you should either use \@nx\DeclareSseqGroup or \string\DeclareSseqCommand, which won't complain.}
 
 \sseq@newerror{macro-patch-failed}{Failed to patch macro '#1'. This is probably some annoying catcode issue. Try \@nx\tracingpatches to see more information about why the patch failed.}
@@ -469,7 +470,7 @@
 
 \sseq@newerror{illegal-transform}{%
     You said '#1\ifx\pgfkeyscurrentvalue\pgfkeysnovalue@text\else=\pgfkeyscurrentvalue\fi', but
-    no coordinate transforms are allowed in the body of sseqpages or sseqdata other than shifts by unit-free integers
+    no coordinate transforms are allowed in the body of sseqpage or sseqdata other than shifts by unit-free integers
     except as options for tikz primitives or for scopes that only contain tikz primitives. If you need a coordinate transformation,
     first use the option 'standard parse'.%
 }
@@ -528,7 +529,6 @@
 \sseq@newerror{classoptions-class-already-named}{The class \coord\ already is named '\sseq@obj{class.\classname.name}'. Overwriting it. Use \@nx\nameclass if you want to give it a second name.}%warning
 \sseq@newerror{doptions-invisible}{Cannot add options to invisible differential.}
 \sseq@newerror{doptions-no-effect-on-this-page}{Adding an option to a differential on page #1 when the current page is \sseq@thepage\ and the 'keep changes' option is not present has no effect.}
-
 
 \sseq@newerror{class-tag-already-defined}{A class with tag '#1' is already defined in position #2. Overwriting it.} % warning
 

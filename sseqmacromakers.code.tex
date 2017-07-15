@@ -37,24 +37,32 @@
 
 % So xparse changed a bunch between the copy pushed to CTAN on February 7th and the copy pushed on February 9th
 \@ifpackagelater{xparse}{2017/02/08}{
-    % NEW CODE
-    \cs_new_protected:Npn \sseq__xparse_grab_U:w #1#2 \__xparse_run_code:
-      { \sseq__xparse_grab_U_aux:nnN {#1} {#2} \cs_set_protected_nopar:Npn }
-    \cs_new_protected:Npn \sseq__xparse_grab_U_aux:nnN #1#2#3
-      {
-        \tl_set:Nn \l__xparse_signature_tl {#2}
-        \exp_after:wN #3 \l__xparse_fn_tl ##1 #1
-          { \__xparse_add_arg:n {##1} #1 }
-        \l__xparse_fn_tl
-      }
-    \cs_new_protected:Npn \sseq__xparse_add_type_U:w #1
-      {
-        \__xparse_flush_m_args:
-        \__xparse_add_default:
-        \__xparse_add_grabber_mandatory:N U
-        \tl_put_right:Nn \l__xparse_signature_tl { {#1} }
-        \__xparse_prepare_signature:N
-      }
+    \ifsseq@patchxparseU
+        % NEW CODE
+        \cs_new_protected:Npn \sseq__xparse_grab_U:w #1#2 \__xparse_run_code:
+          { \sseq__xparse_grab_U_aux:nnN {#1} {#2} \cs_set_protected_nopar:Npn }
+        \cs_new_protected:Npn \sseq__xparse_grab_U_aux:nnN #1#2#3
+          {
+            \tl_set:Nn \l__xparse_signature_tl {#2}
+            \exp_after:wN #3 \l__xparse_fn_tl ##1 #1
+              { \__xparse_add_arg:n {##1} #1 }
+            \l__xparse_fn_tl
+          }
+        \cs_new_protected:Npn \sseq__xparse_add_type_U:w #1
+          {
+            \__xparse_flush_m_args:
+            \__xparse_add_default:
+            \__xparse_add_grabber_mandatory:N U
+            \tl_put_right:Nn \l__xparse_signature_tl { {#1} }
+            \__xparse_prepare_signature:N
+          }
+    \else
+        % Assumptions failed, so just make U give an error (this isn't such a big deal since we don't use it for \d anymore).
+        \cs_new_protected:Npn \sseq__xparse_add_type_U:w #1
+          {
+            \sseq@error{U-xparse-incompatible}
+          }    
+    \fi
 }{
     % OLD CODE
     \cs_new_protected:Npn \sseq__xparse_grab_U:w #1#2 \l__xparse_args_tl
@@ -146,6 +154,7 @@
             \exp_not:N \cs_set_eq:NN  % force xparse to always ignore spaces!
                 \exp_not:N \peek_meaning_remove:NTF
                 \exp_not:N \peek_meaning_remove_ignore_spaces:NTF
+            % Not sure why we use set_eq:cc and exp_not:n here but I'm concerned that something will break if I change it...
             \exp_not:N \cs_set_eq:cc
                 \exp_not:n {{ \cs_to_str:N #2 \c_space_tl code }}
                 \exp_not:n {{ \cs_to_str:N #1 \c_space_tl code }}
@@ -368,6 +377,8 @@
     }
 }
 
+% v, E, and e are illegal 
+
 % Mandatory
 \def\sseq@parseargspec@m{%
     \sseq@e@addto@temptoks{{\@nx\unexpanded{\sseq@thearg}}}
@@ -420,7 +431,7 @@
     \sseq@parseargspec@
 }
 
-
+% Optional with default
 
 \def\sseq@parseargspec@O#1{
     \sseq@parseargspec@setargdefault{#1}%
@@ -442,7 +453,6 @@
     \sseq@e@addto@temptoks{\sseq@parseargspec@ifargisnotdefault{\@nx\unexpanded{{\sseq@thearg}}}}%
     \sseq@parseargspec@
 }
-
 
 \ExplSyntaxOff
 

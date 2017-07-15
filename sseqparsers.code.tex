@@ -286,7 +286,17 @@
         \sseq@d@addto@macro\sseq@dpage{#1}
         \@xp\sseq@grabdpage@norm
     \else
-        \@xp\sseq@grabdpage@token@fexpcs\@xp#1
+        \ifx#1\end
+            \sseq@tempiffalse
+            \@xp\sseq@grabdpage@return\@xp#1\romannumeral-`0
+        \else
+            \ifx#1\begin
+                \sseq@tempiffalse
+                \@xp\sseq@grabdpage@return\@xp#1\romannumeral-`0
+            \else
+                \@xp\sseq@grabdpage@token@fexpcs\@xp#1\romannumeral-`0
+            \fi
+        \fi
     \fi
 }
 

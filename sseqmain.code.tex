@@ -464,26 +464,26 @@
         \sseq@error@xxxx{classpattern-too-many-classes}{(\partialcoord)}{\nodenum}{\sseq@classpattern}{\@xp\the\csname sseq@\sseq@classpattern @maxclasses\endcsname}
         \sseq@breakfi
     \fi
-%    
+%%%% No more breaks after this point 
+%
     \ifx\sseq@classinsert\empty
         % by default, just insert to the right of previous classes
         \edef\sseq@classinsert{\nodenum}
     \else
-        \ifnum\sseq@classinsert<0\relax
+        \ifnum\sseq@classinsert<\z@
             % negative 1 is where we would normally insert things
             \edef\sseq@classinsert{\the\numexpr\nodenum+\sseq@classinsert+1}
         \fi
-        \ifodd0% if( n < 1 or n > \nodenum ) 
-            \ifnum\sseq@classinsert<\z@ 1\fi
-            \ifnum\sseq@classinsert>\numexpr\nodenum\relax 1\fi
-        \relax
-            \sseq@error{class-insert-out-of-range}
-            \sseq@break
-%%%% No more breaks after this point -- if we need them later for some reason, have to refactor this.
-        \else 
+        \ifnum\sseq@classinsert<\z@
+            \def\sseq@classinsert{0} 
+        \fi
+        \ifnum\sseq@classinsert>\nodenum\relax
+            \edef\sseq@classinsert{\nodenum}
+        \fi
+        \ifnum\nodenum>\@ne
             \@xp\sseq@class@adjustclasses\@xp{\partialcoord} % Adjust all of the indices of the classes to the right of the one we're inserting
         \fi
-    \fi   
+    \fi
 %
     \sseq@processlabels % This sets up the label nodes, now that we know the position of the class (I think that's what we needed?)
 %
@@ -558,7 +558,7 @@
             \sseq@eval{\@nx\sseq@obj@inc{class.(#1,\the\sseq@tempcount).n}} % unfortunately, \sseq@obj@inc uses \sseq@tempcount so we need this eval
         \fi
     \ifnum\sseq@tempcount<\sseq@tempcountb\repeat
-    
+
 }
 
 \sseq@DeclareDocumentCommand\classoptions{od()}{%
@@ -741,7 +741,7 @@
     }
     \sseq@parsecoord\coord{\sseq@coord}{\string\classoptions}%
     \sseq@processlabels
-%
+%    
     \sseq@ifundefcoord\coord{\sseq@error@x{replaceclass-no-class}{\coordname}\sseq@break}{}
     \sseq@ifdead\coord{}{\sseq@error@x{replaceclass-not-dead-yet}{\coordname}\sseq@break}
     \ifsseq@keepchanges\else
@@ -851,7 +851,7 @@
     \endgroup
 }
 
-
+% \sseq@d@grabpage is defined in sseqparsers.
 \sseq@DeclareDocumentCommand\d{o}{%
     \begingroup
     \sseq@loadinputline
