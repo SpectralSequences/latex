@@ -464,7 +464,28 @@
         \sseq@error@xxxx{classpattern-too-many-classes}{(\partialcoord)}{\nodenum}{\sseq@classpattern}{\@xp\the\csname sseq@\sseq@classpattern @maxclasses\endcsname}
         \sseq@breakfi
     \fi
-    \sseq@processlabels
+%    
+    \ifx\sseq@classinsert\empty
+        % by default, just insert to the right of previous classes
+        \edef\sseq@classinsert{\nodenum}
+    \else
+        \ifnum\sseq@classinsert<0\relax
+            % negative 1 is where we would normally insert things
+            \edef\sseq@classinsert{\the\numexpr\nodenum+\sseq@classinsert+1}
+        \fi
+        \ifodd0% if( n < 1 or n > \nodenum ) 
+            \ifnum\sseq@classinsert<\z@ 1\fi
+            \ifnum\sseq@classinsert>\numexpr\nodenum\relax 1\fi
+        \relax
+            \sseq@error{class-insert-out-of-range}
+            \sseq@break
+%%%% No more breaks after this point -- if we need them later for some reason, have to refactor this.
+        \else 
+            \@xp\sseq@class@adjustclasses\@xp{\partialcoord} % Adjust all of the indices of the classes to the right of the one we're inserting
+        \fi
+    \fi   
+%
+    \sseq@processlabels % This sets up the label nodes, now that we know the position of the class (I think that's what we needed?)
 %
     \sseq@xminmax{\xcoord}{\ycoord}%
     \sseq@yminmax{\xcoord}{\ycoord}%
@@ -500,7 +521,7 @@
 %
 %
     \sseq@obj@gdef{class.\coord.num}{0}% For \replaceclass
-    \sseq@obj@xodef{\classname.familylist}{\sseq@familylist}    
+    \sseq@obj@xodef{\classname.familylist}{\sseq@familylist}
     \sseq@obj@xdef{\classname.page}{\sseq@infinity}%
     \sseq@obj@xodef{\classname.options}{\sseq@savedoptioncode}%
     \sseq@obj@xodef{\classname.nodetext}{\sseq@classnodetext}%
@@ -508,6 +529,7 @@
     \sseq@obj@xodef{\classname.labelnodes}{\sseq@classlabelnodes}%
     \sseq@obj@xdef{class.\coord.x}{\xcoord}%
     \sseq@obj@xdef{class.\coord.y}{\ycoord}%
+    \sseq@obj@xdef{class.\coord.n}{\sseq@classinsert}
     \sseq@obj@gdef{\classname.dependencies}{}%
     \sseq@obj@xdef{\classname.needstikz}{\ifsseq@needstikz\@nx\sseq@needstikztrue\fi}%
     \@ifundefined{sseq@tempoffset}{}{%
@@ -523,6 +545,21 @@
     \endgroup
 }
 \def\sseq@setoffset#1{\sseq@obj@gdef{\classname.offset}{\pgftransformshift{#1}}}
+
+% This is for use with "insert" key. Add one to offset index of each class later than the one currently being inserted
+% Takes the partial coordinate "x,y" in #1, and the position that the new class is being inserted into in \sseq@classinsert.
+\def\sseq@class@adjustclasses#1{
+    \sseq@tempcount=\z@
+    \sseq@tempcountb=\sseq@obj{partcoord.(#1).numnodes}
+    \loop
+        \advance\sseq@tempcount\@ne
+        \ifnum\sseq@obj{class.(#1,\the\sseq@tempcount).n}<\sseq@classinsert\relax\else
+            \sseq@cleanup@obj{class.(#1,\the\sseq@tempcount).n}
+            \sseq@eval{\@nx\sseq@obj@inc{class.(#1,\the\sseq@tempcount).n}} % unfortunately, \sseq@obj@inc uses \sseq@tempcount so we need this eval
+        \fi
+    \ifnum\sseq@tempcount<\sseq@tempcountb\repeat
+    
+}
 
 \sseq@DeclareDocumentCommand\classoptions{od()}{%
     \begingroup
@@ -1146,10 +1183,10 @@
         \sseq@obj@gdef{structline.\source\target.num}{0}
         \sseq@savedpaths@addstructline{structline.\source\target}
     }
-    \edef\sseq@structlinename{structline.\source\target[\sseq@obj{structline.\source\target.num}]} 
+    \edef\sseq@structlinename{structline.\source\target[\sseq@obj{structline.\source\target.num}]}
     % The following cleanup call is needed to prevent a glitch where if a \structline is made inside of a temporary sseqpage environment, then later attempts
     % to put a structline throw a "structline already exists" error
-    \sseq@cleanup@obj{\sseq@structlinename.page} 
+    \sseq@cleanup@obj{\sseq@structlinename.page}
     \sseq@obj@xdef{\sseq@structlinename.page}{\sseq@infinity}
     \sseq@obj@xdef{\sseq@structlinename.pagemin}{\sseq@pagemin}
     \sseq@obj@xdef{\sseq@structlinename.source}{\source}
@@ -1311,7 +1348,7 @@
 %
 %
     \sseq@obj@xodef{\circleclassobjname.options}{\sseq@savedoptioncode}
-    \sseq@obj@xodef{\circleclassobjname.familylist}{\sseq@familylist}    
+    \sseq@obj@xodef{\circleclassobjname.familylist}{\sseq@familylist}
     \sseq@obj@xodef{\circleclassobjname.tikzprimoptions}{\sseq@keysfortikzprim}
     \sseq@obj@xdef{\circleclassobjname.fitnodes}{\@nx\tikz@lib@fit{(sseq{\coordanopar})(sseq{\coordbnopar})\sseq@fitalso}}
     %\edef\temp{\@nx\sseq@circleclass@draw{\coorda@internalname}{\coordb@internalname}{\unexpanded\@xp{\sseq@savedoptioncode}}}

@@ -279,7 +279,7 @@
     \ifx#2\sseq@nil\else
         #2%
         \@xp\sseq@keys@addtooptions@checkdo
-    \fi    
+    \fi
 }
 
 % This has to be expandable, so \sseq@tempa and \sseq@tempb are set to "/tikz/" and "/pgf/" ahead of time
@@ -487,6 +487,7 @@
 % so it's called inside \pgfkeysalso{stuff}. Need to surround with /utils/exec={} to get out.
 \def\sseq@handleclassquotes#1#2{/utils/exec={\sseq@d@addto@macro\sseq@processlabels{\sseq@handleclassquotes@inner{#1}{#2}}}}
 
+% I can't remember why we need to defer this. If at some point I figure this out, I should explain why here and in the definition of \class...
 \def\sseq@handleclassquotes@inner#1#2{%
     \begingroup\pgfscope
     \def\sseq@classquotes@smugglehook{}
@@ -494,7 +495,7 @@
     \sseq@options@firstpassmode
     \sseq@thesseqstyle
     \sseq@thelabelstyle
-    \sseq@theclasslabelstyle    
+    \sseq@theclasslabelstyle
     \the\sseq@scope@toks
     \sseq@options@normalmode
     \sseq@processoptions{class/label}{#2}%
@@ -638,6 +639,7 @@
     tag prefix/.code={\pgfkeys@spdef\temp{#1}\sseq@e@addto@macro\sseq@class@tagprefix{\unexpanded\@xp{#1}}}
 }
 
+\def\sseq@classinsert{}
 \pgfqkeys{/sseqpages/class}{
     name/.code={\def\sseq@class@name{#1}\pgfkeysalso{/sseqpages/alias=#1}},
     show name/.code={\def\sseq@class@showname{#1}},
@@ -645,7 +647,8 @@
     generation/.code={\sseq@getnumrange\sseq@gen{#1}}, % \class tests if \sseq@class@page is set and throw an error if so.
     tag/.code={\sseq@d@addto@macro\sseq@class@tag{#1}},
     offset/.code={\def\sseq@tempoffset{#1}},
-    tooltip/.sseq @ first pass code={\def\sseq@tooltip{#1}}
+    tooltip/.sseq @ first pass code={\def\sseq@tooltip{#1}},
+    insert/.code={\def\sseq@classinsert{#1}}
 }
 
 \pgfqkeys{/sseqpages/struct line}{
@@ -960,7 +963,7 @@
 }
 
 \sseq@collections@setempty{%
-    classes, cycles, permanent classes, permanent cycles, transient classes, transient cycles, this page classes, this page cycles, 
+    classes, cycles, permanent classes, permanent cycles, transient classes, transient cycles, this page classes, this page cycles,
     edges, differentials,struct lines, this page struct lines,circleclasses, tikz primitives,
     labels, edge labels, differential labels, struct line labels,
     class labels, inner class labels, outer class labels,pins
@@ -983,7 +986,7 @@
     class/permanent classes/.code={\ifsseq@permanentcycle\pgfkeysalso{/sseqpages/class/.cd,#1}\fi},
     class/permanent cycles/.code={\ifsseq@permanentcycle\pgfkeysalso{/sseqpages/class/.cd,#1}\fi},
     class/transient classes/.code={\ifsseq@permanentcycle\else\pgfkeysalso{/sseqpages/class/.cd,#1}\fi},
-    class/transient cycles/.code={\ifsseq@permanentcycle\else\pgfkeysalso{/sseqpages/class/.cd,#1}\fi},   
+    class/transient cycles/.code={\ifsseq@permanentcycle\else\pgfkeysalso{/sseqpages/class/.cd,#1}\fi},
     class/this page classes/.code={\ifsseq@thispage\pgfkeysalso{/sseqpages/class/.cd,#1}\fi},
     class/this page cycles/.code={\ifsseq@thispage\pgfkeysalso{/sseqpages/class/.cd,#1}\fi},
     differential/edges/.style={/sseqpages/differential/.cd,#1},
@@ -993,20 +996,20 @@
     struct line/this page struct lines/.code={\ifsseq@thispage\pgfkeysalso{/sseqpages/struct line/.cd,#1}\fi},
     fit/circleclasses/.style={/sseqpages/fit/.cd,#1},
     tikz primitives/tikz primitives/.style={/sseqpages/tikz primitives/.cd,#1},
-% labels    
+% labels
     class/class labels/.code/.expanded={\unexpanded\@xp{\sseq@collections@addtohook{/sseqpages/class/label}{\sseq@collections@classlabels@hook}{#1}}},
     class/inner class labels/.code/.expanded={\unexpanded\@xp{\sseq@collections@addtohook{/sseqpages/class/label}{\sseq@collections@innerclasslabels@hook}{#1}}},
     class/outer class labels/.code/.expanded={\unexpanded\@xp{\sseq@collections@addtohook{/sseqpages/class/label}{\sseq@collections@outerclasslabels@hook}{#1}}},
     class/pins/.code/.expanded={\unexpanded\@xp{\sseq@collections@addtohook{/sseqpages/class/label/pin}{\sseq@collections@pins@hook}{#1}}},
-%    
-    class/labels/.code/.expanded={\unexpanded\@xp{\sseq@collections@addtohook{/sseqpages/label}{\sseq@collections@labels@hook}{#1}}}, 
-    differential/labels/.code/.expanded={\unexpanded\@xp{\sseq@collections@addtohook{/sseqpages/label}{\sseq@collections@labels@hook}{#1}}}, 
-    struct line/labels/.code/.expanded={\unexpanded\@xp{\sseq@collections@addtohook{/sseqpages/label}{\sseq@collections@labels@hook}{#1}}}, 
+%
+    class/labels/.code/.expanded={\unexpanded\@xp{\sseq@collections@addtohook{/sseqpages/label}{\sseq@collections@labels@hook}{#1}}},
+    differential/labels/.code/.expanded={\unexpanded\@xp{\sseq@collections@addtohook{/sseqpages/label}{\sseq@collections@labels@hook}{#1}}},
+    struct line/labels/.code/.expanded={\unexpanded\@xp{\sseq@collections@addtohook{/sseqpages/label}{\sseq@collections@labels@hook}{#1}}},
 %
     differential/edge labels/.code/.expanded=
         {\unexpanded\@xp{\sseq@collections@addtohook{/sseqpages/label}{\sseq@collections@edgelabels@hook}{#1}}},
     struct line/edge labels/.code/.expanded=
-        {\unexpanded\@xp{\sseq@collections@addtohook{/sseqpages/label}{\sseq@collections@edgelabels@hook}{#1}}}, 
+        {\unexpanded\@xp{\sseq@collections@addtohook{/sseqpages/label}{\sseq@collections@edgelabels@hook}{#1}}},
     differential/differential labels/.code/.expanded=
         {\unexpanded\@xp{\sseq@collections@addtohook{/sseqpages/label}{\sseq@collections@differentiallabels@hook}{#1}}},
     struct line/struct line labels/.code/.expanded=
@@ -1019,7 +1022,7 @@
         \@xp\sseq@setmacronospaces\csname sseq@tempcmd@##1@default\endcsname{sseq@user@#1@##1@style@default}
         \sseq@eval{\@nx\sseq@addtostorelist\@xptwo\@nx\csname sseq@tempcmd@##1\endcsname{\@xptwo\@nx\csname sseq@tempcmd@##1@default\endcsname}}
         \@xptwo\def\csname sseq@user@#1@##1@style@default\endcsname{}
-    }                
+    }
 %
     \@xp\sseq@addtostorelist\csname sseq@#1@maybedraw\endcsname{}
     \pgfqkeys{/sseqpages/global}{%
@@ -1042,8 +1045,8 @@
             \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@tikzprimitive@default{/sseqpages/tikz primitives}{##1}%
         },
         draw #1/.ecode = {\def\@xp\@nx\csname sseq@#1@maybedraw@default\endcsname{\@nx\sseq@drawtrue}},
-        no #1/.ecode = {\def\@xp\@nx\csname sseq@#1@maybedraw@default\endcsname{\@nx\sseq@drawfalse}}        
-    }%    
+        no #1/.ecode = {\def\@xp\@nx\csname sseq@#1@maybedraw@default\endcsname{\@nx\sseq@drawfalse}}
+    }%
 %
     \pgfqkeys{/sseqpages}{
         #1/.ecode={
@@ -1055,7 +1058,7 @@
                 \@nx\sseq@d@addto@macro\@nx\sseq@collections@circleclass@hook{\unexpanded\@xptwo{\csname sseq@tempcmd@circleclass\endcsname}}
                 \@nx\sseq@d@addto@macro\@nx\sseq@collections@tikzprimitive@hook{\unexpanded\@xptwo{\csname sseq@tempcmd@tikzprimitive\endcsname}}
             }
-        },        
+        },
         class/#1/.ecode={
             \@nx\sseq@options@secondpass{\unexpanded\@xptwo{\csname sseq@tempcmd@class\endcsname}}%\showthe\@xptwo\@nx\csname sseq@tempcmd@class\endcsname
         },
@@ -1064,7 +1067,7 @@
         },
         struct line/#1/.code={
             \@nx\sseq@options@secondpass{\unexpanded\@xptwo{\csname sseq@tempcmd@structline\endcsname}}
-        },       
+        },
         fit/#1/.code={
             \@nx\sseq@options@secondpass{\unexpanded\@xptwo{\csname sseq@tempcmd@fit\endcsname}}
         },

@@ -379,7 +379,7 @@
     \def\sseq@thisclassname{class.(#2,#3,#4)}
     \def\sseq@thisnodename{sseq{#2,#3,#4}}
     \def\sseq@thispos{(#2,#3)}
-    \def\sseq@thisposnum{#4}
+    \edef\sseq@thisposnum{\sseq@obj{class.(#2,#3,#4).n}}
     \def\sseq@thisclassnum{#5}
 }
 
