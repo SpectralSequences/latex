@@ -61,7 +61,7 @@
         \cs_new_protected:Npn \sseq__xparse_add_type_U:w #1
           {
             \sseq@error{U-xparse-incompatible}
-          }    
+          }
     \fi
 }{
     % OLD CODE
@@ -120,7 +120,7 @@
     \exp_args:Nc \sseq@DeclareDocumentCommandAs { \cs_to_str:N #1 @@unique@@ start }
 }
 
-%%% \sseq@DeclareDocumentCommandAS
+%%% \sseq@DeclareDocumentCommandAs
 %
 % #1 - the command to define
 % #2 - the command to use in argument parsing errors
@@ -212,13 +212,13 @@
             \@xp\endgroup
             \@xp\begingroupa
             \the\sseq@temptoks
-        }{}{\error\sseq@error@x{usermacro-failed-patch}{\string#1}}
+        }{}{\sseq@error@x{usermacro-failed-patch}{\string#1}}
         \cs_gset_eq:cc { sseq @ usermacro @ \cs_to_str:N #1 @@unique@@ start \c_space_tl code } { sseq @ usermacro @ \cs_to_str:N #1 @@unique@@ start \c_space_tl code}
     }{
         \pretocmd:cfnn{ sseq @ usermacro @ \cs_to_str:N #1 @@unique@@ start }{
             \@xp\begingroupb
             \the\sseq@temptoks
-        }{}{\error\sseq@error@x{usermacro-failed-patch}{\string#1}}
+        }{}{\sseq@error@x{usermacro-failed-patch}{\string#1}}
     }
     \cs_gset_eq:cc { sseq @ usermacro @ \cs_to_str:N #1 } { sseq @ usermacro @ \cs_to_str:N #1 }
     \cs_gset_eq:cc { sseq @ usermacro @ \cs_to_str:N #1 @@unique@@ start } { sseq @ usermacro @ \cs_to_str:N #1 @@unique@@ start}
@@ -280,13 +280,13 @@
     \cs_if_exist:cTF{ sseq @ usermacro @ \cs_to_str:N #2 @ helper \c_space_tl code }{
         \pretocmd:cfnn { sseq @ usermacro @ \cs_to_str:N #2 @ helper \c_space_tl code }{
             \the\sseq@temptoks
-        }{}{\error\sseq@error@x{usermacro-failed-patch}{\string#1}}
+        }{}{\sseq@error@x{usermacro-failed-patch}{\string#1}}
         % globalize definition:
         \cs_gset_eq:cc { sseq @ usermacro @ \cs_to_str:N #2 @ helper \c_space_tl code } { sseq @ usermacro @ \cs_to_str:N #2 @ helper \c_space_tl code }
     }{
         \pretocmd:cfnn { sseq @ usermacro @ \cs_to_str:N #2 @ helper }{
             \the\sseq@temptoks
-        }{}{\error\sseq@error@x{usermacro-failed-patch}{\string#1}}
+        }{}{\sseq@error@x{usermacro-failed-patch}{\string#1}}
     }
     \cs_gset_eq:cc { sseq @ usermacro @ \cs_to_str:N #2 @ helper } { sseq @ usermacro @ \cs_to_str:N #2 @ helper } % globalize definition
     \let\sseq@parseargspec\sseq@parseargspec@normal
@@ -377,7 +377,7 @@
     }
 }
 
-% v, E, and e are illegal 
+% v, E, and e are illegal
 
 % Mandatory
 \def\sseq@parseargspec@m{%

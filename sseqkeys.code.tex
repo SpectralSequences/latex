@@ -12,7 +12,7 @@
 %%
 
 
-
+% Run \pgfqkeys{directory}{keys} but for a list of directories. Helps to avoid code duplication.
 \def\sseq@pgfqkeysdirlist#1#2{%
     \sseq@temptoks{#2}%
     \sseq@pgfqkeysdirlist@#1,\sseq@nil
@@ -60,7 +60,7 @@
 % on the first pass. Some only do things on the first pass or only do things on the second pass.
 % For example, shifts: shifts apply a coordinate transform on the second pass, but also need to factor into the coordinates of
 % classes etc which are computed at specification time not at draw time. So xshift=2 increases \sseq@x by 2 on it's first pass and
-% applies a coordinate transfrom by 2cm on the second pass.
+% applies a coordinate transform by 2cm on the second pass.
 
 % normal mode does the firstpass options now and saves the secondpass options in \sseq@savedoptioncode for later use.
 % firstpass mode does the firstpass options and throws away the secondpass options.
@@ -131,6 +131,9 @@
 % This is for .unknown handlers. Try same key in different directory #1.
 \def\sseq@passoptionto#1{\sseq@eval{\@nx\pgfqkeys{#1}{\pgfkeyscurrentname={\unexpanded\@xp{\pgfkeyscurrentvalue}}}}}
 
+% Immediately execute a key that is either a tikz or pgf key.
+% #1 -- key
+% #2 -- value
 \def\sseq@pgfkeysdocommand#1#2{
     \sseq@tempiffalse
     \sseq@pgfkeysdocommand@try{/tikz}{#1}{#2}
@@ -138,6 +141,11 @@
     \ifsseq@tempif\else\sseq@error@internal@nn{do-command-failed}{#1}{#2}\fi
 }
 
+% Execute a key if \sseq@tempif is true and it is defined, if so set \sseq@tempif to false.
+% These are meant to cascade.
+% #1 -- directory
+% #2 -- key
+% #3 -- value
 \def\sseq@pgfkeysdocommand@try#1#2#3{
     \ifsseq@tempif\else
         \pgfkeysifdefined{#1/#2/.@cmd}{
@@ -245,16 +253,20 @@
     \next
 }
 
+% Iterate over list and run \pgfkeysalso's when we find them. Note that we use our variants of \pgfkeys@case@... which hand control back to this command,
+% so this is recursive -- the result is guaranteed not to have any instance of \pgfkeysalso in it!
 \def\sseq@keys@addtooptions@checkalso#1{%
     \let\pgfkeys@case@one\sseq@pgfkeys@case@one@store
     \let\pgfkeys@case@two@extern\sseq@pgfkeys@case@two@extern@store
     \sseq@keys@addtooptions@checkalso@#1\pgfkeysalso\sseq@nil
 }
+
 \def\sseq@keys@addtooptions@checkalso@#1\pgfkeysalso#2{%
     \def\sseq@tempa{/tikz/}
     \def\sseq@tempb{/pgf/}
+    % This is an extra hook I needed to add so that my own keys can execute code when they need to...
     \sseq@keys@addtooptions@checkdo#1\sseq@keys@do\sseq@nil
-    \ifx\sseq@nil#2%
+    \ifx\sseq@nil#2% We're done, restore pgfkeys.
         \let\pgfkeys@case@one\sseq@pgfkeys@case@one@save
         \let\pgfkeys@case@two@extern\sseq@pgfkeys@case@two@extern@save
     \else
@@ -283,6 +295,7 @@
 }
 
 % This has to be expandable, so \sseq@tempa and \sseq@tempb are set to "/tikz/" and "/pgf/" ahead of time
+% Defer the command if it is in directories /pgf or /tikz, otherwise run it now. TODO: explain here why we need this.
 \def\sseq@options@secondpass@iftikz{%
     \ifx\pgfkeysdefaultpath\sseq@tempa
         \@nx\sseq@options@secondpass
@@ -295,6 +308,8 @@
     \fi
 }
 
+
+% Here we hook into pgfkeys. This is remarkably easy!
 \let\sseq@pgfkeys@case@one@save\pgfkeys@case@one
 \let\sseq@pgfkeys@case@two@extern@save\pgfkeys@case@two@extern
 \def\sseq@pgfkeys@case@one@store{%
@@ -448,8 +463,15 @@
 
 \def\sseq@edgeoptionhook{}% This is just to make description work.
 
+%%  Labels
+%%  The code for this that actually does most of the work is inside of sseqmain.code.tex -- search for "Labels"
+%%  This just handles the interface with the keyvalue system here.
+
+
 %% Quote handling
 % \sseq@handlequote will be installed later as the 'first char syntax' for ".
+% Problem is that 'first char syntax' isn't allowed to care what directory it is in, but we need different handling
+% for classes versus edges versus scopes. Solution is to use \pgfkeysalso and then define the handler in a key.
 \def\sseq@protectlabel{\@nx\sseq@protectlabel\@nx}
 \def\sseq@handlequote#1{\pgfkeysalso{handle quote=#1}}
 \pgfkeys{%
@@ -460,19 +482,12 @@
         \let\tikz@quotes@as\tikz@quotes@as@save
     },
     /sseqpages/handle quote/.code={%
-        \begingroup % group gets ended by handleedgequotes
         \let\tikz@quotes@as\sseq@handleedgequotes
         \tikz@quote@parser{#1}%
+        \let\tikz@quotes@as\tikz@quotes@as@save
     }
 }
 
-
-\def\sseq@processlabels@default{%
-    \global\let\sseq@classnodetext\pgfutil@empty
-    \global\let\sseq@classnodetextoptions\pgfutil@empty
-    \global\let\sseq@classlabelnodes\pgfutil@empty
-}
-\let\sseq@processlabels\sseq@processlabels@default
 
 \def\sseq@handlescopequotes#1#2{% We use this via \let\tikz@quotes@as\sseq@handleclassquotes
     /utils/exec={% so it's called inside \pgfkeysalso{stuff}. Need to surround with /utils/exec={} to get out.
@@ -487,89 +502,6 @@
 % so it's called inside \pgfkeysalso{stuff}. Need to surround with /utils/exec={} to get out.
 \def\sseq@handleclassquotes#1#2{/utils/exec={\sseq@d@addto@macro\sseq@processlabels{\sseq@handleclassquotes@inner{#1}{#2}}}}
 
-% I can't remember why we need to defer this. If at some point I figure this out, I should explain why here and in the definition of \class...
-\def\sseq@handleclassquotes@inner#1#2{%
-    \begingroup\pgfscope
-    \def\sseq@classquotes@smugglehook{}
-    \def\sseq@classquotes@smugglehook@inner{}
-    \sseq@options@firstpassmode
-    \sseq@thesseqstyle
-    \sseq@thelabelstyle
-    \sseq@theclasslabelstyle
-    \the\sseq@scope@toks
-    \sseq@options@normalmode
-    \sseq@processoptions{class/label}{#2}%
-    \sseq@classlabeltextfn{#1}% labeltextfn is a private handler, classlabeltextfn is exposed via "class label handler"
-    \ifsseq@classlabel
-        \sseq@options@firstpassmode
-        \the\sseq@outerclasslabelstyle
-        \sseq@x@addto@macro\sseq@classlabelnodes{%
-            \@nx\sseq@drawlabel{%
-                \sseq@maybemathswitch\unexpanded\@xp{\processedlabel}\sseq@maybemathswitch}%
-                {% This is setup to prevent a bug where \classoptions and class label style don't work correctly together
-                    \the\sseq@sseqstyle\@nx\the\sseq@sseqstyle@page
-                    \the\sseq@labelstyle\@nx\the\sseq@labelstyle@page
-                    \the\sseq@classlabelstyle\@nx\the\sseq@classlabelstyle@page
-                    \sseq@theouterclasslabelstyle
-                    \@nx\sseq@collections@labels@hook
-                    \@nx\sseq@collections@classlabels@hook
-                    \@nx\sseq@collections@outerclasslabels@hook
-                    \unexpanded\@xp{\sseq@savedoptioncode}%
-                }%
-        }%
-    \else
-        \let\sseq@classquotes@smugglehook\sseq@classquotes@smugglehook@inner
-        \sseq@options@firstpassmode
-        \the\sseq@innerclasslabelstyle
-        \sseq@options@normalmode
-        \sseq@protectedeval{\@nx\pgfqkeys{/sseqpages/class/label}{#2}}%
-        \sseq@protected@xdef\sseq@classnodetext{\sseq@maybemathswitch\processedlabel\sseq@maybemathswitch}%
-        \xdef\sseq@classnodetextoptions{%
-            %\unexpanded{\def\pgfkeysdefaultpath{/sseqpages/class/node texts/}}%
-            \sseq@thelabelstyle\sseq@theclasslabelstyle\sseq@theinnerclasslabelstyle
-            \@nx\sseq@collections@labels@hook
-            \@nx\sseq@collections@classlabels@hook
-            \@nx\sseq@collections@innerclasslabels@hook
-            \unexpanded\@xp{\sseq@savedoptioncode}%
-        }%
-    \fi
-    \@xp\endpgfscope\@xp\endgroup
-    \sseq@classquotes@smugglehook
-}
-
-\def\sseq@handleedgequotes#1#2{% We use this via \let\tikz@quotes@as\sseq@handleedgequotes
-    /utils/exec={% so it's called inside \pgfkeysalso{stuff}. Need to surround with /utils/exec={} to get out.
-        \endgroup
-        \let\sseq@savedoptioncode@save\sseq@savedoptioncode
-        \sseq@processoptions{label}{#2}
-        \sseq@needstikztrue
-        \let\sseq@temp\sseq@savedoptioncode
-        \let\sseq@savedoptioncode\sseq@savedoptioncode@save
-        \sseq@e@addto@options{
-            \@nx\tikzset{
-                every to/.append style={
-                    edge node={
-                        node [/sseqpages/label,
-                             /utils/exec={
-                                \let\@nx\sseq@tikz@transform@save\@nx\tikz@transform
-                                \let\@nx\tikz@transform\relax
-                                \@nx\sseq@thelabelstyle\@nx\sseq@theedgelabelstyle
-                                \@xp\@nx\csname sseq@the\sseq@edgetype labelstyle\endcsname
-                                \@nx\sseq@collections@labels@hook
-                                \@nx\sseq@collections@edgelabels@hook
-                                \@xp\@nx\csname sseq@collections@\sseq@edgetype labels@hook\endcsname
-                                \unexpanded\@xp{\sseq@temp}
-                                \ifsseq@rotatelabels\iftikz@fullytransformed\else\@nx\tikz@fullytransformedtrue\@nx\tikz@addtransform{\@nx\pgftransformresetnontranslations\@nx\sseq@globalrotatetransform}\fi\fi
-                                 \unexpanded\@xp{\sseq@edgeoptionhook} % this is just to make description work
-                                 \let\@nx\tikz@transform\@nx\sseq@tikz@transform@save
-                            }
-                        ]{\sseq@labeltextfn{#1}}
-                   }
-                }
-            }
-        }
-    }
-}
 
 
 \def\sseq@checktransform@error{\sseq@error@nn{illegal-transform}}
@@ -581,6 +513,7 @@
     \let\sseq@tikzprimitives@coords@maybeclass\sseq@tikzprimitives@coords@notaclass
     \let\sseq@checktransform\@gobbletwo
     \let\sseq@tikz@shifttransform\sseq@okayshifttransform
+    % TODO: This needs fixing:
     %((((((((((((((((((
     \def\class##1){\sseq@setthiscall{\string\class##1)}\sseq@error@x{standard-parse}{\string\class}}%
     \def\replaceclass##1){\sseq@setthiscall{\string\replaceclass##1)}\sseq@error@x{standard-parse}{\string\replaceclass}}%
@@ -591,7 +524,7 @@
     \def\structlineoptions##1)##2){\sseq@setthiscall{\string\structlineoptions##1)##2)}\sseq@error@x{standard-parse}{\string\structlineoptions}}%
 }
 
-
+% I don't think this is ever actually used...
 \def\sseq@nodeparse{%
     \let\sseq@tikzprimitives@coords@maybeclass\sseq@tikzprimitives@coords@maybeclass@save
     \let\sseq@tikzprimitives@coords@maybeclass
@@ -628,10 +561,12 @@
     background/.sseq @ first pass code={\sseq@error@n{option-tikz-prims-only}{background}}
 }
 
+% Some class options. All of these will make changes local to the current \class command. They are communicated to \class via these commands,
+% which we initialize here as empty.
 \def\sseq@class@tag{}
 \def\sseq@class@tagprefix{}
 \def\sseq@class@name{}
-\def\sseq@namehandler{}%\@xp\sseq@normalizepolynomial\@xp{\sseq@class@name}\let\sseq@class@name\sseq@polynomial}
+\def\sseq@namehandler{}
 \def\sseq@currenttag{\sseq@class@tag}% for the user ??
 \def\sseq@tooltip{}
 \pgfqkeys{/sseqpages/scope}{
@@ -642,13 +577,13 @@
 \def\sseq@classinsert{}
 \pgfqkeys{/sseqpages/class}{
     name/.code={\def\sseq@class@name{#1}\pgfkeysalso{/sseqpages/alias=#1}},
-    show name/.code={\def\sseq@class@showname{#1}},
+    show name/.store in=\sseq@class@showname,
     page/.code={\sseq@getnumrange\sseq@class@page{#1}},% page & gen are only for \classoptions.
     generation/.code={\sseq@getnumrange\sseq@gen{#1}}, % \class tests if \sseq@class@page is set and throw an error if so.
     tag/.code={\sseq@d@addto@macro\sseq@class@tag{#1}},
-    offset/.code={\def\sseq@tempoffset{#1}},
+    offset/.store in=\sseq@tempoffset,
     tooltip/.sseq @ first pass code={\def\sseq@tooltip{#1}},
-    insert/.code={\def\sseq@classinsert{#1}}
+    insert/.store in=\sseq@classinsert
 }
 
 \pgfqkeys{/sseqpages/struct line}{
@@ -681,8 +616,9 @@
 }
 
 \pgfqkeys{/sseqpages}{needs tikz/.code=\sseq@needstikztrue}
+% All of these things need tikz to draw but otherwise require no special handling.
 \sseq@needstikzandpass{/sseqpages}{%
-    shade, blend mode, pattern, path picture, path fading, decorate, pin, label
+    shade, blend mode, pattern, path picture, path fading, decorate, pin, label % should pin be here?
 }
 
 \sseq@needstikzandpass{/sseqpages/differential}{%
@@ -705,8 +641,8 @@
 %    rectangle split/.code=\sseq@needstikzandpass,
 %    align/.code=\sseq@needstikzandpass,
 
-\sseq@addtostorelist\sseq@runoffarrow@start@differential@spec{...}
-\sseq@addtostorelist\sseq@runoffarrow@end@differential@spec{...}
+\sseq@addtostorelist\sseq@runoffarrow@start@differential@spec{}
+\sseq@addtostorelist\sseq@runoffarrow@end@differential@spec{>}
 \sseq@addtostorelist\sseq@runoffarrow@start@structline@spec{...}
 \sseq@addtostorelist\sseq@runoffarrow@end@structline@spec{...}
 \sseq@pgfqkeysdirlist{/sseqpages/global,/sseqpages}{
@@ -738,11 +674,24 @@
 %% Add key code to \sseq@savedoptioncode
 % #1 -- a list of directories to search
 % #2 -- keys
+%
+% This is pretty similar in basic concept to \sseq@processoptions, but instead of using the .unknown handlers to walk up the directory,
+% it just tries the key in each directory in the list. I'm not actually sure anymore why it was important to do it this way, but there probably was a good reason...
+%
 % This is a faster and sloppier way of doing:
-%\def\sseq@temp{#1}
-%\pgfqkeys{/sseqpages/alwaysunknown}{#2}
+% \def\sseq@temp{#1}
+% \pgfqkeys{/sseqpages/alwaysunknown}{#2}
 % and defining an event handler: alwaysunknown/.unknown/.code={\@xp\sseq@keys@try@addtooptions\@xp{\sseq@temp}{}{\sseq@keys@unknown}
+% That basically takes advantage of the pgfkeys parser but gives me back control over what to do with the parsed things.
+%
+% For some reason I made the probably misguided decision that that approach was too slow, even though this isn't performance 
+% critical code. Maybe I had a better reason for doing this that I can't remember. Instead I copied pgfkeys but deleted all the 
+% parts that are useless in this context, which is most of it. Occasionally bugs crop up here when it turns out I deleted a little too much.
+%
+% This uses a hook \sseq@addstylecodetooptions@unknown to allow the sseqs style to sift out the nonglobal keys and handle them differently.
+%
 % Copied with modification from /pgf/utilities/pfgkeys.code.tex
+
 \def\sseq@addstylecodetooptions#1#2{%
     \def\sseq@directorylist{#1}%
     \sseq@simple@pgfkeys@parse#2,\pgfkeys@mainstop
@@ -767,6 +716,7 @@
   \pgfkeys@spdef\pgfkeyscurrentvalue{#2}%
   \ifx\pgfkeyscurrentkey\pgfkeys@empty\else
       \def\next{\@xp\sseq@keys@try@addtooptions\@xp{\sseq@directorylist}{}{\sseq@addstylecodetooptions@unknown}}%
+      % We deleted the general "first char syntax" handler, so we need to do our own check for the quote.
       \sseq@simple@pgfkeys@checkquote#1\sseq@nil{%
             \def\pgfkeyscurrentname{handle quote}%
             \def\pgfkeyscurrentvalue{#1}%
@@ -781,6 +731,7 @@
       \@xp\next
   \fi
 }
+% This is a hook for the "sseqs" style.
 \let\sseq@addstylecodetooptions@unknown\sseq@keys@unknown
 
 \long\def\sseq@simple@pgfkeys@checkquote#1#2\sseq@nil{%
@@ -791,17 +742,20 @@
     \fi
 }
 
-\def\sseq@sseqstyle@globalpart{}
-
 
 \def\sseq@stylelist{}
 \def\sseq@clearchangestyles{}
 
+% The basic idea here is we make a tokens list \sseq@structlinestyle and define a key "struct lines" that takes a list of keys
+% and adds the keys to \sseq@structlinestyle. In order to do this, I need some special trick to delete spaces. 
+% The macro \sseq@setmacronospaces defined in spectralsequences.sty accomplishes this.
 
 \def\sseq@newstyles#1#2{\def\sseq@temppath{#1}\sseq@newstyles@#2,\sseq@nil}
 \def\sseq@newstyles@#1,{\sseq@newsseqstyle{\sseq@trimleadingspaces#1}\@ifnextchar\sseq@nil{\@gobble}{\sseq@newstyles@}}
 
 \def\sseq@set@newstyle#1{\pgfqkeys{/sseqpages}{#1}\pgfqkeys{/sseqpages/global}{#1}\pgfqkeys{/sseqpages/global/default}{#1}}
+
+% Here are two useful wrappers around addstylecodetotoks.
 
 % #1 -- token list
 % #2 -- path
@@ -824,7 +778,6 @@
     \let#1\sseq@savedoptioncode
     \let\sseq@savedoptioncode\sseq@savedoptioncode@store
 }
-
 
 \def\sseq@newsseqstyle#1{%
     \sseq@setmacronospaces\sseq@tempcmd{sseq@#1style}%
@@ -857,10 +810,13 @@
 
 % sseqs has to be handled separately, because it must decide whether an option is a global option or not
 % and handle them at different times. This makes the code a little trickier.
+\def\sseq@sseqstyle@globalpart{}
 \sseq@g@addto@macro\sseq@stylelist{\sseq@sseqstyle{\the\sseq@sseqstyle}}%
 \sseq@g@addto@macro\sseq@clearchangestyles{\sseq@sseqstyle@page{}}%
 \sseq@set@newstyle{
     sseqs/.code={%
+        % This will get called on each key that isn't a defined global option. Then we add it to \sseq@sseqstyle to be applied
+        % locally to absolutely everything. 
         \def\sseq@addstylecodetooptions@unknown{%
             \let\sseq@sseqstyle@globalpart\sseq@savedoptioncode
             \edef\sseq@savedoptioncode{\the\sseq@sseqstyle}%
@@ -872,8 +828,10 @@
         \ifsseq@inprogress
             \sseq@savedpaths@xadd{\sseq@sseqstyle{\the\sseq@sseqstyle}}%
         \fi
+        % Restore hook
         \let\sseq@addstylecodetooptions@unknown\sseq@keys@unknown
     },%
+    % It's not clear to me that "change sseqs" should even exist as an option.
     change sseqs/.code={%
         \ifsseq@ispageenv\else\sseq@error@nn{change-style-data}{sseq}{#1}\fi
         \ifsseq@hasname\else\sseq@error@nn{change-style-standalone}{sseq}{#1}\fi
@@ -1487,8 +1445,6 @@
 \sseq@addtostorelist\sseq@classplacementtransform{}
 
 
-\sseq@addiftostorelist@truedefault{borderxaxis}\sseq@addiftostorelist@truedefault{borderyaxis}
-\sseq@addtostorelist\sseq@xaxisorigin{0}\sseq@addtostorelist\sseq@yaxisorigin{0}
 
 %%% Range keys and commands
 \sseq@globalkeys{%
@@ -1614,6 +1570,7 @@
 %%% Axes and Layout options
 \sseq@addtostorelist{\sseq@xtickfn}{} % These should initially be the identity macro, but addtostorelist doesn't accept functions as default
 \sseq@addtostorelist{\sseq@ytickfn}{} % so the default is instated in begin{sseqdata} / begin{sseqpicture}.
+
 \sseq@globalkeys{%
     title/.sseq store in=\sseq@title{},
 	title style/.sseq append to style={/sseqpages/global/every title}{at={(0.5*\xmin+0.5*\xmax,\ymax)}},
@@ -1689,24 +1646,15 @@
     y tick style/.sseq store in=\sseq@ytickstyle{},
     tick style/.sseq x y alias,
 %
-    x axis type/.is choice,
-    y axis type/.is choice,
-    axes type/.sseq x y alias=axis style,
-    ~x axis type/border/.code={\sseq@drawxaxistrue\sseq@borderxaxistrue},
-    ~y axis type/border/.code={\sseq@drawyaxistrue\sseq@borderyaxistrue},
-    ~x axis type/center/.code={
-        \sseq@drawxaxistrue\sseq@borderxaxisfalse
-        \ifx\sseq@xaxisgap\sseq@xaxisgap@default
-            \def\sseq@xaxisgap{0cm}
-        \fi
-    },
-    ~y axis type/center/.code={\sseq@drawyaxistrue\sseq@borderyaxisfalse\ifx\sseq@yaxisgap\sseq@yaxisgap@default\def\sseq@yaxisgap{0cm}\fi},
-    ~x axis type/none/.code={\sseq@drawxaxisfalse},
-    ~y axis type/none/.code={\sseq@drawyaxisfalse},
-    x axis origin/.sseq store int in=\sseq@xaxisorigin{0},
-    y axis origin/.sseq store int in=\sseq@yaxisorigin{0},
+    axes type/.sseq x y alias=axis type,
+    x axis type/.sseq store in=\sseq@xaxistype{border},
+    y axis type/.sseq store in=\sseq@yaxistype{border},
+    x axis origin/.sseq store int in=\sseq@xaxisorigin@center@{0},
+    y axis origin/.sseq store int in=\sseq@yaxisorigin@center@{0},
     axes origin/.sseq x y alias=axis origin,
 }
+
+
 \pgfqkeys{/sseqpages}{%
     class label handler/.code = { % \long so that \ifx\classlabeltextfn\@gobble compares true if this is empty (\@gobble is long...)
         \long\def\sseq@classlabeltextfn##1{#1}

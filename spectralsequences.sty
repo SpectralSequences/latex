@@ -9,13 +9,20 @@
 %%
 
 
-
 % TODO:
 %
+%  Slightly more semantic styles?
+%  Fix user styles by making first pass style?
+%
+%  Verify that draftmode calculates bounding boxes correctly (meaning we can't dummy out "background" tikz paths...)
+%
 %  Layout:
-%    improve axes options?
-%    ensure that crossword doesn't start or end too close to a line
+%    add frame axes options? ticks?
+%    make an "axis style" option that styles the axis.
 %    fix chess and dots grids
+%
+%
+%
 %
 %
 %  Redo sseqerrortest and set up regression test script as part of build (damn I didn't realize we'd lost anything imporant with that find -d disaster)
@@ -23,11 +30,23 @@
 %
 %  Lower priority:
 %   speed up off page edges (uses 10% of the draw time for page 0 of tmfass) -- use \pgfpointborderrectangle
-%   make an "axis style" option that styles the axis.
 %   improve \DoUntilOutOfBounds progress check
 %   error messages that should be warnings by default?
 %   should we specify our favorite conditionals library?
 %
+
+
+
+%%
+%%
+
+%%  sets the page to be infinite,
+%%
+%%
+%%
+%%
+%%
+%%
 
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{spectralsequences}[2017/06/21 v1.0.0-dev]
@@ -76,7 +95,6 @@
     \shade\shadedraw\useasboundingbox
 }
 
-%\sseq@draftmodetrue
 
 %%%%%%                                            %%%%%%
 %%                                                    %%
@@ -189,6 +207,7 @@
 
 
 % Used in sseqkeys to delete spaces from style commands.
+% Set the catcode of space to ignore, and then reparse the characters in #2. 
 \def\sseq@setmacronospaces#1#2{%
     \bgroup\catcode`\ =9\relax
         \makeatletter

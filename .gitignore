@@ -1,4 +1,6 @@
 *.txt
 *.zip
 *.html
+*.prj
+*.bak
 !timetest.txt

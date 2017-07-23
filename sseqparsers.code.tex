@@ -150,9 +150,6 @@
 
 
 
-%\exp_last_unbraced:Nf\sseq@ifintexpr@@
-
-
 % We can't just use \futurelet because "\let\testtok(" makes \testtok unexpandable
 % (I guess that makes sense, but why is it that I need \@xp\ifx\otherspace above if I've also \let\otherspace to a character? Mysterious...),
 % so then "\csname hello\testtok\endcsname" is an error. This indexes into our state machine,
@@ -234,7 +231,9 @@
 }
 \sseq@makeifint{nointallowed}{\space}{\sseq@ifintexpr@{nointallowed}}
 
-
+%%
+%% This parser defines the syntax for the page argument of \d.
+%%
 \def\sseq@d@grabpage#1{
     \let\sseq@grabdpage@return#1
     \futurelet\testtok\sseq@grabdpage@
@@ -456,11 +455,6 @@
 %%                                                    %%
 %%%%%%                                            %%%%%%
 
-% Only works for full coordinates. Used for error checking in \replaceclass and \d.
-\def\sseq@ifundefcoord{\@xp\sseq@ifundefcoord@}
-\def\sseq@ifundefcoord@(#1){%
-    \sseq@obj@ifundef{class.(#1).num}%
-}
 
 \def\sseq@ifdead#1{\ifnum\sseq@obj{class.#1[\sseq@obj{class.#1.num}].page}<\sseq@infinitycount\@xp\@firstoftwo\else\@xp\@secondoftwo\fi}
 
@@ -493,7 +487,7 @@
     \pgfutil@in@ \sseq@protecterror { #1 }
     \ifpgfutil@in@
         \bgroup
-        \sseq@restorefont
+        \sseq@restorefont % This prevents "Missing character" stuff from being written to the log.
         \let\sseq@protecterror\relax
         \setbox0=\hbox{#1} % Trigger the error message
         \egroup
@@ -785,6 +779,7 @@
 %%% The Stack
 %%%
 
+% This maybe should be moved into sseqmain.code.tex...
 \sseq@addtostorelist\sseq@stacktop{}
 \def\sseq@stackitem#1#2{\csname sseq.\sseq@thename.stack.#1.#2\endcsname} % gobble #2 which we added in for the error message
 \def\sseq@getstackentry#1#2{

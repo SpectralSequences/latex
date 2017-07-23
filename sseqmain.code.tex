@@ -243,8 +243,8 @@
     \fi
 %
     % Really this could be anything between -\sseq@xmin and -\sseq@xmax and it wouldn't matter. We'll split the difference.
-    \sseq@xoffset=\numexpr(-\sseq@xmin-\sseq@xmax)/2\relax
-    \sseq@yoffset=\numexpr(-\sseq@ymin-\sseq@ymax)/2\relax
+    \sseq@xoffset=12%\numexpr(-\sseq@xmin-\sseq@xmax)/2\relax
+    \sseq@yoffset=0%\numexpr(-\sseq@ymin-\sseq@ymax)/2\relax
 %
 %
     \tikzset{
@@ -253,6 +253,7 @@
         every node/.style={}
     }
     \let\errmessage\sseq@errmessage@std
+    \sseq@setlayoutparameters
     \begin{tikzpicture}[/sseqpages/global/{default} options,\ifsseq@hasname/sseqpages/global/{\sseq@thename} options\fi,/sseqpages/global/{this page} options]%
     \sseq@sseqstyle@globalpart
     %\pgftransformreset
@@ -464,7 +465,7 @@
         \sseq@error@xxxx{classpattern-too-many-classes}{(\partialcoord)}{\nodenum}{\sseq@classpattern}{\@xp\the\csname sseq@\sseq@classpattern @maxclasses\endcsname}
         \sseq@breakfi
     \fi
-%%%% No more breaks after this point 
+%%%% No more breaks after this point
 %
     \ifx\sseq@classinsert\empty
         % by default, just insert to the right of previous classes
@@ -475,7 +476,7 @@
             \edef\sseq@classinsert{\the\numexpr\nodenum+\sseq@classinsert+1}
         \fi
         \ifnum\sseq@classinsert<\z@
-            \def\sseq@classinsert{0} 
+            \def\sseq@classinsert{0}
         \fi
         \ifnum\sseq@classinsert>\nodenum\relax
             \edef\sseq@classinsert{\nodenum}
@@ -741,8 +742,8 @@
     }
     \sseq@parsecoord\coord{\sseq@coord}{\string\classoptions}%
     \sseq@processlabels
-%    
-    \sseq@ifundefcoord\coord{\sseq@error@x{replaceclass-no-class}{\coordname}\sseq@break}{}
+%
+    \sseq@obj@ifundef{class.\coord.num}{\sseq@error@x{replaceclass-no-class}{\coordname}\sseq@break}{}
     \sseq@ifdead\coord{}{\sseq@error@x{replaceclass-not-dead-yet}{\coordname}\sseq@break}
     \ifsseq@keepchanges\else
         \ifnum\the\numexpr\sseq@obj{class.\coord[\sseq@obj{class.\coord.num}].page}<\sseq@thepagecount\else
@@ -831,13 +832,17 @@
 %%% \kill, \d and \doptions
 %%%
 
+% Because \kill doesn't take options, there's no need to use \sseq@DeclareDocumentCommand for the outer command.
+% Rather than use \sseq@DeclareDocumentCommand with no arguments, we just do the normal stuff that \sseq@DeclareDocumentCommand would do,
+% Then call \sseq@d@grabpage, the command that is responsible for handling the strange syntax of the page argument for \d.
 \protected\def\sseq@kill{%
     \begingroup
-    \sseq@setinputline
+    \sseq@setinputline % These two lines normally would happen inside of \sseq@DeclareDocumentCommand.
     \sseq@loadinputline
     \sseq@d@grabpage\sseq@kill@
 }
 
+% Now we need to parse a potential coordinate.
 \sseq@DeclareDocumentCommandAs\sseq@kill@\kill {d()} {
     \sseq@xsetthiscall{\string\kill\unexpanded\@xp{\sseq@dpage}\IfNoValueF{#1}{(#1)}}%
     \sseq@parsecoord\coordinate{\IfNoValueTF{#1}{\lastclass}{#1}}{}%
@@ -1310,8 +1315,6 @@
 
 
 
-
-
 \newcount\sseq@circleclassuid
 \sseq@DeclareDocumentCommand\circleclasses{or()r()}{
     \begingroup
@@ -1384,4 +1387,102 @@
             \fi
         \fi
     \fi
-} 
+}
+
+%%
+%%  Labels
+%%
+%%    This code is called from the key value handler, but it has more to do with the code in this file so I am putting it here. Search in sseqkeys.code.tex for "Labels"
+%%
+
+\def\sseq@processlabels@default{%
+    \global\let\sseq@classnodetext\pgfutil@empty
+    \global\let\sseq@classnodetextoptions\pgfutil@empty
+    \global\let\sseq@classlabelnodes\pgfutil@empty
+}
+\let\sseq@processlabels\sseq@processlabels@default
+
+% I can't remember why we need to defer this. If at some point I figure this out, I should explain why here and in the definition of \class...
+\def\sseq@handleclassquotes@inner#1#2{%
+    \begingroup\pgfscope
+    \def\sseq@classquotes@smugglehook{}
+    \def\sseq@classquotes@smugglehook@inner{}
+    \sseq@options@firstpassmode
+    \sseq@thesseqstyle
+    \sseq@thelabelstyle
+    \sseq@theclasslabelstyle
+    \the\sseq@scope@toks
+    \sseq@options@normalmode
+    \sseq@processoptions{class/label}{#2}%
+    \sseq@classlabeltextfn{#1}% labeltextfn is a private handler, classlabeltextfn is exposed via "class label handler"
+    \ifsseq@classlabel
+        \sseq@options@firstpassmode
+        \the\sseq@outerclasslabelstyle
+        \sseq@x@addto@macro\sseq@classlabelnodes{%
+            \@nx\sseq@drawlabel{%
+                \sseq@maybemathswitch\unexpanded\@xp{\processedlabel}\sseq@maybemathswitch}%
+                {% This is setup to prevent a bug where \classoptions and class label style don't work correctly together
+                    \the\sseq@sseqstyle\@nx\the\sseq@sseqstyle@page
+                    \the\sseq@labelstyle\@nx\the\sseq@labelstyle@page
+                    \the\sseq@classlabelstyle\@nx\the\sseq@classlabelstyle@page
+                    \sseq@theouterclasslabelstyle
+                    \@nx\sseq@collections@labels@hook
+                    \@nx\sseq@collections@classlabels@hook
+                    \@nx\sseq@collections@outerclasslabels@hook
+                    \unexpanded\@xp{\sseq@savedoptioncode}%
+                }%
+        }%
+    \else
+        \let\sseq@classquotes@smugglehook\sseq@classquotes@smugglehook@inner
+        \sseq@options@firstpassmode
+        \the\sseq@innerclasslabelstyle
+        \sseq@options@normalmode
+        \sseq@protectedeval{\@nx\pgfqkeys{/sseqpages/class/label}{#2}}%
+        \sseq@protected@xdef\sseq@classnodetext{\sseq@maybemathswitch\processedlabel\sseq@maybemathswitch}%
+        \xdef\sseq@classnodetextoptions{%
+            %\unexpanded{\def\pgfkeysdefaultpath{/sseqpages/class/node texts/}}%
+            \sseq@thelabelstyle\sseq@theclasslabelstyle\sseq@theinnerclasslabelstyle
+            \@nx\sseq@collections@labels@hook
+            \@nx\sseq@collections@classlabels@hook
+            \@nx\sseq@collections@innerclasslabels@hook
+            \unexpanded\@xp{\sseq@savedoptioncode}%
+        }%
+    \fi
+    \@xp\endpgfscope\@xp\endgroup
+    \sseq@classquotes@smugglehook
+}
+
+\def\sseq@handleedgequotes#1#2{% We use this via \let\tikz@quotes@as\sseq@handleedgequotes
+    /utils/exec={% so it's called inside \pgfkeysalso{stuff}. Need to surround with /utils/exec={} to get out.
+        \let\sseq@savedoptioncode@save\sseq@savedoptioncode
+        \sseq@processoptions{label}{#2}
+        \sseq@needstikztrue
+        \let\sseq@temp\sseq@savedoptioncode
+        \let\sseq@savedoptioncode\sseq@savedoptioncode@save
+        \sseq@e@addto@options{
+            \@nx\tikzset{
+                every to/.append style={
+                    edge node={
+                        node [/sseqpages/label,
+                             /utils/exec={
+                                \let\@nx\sseq@tikz@transform@save\@nx\tikz@transform
+                                \let\@nx\tikz@transform\relax
+                                \@nx\sseq@thelabelstyle\@nx\sseq@theedgelabelstyle
+                                \@xp\@nx\csname sseq@the\sseq@edgetype labelstyle\endcsname
+                                \@nx\sseq@collections@labels@hook
+                                \@nx\sseq@collections@edgelabels@hook
+                                \@xp\@nx\csname sseq@collections@\sseq@edgetype labels@hook\endcsname
+                                \unexpanded\@xp{\sseq@temp}
+                                \ifsseq@rotatelabels\iftikz@fullytransformed\else\@nx\tikz@fullytransformedtrue\@nx\tikz@addtransform{\@nx\pgftransformresetnontranslations\@nx\sseq@globalrotatetransform}\fi\fi
+                                 \unexpanded\@xp{\sseq@edgeoptionhook} % this is just to make description work
+                                 \let\@nx\tikz@transform\@nx\sseq@tikz@transform@save
+                            }
+                        ]{\sseq@labeltextfn{#1}}
+                   }
+                }
+            }
+        }
+    }
+}
+
+

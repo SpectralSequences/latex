@@ -331,6 +331,8 @@
 %
     cs arguments/marg/.initial=1,
 	cs/marg/.code={\marg{\@gobble#1}},
+    cs arguments/metatt/.initial=1,
+	cs/metatt/.code={\meta{\texttt{\textup{\@gobble#1}}}},
 %
     cs arguments/pars/.initial=1,
     cs/pars/.code={\@xp\pars\@xp{\@xp\pgfmanualprettyprintpgfkeys\@xp{\@gobble#1}}},
@@ -468,6 +470,7 @@
 
 \def\pkg#1{\textsf{\textmd{#1}}}
 \def\sseqpages{\textsc{\pkg{spectralsequences}}}
+\let\spectralsequences\sseqpages
 \def\sseqpkg{\pkg{sseq}}
 \let\tikzpkg\tikzname
 \def\pgfpkg{\pkg{\textmd{PGF}}}
@@ -475,13 +478,18 @@
 \def\pgfplotspkg{\textsc{\pkg{pgfplots}}}
 \def\xparsepkg{\pkg{xparse}}
 \def\colorpkg{\pkg{color}}
+\def\texlive{\TeX\ Live}
+\def\miktex{MiK\TeX}
 
-\bgroup\lccode`\(=`\{\lccode`\)=`\}\lowercase{\egroup
-    \def\sseqpageenv{\pgfmanualpdfref{sseqpage}{\texttt{(sseqpage)}}}
-    \def\sseqdataenv{\pgfmanualpdfref{sseqdata}{\texttt{(sseqdata)}}}
-    \def\tikzpictureenv{\texttt{(tikzpicture)}}
-    \def\scopeenv{\texttt{(scope)}}
-}
+
+\def\env#1{\texttt{\{#1\}}}
+\def\sseqpageenv{\pgfmanualpdfref{sseqpage}{\env{sseqpage}}}
+\def\sseqdataenv{\pgfmanualpdfref{sseqdata}{\env{sseqdata}}}
+\def\tikzpictureenv{\env{tikzpicture}}
+\def\scopeenv{\env{scope}}
+\def\tikzcdenv{\env{tikzcd}}
+\def\eTeX{\leavevmode\hbox{$\varepsilon$}-\TeX}
+
 
 \def\example#1{\path{example_#1.tex}}
 

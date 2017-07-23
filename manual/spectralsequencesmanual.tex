@@ -12,25 +12,19 @@
 
 %
 % TODO:
-%   document and use as appropriate:
-%      grid step, grid color
-%      \sseqparseint, \IfOutOfBoundsTF
-%      \kill -- use this in catherine ex
-%      "draft"
-%      the defaults
-%      pin
-%      families
-%      insert
 %
-%    \parsecoordinate and \parsedifferential?
+%   document and use as appropriate:
+%      insert
+%      families
+%
+%    \parsecoordinate and \parsedifferential
 %    \sseqifempty
 %
-%  Make sure "invisible" doesn't show up anywhere
 %
-%  comment on TeXLive installation issue?
-%  comment on problems with commas, equal signs in labels (need braces around whole label)
-%  comment on acrobat "enhance thin lines" problem
 %  comment on bounding boxes?
+%
+%  consistency issues?
+%    structure line vs structline
 %
 %  perhaps think about ordering, particularly of "Misc commands" section
 %  tutorial
@@ -52,9 +46,9 @@
 
 \begin{abstract}
 \noindent
-The \sseqpages\space package is a specialized tool built on top of \pgfpkg/\tikzpkg\space for drawing spectral sequence charts. It provides a powerful, concise syntax for specifying the data of a spectral sequence, and then allows the user to print various pages of a spectral sequence, automatically choosing which subset of the classes, differentials, and structure lines to display on each page. It also handles most of the details of the layout. At the same time, \sseqpages\space is extremely flexible. It is closely integrated with \tikzpkg\space to ensure that users can take advantage of as much as possible of its expressive power. It is possible to turn off most of the automated layout features and draw replacements using \tikzpkg\space commands. \sseqpages\space also has a carefully designed error reporting system intended to ensure that it is as clear as possible what is going wrong.
+The \sseqpages\  package is a specialized tool built on top of \pgfpkg/\tikzpkg\  for drawing spectral sequence charts. It provides a powerful, concise syntax for specifying the data of a spectral sequence, and then allows the user to print various pages of a spectral sequence, automatically choosing which subset of the classes, differentials, and structure lines to display on each page. It also handles most of the details of the layout. At the same time, \sseqpages\  is extremely flexible. It is closely integrated with \tikzpkg\  to ensure that users can take advantage of as much as possible of its expressive power. It is possible to turn off most of the automated layout features and draw replacements using \tikzpkg\  commands. \sseqpages\  also has a carefully designed error reporting system intended to ensure that it is as clear as possible what is going wrong.
 
-Many thanks to the authors of \tikzpkg\space for producing such a wonderful package with such thorough documentation. I would have needed to spend a lot more time reading the \tikzpkg\space code if the documentation weren't so excellent. I took ideas or code or both from \tikzcdpkg\ (part of the code for turning quotes into class or edge labels), \pgfplotspkg\ (axes labels), and \sseqpkg\ (the grid styles, the stack). I lifted a fair amount of code from tex stack exchange. Thanks to Eric Peterson for being a very early adopter and reporting many bugs, to Eva Belmont for many productive conversations and for the idea of adding the stack traces for errors and to Vishal Arul and Catherine Ray for helpful suggestions. Also thanks to all my friends, family, and acquaintances listened to me talk about \LaTeX\ programming even though they probably found it dreadfully boring.
+Many thanks to the authors of \tikzpkg\  for producing such a wonderful package with such thorough documentation. I would have needed to spend a lot more time reading the \tikzpkg\  code if the documentation weren't so excellent. I took ideas or code or both from \tikzcdpkg\ (part of the code for turning quotes into class or edge labels), \pgfplotspkg\ (axes labels), and \sseqpkg\ (the grid styles, the stack). I lifted a fair amount of code from \TeX stack exchange. Thanks to Eva Belmont for tons of helpful suggestions, bug reports, and productive conversations. Talking to her has helped to clarify many design concepts for the package. Thanks to Eric Peterson for being a very early adopter and reporting many bugs. Also thanks to all my friends, family, and acquaintances listened to me talk about \LaTeX\ programming even though they probably found it dreadfully boring.
 \end{abstract}
 \end{titlepage}
 
@@ -65,7 +59,7 @@ Many thanks to the authors of \tikzpkg\space for producing such a wonderful pack
 \tableofcontents
 \newpage
 \section{Introduction}
-The \sseqpages\space package consists of two main environments -- the \sseqdataenv\space environment, which specifies the data for a named spectral sequence, and the \sseqpageenv\space environment, which prints a single page of a spectral sequence. The |\printpage| command is also available as a synonym for a \sseqpageenv\space environment with an empty body.
+The \sseqpages\  package consists of two main environments -- the \sseqdataenv\  environment, which specifies the data for a named spectral sequence, and the \sseqpageenv\  environment, which prints a single page of a spectral sequence. The |\printpage| command is also available as a synonym for a \sseqpageenv\  environment with an empty body.
 
 Here is a basic example:
 \begin{codeexample}[width = 9cm]
@@ -80,30 +74,39 @@ Here is a basic example:
 \printpage[ name = ex1, page = 3 ]  \quad
 \printpage[ name = ex1, page = 4 ]
 \end{codeexample}
-%TODO:
-|\begin{sseqdata}[|| name = ex1, cohomological Serre grading]| starts the declaration of the data of a spectral sequence named |ex1| whose page $\mathtt{r}$ differentials go $\mathtt{r}$ to the right and down $\mathtt{r-1}$ -- that is, it has cohomological Serre grading. Then we specify four classes and one page 3 differential, and we ask \sseqpages\space to print the third and fourth pages of the spectral sequence. Note that on the fourth page, the source and target of the differential have disappeared.
+|\begin{sseqdata}[|| name = ex1, cohomological Serre grading]| starts the declaration of the data of a spectral sequence named |ex1| whose page $\mathtt{r}$ differentials go $\mathtt{r}$ to the right and down $\mathtt{r-1}$ -- that is, it has cohomological Serre grading. Then we specify four classes and one page 3 differential, and we ask \sseqpages\  to print the third and fourth pages of the spectral sequence. Note that on the fourth page, the source and target of the differential have disappeared.
 
 \subsection{A warning about fragile macros}%TODO: does this go here? somewhere else
-All the data in a \sseqpages\space environment is stored and used later. As a result, most of the \sseqpages\space commands currently cannot tolerate fragile macros. Unfortunately, it is impossible for \sseqpages\space to warn you about this situation -- if you use a fragile command in a place that it doesn't belong, the result will be an incomprehensible error message. If you are getting nonsense error messages, this is probably why. The solution is to convert fragile macros into robust ones. \href{http://www.tex.ac.uk/FAQ-protect.html}{See here for more information.}
+All the data in a \sseqpages\  environment is stored and used later. As a result, most of the \sseqpages\  commands currently cannot tolerate fragile macros. Unfortunately, it is impossible for \sseqpages\  to warn you about this situation -- if you use a fragile command in a place that it doesn't belong, the result will be an incomprehensible error message. If you are getting nonsense error messages, this is probably why. The solution is to convert fragile macros into robust ones. \href{http://www.tex.ac.uk/FAQ-protect.html}{See here for more information.}
 
-\section{The Environments}
+\subsection{Installation}
+In both \miktex\ and \texlive\ installation should be automatic -- your \TeX\ distribution should automatically install the package the first time you include |\usepackage{spectralsequences}| in a document and compile it. However, in 2016, \texlive\ made an incompatible change to their database, so no new packages will run on versions of \texlive\ from before 2016. This includes \sseqpages. If you have an old version of \texlive, you can either perform a manual install,
+% TODO: how do you perform a manual install?
+or, better, you should install an up to date version of \texlive.
+
+
+\section{Package Options and Environments}
+\begin{manualentry}{Draft Mode}
+The drawings that \sseqpages\ produces can be quite slow, especially if they are large. Draft mode skips drawing the content of the spectral sequence, but still takes up exactly the same amount of space in the document, so that you can deal with formatting issues. To active draft mode, load the package by saying |\usepackage[draft]{spectralsequences}|.
+\end{manualentry}
+
 \begin{environment}{{sseqdata}\moptions}
-The \sseqdataenv\space environment is for storing a spectral sequence to be printed later. This environment is intended for circumstances where you want to print multiple pages of the same spectral sequence. When using the \sseqdataenv\space environment, you must use the |name| option to tell \sseqpages\space where to store the spectral sequence so that you can access it later.
+The \sseqdataenv\  environment is for storing a spectral sequence to be printed later. This environment is intended for circumstances where you want to print multiple pages of the same spectral sequence. When using the \sseqdataenv\  environment, you must use the |name| option to tell \sseqpages\  where to store the spectral sequence so that you can access it later.
 \end{environment}
 
 \begin{environment}{{sseqpage}\ooptions}
-This environment is used for printing a page of existing spectral sequence that was already specified using the \sseqdataenv\space environment. The body of the environment adds local changes -- classes, differentials, structure lines, and arbitrary \tikzpkg\space options that are by default only printed on this particular page. The \sseqpageenv\space environment can also be used to print a stand-alone page of a spectral sequence -- that is, if you only want to print a single page of the spectral sequence, you can skip using the \sseqdataenv\space environment.
+This environment is used for printing a page of existing spectral sequence that was already specified using the \sseqdataenv\  environment. The body of the environment adds local changes -- classes, differentials, structure lines, and arbitrary \tikzpkg\  options that are by default only printed on this particular page. The \sseqpageenv\  environment can also be used to print a stand-alone page of a spectral sequence -- that is, if you only want to print a single page of the spectral sequence, you can skip using the \sseqdataenv\  environment.
 \end{environment}
 
 \needspace{5\baselineskip}
 \begin{command}{\printpage\moptions}
-This command prints a single page of an existing spectral sequence as-is. This is equivalent to a \sseqpageenv\space environment with an empty body.
+This command prints a single page of an existing spectral sequence as-is. This is equivalent to a \sseqpageenv\  environment with an empty body.
 \end{command}
 
 
-\section{The main commands}
+\section{The Main Commands}
 \begin{command}{\class\ooptions\parargtwo{x}{y}}
-This places a class at |(x,y)| where |x| and |y| are integers. If multiple classes occur at the same position, \sseqpages\space will automatically arrange them in a pre-specified pattern. This pattern may be altered using the |class pattern| option.
+This places a class at |(x,y)| where |x| and |y| are integers. If multiple classes occur at the same position, \sseqpages\  will automatically arrange them in a pre-specified pattern. This pattern may be altered using the |class pattern| option.
 \begin{codeexample}[]
 \begin{sseqpage}[ no axes, ymirror, yscale = 0.8 ]
 \class(0,0)
@@ -154,10 +157,11 @@ After a class is the source or target of a differential, it disappears on the ne
 Note that this will not restore any structlines coming into or off of the class, if you want the structlines to persist, you must call |\structline| again (or use the structline |structline:page| option)
 \end{commandlist}
 
-\begin{commandlist}{{\classoptions\moptions\parargthreeopt{x}{y}{n}},\classoptions\moptions\pararg{classname}}
-This adds options to an existing class. This can be used in a \sseqpageenv\space environment to modify the appearance of a class for just one drawing of the spectral sequence, for instance to highlight it for discussion purposes.
+\begin{commandlist}{{\classoptions\moptions\parargthreeopt{x}{y}{n}},\classoptions\moptions\pararg{classname}, \classoptions\moptions}
+This adds options to an existing class. This can be used in a \sseqpageenv\  environment to modify the appearance of a class for just one drawing of the spectral sequence, for instance to highlight it for discussion purposes.
 
-If there are multiple classes at the coordinate |(x,y)| you may specify which using an integer or a |tag| $n$. By default, this command will affect the first class placed in that position. You can also provide the |class:name| of a class.
+If there are multiple classes at the coordinate |(x,y)| you may specify which using an integer or a |tag| $n$. By default, this command will affect the first class placed in that position. You can also provide the |class:name| of a class. If no coordinate is indicated at all, then |\lastclass| is used. 
+% TODO: make example with \savestack, \restorestack, and \NewCommand that makes this useful.
 \begin{codeexample}[width = 6cm]
 \begin{sseqdata}[ name = class options example,
                   classes = fill ]
@@ -197,13 +201,14 @@ See the \pgfmanualpdfref{class options}{class options} section for a list of the
 \end{commandlist}
 
 \begin{commandlist}{
+    {\d\ooptions\meta{page}},
     {\d\ooptions\meta{page}\pars{\meta{x},\meta{y}\opt{,\sourcen,\targetn}}},
     {\d\ooptions\meta{page}\pars{\sourcename\opt{,\targetn}}},
     {\d\ooptions\meta{page}\pars{\sourcecoord}\pars{\targetcoord}}%
 }
-Calling |\d\meta{page}|\parargtwo{x}{y} creates a differential starting at \parargtwo{x}{y} of length determined by the specified page. In order to use the |\d| command like this, you must first specify the |degree| of the differentials as an option to the \sseqdataenv\space or \sseqpageenv\space environment. The degree indicates how far to the right and how far up a page $\mathtt{r}$ differential will go as a function of $\mathtt{r}$. If there is a page $\mathtt{r}$ differential, on page $\mathtt{r+1}$, the source, target, and any |\structline|s connected to the source and target of the differential disappear.
+Calling |\d\meta{page}|\parargtwo{x}{y} creates a differential starting at \parargtwo{x}{y} of length determined by the specified page. In order to use the |\d| command like this, you must first specify the |degree| of the differentials as an option to the \sseqdataenv\  or \sseqpageenv\  environment. The degree indicates how far to the right and how far up a page $\mathtt{r}$ differential will go as a function of $\mathtt{r}$. If there is a page $\mathtt{r}$ differential, on page $\mathtt{r+1}$, the source, target, and any structlines connected to the source and target of the differential disappear. If no class is specified, the default is to use |\lastclass|.
 
-If there are multiple nodes in the source or target, you may specify which one the differential should go to using an index or tag for \sourcen\space or \targetn. It is also possible to provide the name of the source coordinate and an optional target, or to separately provide the source and target coordinate, either as names or as \parargthree{x}{y}{n}. Using |\d| with explicit source and target coordinates works even if you did not provide a |degree| to the spectral sequence. If you did provide a |degree|, then \sseqpages\space will check whether the difference between the source and target is appropriate for a differential of a given page, and if not it will throw an error. If this is undesirable, you can use the |lax degree| option.
+If there are multiple nodes in the source or target, you may specify which one the differential should go to using an index or tag for \sourcen\  or \targetn. It is also possible to provide the name of the source coordinate and an optional target, or to separately provide the source and target coordinate, either as names or as \parargthree{x}{y}{n}. Using |\d| with explicit source and target coordinates works even if you did not provide a |degree| to the spectral sequence. If you did provide a |degree|, then \sseqpages\  will check whether the difference between the source and target is appropriate for a differential of a given page, and if not it will throw an error. If this is undesirable, you can use the |lax degree| option.
 \begin{codeexample}[width = 7.5cm]
 \begin{sseqdata}[ name = d example, degree = {-1}{#1},
                   struct lines = blue, yscale = 1.3 ]
@@ -257,8 +262,12 @@ Negative indices will count from the most recent class in the coordinate (so |-1
 This command adds options to an existing differential, just like |\classoptions| except for differentials. Its syntax is identical to that of |\d|.
 \end{commandlist}
 
-\begin{command}{\structline\ooptions\pars{\sourcecoord}\pars{\targetcoord}}
-This command creates a structure line from \sourcecoord\space to \targetcoord. The source and target coordinates are either of the form \pars{\meta{x},\meta{y}\opt{,\meta{n}}} or \pararg{class name}. If there are multiple classes at $\mathtt{(x,y)}$, then \meta{n} specifies which of the classes at $\mathtt{(x,y)}$ the structline starts and ends at -- if n is positive, then it counts from the first class in that position, if n is negative, it counts backwards from the most recent. You can also use a |tag| for n.
+\begin{command}{\kill\meta{page}\oarg{coord}}
+This command sets the indicated coordinate to die on the indicated page, but does not establish a target for the differential. This is useful if you want to draw your own differential using tikz (see |\getdtarget|) or if you are not drawing the class on the other side of the differential for clutter reasons. As usual, if no coordinate is provided, the default argument is |\lastclass|.
+\end{command}
+
+\begin{command}{\structline\ooptions\opt{\pars{\sourcecoord}\pars{\targetcoord}}}
+This command creates a structure line from \sourcecoord\  to \targetcoord. The source and target coordinates are either of the form \pars{\meta{x},\meta{y}\opt{,\meta{n}}} or \pararg{class name}. If there are multiple classes at $\mathtt{(x,y)}$, then \meta{n} specifies which of the classes at $\mathtt{(x,y)}$ the structline starts and ends at -- if n is positive, then it counts from the first class in that position, if n is negative, it counts backwards from the most recent. You can also use a |tag| for n. If the \targetcoord\ is omitted, then |\lastclass| is used, so that |\structline(\sourcecoord)| connects the most recent class to the specified coordinate. If both coordinates are omitted, then |\lastclass| and |\lastclass1| are used, and so |\structline| with no arguments at all will connect the two most recent classes.
 
 If the source or target of a structure line is hit by a differential, then on subsequent pages, the structure line disappears.
 
@@ -290,7 +299,7 @@ If the source or target has had multiple generations (i.e., they got hit and you
 \end{codeexample}
 \end{command}
 
-\begin{command}{\structlineoptions\moptions\pars{\sourcecoord}\pars{\targetcoord}}
+\begin{command}{\structlineoptions\moptions\opt{\pars{\sourcecoord}\pars{\targetcoord}}}
 This command adds options to an existing structure line, just like |\classoptions| except for structure lines. Its syntax is identical to |\structline|.
 \end{command}
 
@@ -299,7 +308,7 @@ This command is a lot like |\structline| except that it puts a circle around the
 \end{command}
 
 \begin{commandlist}{\draw,\path,\node,\clip}
-Any code that would work in a \tikzpictureenv\space environment will also work unchanged in a \sseqdataenv\space or \sseqpageenv\space environment, with a few minor differences. This is a very flexible way to add arbitrary background or foreground features to the spectral sequence:
+Any code that would work in a \tikzpictureenv\  environment will also work unchanged in a \sseqdataenv\  or \sseqpageenv\  environment, with a few minor differences. This is a very flexible way to add arbitrary background or foreground features to the spectral sequence:
 \begin{codeexample}[]
 \begin{sseqdata}[ name = tikz example, Adams grading, math nodes = false,
                   tikz primitives = { blue, font = \tiny, <- }, circle classes = tikz primitive style,
@@ -334,7 +343,7 @@ Any code that would work in a \tikzpictureenv\space environment will also work u
 \subsection{Universal options}
 The following options work with all of the drawing commands in this package, including |\class|, |\d|, and |\structline|, their friends |\replaceclass|, |\classoptions|, |\doptions|, and |\structlines|, as well as with \tikzpkg\ primitives.
 \begin{keylist}{xshift = \meta{integer},yshift = \meta{integer}}
-Shifts by integer values are the only coordinate changes that are allowed to be applied to |\class|, |\d|, |\structline|, their relatives, or to a \scopeenv\space environment that contains any of these commands. These shift commands help with reusing code. For instance:
+Shifts by integer values are the only coordinate changes that are allowed to be applied to |\class|, |\d|, |\structline|, their relatives, or to a \scopeenv\  environment that contains any of these commands. These shift commands help with reusing code. For instance:
 \begin{codeexample}[width = 6cm]
 \begin{sseqpage}[ cohomological Serre grading, yscale = 0.45 ]
 \foreach \x in {0,1} \foreach \y in {0,1} {
@@ -346,7 +355,7 @@ Shifts by integer values are the only coordinate changes that are allowed to be 
 }
 \end{sseqpage}
 \end{codeexample}
-This code segment is very useful so \sseqpages\space has the command |\NewSseqGroup| which to make code like this more convenient. The following code produces the same output as above:
+This code segment is very useful so \sseqpages\  has the command |\NewSseqGroup| which to make code like this more convenient. The following code produces the same output as above:
 \begin{codeexample}[code only,width = 6cm]
 \NewSseqGroup\examplegroup {} {
     \class(2,0)
@@ -362,11 +371,11 @@ This code segment is very useful so \sseqpages\space has the command |\NewSseqGr
 \end{codeexample}
 
 
-A word of warning: the behavior of |xshift| in \sseqpages\space is incompatible with the normal behavior of |xshift| in \tikzpkg. For some reason, saying |xshift = 1| in \tikzpkg\ does not shift the coordinate |(0,0)| to the coordinate |(1,0)| -- instead it shifts by 1pt. In \sseqpages\space, saying |xshift = 1| moves the coordinate |(0,0)| to the coordinate |(1,0)|. This includes \tikzpkg\ primitives: saying \codeverb|\draw[ xshift = 1 ] (0,0) -- (1,0);| inside a \sseqdataenv\space or \sseqpageenv\space environment is the same as saying \codeverb|\draw(1,0) -- (2,0);| despite the fact that this is not the case in the \tikzpictureenv\ environment.
+A word of warning: the behavior of |xshift| in \sseqpages\  is incompatible with the normal behavior of |xshift| in \tikzpkg. For some reason, saying |xshift = 1| in \tikzpkg\ does not shift the coordinate |(0,0)| to the coordinate |(1,0)| -- instead it shifts by 1pt. In \sseqpages\ , saying |xshift = 1| moves the coordinate |(0,0)| to the coordinate |(1,0)|. This includes \tikzpkg\ primitives: saying \codeverb|\draw[ xshift = 1 ] (0,0) -- (1,0);| inside a \sseqdataenv\  or \sseqpageenv\  environment is the same as saying \codeverb|\draw(1,0) -- (2,0);| despite the fact that this is not the case in the \tikzpictureenv\ environment.
 \end{keylist}
 
 \begin{manualentry}{Colors}
-These come from the \LaTeX\space \colorpkg\space package via \tikzpkg, so see the \href{\colormanualurl}{\colorpkg\space package documentation} for more information.
+These come from the \LaTeX\  \colorpkg\  package via \tikzpkg, so see the \href{\colormanualurl}{\colorpkg\  package documentation} for more information.
 \begin{codeexample}[width = 6cm]
 \begin{sseqpage}[ classes = {fill,inner sep = 0.4em},
                   no axes, scale = 1.3 ]
@@ -384,7 +393,7 @@ These come from the \LaTeX\space \colorpkg\space package via \tikzpkg, so see th
 \end{manualentry}
 
 \begin{manualentry}{\pgfmanualpdflabel{""quotes}{}|"|\meta{text}|"|\opt{\meta{options}}}
-Specify a label for a class, a differential, or a structure line. This uses the \tikzpkg\ quotes syntax. The options include anything you might pass as an option to a \tikzpkg\ node, including arbitrary coordinate transforms, colors, opacity options, shapes, fill, draw, etc. The behavior is a little different depending on whether you use it on a class or on a differential or struct line.
+Specify a label for a class, a differential, or a structure line. This uses the \tikzpkg\ quotes syntax. If the label text includes an equal sign or comma, you need to enclose the entire label in braces, e.g., |\class["{x = y}"](0,0)|. The options include anything you might pass as an option to a \tikzpkg\ node, including arbitrary coordinate transforms, colors, opacity options, shapes, fill, draw, etc. The behavior is a little different depending on whether you use it on a class or on a differential or struct line.
 
 For a class, the \meta{text} is placed in the position |inside| the node by default -- in effect, the \meta{text} becomes the label text of the node (so saying |\class["label text"](0,0)| causes a similar effect to saying |\node at (0,0) {label text};|). There are other position options such as |left|, |above left|, etc which cause the label text to be placed in a separate node positioned appropriately. If the placement is above, left, etc, then any option that you may pass to a \tikzpkg\ node will also work for the label, including general coordinate transformations. If the placement is ``inside'', then the only relevant \opt{\meta{options}} are those that alter the appearance of text, such as opacity and color.
 \begin{codeexample}[width = 4cm]
@@ -406,6 +415,12 @@ Note that it is also possible to give a label to a |\node| this way, although th
 \node[circle,fill,"a"] at (1,0) {};
 \end{sseqpage}
 \end{codeexample}
+
+The |pin| key makes \sseqpages\ draw a line connecting the label to the relevant class, which can provide necessary clarification in large diagrams. The pin key itself can take options which adjust the way that the line is drawn:
+% TODO: make an example
+%\begin{codeexample}
+%
+%\end{codeexample}
 
 For either a |\structline| or a |\class| the label normally goes on the right side of the edge. The special |'| option makes it go in the opposite position from the default. I imitated the label handling in the \tikzcdpkg\ package, so if you use \tikzcdpkg, this should be familiar.
 \begin{codeexample}[width = 6cm]
@@ -429,7 +444,7 @@ You can also use quotes to label edges drawn with \tikzpkg\ primitives:
 \draw (1,0) to["hi"'{ pos = 0.7, yshift = -0.5em }] (0,1);
 \end{sseqpage}
 \end{codeexample}
-The special option ``description,'' stolen from \tikzcdpkg, places the label on top of the edge. In order to make this option work correctly, if the background coolor is not the default white, you must inform sseqpages about this using the key |background color = |\meta{color}. In this document, the background color is called \textit{graphicbackground}.
+The |description| key, stolen from \tikzcdpkg, places the label on top of the edge. In order to make this option work correctly, if the background coolor is not the default white, you must inform \sseqpages\ about this using the key |background color = |\meta{color}. In this document, the background color is called \textit{graphicbackground}.
 \begin{codeexample}[width = 6cm]
 \begin{sseqpage}[ no axes, background color = graphicbackground ]
 \foreach \x in {0,1,2} \foreach \y in {0,1} {
@@ -440,6 +455,7 @@ The special option ``description,'' stolen from \tikzcdpkg, places the label on 
 \structline["c" description](2,0)(2,1)
 \end{sseqpage}
 \end{codeexample}
+
 \end{manualentry}
 
 
@@ -480,7 +496,7 @@ There are many more \tikzpkg\ shapes in the shapes library, which you can load u
 \class[regular polygon, regular polygon sides = 8](2,2)
 \end{sseqpage}
 \end{codeexample}
-See the \href{\pgfmanualurl#section.49}{\tikzpkg\space manual} for more information.
+See the \href{\pgfmanualurl#section.49}{\tikzpkg\  manual} for more information.
 \end{manualentry}
 
 \begin{keylist}{minimum width = \meta{dimension}, minimum height = \meta{dimension}, minimum size = \meta{dimension}, inner sep = \meta{dimension}, outer sep = \meta{dimension}}
@@ -541,6 +557,16 @@ This key adds a tag to the current class. Tags are used for identifying which of
 We want each differential to go from the |h21| vee to the |id| vee, independent of which classes are in the same position of the two vees. The easy way to accomplish this is by giving tags to each of the two vees.
 \end{key}
 
+\begin{key}{insert = \meta{integer}}
+If there are multiple classes in the same position, this option allows you to insert classes later into earlier positions. This is intended to help you put logically related classes next to each other. If the integer is positive, it inserts the class in the specified position, and if the integer is negative, it counts backwards from the end. Providing |0| is the same as omitting the option entirely. Values larger in absolute value than the total number of classes are truncated. 
+% TODO: fill me in
+% Consider:
+%\begin{codeexample}[]
+%
+%\end{codeexample}
+
+\end{key}
+
 \begin{key}{offset = \{\pars{\meta{x offset},\meta{y offset}}\}}
 By default, a class uses the offset specified by |class pattern|. Occasionally this is undesirable. In this case, you can specify the offset for a particular class by hand. For example if the sum of two classes is hit by a differential, it looks better for the class replacing them to be centered:
 \begin{codeexample}[width = 9cm]
@@ -567,7 +593,7 @@ By default, a class uses the offset specified by |class pattern|. Occasionally t
 \begin{key}{tooltip = \meta{text}}
 This key generates a ``tooltip'' over the given class. That is, if you hover your mouse over it, a little window will popup with the tooltip text. This is particularly useful to give the coordinates or names of classes in large charts where it may be hard to tell from looking at the picture what position the class is in, or there may not be room to supply names to classes.
 
-The tooltip is made using the |\pdftooltip| command from the |pdfcomment| package. This cannot handle math, but it will print math expressions into tex input form. Not all pdf viewers will display the tooltip correctly. If this concerns you, the command |\sseqtooltip| is used to produce the tooltip, and you can redefine it as any other command that takes |\sseqtooltip|\marg{text}\marg{tooltip text} and produces a tooltip. For instance, on \href{https://tex.stackexchange.com/a/164186/23866}{this stack exchange post}, there is code that supposedly produces tooltips that work with Evince. I have not tested whether it works by itself or whether it works with my package, but you could. You could potentially figure out how to get math to work in tooltips too -- if you find a satisfactory method, please let me know.
+The tooltip is made using the |\pdftooltip| command from the |pdfcomment| package. This cannot handle math, but it will print math expressions into \TeX input form. Not all pdf viewers will display the tooltip correctly. If this concerns you, the command |\sseqtooltip| is used to produce the tooltip, and you can redefine it as any other command that takes |\sseqtooltip|\marg{text}\marg{tooltip text} and produces a tooltip. For instance, on \href{https://tex.stackexchange.com/a/164186/23866}{this stack exchange post}, there is code that supposedly produces tooltips that work with Evince. I have not tested whether it works by itself or whether it works with my package, but you could. You could potentially figure out how to get math to work in tooltips too -- if you find a satisfactory method, please let me know.
 
 Anyways, here's an example:
 \begin{codeexample}[]
@@ -596,7 +622,7 @@ These options only work in |\classoptions|. The |page| option gives a range of p
 \printpage[ name = page_example, page = 4 ]
 \end{codeexample}
 A ``generation'' of a class is the interval from one call of |\class| or |\replaceclass| to the page on which it next supports or is hit by a differential.
-By default the |\classoptions| command adds options only to the most recent generation of the class in a \sseqdataenv\space environment, or on the generation appropriate to the current page in a \sseqpageenv\space environment. Using the |generation| option allows you to provide a single generation or range of generations of the class that the options should apply to. The first generation is generation 0, and the most recent generation is generation -1. Larger negative values count backwards.
+By default the |\classoptions| command adds options only to the most recent generation of the class in a \sseqdataenv\  environment, or on the generation appropriate to the current page in a \sseqpageenv\  environment. Using the |generation| option allows you to provide a single generation or range of generations of the class that the options should apply to. The first generation is generation 0, and the most recent generation is generation -1. Larger negative values count backwards.
 \begin{codeexample}[]
 \begin{sseqdata}[ name = page_example2, Adams grading, xscale = 0.6, yscale = 0.5 ]
 \class(0,2)\class(1,0)
@@ -655,7 +681,7 @@ These commands represent the $\mathtt{x}$ and $\mathtt{y}$ coordinate of the cur
 Because the main job of the |\d| and |\structline| commands is to print an edge on the appropriate pages of the spectral sequence, most \tikzpkg\ options that you could apply to a \tikzpkg\ ``to'' operator (as in |\draw (x1,y1) to (x2,y2);|) can be applied to both |\d| and |\structline|. Some such options are as follows:
 
 \begin{keylist}{source anchor = \meta{anchor}, target anchor = \meta{anchor}}
-Because you can't use the normal \tikzpkg\ mechanism for specifying the source and target anchors, \sseqpages\space has these two keys for |\d| and |\structline|:
+Because you can't use the normal \tikzpkg\ mechanism for specifying the source and target anchors, \sseqpages\  has these two keys for |\d| and |\structline|:
 \begin{codeexample}[width = 4cm]
 \begin{sseqpage}[ no axes, yscale = 1.24 ]
 \foreach \x in {0,1} \foreach \y in {0,1} {
@@ -669,11 +695,11 @@ Because you can't use the normal \tikzpkg\ mechanism for specifying the source a
 
 
 \begin{keylist}{shorten > = \meta{distance}, shorten < = \meta{distance}}
-These behave exactly like the corresponding options from \tikzpkg\space, shortening the end and beginning of the edge respectively. Note that you can lengthen the edge by shortening by a negative amount.
+These behave exactly like the corresponding options from \tikzpkg\ , shortening the end and beginning of the edge respectively. Note that you can lengthen the edge by shortening by a negative amount.
 \end{keylist}
 
 \begin{manualentry}{Dash patterns:}
-See the \href{\pgfmanualurl#subsubsection.15.3.2}{\tikzpkg\space manual} for a complete explanation of the dash pattern related options. Some examples:
+See the \href{\pgfmanualurl#subsubsection.15.3.2}{\tikzpkg\  manual} for a complete explanation of the dash pattern related options. Some examples:
 \begin{codeexample}[width = 6cm]
 \begin{sseqpage}[ no axes, yscale = 1.6 ]
 \foreach \x in {0,1,2} \foreach \y in {0,1} {
@@ -700,9 +726,9 @@ See the \href{\pgfmanualurl#subsubsection.15.3.2}{\tikzpkg\space manual} for a c
 \end{codeexample}
 \end{keylist}
 
-\begin{key}{invisible}
-This key is only for |\d|. It prevents a differential from being drawn at all. The typical reason you might want this is so that you can draw your own differential using \tikzpkg\space commands. See |\getdtarget| for an example of this.
-\end{key}
+%\begin{key}{invisible}
+%This key is only for |\d|. It prevents a differential from being drawn at all. The typical reason you might want this is so that you can draw your own differential using \tikzpkg\  commands. See |\getdtarget| for an example of this.
+%\end{key}
 
 \begin{key}{structline:page = \meta{page}\opt{-{}-\meta{page max}}}
 This key is only for |\structline| and |\structlineoptions|. By default, the |\structline| command only adds a structline starting on the page where the most recent generation of the source or target is born:
@@ -753,7 +779,7 @@ Similarly, for |\structlineoptions| you can specify a minimum page on which to a
 
 \subsection{Options for \sectionstring\circleclass}
 \begin{key}{fit = \meta{coordinates or nodes}}
-The |\circleclasses| command uses the \href{\pgfmanualurl#section.52}{\tikzpkg\space fitting library}. Sometimes it's desirable to make the resulting node fit extra things, for example a label. It doesn't necessarily end up looking great though.
+The |\circleclasses| command uses the \href{\pgfmanualurl#section.52}{\tikzpkg\  fitting library}. Sometimes it's desirable to make the resulting node fit extra things, for example a label. It doesn't necessarily end up looking great though.
 \begin{codeexample}[]
 \begin{sseqpage}[Adams grading,axes gap = 0.7cm]
 \class(0,2)
@@ -774,27 +800,27 @@ By default, the shape drawn by |\circleclasses| is a ``newelipse'' which is a cu
 \end{key}
 
 \begin{keylist}{cc:class style,cc:permanent cycle style,cc:transient cycle style,cc:this page class style,cc:differential style,cc:struct line style}
-See the \pgfmanualpdfref{class style}{corresponding entry} in the \tikzpkg\space primitives section.
+See the \pgfmanualpdfref{class style}{corresponding entry} in the \tikzpkg\  primitives section.
 \end{keylist}
 
 \begin{key}{cc:page = \meta{page}\opt{-{}-\meta{page max}}}
 By default, the ellipse will be drawn on the same set of pages that a structline between the two classes would be drawn on. This specifies a range of pages for the ellipse to be drawn. Note that unlike with structlines, you can instruct |\circleclasses| to draw the shape even on pages where one or both of the classes that it is fitting are dead.
 \end{key}
 
-\subsection{Options for \tikzpkg\space primitives}
+\subsection{Options for \tikzpkg\  primitives}
 \begin{key}{background}
-This key instructs \sseqpages\space to put the current \tikzpkg\space primitive in the background. The way that the spectral sequence is printed is as follows:
+This key instructs \sseqpages\  to put the current \tikzpkg\  primitive in the background. The way that the spectral sequence is printed is as follows:
 \begin{itemize}
 \item The title, axes, axes ticks, and axes labels are printed (the appropriate steps are skipped when the |no title|, |no axes|, |no ticks|, or |no labels| keys are used or if no title or axes labels are provided).
 
-\item The \tikzpkg\space background paths are printed.
+\item The \tikzpkg\  background paths are printed.
 
 \item The clipping is inserted (unless the |no clip| key is used).
 
-\item All foreground elements (classes, differentials, structlines, and normal \tikzpkg\space paths) are printed.
+\item All foreground elements (classes, differentials, structlines, and normal \tikzpkg\  paths) are printed.
 \end{itemize}
 
-In particular, this means that foreground \tikzpkg\space paths can be clipped by the standard clipping, but background paths that are outside of the clipping expand the size of the \tikzpkg\space picture.
+In particular, this means that foreground \tikzpkg\  paths can be clipped by the standard clipping, but background paths that are outside of the clipping expand the size of the \tikzpkg\  picture.
 \begin{codeexample}[]
 \begin{sseqpage}[no ticks,yscale = 0.9,math nodes = false]
 \class(0,0)
@@ -844,13 +870,13 @@ But if you need more flexible labeling, you'll likely want to use tikz primitive
 \end{key}
 
 \begin{keylist}{page constraint = \meta{predicate}, page constraint or = \meta{predicate}}
-This places a constraint on the pages in which the \tikzpkg\space primitive is printed. This predicate should look something like
-\texttt{(\string\page< = 4)} |&&| \texttt{(\string\page> = 3)}. The predicate is anded together with any previous predicates, so that you can use this as an option for a \scopeenv\space and again for the individual \tikzpkg\ primitive.
+This places a constraint on the pages in which the \tikzpkg\  primitive is printed. This predicate should look something like
+\texttt{(\string\page< = 4)} |&&| \texttt{(\string\page> = 3)}. The predicate is anded together with any previous predicates, so that you can use this as an option for a \scopeenv\  and again for the individual \tikzpkg\ primitive.
 
 \begin{commandlist}{\isalive\pararg{coordinate},\isalive\{\pararg{coordinate 1}$\cdots$\pararg{coordinate n}\}}
 This command can only be used with |page constraint|. Saying
 $$|page constraint = ||{|\pars{\meta{x},\meta{y}\opt{,\meta{index}}}|}}|$$
-will print the \tikzpkg\space primitive only on pages where the specified class is alive. Saying
+will print the \tikzpkg\  primitive only on pages where the specified class is alive. Saying
 $$|page constraint = ||{\isalive|\pars{\meta{coordinate 1}}\,\cdots\,\pars{\meta{coordinate n}}|}|$$
 is equivalent to
 $$|page constraint = ||{\isalive|\pararg{coordinate 1}| &&|\,\cdots\,|&& \isalive|\pararg{coordinate n}|}|$$
@@ -861,7 +887,7 @@ is the same as |\structline(1,0)(2,2)|, except that you can't later use |\struct
 \end{keylist}
 
 \begin{keylist}{class style,permanent cycle style,transient cycle style,this page class style,differential style,struct line style}
-These classes apply the styling of the corresponding element to your \tikzpkg\space commands.
+These classes apply the styling of the corresponding element to your \tikzpkg\  commands.
 \begin{codeexample}[width = 6cm]
 \begin{sseqpage}[ differentials = blue, yscale = 0.65, no axes ]
 \class(0,2)
@@ -875,7 +901,7 @@ See |\getdtarget| for a more natural example.
 
 
 
-\section{Miscellaneous commands}
+\section{Miscellaneous Commands}
 \begin{command}{\sseqset\marg{keys}}
 The |\sseqset| command is for adjusting the global options for all spectral sequences in the current scope, or for applying options to the rest of the current spectral sequence. For instance, if most of the spectral sequences in the current document are going to be Adams graded, you can say |\sseqset{Adams grading}| and all future spectral sequences in the current scope will have Adams grading (unless you specify a different grading explicitly). As another example, |\sseqset{no axes}| will suppress axes from spectral sequences in the current scope. Note that defaults only apply to new \sseqdataenv\ environments or to unnamed \sseqpageenv\ environments; they won't apply to existing spectral sequences.
 
@@ -910,7 +936,7 @@ These handlers create reusable styles to be used in spectral sequences. If this 
 \end{command}
 
 \begin{command}{\foreach }
-This command is from \tikzpkg\space and works in pretty much the same way in \sseqpages, though with slightly better variants. The |\foreach| command is very flexible and has a lot of variants. The basic usage is |\foreach \x in {\meta{xmin},...,\meta{xmax}} \marg{loop body}| which will execute |\meta{loop body}| with |\x| set to each value between \meta{xmin} and \meta{xmax} inclusive. If you want a step greater than 1, try |\foreach \x in {\meta{xmin},\meta{xmin}+\meta{xstep},...,\meta{xmax}} \marg{loop body}|.
+This command is from \tikzpkg\  and works in pretty much the same way in \sseqpages, though with slightly better variants. The |\foreach| command is very flexible and has a lot of variants. The basic usage is |\foreach \x in {\meta{xmin},...,\meta{xmax}} \marg{loop body}| which will execute |\meta{loop body}| with |\x| set to each value between \meta{xmin} and \meta{xmax} inclusive. If you want a step greater than 1, try |\foreach \x in {\meta{xmin},\meta{xmin}+\meta{xstep},...,\meta{xmax}} \marg{loop body}|.
 
 If you need to do multiple loops with a common body, you can just stack the |\foreach| commands:
 \begin{codeexample}[width=6cm]
@@ -932,7 +958,7 @@ You can also loop through tuples, for instance:
 \end{codeexample}
 See the last example for |normalize monomial| for a better example of this usage.
 
-There are tons of other things you can do with |\foreach|, though I haven't yet found need for them in combination with \sseqpages. See the \href{\pgfmanualurl#section.64}{\tikzpkg\space manual} for more details.
+There are tons of other things you can do with |\foreach|, though I haven't yet found need for them in combination with \sseqpages. See the \href{\pgfmanualurl#section.64}{\tikzpkg\  manual} for more details.
 \end{command}
 
 \begin{commandlist}{
@@ -983,18 +1009,28 @@ You can also nest |\DoUntilOutOfBounds| reasonably:
 \end{codeexample}
 One important difference between |\foreach| and the |\Do| family of commands is that |\Do| has no effect on the stack. This is in order to ensure that they nest properly.
 
-Note that if you are using these commands and you are planning to draw several pictures of the chart with restricted range, you need to specify a range for the \sseqdataenv\ that contains all of the ranges of pages that you want to draw. If you then want to set a smaller default range, use \sseqpageenv with |keep changes|.
-%TODO: test that this would work.
+Note that if you are using these commands and you are planning to draw several pictures of the chart with restricted range, you need to specify a range for the \sseqdataenv\ that contains all of the ranges of pages that you want to draw. If you then want to set a smaller default range, use \sseqpageenv\ with |keep changes|.
+% TODO: test that this works.
 
 The |\Do| command is less general than |\foreach|; the purpose is to provide a syntax for stack-based looping that is similar to |\DoUntilOutOfBounds| but with a fixed range. So |\Do{n}\marg{loop body}| repeats \meta{loop body} |n| times. The assumption is that the loop body draws something relative to the position of the |\lastclass|.
 
 If you need to know how many iterations one of these three commands has gone through, this is stored in the variable |\iteration|.
 \end{commandlist}
 
+\begin{commandlist}{
+    \IfOutOfBoundsTF\pararg{coordinate}\marg{true code}\marg{false code}, 
+    \IfOutOfBoundsT\pararg{coordinate}\marg{true code}, 
+    \IfOutOfBoundsF\pararg{coordinate}\marg{false code}, 
+    \IfInBoundsTF\pararg{coordinate}\marg{true code}\marg{false code},
+    \IfInBoundsT\pararg{coordinate}\marg{true code},
+    \IfInBoundsF\pararg{coordinate}\marg{false code}
+}
+Test whether an existing class is in bounds or out of bounds. I don't have an obvious use for these. I had to make commands to do this as part of the drawing code and in order to make |\DoUntilOutOfBounds| and it was no extra effort to expose them. Maybe they will be helpful at some point.
+\end{commandlist}
 
 
 \begin{command}{\sseqerrortowarning\meta{error-name}}
-Turns the error with the given name into a warning. An error message will start by saying |sseqpages error: "error-name"|. This is the name you need to put into this command.
+Turns the error with the given name into a warning. An error message will start by saying |spectralsequences error: "error-name"|. This is the name you need to put into this command.
 \end{command}
 
 \begin{command}{\sseqnormalizemonomial}
@@ -1008,7 +1044,7 @@ This command simplifies a monomial by combining like variables and removing base
 
 \begin{commandlist}{\NewSseqCommand    \cmdarg{command}\marg{argspec}\marg{body},
                     \DeclareSseqCommand\cmdarg{command}\marg{argspec}\marg{body}}
-The \xparsepkg\ package provides these very powerful commands for defining macros. They are used internally to the \sseqpages\space package to define |\class|, |\d|, etc. To help you create variants of these commands, I will record here the argument specifications for each of them. See the \href{\xparseurl}{\xparsepkg\ manual} for a better explanation and more information.
+The \xparsepkg\ package provides these very powerful commands for defining macros. They are used internally to the \sseqpages\  package to define |\class|, |\d|, etc. To help you create variants of these commands, I will record here the argument specifications for each of them. See the \href{\xparseurl}{\xparsepkg\ manual} for a better explanation and more information.
 
 To make a command like |\class|, you can use the argument specification |O{}r()|. The argument type \texttt{O\marg{default}} stands for a bracket delimited optional argument with default value \meta{default}. In this case, we've specified the default to be empty. |r()| stands for a ``required'' argument delimited by |(| and |)|. In the command definition, access the optional argument with |#1| and the coordinate with |#2|.
 \begin{codeexample}[width = 6.5cm,vbox]
@@ -1123,7 +1159,7 @@ Sets \meta{macro} equal to the coordinates of the target position of a length \m
 \NewSseqCommand{\twods}{ O{} U( r() m m }{
     \getdtarget\target#2{#3}             % Store the target position in \target
     \nameclass{source}(#3)               % naming the classes gives us a speed boost
-    \nameclass{target1}(\target,#4)      % by preventing sseqpages from reparsing the coordinate
+    \nameclass{target1}(\target,#4)      % by preventing spectralsequences from reparsing the coordinate
     \nameclass{target2}(\target,#5)      % it also makes the code easier to read
 %
     \circleclasses[ cc:differential style, #1,
@@ -1208,9 +1244,9 @@ The |\gettag| command finds the most recent tag applied to the coordinate and st
 \end{command}
 
 
-\subsection{The Class Stack}
+\subsection{The class stack}
 \label{sec:class stack}
-The class stack is a linked list of the classes in the order that they are produced that \sseqpages\space maintains. I've only recently implemented this feature, so it is more liable to change in the future than other things. Whenever you use the |\class| function, the class you added is pushed onto the stack. Here's an example that demonstrates basic usage:
+The class stack is a linked list of the classes in the order that they are produced that \sseqpages\  maintains. I've only recently implemented this feature, so it is more liable to change in the future than other things. Whenever you use the |\class| function, the class you added is pushed onto the stack. Here's an example that demonstrates basic usage:
 
 
 The following commands are used to access the stack:
@@ -1270,7 +1306,7 @@ This saves and reverts the stack. Saves nest. Most frequently, you will want to 
 
 
 \section{Styles}
-The \sseqpages\space package has a large number of styles which control the appearance of specific components (e.g., classes, differentials, or structlines) of a spectral sequence. Each style has two corresponding keys: |classes| and |change classes|.  Saying |classes = |\marg{keys} adds the keys to the list of options used to style every future class, whereas |change classes = |\marg{keys} only makes sense in a \sseqpageenv\space environment, and temporarily overwrites the list of options. Note that |change classes| only applies to classes that existed before the current page, and that even with the |keep changes| option, the |change classes| options are local to the current page. Compare:
+The \sseqpages\  package has a large number of styles which control the appearance of specific components (e.g., classes, differentials, or structlines) of a spectral sequence. Each style has two corresponding keys: |classes| and |change classes|.  Saying |classes = |\marg{keys} adds the keys to the list of options used to style every future class, whereas |change classes = |\marg{keys} only makes sense in a \sseqpageenv\  environment, and temporarily overwrites the list of options. Note that |change classes| only applies to classes that existed before the current page, and that even with the |keep changes| option, the |change classes| options are local to the current page. Compare:
 \begin{codeexample}[width = 8cm]
 \begin{sseqdata}[ name = stylesex ]
 \class(0,0)\class(1,1)
@@ -1288,7 +1324,7 @@ The \sseqpages\space package has a large number of styles which control the appe
 \end{sseqpage}
 \end{codeexample}
 
-You can modify these styles outside of a spectral sequence or inside it using |\sseqset|, you can modify them as options to the \sseqdataenv\space and \sseqpageenv\space environments, or you can modify them as arguments to the \scopeenv\space environment.
+You can modify these styles outside of a spectral sequence or inside it using |\sseqset|, you can modify them as options to the \sseqdataenv\  and \sseqpageenv\  environments, or you can modify them as arguments to the \scopeenv\  environment.
 
 In cases where the same drawing feature is affected by multiple of these styles, the more specific style takes precedence. For instance, for a class that is the source or target of a differential on the current page, the precedence order from lowest to highest goes: |sseq style|, |class style|, |transient cycle style|, |this page cycle style|, and then any options from scopes in the order they appear, and any local options (the options that come right with the class, e.g., |\class[local options](x,y)|). If you don't want the options to your scopes to override more specific styles, use |sseq|:
 \begin{codeexample}[width = 7cm]
@@ -1399,7 +1435,7 @@ This style applies to structure lines whose source or target is hit on the curre
 \end{stylekeylist}
 
 \begin{stylekeylist}{tikz primitives,change tikz primitives}
-Applies to all \tikzpkg\space primitives.
+Applies to all \tikzpkg\  primitives.
 \end{stylekeylist}
 
 
@@ -1449,7 +1485,7 @@ This sets the default distance from a class to an outer label. There are also va
     run off differentials = \meta{start tip}--\meta{end tip} (initially {...--...})}
 Change the default behavior of run off edges for either all edges, just struct lines, or just differentials respectively. Local arrowhead options override this.
 
-If an edge runs off the edge of the clipping, sseqpages automatically add an arrowhead to indicate that the edge continues. This option controls which arrow head is added if the start or end of an edge runs off the page.
+If an edge runs off the edge of the clipping, \sseqpages\ automatically add an arrowhead to indicate that the edge continues. This option controls which arrow head is added if the start or end of an edge runs off the page.
 \begin{codeexample}[width = 6cm]
 \begin{sseqpage}[ x range = {0}{2}, y range = {0}{2},
                   draw orphan edges, run off = >-stealth ]
@@ -1515,20 +1551,20 @@ Here is another example which demonstrates a useful idiom for drawing Serre spec
 \end{key}
 
 
-\section{Global options}
-These options can only be set at the beginning of a \sseqdataenv\space or \sseqpageenv\space environment. When it makes sense, you can also set a default value using |\sseqset|. Generally, these options either modify the plot style or the logic for the spectral sequence.
+\section{Global Options}
+These options can only be set at the beginning of a \sseqdataenv\  or \sseqpageenv\  environment. When it makes sense, you can also set a default value using |\sseqset|. Generally, these options either modify the plot style or the logic for the spectral sequence.
 \begin{key}{name = \meta{sseq name}}
-This option must be used with the \sseqdataenv\space environment where it indicates the name of the spectral sequence, which will be used with the \sseqpageenv\space environment or |\printpage| command to draw the spectral sequence. The name used in a \sseqdataenv\space environment must be new unless the environment is used with the |update existing| key in which case the \sseqdataenv\space environment will add to the existing spectral sequence. It is optional when used with \sseqpageenv\space, and if included the name given must be the name of an existing spectral sequence.
+This option must be used with the \sseqdataenv\  environment where it indicates the name of the spectral sequence, which will be used with the \sseqpageenv\  environment or |\printpage| command to draw the spectral sequence. The name used in a \sseqdataenv\  environment must be new unless the environment is used with the |update existing| key in which case the \sseqdataenv\  environment will add to the existing spectral sequence. It is optional when used with \sseqpageenv\ , and if included the name given must be the name of an existing spectral sequence.
 \end{key}
 
 \begin{key}{page = \meta{page number} (initially 0)}
-This key is for \sseqpageenv\space and |\printpage|. It specifies which page of the spectral sequence is to be printed. On page r, all |\class|es that are not hit by differentials on pages less than r will be printed, as well as all |\structline|s whose source and target classes are both printed on page r, and all differentials of length exactly r. The special value |page = 0| prints all classes, differentials, and structure lines.
+This key is for \sseqpageenv\  and |\printpage|. It specifies which page of the spectral sequence is to be printed. On page r, all |\class|es that are not hit by differentials on pages less than r will be printed, as well as all |\structline|s whose source and target classes are both printed on page r, and all differentials of length exactly r. The special value |page = 0| prints all classes, differentials, and structure lines.
 \end{key}
 
 \begin{keylist}{degree = \marg{x degree}\marg{y degree},cohomological Serre grading, homological Serre grading, Adams grading}
 Specifies the degree of differentials. The \meta{x degree} and \meta{y degree} should both be mathematical expressions in one variable |#1| that evaluate to integers on any input. They specify the $\mathtt{x}$ and $\mathtt{y}$ displacement of a page $\mathtt{\#1}$ differential. In practice, they will be linear expressions with |#1| coefficient 1, -1, or 0.
 
-The |degree| option must be given before placing any differentials. It can be specified at the beginning of the \sseqdataenv\space environment, at the beginning of the \sseqpageenv\space environment if it is being used as a standalone page, or as a default by saying |\sseqset{degree = \marg{x degree}\marg{y degree}}| or |\sseqset{Adams grading}| outside of the \sseqdataenv\space and \sseqpages\space environments.
+The |degree| option must be given before placing any differentials. It can be specified at the beginning of the \sseqdataenv\  environment, at the beginning of the \sseqpageenv\  environment if it is being used as a standalone page, or as a default by saying |\sseqset{degree = \marg{x degree}\marg{y degree}}| or |\sseqset{Adams grading}| outside of the \sseqdataenv\  and \sseqpages\  environments.
 
 You can make a named grading convention by saying \codeverb|\sseqset{my grading/.sseq grading = \marg{x degree}\marg{y degree}}|. Then later passing |my grading| to a spectral sequence is equivalent to saying |degree = \marg{x degree}\marg{y degree}|. The following grading conventions exist by default:
 \begin{codeexample}[width = 6cm]
@@ -1558,7 +1594,7 @@ You can make a named grading convention by saying \codeverb|\sseqset{my grading/
 \end{keylist}
 
 \begin{keylist}{strict degree, lax degree}
-If the degree is strict, then latex will throw an error if you try to specify a differential that doesn't have the proper grading. The degree is strict by default.
+If the degree is strict, then \LaTeX will throw an error if you try to specify a differential that doesn't have the proper grading. The degree is strict by default.
 \begin{codeexample}[code only]
 \begin{sseqdata}[ name = laxdegree, Adams grading ]
 \class(0,2)
@@ -1579,13 +1615,13 @@ If the degree is strict, then latex will throw an error if you try to specify a 
 \end{keylist}
 
 \begin{key}{update existing}
-This key is only for the \sseqdataenv\space environment. It specifies that the current \sseqdataenv\space environment is adding data to an existing spectral sequence. If you don't pass this key, then giving a \sseqdataenv\space environment the same |name| as a different \sseqdataenv\space environment will cause an error. This is intended to help you avoid accidentally reusing the same name.
+This key is only for the \sseqdataenv\  environment. It specifies that the current \sseqdataenv\  environment is adding data to an existing spectral sequence. If you don't pass this key, then giving a \sseqdataenv\  environment the same |name| as a different \sseqdataenv\  environment will cause an error. This is intended to help you avoid accidentally reusing the same name.
 \end{key}
 
 
 \begin{key}{keep changes =\meta{boolean} (default true)(initially false)}
-This option is only for the \sseqpageenv\space environment, and only works when a |name| is provided.
-This option specifies that all of the commands in the current \sseqpageenv\space environment should be carried forward to future pages of the same named spectral sequence. For example:
+This option is only for the \sseqpageenv\  environment, and only works when a |name| is provided.
+This option specifies that all of the commands in the current \sseqpageenv\  environment should be carried forward to future pages of the same named spectral sequence. For example:
 \begin{codeexample}[]
 \begin{sseqdata}[ name = keep changes example, Adams grading, y range = {0}{3} ]
 \class(0,0)
@@ -1610,7 +1646,7 @@ This option specifies that all of the commands in the current \sseqpageenv\space
 
 \printpage[ name = keep changes example, page = 3 ]
 \end{codeexample}
-Note that the orange classes and differential do not persist because the |keep changes| option is not set in the first \sseqpageenv\space environment, but the blue classes and differential do, since the |keep changes| option is set in the second \sseqpageenv\space environment.
+Note that the orange classes and differential do not persist because the |keep changes| option is not set in the first \sseqpageenv\  environment, but the blue classes and differential do, since the |keep changes| option is set in the second \sseqpageenv\  environment.
 \end{key}
 
 
@@ -1675,14 +1711,14 @@ Creates a new class pattern. For example, the |linear| class pattern is created 
     (-0.5,0)(-0.3,0)(-0.1,0)(0.1,0)(0.3,0)(0.5,0);
 }
 \end{codeexample}
-For instance the third row indicates that if there are three classes at the position |(x,y)| they should be printed at |(x-0.2,y)|, |(x,y)|, and |(x+0.2,y)|. You can give as many rows as you like; \sseqpages\space will throw an error if there are more classes in any position than the maximum number that your class pattern can handle -- for instance, the |linear| class pattern can handle up to six classes based on this definition.
+For instance the third row indicates that if there are three classes at the position |(x,y)| they should be printed at |(x-0.2,y)|, |(x,y)|, and |(x+0.2,y)|. You can give as many rows as you like; \sseqpages\  will throw an error if there are more classes in any position than the maximum number that your class pattern can handle -- for instance, the |linear| class pattern can handle up to six classes based on this definition.
 \end{command}
 \end{key}
 
 
 \begin{key}{class placement transform = \marg{transform keys}, add class placement transform = \marg{transform keys} }
 \declareasstyle{class placement transform}\declareasstyle{add class placement transform}
-The option |class placement transform| allows the user to specify a \tikzpkg\space coordinate transform to adjust the relative position of multiple nodes in the same $\mathtt{(x,y)}$ position. The |class placement transform| key overrides the previous value of transformations, the |add class placement transform| just adds the new transformation to the end of the list. This coordinate transform can only involve rotation and scaling, no translation. Specifying a scaling factor helps if the nodes are too large and overlap. In some cases a rotation makes it easier to see which class is the target of a differential.
+The option |class placement transform| allows the user to specify a \tikzpkg\  coordinate transform to adjust the relative position of multiple nodes in the same $\mathtt{(x,y)}$ position. The |class placement transform| key overrides the previous value of transformations, the |add class placement transform| just adds the new transformation to the end of the list. This coordinate transform can only involve rotation and scaling, no translation. Specifying a scaling factor helps if the nodes are too large and overlap. In some cases a rotation makes it easier to see which class is the target of a differential.
 \begin{codeexample}[width = 5cm]
 \begin{sseqpage}[ class placement transform = { xscale = 3 },
                   class pattern = linear,
@@ -1731,28 +1767,34 @@ With multiple large class names, the best option is to arrange the classes verti
 \end{key}
 
 \begin{key}{math nodes = \meta{boolean} (default true)(initially true)}
-This key instructs \sseqpages\space to put all labels in math mode automatically.
+This key instructs \sseqpages\  to put all labels in math mode automatically.
 \end{key}
 
 
 
-\subsection{Global Coordinate Transformations}
-Of the normal \tikzpkg\ coordinate transformations, only the following can be applied to a \sseqpages\space chart:
+\subsection{Global coordinate transformations}
+Of the normal \tikzpkg\ coordinate transformations, only the following can be applied to a \sseqpages\  chart:
 \begin{keylist}{scale = \meta{factor},xscale = \meta{factor}, yscale = \meta{factor}, xmirror, ymirror}
-Scale the chart by \meta{factor}. Under normal circumstances, you can tell \tikzpkg\ to mirror a chart by saying, for instance, |xscale = -1|, but \sseqpages\space needs to be aware that the chart has been mirrored in order to draw the axes correctly. Thus, if you want to mirror a spectral sequence, use the |xmirror| and |ymirror| options as appropriate.
+Scale the chart by \meta{factor}. Under normal circumstances, you can tell \tikzpkg\ to mirror a chart by saying, for instance, |xscale = -1|, but \sseqpages\  needs to be aware that the chart has been mirrored in order to draw the axes correctly. Thus, if you want to mirror a spectral sequence, use the |xmirror| and |ymirror| options as appropriate.
 \end{keylist}
 
 \begin{key}{rotate = \meta{angle}}
 It probably won't look great if you pick an angle that isn't a multiple of 90 degrees.
 \end{key}
 
-\subsection{Plot Options and Axes Style}
+\subsection{Plot options and axes style}
 \begin{keylist}{x range = \marg{x min}\marg{x max},y range = \marg{y min}\marg{y max}}
 These options set the x range (respectively y range) to be a specific interval. By default, if no range is specified then the range is chosen to fit all the classes. If an x range is specified but no y range, then the y range is chosen to fit all the classes that lie inside the specified x range, and vice versa. The values must be integers -- if you want to extend the x axis a noninteger amount, try using |x axis start extend| or |x axis end extend|.
 \end{keylist}
 
-\begin{key}{grid = \marg{grid style}}
-Makes \sseqpages\space draw a grid. The grid styles and a significant part of the code that produces them were stolen from the \sseqpkg\ package.
+\begin{keylist}{
+    grid = \meta{grid style},
+    grid color = \meta{color},
+    grid step = \meta{positive integer},
+    x grid step = \meta{positive integer},
+    y grid step = \meta{positive integer}
+}
+Makes \sseqpages\  draw a grid. The grid styles and a significant part of the code that produces them were stolen from the \sseqpkg\ package.
 \begin{codeexample}[vbox]
 \begin{sseqdata}[ name = grid example, scale = 0.8 ]
 \class(0,0)
@@ -1777,7 +1819,12 @@ Makes \sseqpages\space draw a grid. The grid styles and a significant part of th
 }
 \end{codeexample}
 It is possible to make your own grid style by defining the command |\sseq@grid@yourgridname| to draw a grid.
-\end{key}
+
+It is a known problem that acrobat reader displays grids very dark and thick. This is caused by the enhance thin lines ``feature'' of Acrobat reader. You can turn it off globally by going into the acrobat reader preferences window and unchecking the ``Enhance thin lines'' checkbox in the ``Rendering'' section. Unfortunately, there is no way to instruct Acrobat Reader to not apply this feature to a particular document. This has apparently been annoying graphic designers for over a decade.
+
+The grid color option changes the color of the grid; the default value is |gray|.
+The grid step keys change the grid step.
+\end{keylist}
 
 \begin{keylist}{title = \meta{text}, title style = \meta{keys}, x label = \meta{text}, y label = \meta{text},x label style = \meta{keys}, y label style = \meta{keys}, label style = \meta{keys}}
 \declareasstyle{title style}
@@ -1803,11 +1850,11 @@ Suppress or unsuppress the title, x label, y label, or both x and y labels, resp
 \end{keylist}
 
 \begin{keylist}{no x axis, no y axis, no axes, draw x axis, draw y axis, draw axes}
-Suppress the axis. Also suppresses axes ticks. If there is a title or axes labels they will still be drawn. You can draw your own axes using \tikzpkg\space inside a \scopeenv\space environment with the |background| key.
+Suppress the axis. Also suppresses axes ticks. If there is a title or axes labels they will still be drawn. You can draw your own axes using \tikzpkg\  inside a \scopeenv\  environment with the |background| key.
 \end{keylist}
 
 \begin{keylist}{no x ticks, no y ticks, no ticks, draw x ticks, draw y ticks, draw ticks}
-Suppress axes ticks (the numbers next to the axes). Only matters if axes are drawn. You can make your own ticks using \tikzpkg\space inside a \scopeenv\space environment with the |background| key. For instance, you might want to label the axes as 0, $n$, $2n$, \ldots You can achieve this as follows: (you can also use |x tick handler|).
+Suppress axes ticks (the numbers next to the axes). Only matters if axes are drawn. You can make your own ticks using \tikzpkg\  inside a \scopeenv\  environment with the |background| key. For instance, you might want to label the axes as 0, $n$, $2n$, \ldots You can achieve this as follows: (you can also use |x tick handler|).
 \begin{codeexample}[width = 5.7cm]
 \begin{sseqpage}[ no x ticks, x range = {0}{3} ]
 \begin{scope}[ background ]
@@ -1976,7 +2023,7 @@ node[above,description]{y axis gap};
 
 \parskip=10pt
 \begin{key}{custom clip = \meta{clip path}}
-Give a custom clipping. The clipping specified must be in the form of a valid \tikzpkg\space path, for instance |\clip (0,0) rectangle (10,10);|. This clipping is also applied to any grid and is used to draw ellipses on appropriate differentials or struct lines that go out of bounds and to determine whether a differential or struct line is an ``orphan''. It is not applied to any background elements, which is important because these are often used for axes labels and such that should lie outside of the clipping region. Weird things can happen with out of range edges if use this option with an oddly shaped path.
+Give a custom clipping. The clipping specified must be in the form of a valid \tikzpkg\ path, for instance |\clip (0,0) rectangle (10,10);|. This clipping is also applied to any grid and is used to draw ellipses on appropriate differentials or struct lines that go out of bounds and to determine whether a differential or struct line is an ``orphan''. It is not applied to any background elements, which is important because these are often used for axes labels and such that should lie outside of the clipping region. Weird things can happen with out of range edges if use this option with an oddly shaped path.
 \end{key}
 
 \begin{key}{clip = \meta{boolean} (default true)(initially true)}
