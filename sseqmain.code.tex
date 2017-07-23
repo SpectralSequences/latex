@@ -129,8 +129,6 @@
     \sseq@ispageenvtrue
     \def\sseq@sseqsetdirectory{/sseqpages}
 %
-    \let\sseq@xminmax\sseq@xminmax@active
-    \let\sseq@yminmax\sseq@yminmax@active
 %    \ifsseq@mathnodes
 %        \let\sseq@maybemathswitch=$\@gobble$
 %    \fi
@@ -187,6 +185,18 @@
                 \@xp\@nx\csname pgfk@/sseqpages/global/{\sseq@currentoptionpath} options/.@cmd\endcsname
         }
     \fi
+%
+    \ifsseq@specifiedxrange
+        \let\sseq@xminmax\@gobbletwo
+    \else
+        \let\sseq@xminmax\sseq@xminmax@active
+    \fi
+    \ifsseq@specifiedyrange
+        \let\sseq@yminmax\@gobbletwo
+    \else
+        \let\sseq@yminmax\sseq@yminmax@active
+    \fi
+%    
     \sseq@savedpaths@xadd{\sseq@stylelist}
     \sseq@savedpaths@add{\begingroup} % prevent some of the two-pass user macros horrors
     \ifx\sseq@targetx\pgfutil@empty\else
@@ -475,8 +485,8 @@
             % negative 1 is where we would normally insert things
             \edef\sseq@classinsert{\the\numexpr\nodenum+\sseq@classinsert+1}
         \fi
-        \ifnum\sseq@classinsert<\z@
-            \def\sseq@classinsert{0}
+        \ifnum\sseq@classinsert<\@ne
+            \def\sseq@classinsert{1}
         \fi
         \ifnum\sseq@classinsert>\nodenum\relax
             \edef\sseq@classinsert{\nodenum}

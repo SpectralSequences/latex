@@ -684,8 +684,8 @@
 % and defining an event handler: alwaysunknown/.unknown/.code={\@xp\sseq@keys@try@addtooptions\@xp{\sseq@temp}{}{\sseq@keys@unknown}
 % That basically takes advantage of the pgfkeys parser but gives me back control over what to do with the parsed things.
 %
-% For some reason I made the probably misguided decision that that approach was too slow, even though this isn't performance 
-% critical code. Maybe I had a better reason for doing this that I can't remember. Instead I copied pgfkeys but deleted all the 
+% For some reason I made the probably misguided decision that that approach was too slow, even though this isn't performance
+% critical code. Maybe I had a better reason for doing this that I can't remember. Instead I copied pgfkeys but deleted all the
 % parts that are useless in this context, which is most of it. Occasionally bugs crop up here when it turns out I deleted a little too much.
 %
 % This uses a hook \sseq@addstylecodetooptions@unknown to allow the sseqs style to sift out the nonglobal keys and handle them differently.
@@ -747,7 +747,7 @@
 \def\sseq@clearchangestyles{}
 
 % The basic idea here is we make a tokens list \sseq@structlinestyle and define a key "struct lines" that takes a list of keys
-% and adds the keys to \sseq@structlinestyle. In order to do this, I need some special trick to delete spaces. 
+% and adds the keys to \sseq@structlinestyle. In order to do this, I need some special trick to delete spaces.
 % The macro \sseq@setmacronospaces defined in spectralsequences.sty accomplishes this.
 
 \def\sseq@newstyles#1#2{\def\sseq@temppath{#1}\sseq@newstyles@#2,\sseq@nil}
@@ -816,7 +816,7 @@
 \sseq@set@newstyle{
     sseqs/.code={%
         % This will get called on each key that isn't a defined global option. Then we add it to \sseq@sseqstyle to be applied
-        % locally to absolutely everything. 
+        % locally to absolutely everything.
         \def\sseq@addstylecodetooptions@unknown{%
             \let\sseq@sseqstyle@globalpart\sseq@savedoptioncode
             \edef\sseq@savedoptioncode{\the\sseq@sseqstyle}%
@@ -1474,8 +1474,11 @@
 \@xp\sseq@addtostorelist\@xp\sseq@xmaxpp\@xp{\sseq@infinity}
 \@xp\sseq@addtostorelist\@xp\sseq@ymaxpp\@xp{\sseq@infinity}
 
+\sseq@addiftostorelist{specifiedxrange}
+\sseq@addiftostorelist{specifiedyrange}
 \def\sseq@xrange#1#2{%
     \global\let\sseq@xminmax\@gobbletwo % Don't need to calculate range of nodes if user specifies it
+    \global\sseq@specifiedxrangetrue
     \sseq@sanitize@intexpr{#1}{x range={#1}{#2}}
     \sseq@sanitize@intexpr{#2}{x range={#1}{#2}}
     \xdef\sseq@xmin{\the\numexpr#1}%
@@ -1491,6 +1494,7 @@
     \global\let\sseq@yminmax\@gobbletwo %
     \sseq@sanitize@intexpr{#1}{x range={#1}{#2}}
     \sseq@sanitize@intexpr{#2}{x range={#1}{#2}}
+    \global\sseq@specifiedyrangetrue
     \gdef\sseq@ymin{#1}%
     \gdef\sseq@ymax{#2}%
     \let\ymin\sseq@ymin
