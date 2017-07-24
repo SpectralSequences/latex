@@ -1204,9 +1204,9 @@ For instance, consider the following example, suggested by Catherine Ray:
 % O{} U( r() is the arg-spec for \d, O{} U( r() mm looks like \d with one extra mandatory arguments
 \NewSseqCommand{\twods}{ O{} U( r() d()  m }{
     \parsedifferential{#2}(#3)(#4)             % Store the target position in \target
-    \nameclass{source}(\sourcecoord,\nsource)  % give names to the three classes 
-    \nameclass{target1}(\targetcoord,\ntarget) 
-    \nameclass{target2}(\targetcoord,#5)       
+    \nameclass{source}(\sourcecoord,\nsource)  % give names to the three classes
+    \nameclass{target1}(\targetcoord,\ntarget)
+    \nameclass{target2}(\targetcoord,#5)
 %
     \circleclasses[ cc:differential style, name path = circ,
                     #1, page = #2--#2 ]
@@ -1603,8 +1603,10 @@ These options can only be set at the beginning of a \sseqdataenv\  or \sseqpagee
 This option must be used with the \sseqdataenv\  environment where it indicates the name of the spectral sequence, which will be used with the \sseqpageenv\  environment or |\printpage| command to draw the spectral sequence. The name used in a \sseqdataenv\  environment must be new unless the environment is used with the |update existing| key in which case the \sseqdataenv\  environment will add to the existing spectral sequence. It is optional when used with \sseqpageenv\ , and if included the name given must be the name of an existing spectral sequence.
 \end{key}
 
-\begin{key}{page = \meta{page number} (initially 0)}
+\begin{key}{page = \meta{page number}\opt{--\meta{page max} (initially 0)}}
 This key is for \sseqpageenv\  and |\printpage|. It specifies which page of the spectral sequence is to be printed. On page r, all |\class|es that are not hit by differentials on pages less than r will be printed, as well as all |\structline|s whose source and target classes are both printed on page r, and all differentials of length exactly r. The special value |page = 0| prints all classes, differentials, and structure lines.
+
+If you use this key with a range, then all differentials in that range of lengths will be drawn. The larger number only changes which differentials are drawn. If you use 0 for the \meta{page max}, then all differentials longer than \meta{page number} will be drawn.
 \end{key}
 
 \begin{keylist}{degree = \marg{x degree}\marg{y degree},cohomological Serre grading, homological Serre grading, Adams grading}
@@ -1851,15 +1853,13 @@ Makes \sseqpages\  draw a grid. The grid styles and a significant part of the co
 \class(3,3)
 \end{sseqdata}
 \hbox{
-%\printpage[ name = grid example, grid = chess ]
+\printpage[ name = grid example, grid = chess, title=chess ]
 \qquad
-\printpage[ name = grid example, grid = crossword ]
-\qquad
-\printpage[ name = grid example, grid = dots ]
+\printpage[ name = grid example, grid = crossword, title=crossword ]
 }
 \vskip20pt
 \hbox{
-\printpage[ name = grid example, grid = go ]
+\printpage[ name = grid example, grid = go, title=go ]
 \qquad
 \printpage[ name = grid example, grid = none ]
 }

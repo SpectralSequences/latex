@@ -253,7 +253,7 @@
     \fi
 %
     % Really this could be anything between -\sseq@xmin and -\sseq@xmax and it wouldn't matter. We'll split the difference.
-    \sseq@xoffset=\numexpr\sseq@intdivceiling{\numexpr-\sseq@xmin-\sseq@xmax\relax}{\numexpr2*\sseq@xgridstep\relax}*(2*\sseq@xgridstep)\relax
+    \sseq@xoffset=\numexpr\sseq@intdivceiling{\numexpr-\sseq@xmin-\sseq@xmax\relax}{\numexpr4*\sseq@xgridstep\relax}*(2*\sseq@xgridstep)\relax
     \sseq@yoffset=0%\numexpr(-\sseq@ymin-\sseq@ymax)/2\relax
 %
 %
@@ -303,9 +303,9 @@
         ] {\unexpanded\expandafter{\sseq@yaxislabel}};}
     \fi\fi
 %
+    \sseq@grid
     \sseq@handlexaxis % Draw the axis with pgf primitives. These are defined in sseqdrawing.code.tex
     \sseq@handleyaxis
-    \sseq@grid
     \endpgfonlayer
 %
     \ifsseq@mathnodes
@@ -1054,8 +1054,10 @@
         \ifnum\sseq@thepagecount=\z@
             \sseq@drawdifferential{#1}
         \else
-            \ifnum\sseq@obj{#1.page}=\sseq@thepagecount\relax
-                \sseq@drawdifferential{#1}
+            \ifnum\sseq@obj{#1.page}>\sseq@thepagemm\relax
+                \ifnum\sseq@obj{#1.page}<\sseq@thepagemaxpp\relax
+                    \sseq@drawdifferential{#1}
+                \fi
             \fi
         \fi
     \fi

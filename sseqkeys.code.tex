@@ -1369,11 +1369,19 @@
     name/.sseq default error,
     ~page/.code={
         \ifsseq@hasname
-            \sseq@ifintexpr{#1}{
-                \def\sseq@thepage{#1}\sseq@thepagecount=#1\relax\let\page\sseq@thepage
-            }{
-                \sseq@error{invalid-page}{#1}
-            }
+            \sseq@getnumrange\sseq@thepage{#1}
+            \sseq@thepagecount=\sseq@thepage\relax
+            \let\page\sseq@thepage
+            \edef\sseq@thepagemm{\the\numexpr\sseq@thepagecount-1\relax}
+            \ifx\sseq@thepagemax\undefined
+                \edef\sseq@thepagemaxpp{\the\numexpr\sseq@thepagecount+1\relax}
+            \else
+                \ifnum\sseq@thepagemax=\z@
+                    \let\sseq@thepagemaxpp\sseq@infinity
+                \else
+                    \edef\sseq@thepagemaxpp{\the\numexpr\sseq@thepagemax+1\relax}
+                \fi
+            \fi
         \else
             \sseq@error{page-no-name}
         \fi

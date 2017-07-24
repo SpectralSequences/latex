@@ -278,80 +278,88 @@
     \fi
 }
 
-
+% This grid was a huge pain in the ass to get right...
 \def\sseq@grid@chess{
     \bgroup
     \pgfscope
+    % Pad on the right and top by either the grid padding, or the remaining piece of the checkerboard before it would start a new square 
+    % (it looks ugly to have a tiny sliver). Annoyingly, mod returns its result with the same sign as its input, so in order to reduce mod 
+    % \sseq@xgridstep and get a positive result, we have to do it twice. The 0.5cm*scale here matches the -0.5 in the \pgfpathgrid call.
+    \pgfmathsetmacro\sseq@rightpadding{min(
+        \sseq@rightgridpadding,
+        1cm*  mod(mod(-\sseq@xmax,\sseq@xgridstep)+\sseq@xgridstep,\sseq@xgridstep)+0.5cm*\sseq@xscale-0.05cm
+    )}
+    \pgfmathsetmacro\sseq@toppadding{min(
+        \sseq@topgridpadding,
+        1cm * mod(mod(-\sseq@ymax,\sseq@ygridstep)+\sseq@ygridstep,\sseq@ygridstep)+0.5cm*\sseq@yscale-0.02cm
+    )}
+    % Because of complicated aliasing issues that arise when misusing the \pgfgrid command in this way, 
+    % it's more convenient to add a clip than to actually stop things in the right place.
+    \clip        (\sseq@xmin,\sseq@ymin) ++ (-0.48, -0.48)
+        rectangle ([shift={(\sseq@rightpadding pt,\sseq@toppadding pt)}]\sseq@xmax,\sseq@ymax);
+%
     \sseq@useclip
-    \clip         (\sseq@xmin,\sseq@ymin ) ++ (-\sseq@leftgridpadding, -\sseq@bottomgridpadding)
-        rectangle ([shift={(\sseq@rightgridpadding,\sseq@topgridpadding)}]\sseq@xmax,\sseq@ymax);
     \pgfsetcolor{\sseq@gridcolor}
+    \pgfsetstrokeopacity{0.3} % We don't set low opacity for the other grids, but this one is visible even if it is very faint.
     \sseq@grid@setstepandgridstep
 %
-    \sseq@grid@atmostgridstep\sseq@xminpadding{x}{\sseq@leftgridpadding}{1}
-    \sseq@grid@atmostgridstep\sseq@xmaxpadding{x}{\sseq@rightgridpadding}{1}
-    \sseq@grid@atmostgridstep\sseq@yminpadding{y}{\sseq@bottomgridpadding}{1}
-    \sseq@grid@atmostgridstep\sseq@ymaxpadding{y}{\sseq@topgridpadding}{1}   
-    \global\let\sseq@yminpadding\sseq@yminpadding 
-%
-%
 %  Use ifdim with cm to compare real scalars b/c tex is dumb.
-    \ifdim\sseq@xscale cm>\sseq@yscale cm\relax
-        \def\sseq@xadjustscale{1}
-        \def\sseq@yadjustscale{1}
+    % okay, now we need to be careful in order to avoid overflows. The hack we are using requires that the xvec and the yvec are equal
+    % because we can't apply these via lowlevelsynccm. However, xvec and yvec are the things that prevent overflows.
+    % What we need to do is set them both equal to the smaller value. Now the scale factor determines the size of the squares,
+    % so we mix in the grid steps. We also need to scale the larger scaled coordinate by the ratio of the two scales.
+    \ifdim\sseq@xscale cm<\sseq@yscale cm\relax
+        % x is smaller so set both x and y vecs to \sseq@xscale cm.
         \pgfsetxvec{\pgfpoint{\sseq@xscale cm}{0cm}}
         \pgfsetyvec{\pgfpoint{0cm}{\sseq@xscale cm}}
-        \pgftransformyscale{\sseq@yscale/\sseq@xscale*\sseq@ygridstep/\sseq@xgridstep}
-        \def\sseq@stepscale{\sseq@xscale*\sseq@xgridstep}
+        \def\sseq@xadjustscale{\sseq@xgridstep}
+        \def\sseq@yadjustscale{\sseq@yscale/\sseq@xscale*\sseq@ygridstep}
+        \def\sseq@stepscale{\sseq@xscale}
     \else
-        \def\sseq@xadjustscale{1}
-        \def\sseq@yadjustscale{1}
         \pgfsetxvec{\pgfpoint{\sseq@yscale cm}{0cm}}
         \pgfsetyvec{\pgfpoint{0cm}{\sseq@yscale cm}}
-        \pgftransformxscale{\sseq@xscale/\sseq@yscale*\sseq@ygridstep/\sseq@xgridstep}
-        \def\sseq@stepscale{\sseq@yscale*\sseq@xgridstep}
+        \def\sseq@xadjustscale{(\sseq@xscale/\sseq@yscale*\sseq@xgridstep)}
+        \def\sseq@yadjustscale{\sseq@ygridstep}
+        \def\sseq@stepscale{\sseq@yscale}
     \fi
-    \pgftransformshift{\pgfpointxy
-        {\sseq@xminpadding-0.01}
-        {abs(mod(4*\sseq@ygridstep-\sseq@ymin,4*\sseq@ygridstep))+1-\sseq@yminpadding-0.01}
+    \pgftransformxscale{\sseq@xadjustscale}
+    \pgftransformyscale{\sseq@yadjustscale}
+    % Now we have to put in some ridiculously complicated shift in order to get the bottom corner in the right place.
+    % I found this formula mostly by trial and error.
+    % The basic idea that we should be making something divisible by twice the grid step (which is the actual period of our grid)
+    % is reasonable enough, but what the heck are these other two terms for? I don't know either, thank god it works.
+    \pgftransformshift{\pgfpointxy{
+            floor((\sseq@xgridstep-1)/2)/\sseq@xgridstep
+            + \ifodd\sseq@xgridstep\space 0 \else 0.5/\sseq@xgridstep\fi 
+            + mod(1+\sseq@xmin/\sseq@xgridstep,2*\sseq@xgridstep)
+        }{
+            floor((\sseq@ygridstep-1)/2)/\sseq@ygridstep
+            + \ifodd\sseq@ygridstep\space 0\else 0.5/\sseq@ygridstep\fi 
+            + mod(1+\sseq@ymin/\sseq@ygridstep,2*\sseq@ygridstep)
+        }
     }
-    \pgflowlevelsynccm
+    % We use lowlevelsynccm to make the scale adjust the line width. Normally scaling doesn't affect line width, text size, etc, which is sensible.
+    % When you apply \pgflowlevelsynccm, pgf loses track of the coordinate matrix and it gets indiscriminately applied to everything.
+    % This is good for us, because we're doing this absurd thing where we make a checkerboard by drawing a really really fat line.
+    \pgflowlevelsynccm 
     \pgfsetlinewidth{1cm*\sseq@stepscale}
     \pgfsetdash{{1cm*\sseq@stepscale}{1cm*\sseq@stepscale}}{1cm*\sseq@stepscale}
 %
-    %\show\sseq@yminpadding
-    %
-    \sseq@tempx=\numexpr\sseq@intdivfloor{\sseq@xmin}{2*\sseq@xgridstep}*2*\sseq@xgridstep\relax
-    \sseq@tempy=\numexpr\sseq@intdivceiling{\sseq@ymin}{2*\sseq@xgridstep}*2*\sseq@xgridstep\relax
-    \sseq@tempxb=\sseq@xmax\relax
-    \sseq@tempyb=\sseq@ymax\relax
-    % shift by -xmin mod x grid step, -ymin mod y grid step
-%    \pgfmathparse{abs(mod(2*\sseq@ygridstep-\sseq@ymin,2*\sseq@ygridstep))}\show\pgfmathresult
-%
-    %\pgftransformshift{\pgfpointxy{-6}{0}}
-    %\showthe\numexpr\sseq@intdivfloor{\numexpr\sseq@ymin - \sseq@xgridstep\relax}{2*\sseq@xgridstep}*2*\sseq@xgridstep
+    % Naturally some trial and error occurred here too.
+    % Note the huge multiples of \sseq@xgridstep I added in -- they probably aren't necessary, but I don't understand what's going on so whatever.
+    % The basic idea is that things need to be divisible by twice the grid step. The part I added in the shift above 
+    % was the remainder when you divide \sseq@xmin by twice the grid step, now we need to add in the multiple of twice the grid step.
+    % The -0.5 is ensuring that the checkerboard boundaries lie at half-integer coordinates (I think).
     \pgfpathgrid[stepx= 2cm*\sseq@stepscale,stepy=2cm*\sseq@stepscale]
-    { \pgfpointxy 
-        { (-1 + 5*\sseq@intdivfloor{\numexpr\sseq@xmin - \sseq@xgridstep\relax}{2*\sseq@xgridstep}*2*\sseq@xgridstep  +\sseq@xoffset) } 
-        { ( -1 + 5*\sseq@intdivfloor{\numexpr\sseq@ymin - \sseq@xgridstep\relax}{2*\sseq@xgridstep}*2*\sseq@xgridstep + \sseq@yoffset )} }
-    { \pgfpointxy 
-        { (\sseq@xmax + \sseq@xoffset ) + 50 }
-        { (\sseq@ymax + \sseq@yoffset + 2*\sseq@ygridstep + 50 ) } 
-    }    
-%    
-%    { \pgfpointxy
-%        {  -\sseq@xgridstep/2 - \sseq@xminpadding + \sseq@xoffset }
-%        { \sseq@ymin -\sseq@xgridstep/2 - \sseq@yminpadding + \sseq@yoffset } }
-%    { \pgfpointxy
-%        { \sseq@xmax + \sseq@xmaxpadding - \sseq@xoffset +30}
-%        { \sseq@ymax + \sseq@ymaxpadding - \sseq@yoffset +30}
-%    }
+    { \pgfpointxy
+        { -0.5 + \sseq@intdivfloor{\numexpr\sseq@xmin - \sseq@xgridstep\relax}{2*\sseq@xgridstep}*2*\sseq@xgridstep + \sseq@xoffset - 50*\sseq@xgridstep }
+        { -0.5 + \sseq@intdivfloor{\numexpr\sseq@ymin - \sseq@ygridstep\relax}{2*\sseq@ygridstep}*2*\sseq@ygridstep + \sseq@yoffset - 50*\sseq@ygridstep} 
+    }{ \pgfpointxy
+        { \sseq@xmax + \sseq@xoffset + 50*\sseq@xgridstep }
+        { \sseq@ymax + \sseq@yoffset + 50*\sseq@ygridstep  }
+    }
     \pgfusepath{stroke}
     \endpgfscope
-    \draw (1,0)--(1,\sseq@yminpadding);
-    \draw(1,0) -- (2,0);
-    \draw[yshift=\sseq@yminpadding cm](1,0) -- (2,0);
-    \draw(0,0) -- (10,10);    
     \egroup
 }
 
