@@ -673,6 +673,11 @@
         \fi
     \fi
     \let\sourcecoord\sseq@xycoord
+%
+    \let\xsource\sseq@xcoord
+    \let\ysource\sseq@ycoord
+    \let\nsource\sseq@index
+%
     \edef\source{(\sseq@xycoord,\sseq@index)}%
     \ifx\sourcename\undefined
         \edef\sourcename{(\sseq@xycoord\ifx\sseq@rawindex\pgfutil@empty\else,\sseq@rawindex\fi)}
@@ -685,6 +690,9 @@
         \sseq@parsecoord@index
         \let\targetcoord\sseq@xycoord
         \edef\target{(\sseq@xycoord,\sseq@index)}%
+        \let\xtarget\sseq@xcoord
+        \let\ytarget\sseq@ycoord
+        \let\ntarget\sseq@index        
         \edef\targetname{(\sseq@xycoord\ifx\sseq@rawindex\pgfutil@empty\else,\sseq@rawindex\fi)}
     }{
         \ifx\sseq@rawtindex\pgfutil@empty\else
@@ -720,14 +728,15 @@
     }%
 }
 
-\def\sseq@parsecoordinate#1#2{%
+% EXPOSE: a wrapper around \sseq@parsecoord. 
+\sseq@DeclareDocumentCommand\parsecoordinate { m r() }{%
     \sseq@parsecoord{#1}{#2}{call of \string\parsecoord}%
 }
 
 
-% EXPOSE: a wrapper around \sseq@parsecoord. Use full name of coordinate to avoid name class with sseq@parsecoord.
-\sseq@DeclareDocumentCommand \parsedifferential { m r() }{%
-    \sseq@dparsecoord{#1}{#2}{call of \string\parsecoord}%
+% EXPOSE: a wrapper around \sseq@dparsecoord. 
+\sseq@DeclareDocumentCommand \parsedifferential { m r() d() }{%
+    \sseq@dparsecoord{#1}{#2}{#3}%
 }
 
 % Expandable coordinate parsing for \isalive.
@@ -1096,14 +1105,14 @@
     \sseq@defer@tikzcommand@finish@
 }
 
-% If the expression was incomplete, we'll jump here
+% If the expression was incomplete, we'll jump here to avoid adding the semicolon to the error printout
 \def\sseq@defer@tikzcommand@finish@{
     \sseq@g@addto@macro\sseq@thepathsofar{;}
     \global\sseq@thiscalltoks\@xp{\sseq@whattheusersaid}
     \ifx\sseq@pageconstraint\sseq@pageconstraint@true
-        \sseq@savedpaths@xadd{\unexpanded\@xp{\sseq@thepathsofar}}%
+        \sseq@savedpaths@xaddtikzpath{\unexpanded\@xp{\sseq@thepathsofar}}%
     \else
-        \sseq@savedpaths@xadd{%
+        \sseq@savedpaths@xaddtikzpath{%
             \@nx\sseq@tikzcommand@conditionaldraw{\unexpanded\@xp{\sseq@thepathsofar}}{\unexpanded\@xp{\sseq@pageconstraint}}
         }%
     \fi

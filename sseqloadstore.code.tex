@@ -126,6 +126,7 @@
 \def\sseq@savedpaths@addclass@standard#1{\sseq@x@addto@macro\sseq@savedpaths{\@nx\sseq@class@draw@ifpage{#1}}}
 \def\sseq@savedpaths@adddifferential@standard#1{\sseq@x@addto@macro\sseq@savedpaths{\@nx\sseq@differential@draw@ifpage{#1}}}
 \def\sseq@savedpaths@addstructline@standard#1{\sseq@x@addto@macro\sseq@savedpaths{\@nx\sseq@structline@draw@ifpage{#1}}}
+\def\sseq@savedpaths@xaddtikzpath@standard#1{\sseq@x@addto@macro\sseq@savedpaths{#1}}
 \def\sseq@savedpaths@add@standard{\sseq@g@addto@macro\sseq@savedpaths}
 \def\sseq@savedpaths@xadd@standard{\sseq@x@addto@macro\sseq@savedpaths}
 \def\sseq@savedpaths@show@standard{\show\sseq@savedpaths}
@@ -134,6 +135,7 @@
 \def\sseq@savedpaths@addclass@temporary#1{\sseq@x@addto@macro\sseq@tempsavedpaths{\@nx\sseq@class@draw@ifpage{#1}}}
 \def\sseq@savedpaths@adddifferential@temporary#1{\sseq@x@addto@macro\sseq@tempsavedpaths{\@nx\sseq@differential@draw@ifpage{#1}}}
 \def\sseq@savedpaths@addstructline@temporary#1{\sseq@x@addto@macro\sseq@tempsavedpaths{\@nx\sseq@structline@draw@ifpage{#1}}}
+\def\sseq@savedpaths@xaddtikzpath@temporary#1{\sseq@x@addto@macro\sseq@tempsavedpaths{#1}}
 \def\sseq@savedpaths@add@temporary{\sseq@g@addto@macro\sseq@tempsavedpaths}
 \def\sseq@savedpaths@xadd@temporary{\sseq@x@addto@macro\sseq@tempsavedpaths}
 \def\sseq@savedpaths@show@temporary{\show\sseq@tempsavedpaths}
@@ -143,6 +145,7 @@
 \def\sseq@savedpaths@addclass@background#1{\sseq@error@internal@n{illegal-add-background-mode}{\sseq@savedpaths@addclass}}
 \def\sseq@savedpaths@adddifferential@background#1{\sseq@error@internal@n{illegal-add-background-mode}{\sseq@savedpaths@adddifferential}}
 \def\sseq@savedpaths@addstructline@background#1{\sseq@error@internal@n{illegal-add-background-mode}{\sseq@savedpaths@addstructline}}
+\def\sseq@savedpaths@xaddtikzpath@background#1{\sseq@x@addto@macro\sseq@savedbackgroundpaths{#1}}
 \def\sseq@savedpaths@add@background{\sseq@g@addto@macro\sseq@savedbackgroundpaths}
 \def\sseq@savedpaths@xadd@background{\sseq@x@addto@macro\sseq@savedbackgroundpaths}
 \def\sseq@savedpaths@show@background{\show\sseq@savedbackgroundpaths}
@@ -150,6 +153,7 @@
 \def\sseq@savedpaths@addclass@ignore#1{}
 \def\sseq@savedpaths@adddifferential@ignore#1{}
 \def\sseq@savedpaths@addstructline@ignore#1{}
+\def\sseq@savedpaths@xaddtikzpath@ignore#1{}
 \def\sseq@savedpaths@add@ignore#1{}
 \def\sseq@savedpaths@xadd@ignore#1{}
 \def\sseq@savedpaths@show@ignore#1{}
@@ -159,6 +163,7 @@
     \@xp\let\@xp\sseq@savedpaths@addclass       \csname sseq@savedpaths@addclass@#1\endcsname
     \@xp\let\@xp\sseq@savedpaths@adddifferential\csname sseq@savedpaths@adddifferential@#1\endcsname
     \@xp\let\@xp\sseq@savedpaths@addstructline  \csname sseq@savedpaths@addstructline@#1\endcsname
+    \@xp\let\@xp\sseq@savedpaths@xaddtikzpath  \csname sseq@savedpaths@xaddtikzpath@#1\endcsname
     \@xp\let\@xp\sseq@savedpaths@add            \csname sseq@savedpaths@add@#1\endcsname
     \@xp\let\@xp\sseq@savedpaths@xadd            \csname sseq@savedpaths@xadd@#1\endcsname
     \pgfutil@ifundefined{sseq@scope@savedpaths@add@#1}{}{%
@@ -166,3 +171,15 @@
         \@xp\let\@xp\sseq@scope@savedpaths@add   \csname sseq@scope@savedpaths@add@#1\endcsname
     }%
 }
+
+% We don't want to add anything to paths except for tikz paths in background mode
+% We need to draw those because they might affect the bounding box.
+\def\sseq@setsavedpaths@draftmode{
+    \sseq@setsavedpaths{ignore}     % Don't add stuff to paths
+    % Only add tikzpaths if in background mode (so ignore in standard or temporary)
+    \let\sseq@savedpaths@xaddtikzpath@standard\@gobble
+    \let\sseq@savedpaths@xaddtikzpath@temporary\@gobble
+    % Only update mode for tikzpath
+    \def\sseq@setsavedpaths##1{\@xp\let\@xp\sseq@savedpaths@xaddtikzpath  \csname sseq@savedpaths@xaddtikzpath@##1\endcsname} 
+}
+

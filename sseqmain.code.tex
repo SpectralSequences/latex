@@ -196,7 +196,7 @@
     \else
         \let\sseq@yminmax\sseq@yminmax@active
     \fi
-%    
+%
     \sseq@savedpaths@xadd{\sseq@stylelist}
     \sseq@savedpaths@add{\begingroup} % prevent some of the two-pass user macros horrors
     \ifx\sseq@targetx\pgfutil@empty\else
@@ -253,7 +253,7 @@
     \fi
 %
     % Really this could be anything between -\sseq@xmin and -\sseq@xmax and it wouldn't matter. We'll split the difference.
-    \sseq@xoffset=12%\numexpr(-\sseq@xmin-\sseq@xmax)/2\relax
+    \sseq@xoffset=\numexpr\sseq@intdivceiling{\numexpr-\sseq@xmin-\sseq@xmax\relax}{\numexpr2*\sseq@xgridstep\relax}*(2*\sseq@xgridstep)\relax
     \sseq@yoffset=0%\numexpr(-\sseq@ymin-\sseq@ymax)/2\relax
 %
 %
@@ -286,7 +286,6 @@
                 above=\sseq@clip@padding@top+\sseq@yaxis@end@extend+10pt
                 ] {\unexpanded\expandafter{\sseq@title}};
             }
-%            \sseq@eval{\unexpanded{\path (\sseq@xoffset,\sseq@yoffset)
         \fi
     \fi
     % Don't touch the shifts -- they are very persnickety.
@@ -374,22 +373,9 @@
 
 
 \ifsseq@draftmode % Okay, have to dummy out all the main commands.
-    \sseq@setsavedpaths{ignore}     % Don't add stuff to paths
-    \let\sseq@setsavedpaths\@gobble % and dummy out the normal mechanism that would change this
-
-    % We don't really want to add anything to the saved paths, but the whole tikz parser is already loaded in parsers and we want to dummy a bit of it out.
-    % It's good to have the parser itself though, because it is responsible for sanity checking the structure of the input. Just get rid of the hard tasks
-    % the parser does once it's parsed the stuff.
-    \def\sseq@defer@tikzcommand@option[#1]{%
-        \sseq@g@addto@macro\sseq@whattheusersaid{[#1]}%
-        \sseq@defer@tikzcommand@
-    } % These are the two expensive handlers, redefine them to do nothing.
-    \def\sseq@defer@tikzcommand@coord(#1){%
-        \sseq@g@addto@macro\sseq@whattheusersaid{(#1)}%
-        \sseq@defer@tikzcommand@
-    }
-
-
+    % Only add tikz background paths to the savedpaths. We need to draw background paths because they might change the bounding box!
+    \sseq@setsavedpaths@draftmode
+%
     % All we want to do here is record the range. Have to process options in order to figure out where it is.
     \sseq@DeclareDocumentCommand\class{or()}{%
         \begingroup

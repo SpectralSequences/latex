@@ -18,12 +18,14 @@ Changelog:
 
 ### Added:
 - \sseqparseint
+- \parsecoordinate and \parsedifferential
 - \IfInBoundsTF, \IfOutOfBoundsTF
 - New loop constructs \Do, \DoUntilOutOfBounds, \DoUntilOutOfBoundsThenNMore
 - \kill which kills a class without having to put a differential
 - \lastclass as default arguments for \replaceclass, \classoptions, \d/\doptions, \structline/\structlineoptions
 - Pin key for labels
-- Families
+- Families 
+- Insert key for new classes allows control over relative class placement without reordering commands
 
 ### Changed:
 - Ticks are now placed at values congruent to tick offset mod tick step, tick offset defaults to 0
@@ -38,5 +40,7 @@ Changelog:
 - The package now works with xparse after 2017/02/08 when changes were made that broke my original code
 - Fixed a bug where if you used a structline in two sseqpage environments with the same name, it would give an error. 
 - Now if you say \structline(0,0)(0,1) \structlineoptions(0,1)(0,0) it will work correctly.
-- A range like 600 - 700 no longer will cause an overflow
-- Ranges like 0 - 600 now work, provided that you provide an appropriate scale
+- Big ranges like 0 - 600 now work, provided that you provide an appropriate scale
+- Big range like 600 - 700 no longer will cause an overflow
+- Labels now are rectangle nodes so they don't shift down if they are very wide
+- Fixed a bug with ranges in sseqpage environment

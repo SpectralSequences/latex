@@ -12,20 +12,13 @@
 
 %
 % TODO:
-%
-%   document and use as appropriate:
-%      insert
-%      families
-%
-%    \parsecoordinate and \parsedifferential
-%    \sseqifempty
-%
+%  families
 %
 %  comment on bounding boxes?
 %
-%  consistency issues?
-%    structure line vs structline
 %
+%
+%  consistency issues?
 %  perhaps think about ordering, particularly of "Misc commands" section
 %  tutorial
 %  explain / cross reference examples folder?
@@ -154,7 +147,7 @@ After a class is the source or target of a differential, it disappears on the ne
 \printpage[ name = replace class example, page = 3 ] \qquad
 \printpage[ name = replace class example, page = 4 ]
 \end{codeexample}
-Note that this will not restore any structlines coming into or off of the class, if you want the structlines to persist, you must call |\structline| again (or use the structline |structline:page| option)
+Note that this will not restore any structure lines coming into or off of the class, if you want the structure lines to persist, you must call |\structline| again (or use the |structline:page| option)
 \end{commandlist}
 
 \begin{commandlist}{{\classoptions\moptions\parargthreeopt{x}{y}{n}},\classoptions\moptions\pararg{classname}, \classoptions\moptions}
@@ -206,7 +199,7 @@ See the \pgfmanualpdfref{class options}{class options} section for a list of the
     {\d\ooptions\meta{page}\pars{\sourcename\opt{,\targetn}}},
     {\d\ooptions\meta{page}\pars{\sourcecoord}\pars{\targetcoord}}%
 }
-Calling |\d\meta{page}|\parargtwo{x}{y} creates a differential starting at \parargtwo{x}{y} of length determined by the specified page. In order to use the |\d| command like this, you must first specify the |degree| of the differentials as an option to the \sseqdataenv\  or \sseqpageenv\  environment. The degree indicates how far to the right and how far up a page $\mathtt{r}$ differential will go as a function of $\mathtt{r}$. If there is a page $\mathtt{r}$ differential, on page $\mathtt{r+1}$, the source, target, and any structlines connected to the source and target of the differential disappear. If no class is specified, the default is to use |\lastclass|.
+Calling |\d\meta{page}|\parargtwo{x}{y} creates a differential starting at \parargtwo{x}{y} of length determined by the specified page. In order to use the |\d| command like this, you must first specify the |degree| of the differentials as an option to the \sseqdataenv\  or \sseqpageenv\  environment. The degree indicates how far to the right and how far up a page $\mathtt{r}$ differential will go as a function of $\mathtt{r}$. If there is a page $\mathtt{r}$ differential, on page $\mathtt{r+1}$, the source, target, and any structure lines connected to the source and target of the differential disappear. If no class is specified, the default is to use |\lastclass|.
 
 If there are multiple nodes in the source or target, you may specify which one the differential should go to using an index or tag for \sourcen\  or \targetn. It is also possible to provide the name of the source coordinate and an optional target, or to separately provide the source and target coordinate, either as names or as \parargthree{x}{y}{n}. Using |\d| with explicit source and target coordinates works even if you did not provide a |degree| to the spectral sequence. If you did provide a |degree|, then \sseqpages\  will check whether the difference between the source and target is appropriate for a differential of a given page, and if not it will throw an error. If this is undesirable, you can use the |lax degree| option.
 \begin{codeexample}[width = 7.5cm]
@@ -267,7 +260,7 @@ This command sets the indicated coordinate to die on the indicated page, but doe
 \end{command}
 
 \begin{command}{\structline\ooptions\opt{\pars{\sourcecoord}\pars{\targetcoord}}}
-This command creates a structure line from \sourcecoord\  to \targetcoord. The source and target coordinates are either of the form \pars{\meta{x},\meta{y}\opt{,\meta{n}}} or \pararg{class name}. If there are multiple classes at $\mathtt{(x,y)}$, then \meta{n} specifies which of the classes at $\mathtt{(x,y)}$ the structline starts and ends at -- if n is positive, then it counts from the first class in that position, if n is negative, it counts backwards from the most recent. You can also use a |tag| for n. If the \targetcoord\ is omitted, then |\lastclass| is used, so that |\structline(\sourcecoord)| connects the most recent class to the specified coordinate. If both coordinates are omitted, then |\lastclass| and |\lastclass1| are used, and so |\structline| with no arguments at all will connect the two most recent classes.
+This command creates a structure line from \sourcecoord\  to \targetcoord. The source and target coordinates are either of the form \pars{\meta{x},\meta{y}\opt{,\meta{n}}} or \pararg{class name}. If there are multiple classes at $\mathtt{(x,y)}$, then \meta{n} specifies which of the classes at $\mathtt{(x,y)}$ the structure line starts and ends at -- if n is positive, then it counts from the first class in that position, if n is negative, it counts backwards from the most recent. You can also use a |tag| for n. If the \targetcoord\ is omitted, then |\lastclass| is used, so that |\structline(\sourcecoord)| connects the most recent class to the specified coordinate. If both coordinates are omitted, then |\lastclass| and |\lastclass1| are used, and so |\structline| with no arguments at all will connect the two most recent classes.
 
 If the source or target of a structure line is hit by a differential, then on subsequent pages, the structure line disappears.
 
@@ -393,7 +386,7 @@ These come from the \LaTeX\  \colorpkg\  package via \tikzpkg, so see the \href{
 \end{manualentry}
 
 \begin{manualentry}{\pgfmanualpdflabel{""quotes}{}|"|\meta{text}|"|\opt{\meta{options}}}
-Specify a label for a class, a differential, or a structure line. This uses the \tikzpkg\ quotes syntax. If the label text includes an equal sign or comma, you need to enclose the entire label in braces, e.g., |\class["{x = y}"](0,0)|. The options include anything you might pass as an option to a \tikzpkg\ node, including arbitrary coordinate transforms, colors, opacity options, shapes, fill, draw, etc. The behavior is a little different depending on whether you use it on a class or on a differential or struct line.
+Specify a label for a class, a differential, or a structure line. This uses the \tikzpkg\ quotes syntax. If the label text includes an equal sign or comma, you need to enclose the entire label in braces, e.g., |\class["{x = y}"](0,0)|. The options include anything you might pass as an option to a \tikzpkg\ node, including arbitrary coordinate transforms, colors, opacity options, shapes, fill, draw, etc. The behavior is a little different depending on whether you use it on a class or on a differential or structure line.
 
 For a class, the \meta{text} is placed in the position |inside| the node by default -- in effect, the \meta{text} becomes the label text of the node (so saying |\class["label text"](0,0)| causes a similar effect to saying |\node at (0,0) {label text};|). There are other position options such as |left|, |above left|, etc which cause the label text to be placed in a separate node positioned appropriately. If the placement is above, left, etc, then any option that you may pass to a \tikzpkg\ node will also work for the label, including general coordinate transformations. If the placement is ``inside'', then the only relevant \opt{\meta{options}} are those that alter the appearance of text, such as opacity and color.
 \begin{codeexample}[width = 4cm]
@@ -762,7 +755,7 @@ See the \href{\pgfmanualurl#subsubsection.15.3.2}{\tikzpkg\  manual} for a compl
 %\end{key}
 
 \begin{key}{structline:page = \meta{page}\opt{-{}-\meta{page max}}}
-This key is only for |\structline| and |\structlineoptions|. By default, the |\structline| command only adds a structline starting on the page where the most recent generation of the source or target is born:
+This key is only for |\structline| and |\structlineoptions|. By default, the |\structline| command only adds a structure line starting on the page where the most recent generation of the source or target is born:
 
 \begin{codeexample}[width = 7.6cm]
 \begin{sseqdata}[ name = structpage example,
@@ -835,7 +828,7 @@ See the \pgfmanualpdfref{class style}{corresponding entry} in the \tikzpkg\  pri
 \end{keylist}
 
 \begin{key}{cc:page = \meta{page}\opt{-{}-\meta{page max}}}
-By default, the ellipse will be drawn on the same set of pages that a structline between the two classes would be drawn on. This specifies a range of pages for the ellipse to be drawn. Note that unlike with structlines, you can instruct |\circleclasses| to draw the shape even on pages where one or both of the classes that it is fitting are dead.
+By default, the ellipse will be drawn on the same set of pages that a structure line between the two classes would be drawn on. This specifies a range of pages for the ellipse to be drawn. Note that unlike with structure lines, you can instruct |\circleclasses| to draw the shape even on pages where one or both of the classes that it is fitting are dead.
 \end{key}
 
 \subsection{Options for \tikzpkg\  primitives}
@@ -848,7 +841,7 @@ This key instructs \sseqpages\  to put the current \tikzpkg\  primitive in the b
 
 \item The clipping is inserted (unless the |no clip| key is used).
 
-\item All foreground elements (classes, differentials, structlines, and normal \tikzpkg\  paths) are printed.
+\item All foreground elements (classes, differentials, structure lines, and normal \tikzpkg\  paths) are printed.
 \end{itemize}
 
 In particular, this means that foreground \tikzpkg\  paths can be clipped by the standard clipping, but background paths that are outside of the clipping expand the size of the \tikzpkg\  picture.
@@ -933,6 +926,7 @@ See |\getdtarget| for a more natural example.
 
 
 \section{Miscellaneous Commands}
+\subsection{Settings}
 \begin{command}{\sseqset\marg{keys}}
 The |\sseqset| command is for adjusting the global options for all spectral sequences in the current scope, or for applying options to the rest of the current spectral sequence. For instance, if most of the spectral sequences in the current document are going to be Adams graded, you can say |\sseqset{Adams grading}| and all future spectral sequences in the current scope will have Adams grading (unless you specify a different grading explicitly). As another example, |\sseqset{no axes}| will suppress axes from spectral sequences in the current scope. Note that defaults only apply to new \sseqdataenv\ environments or to unnamed \sseqpageenv\ environments; they won't apply to existing spectral sequences.
 
@@ -943,7 +937,7 @@ You can also use |\sseqset| to create styles to be used in spectral sequences.
     .sseq style = \meta{keys},
     .sseq append style = \meta{keys}
 }
-These handlers create reusable styles to be used in spectral sequences. If this style is a set of global options, then use the |.global sseq style| handler, whereas if it is supposed to be applied to individual features (classes, differentials, struct lines, circle classes, and tikz primitives) then use the |.sseq style| handler.
+These handlers create reusable styles to be used in spectral sequences. If this style is a set of global options, then use the |.global sseq style| handler, whereas if it is supposed to be applied to individual features (classes, differentials, structure lines, circle classes, and tikz primitives) then use the |.sseq style| handler.
 \begin{codeexample}[width=6cm]
 \sseqset{
     mysseq/.global sseq style = {
@@ -966,6 +960,11 @@ These handlers create reusable styles to be used in spectral sequences. If this 
 \end{keylist}
 \end{command}
 
+\begin{command}{\sseqerrortowarning\meta{error-name}}
+Turns the error with the given name into a warning. An error message will start by saying |spectralsequences error: "error-name"|. This is the name you need to put into this command.
+\end{command}
+
+\subsection{Code reuse commands}
 \begin{command}{\foreach }
 This command is from \tikzpkg\  and works in pretty much the same way in \sseqpages, though with slightly better variants. The |\foreach| command is very flexible and has a lot of variants. The basic usage is |\foreach \x in {\meta{xmin},...,\meta{xmax}} \marg{loop body}| which will execute |\meta{loop body}| with |\x| set to each value between \meta{xmin} and \meta{xmax} inclusive. If you want a step greater than 1, try |\foreach \x in {\meta{xmin},\meta{xmin}+\meta{xstep},...,\meta{xmax}} \marg{loop body}|.
 
@@ -1047,32 +1046,6 @@ The |\Do| command is less general than |\foreach|; the purpose is to provide a s
 
 If you need to know how many iterations one of these three commands has gone through, this is stored in the variable |\iteration|.
 \end{commandlist}
-
-\begin{commandlist}{
-    \IfOutOfBoundsTF\pararg{coordinate}\marg{true code}\marg{false code},
-    \IfOutOfBoundsT\pararg{coordinate}\marg{true code},
-    \IfOutOfBoundsF\pararg{coordinate}\marg{false code},
-    \IfInBoundsTF\pararg{coordinate}\marg{true code}\marg{false code},
-    \IfInBoundsT\pararg{coordinate}\marg{true code},
-    \IfInBoundsF\pararg{coordinate}\marg{false code}
-}
-Test whether an existing class is in bounds or out of bounds. I don't have an obvious use for these. I had to make commands to do this as part of the drawing code and in order to make |\DoUntilOutOfBounds| and it was no extra effort to expose them. Maybe they will be helpful at some point.
-\end{commandlist}
-
-
-\begin{command}{\sseqerrortowarning\meta{error-name}}
-Turns the error with the given name into a warning. An error message will start by saying |spectralsequences error: "error-name"|. This is the name you need to put into this command.
-\end{command}
-
-\begin{command}{\sseqnormalizemonomial}
-This command simplifies a monomial by combining like variables and removing bases that are raised to the 0th power, removing exponents of 1, removing 1's, and replacing the empty monomial with 1. It outputs its result into |\processedlabel|. This command is specifically meant to be used as a value for |class label handler|, so see the example there for the actual purpose. The exponents must be integers or else it will misbehave.
-\begin{codeexample}[]
-\sseqnormalizemonomial{x^0y^0} $\processedlabel$, \quad
-\sseqnormalizemonomial{x^3yx^{-1}z^0} $\processedlabel$, \quad
-\sseqnormalizemonomial{1x_2^2x^2_2} $\processedlabel$
-\end{codeexample}
-\end{command}
-
 \begin{commandlist}{\NewSseqCommand    \cmdarg{command}\marg{argspec}\marg{body},
                     \DeclareSseqCommand\cmdarg{command}\marg{argspec}\marg{body}}
 The \xparsepkg\ package provides these very powerful commands for defining macros. They are used internally to the \sseqpages\  package to define |\class|, |\d|, etc. To help you create variants of these commands, I will record here the argument specifications for each of them. See the \href{\xparseurl}{\xparsepkg\ manual} for a better explanation and more information.
@@ -1179,23 +1152,65 @@ So that calling |\mygroup(x,y)| prints the whole group shifted to start at $\mat
 \end{codeexample}
 \end{commandlist}
 
+
+
+\subsection{Utilities}
 \begin{command}{\sseqparseint\cmdarg{macro}\marg{integer expression}}
-Stores the result of evaluating an integer expression into \cmdarg{macro}. An integer expression consists of |+|, |-|, |*|, |/|, parentheses, and macros that expand to more of the same. The exact rules regarding what is a valid expression are pretty much what you would expect.
+Stores the result of evaluating an integer expression into \cmdarg{macro}. An integer expression consists of |+|, |-|, |*|, |/|, parentheses, and macros that expand to more of the same. The exact rules regarding what is a valid expression are pretty much what you would expect. Note that juxtaposition is a syntax error, not multiplication, so |2(1+1)| is invalid, you must say |2*(1+1)|.
 \end{command}
 
-\begin{command}{\getdtarget\marg{macro}\marg{page}\pars{\sourcecoord}}
-Sets \meta{macro} equal to the coordinates of the target position of a length \meta{page} differential starting at \sourcecoord. This helps to make commands that draw fancy differentials. For instance, consider the following example, suggested by Catherine Ray:
+\begin{command}{\sseqifempty\marg{expression}\marg{true code}\marg{false code}}
+This tests if an expression is the empty expression. This is mainly useful for giving systematic labels to things. Probably it won't ever matter to you.
+\end{command}
+
+\begin{commandlist}{
+    \IfOutOfBoundsTF\pararg{coordinate}\marg{true code}\marg{false code},
+    \IfOutOfBoundsT\pararg{coordinate}\marg{true code},
+    \IfOutOfBoundsF\pararg{coordinate}\marg{false code},
+    \IfInBoundsTF\pararg{coordinate}\marg{true code}\marg{false code},
+    \IfInBoundsT\pararg{coordinate}\marg{true code},
+    \IfInBoundsF\pararg{coordinate}\marg{false code}
+}
+Test whether an existing class is in bounds or out of bounds. I don't have an obvious use for these. I had to make commands to do this as part of the drawing code and in order to make |\DoUntilOutOfBounds| and it was no extra effort to expose them. Maybe they will be helpful at some point.
+\end{commandlist}
+
+
+\begin{command}{\sseqnormalizemonomial}
+This command simplifies a monomial by combining like variables and removing bases that are raised to the 0th power, removing exponents of 1, removing 1's, and replacing the empty monomial with 1. It outputs its result into |\processedlabel|. This command is specifically meant to be used as a value for |class label handler|, so see the example there for the actual purpose. The exponents must be integers or else it will misbehave.
 \begin{codeexample}[]
-% O{}u(u) is the arg-spec for \d, O{}u(u)mm looks like \d with two extra mandatory arguments
-\NewSseqCommand{\twods}{ O{} U( r() m m }{
-    \getdtarget\target#2{#3}             % Store the target position in \target
-    \nameclass{source}(#3)               % naming the classes gives us a speed boost
-    \nameclass{target1}(\target,#4)      % by preventing spectralsequences from reparsing the coordinate
-    \nameclass{target2}(\target,#5)      % it also makes the code easier to read
+\sseqnormalizemonomial{x^0y^0} $\processedlabel$, \quad
+\sseqnormalizemonomial{x^3yx^{-1}z^0} $\processedlabel$, \quad
+\sseqnormalizemonomial{1x_2^2x^2_2} $\processedlabel$
+\end{codeexample}
+\end{command}
+
+
+\subsection{Coordinate parsers and related}
+%    \parsecoordinate and \parsedifferential
+\begin{command}{\parsecoordinate\cmdarg{macro}(\meta{coordinate})}
+This command parses the coordinate and puts the triple |(x,y,n)| into \cmdarg{macro}. It also puts the components of the coordinate into macros, for instance if \cmdarg{macro} is |\coord|, then |\xcoord| will contain the x coordinate, |\ycoord| will contain the y coordinate, and |\ncoord| will contain the index. The coordinate can be anything that would be valid to use in a differential or structure line; this is the macro that is used internally to handle coordinates.
+\end{command}
+
+\begin{command}{\getdtarget\cmdarg{macro}\marg{page}\pars{\sourcecoord}}
+Sets \cmdarg{macro} equal to the coordinates of the target position of a length \meta{page} differential starting at \sourcecoord. This helps to make commands that draw fancy differentials.
+\end{command}
+
+\begin{command}{\parsedifferential\meta{page}(\meta{differential coordinate})\opt{\pararg{differential target}}}
+This has the same weird syntax of |\d|, except that you are required to put braces around the page (if it has multiple digits) and you are required to provide at least one coordinate (you have to say |\parsedifferential{2}(\lastclass)| for instance). This effectively calls |\parsecoordinate\source\meta{source coordinate}| and |\parsecoordinate\target\meta{target coordinate}|.
+
+
+For instance, consider the following example, suggested by Catherine Ray:
+\begin{codeexample}[]
+% O{} U( r() is the arg-spec for \d, O{} U( r() mm looks like \d with one extra mandatory arguments
+\NewSseqCommand{\twods}{ O{} U( r() d()  m }{
+    \parsedifferential{#2}(#3)(#4)             % Store the target position in \target
+    \nameclass{source}(\sourcecoord,\nsource)  % give names to the three classes 
+    \nameclass{target1}(\targetcoord,\ntarget) 
+    \nameclass{target2}(\targetcoord,#5)       
 %
-    \circleclasses[ cc:differential style, #1,
-           name path = circ, page = #2--#2 ]
-                (target1)(target2)            % Circle the classes, use differential style
+    \circleclasses[ cc:differential style, name path = circ,
+                    #1, page = #2--#2 ]
+                    (target1)(target2)         % Circle the classes, use differential style
 %
     % record source and targets as hit.
     \kill#2(source) \kill#2(target1) \kill#2(target2)
@@ -1214,7 +1229,7 @@ Sets \meta{macro} equal to the coordinates of the target position of a length \m
 \class(0,2)
 \class(1,0)\class(1,0)
 
-\twods2(1,0,-1){1}{2}
+\twods2(1,0,-1,1){2}
 \end{sseqdata}
 \printpage[ name = cathex, page = 1 ]
 \qquad
@@ -1337,7 +1352,7 @@ This saves and reverts the stack. Saves nest. Most frequently, you will want to 
 
 
 \section{Styles}
-The \sseqpages\  package has a large number of styles which control the appearance of specific components (e.g., classes, differentials, or structlines) of a spectral sequence. Each style has two corresponding keys: |classes| and |change classes|.  Saying |classes = |\marg{keys} adds the keys to the list of options used to style every future class, whereas |change classes = |\marg{keys} only makes sense in a \sseqpageenv\  environment, and temporarily overwrites the list of options. Note that |change classes| only applies to classes that existed before the current page, and that even with the |keep changes| option, the |change classes| options are local to the current page. Compare:
+The \sseqpages\  package has a large number of styles which control the appearance of specific components (e.g., classes, differentials, or structure lines) of a spectral sequence. Each style has two corresponding keys: |classes| and |change classes|.  Saying |classes = |\marg{keys} adds the keys to the list of options used to style every future class, whereas |change classes = |\marg{keys} only makes sense in a \sseqpageenv\  environment, and temporarily overwrites the list of options. Note that |change classes| only applies to classes that existed before the current page, and that even with the |keep changes| option, the |change classes| options are local to the current page. Compare:
 \begin{codeexample}[width = 8cm]
 \begin{sseqdata}[ name = stylesex ]
 \class(0,0)\class(1,1)
@@ -1370,7 +1385,7 @@ In cases where the same drawing feature is affected by multiple of these styles,
 
 \begin{sseqpage}[ classes = { blue, fill },
    title style = { align = center, text width = 2.4cm },
-   title = { only structline is orange } ]
+   title = { only structure line is orange } ]
 \begin{scope}[ sseq = orange ]
 \class(0,0) \class(0,1)
 \structline(0,0)(0,1)
@@ -1471,7 +1486,7 @@ Applies to all \tikzpkg\  primitives.
 
 
 \begin{stylekeylist}{labels,change labels}
-This style applies to labels on classes, differentials, and structlines. All the more specific label styles take precedence over it.
+This style applies to labels on classes, differentials, and structure lines. All the more specific label styles take precedence over it.
 \end{stylekeylist}
 
 \begin{stylekeylist}{class labels,inner class labels,outer class labels,
@@ -1514,7 +1529,7 @@ This sets the default distance from a class to an outer label. There are also va
 \begin{keylist}{run off = \meta{start tip}--\meta{end tip},
     run off struct lines = \meta{start tip}--\meta{end tip}  (initially {...--...}),
     run off differentials = \meta{start tip}--\meta{end tip} (initially {...--...})}
-Change the default behavior of run off edges for either all edges, just struct lines, or just differentials respectively. Local arrowhead options override this.
+Change the default behavior of run off edges for either all edges, just structure lines, or just differentials respectively. Local arrowhead options override this.
 
 If an edge runs off the edge of the clipping, \sseqpages\ automatically add an arrowhead to indicate that the edge continues. This option controls which arrow head is added if the start or end of an edge runs off the page.
 \begin{codeexample}[width = 6cm]
@@ -2054,7 +2069,7 @@ node[above,description]{y axis gap};
 
 \parskip=10pt
 \begin{key}{custom clip = \meta{clip path}}
-Give a custom clipping. The clipping specified must be in the form of a valid \tikzpkg\ path, for instance |\clip (0,0) rectangle (10,10);|. This clipping is also applied to any grid and is used to draw ellipses on appropriate differentials or struct lines that go out of bounds and to determine whether a differential or struct line is an ``orphan''. It is not applied to any background elements, which is important because these are often used for axes labels and such that should lie outside of the clipping region. Weird things can happen with out of range edges if use this option with an oddly shaped path.
+Give a custom clipping. The clipping specified must be in the form of a valid \tikzpkg\ path, for instance |\clip (0,0) rectangle (10,10);|. This clipping is also applied to any grid and is used to draw ellipses on appropriate differentials or structure lines that go out of bounds and to determine whether a differential or structure line is an ``orphan''. It is not applied to any background elements, which is important because these are often used for axes labels and such that should lie outside of the clipping region. Weird things can happen with out of range edges if use this option with an oddly shaped path.
 \end{key}
 
 \begin{key}{clip = \meta{boolean} (default true)(initially true)}

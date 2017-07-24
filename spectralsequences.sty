@@ -14,15 +14,10 @@
 %  Slightly more semantic styles?
 %  Fix user styles by making first pass style?
 %
-%  Verify that draftmode calculates bounding boxes correctly (meaning we can't dummy out "background" tikz paths...)
-%
 %  Layout:
 %    add frame axes options? ticks?
 %    make an "axis style" option that styles the axis.
 %    fix chess and dots grids
-%
-%
-%
 %
 %
 %  Redo sseqerrortest and set up regression test script as part of build (damn I didn't realize we'd lost anything imporant with that find -d disaster)
@@ -35,18 +30,6 @@
 %   should we specify our favorite conditionals library?
 %
 
-
-
-%%
-%%
-
-%%  sets the page to be infinite,
-%%
-%%
-%%
-%%
-%%
-%%
 
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{spectralsequences}[2017/06/21 v1.0.0-dev]
@@ -64,6 +47,7 @@
 \usetikzlibrary{backgrounds}
 \usepgflibrary{arrows.meta}
 \usetikzlibrary{shapes}
+\usetikzlibrary{patterns}
 %\usetikzlibrary{profiler}
 
 \newif\ifsseq@draftmode
@@ -207,7 +191,7 @@
 
 
 % Used in sseqkeys to delete spaces from style commands.
-% Set the catcode of space to ignore, and then reparse the characters in #2. 
+% Set the catcode of space to ignore, and then reparse the characters in #2.
 \def\sseq@setmacronospaces#1#2{%
     \bgroup\catcode`\ =9\relax
         \makeatletter

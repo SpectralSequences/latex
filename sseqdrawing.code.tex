@@ -283,42 +283,75 @@
     \bgroup
     \pgfscope
     \sseq@useclip
+    \clip         (\sseq@xmin,\sseq@ymin ) ++ (-\sseq@leftgridpadding, -\sseq@bottomgridpadding)
+        rectangle ([shift={(\sseq@rightgridpadding,\sseq@topgridpadding)}]\sseq@xmax,\sseq@ymax);
     \pgfsetcolor{\sseq@gridcolor}
     \sseq@grid@setstepandgridstep
+%
+    \sseq@grid@atmostgridstep\sseq@xminpadding{x}{\sseq@leftgridpadding}{1}
+    \sseq@grid@atmostgridstep\sseq@xmaxpadding{x}{\sseq@rightgridpadding}{1}
+    \sseq@grid@atmostgridstep\sseq@yminpadding{y}{\sseq@bottomgridpadding}{1}
+    \sseq@grid@atmostgridstep\sseq@ymaxpadding{y}{\sseq@topgridpadding}{1}   
+    \global\let\sseq@yminpadding\sseq@yminpadding 
 %
 %
 %  Use ifdim with cm to compare real scalars b/c tex is dumb.
     \ifdim\sseq@xscale cm>\sseq@yscale cm\relax
+        \def\sseq@xadjustscale{1}
+        \def\sseq@yadjustscale{1}
         \pgfsetxvec{\pgfpoint{\sseq@xscale cm}{0cm}}
         \pgfsetyvec{\pgfpoint{0cm}{\sseq@xscale cm}}
         \pgftransformyscale{\sseq@yscale/\sseq@xscale*\sseq@ygridstep/\sseq@xgridstep}
         \def\sseq@stepscale{\sseq@xscale*\sseq@xgridstep}
     \else
+        \def\sseq@xadjustscale{1}
+        \def\sseq@yadjustscale{1}
         \pgfsetxvec{\pgfpoint{\sseq@yscale cm}{0cm}}
         \pgfsetyvec{\pgfpoint{0cm}{\sseq@yscale cm}}
         \pgftransformxscale{\sseq@xscale/\sseq@yscale*\sseq@ygridstep/\sseq@xgridstep}
         \def\sseq@stepscale{\sseq@yscale*\sseq@xgridstep}
     \fi
+    \pgftransformshift{\pgfpointxy
+        {\sseq@xminpadding-0.01}
+        {abs(mod(4*\sseq@ygridstep-\sseq@ymin,4*\sseq@ygridstep))+1-\sseq@yminpadding-0.01}
+    }
     \pgflowlevelsynccm
     \pgfsetlinewidth{1cm*\sseq@stepscale}
     \pgfsetdash{{1cm*\sseq@stepscale}{1cm*\sseq@stepscale}}{1cm*\sseq@stepscale}
 %
-    \sseq@grid@atmostgridstep\sseq@xminpadding{x}{\sseq@leftgridpadding}{1/2}
-    \sseq@grid@atmostgridstep\sseq@yminpadding{y}{\sseq@bottomgridpadding}{1/2}
+    %\show\sseq@yminpadding
     %
-    \sseq@tempx=\numexpr\sseq@intdivceiling{\sseq@xmin}{2*\sseq@xgridstep}*2*\sseq@xgridstep\relax
+    \sseq@tempx=\numexpr\sseq@intdivfloor{\sseq@xmin}{2*\sseq@xgridstep}*2*\sseq@xgridstep\relax
     \sseq@tempy=\numexpr\sseq@intdivceiling{\sseq@ymin}{2*\sseq@xgridstep}*2*\sseq@xgridstep\relax
     \sseq@tempxb=\sseq@xmax\relax
     \sseq@tempyb=\sseq@ymax\relax
     % shift by -xmin mod x grid step, -ymin mod y grid step
 %    \pgfmathparse{abs(mod(2*\sseq@ygridstep-\sseq@ymin,2*\sseq@ygridstep))}\show\pgfmathresult
-    \pgftransformshift{\pgfpointxy{1-\sseq@xminpadding}{1-abs(mod(2*\sseq@ygridstep-\sseq@ymin,2*\sseq@ygridstep))}}
-
+%
+    %\pgftransformshift{\pgfpointxy{-6}{0}}
+    %\showthe\numexpr\sseq@intdivfloor{\numexpr\sseq@ymin - \sseq@xgridstep\relax}{2*\sseq@xgridstep}*2*\sseq@xgridstep
     \pgfpathgrid[stepx= 2cm*\sseq@stepscale,stepy=2cm*\sseq@stepscale]
-    { \pgfpointxy { (-\sseq@xgridstep/2 +\sseq@xoffset) } { ( -\sseq@xgridstep/2 + \sseq@yoffset )} }
-    { \pgfpointxy { (\sseq@xmax +\sseq@xoffset ) }{ (\sseq@ymax + \sseq@yoffset + 2*\sseq@ygridstep ) } }
+    { \pgfpointxy 
+        { (-1 + 5*\sseq@intdivfloor{\numexpr\sseq@xmin - \sseq@xgridstep\relax}{2*\sseq@xgridstep}*2*\sseq@xgridstep  +\sseq@xoffset) } 
+        { ( -1 + 5*\sseq@intdivfloor{\numexpr\sseq@ymin - \sseq@xgridstep\relax}{2*\sseq@xgridstep}*2*\sseq@xgridstep + \sseq@yoffset )} }
+    { \pgfpointxy 
+        { (\sseq@xmax + \sseq@xoffset ) + 50 }
+        { (\sseq@ymax + \sseq@yoffset + 2*\sseq@ygridstep + 50 ) } 
+    }    
+%    
+%    { \pgfpointxy
+%        {  -\sseq@xgridstep/2 - \sseq@xminpadding + \sseq@xoffset }
+%        { \sseq@ymin -\sseq@xgridstep/2 - \sseq@yminpadding + \sseq@yoffset } }
+%    { \pgfpointxy
+%        { \sseq@xmax + \sseq@xmaxpadding - \sseq@xoffset +30}
+%        { \sseq@ymax + \sseq@ymaxpadding - \sseq@yoffset +30}
+%    }
     \pgfusepath{stroke}
     \endpgfscope
+    \draw (1,0)--(1,\sseq@yminpadding);
+    \draw(1,0) -- (2,0);
+    \draw[yshift=\sseq@yminpadding cm](1,0) -- (2,0);
+    \draw(0,0) -- (10,10);    
     \egroup
 }
 
