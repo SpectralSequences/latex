@@ -1188,8 +1188,8 @@
             \sseq@usedparam\sseq@tempb
         \fi
         \pgfkeys{%
-            /sseqpages/global/\sseq@temp/.ecode={\@nx\pgfkeysalso{\sseq@tempb{x}={##1},\sseq@tempb{y}={##1}}},%
-            /sseqpages/global/default/\sseq@temp/.ecode={\@nx\pgfkeysalso{\sseq@tempb{x}={##1},\sseq@tempb{y}={##1}}}%
+            /sseqpages/global/\sseq@temp/.code/.expanded={\@nx\pgfkeysalso{\sseq@tempb{x}=\unexpanded{{##1}},\sseq@tempb{y}=\unexpanded{{##1}}}},%
+            /sseqpages/global/default/\sseq@temp/.code/.expanded={\@nx\pgfkeysalso{\sseq@tempb{x}=\unexpanded{{##1}},\sseq@tempb{y}=\unexpanded{{##1}}}}%
         }%
     }
 }
@@ -1626,6 +1626,12 @@
     tick offset/.value required,
     x tick offset/.sseq store int in=\sseq@xtickstepoffset{0},
     y tick offset/.sseq store int in=\sseq@ytickstepoffset{0},
+    major tick step/.sseq x y alias,
+    x major tick step/.sseq store int in=\sseq@xmajortickstep{0},
+    y major tick step/.sseq store int in=\sseq@ymajortickstep{0},
+    minor tick step/.sseq x y alias,
+    x minor tick step/.sseq store int in=\sseq@xminortickstep{0},
+    y minor tick step/.sseq store int in=\sseq@yminortickstep{0},    
     x tick handler/.code={\def\sseq@xtickfn##1{#1}},
     x tick handler/.sseq default code={\def\sseq@xtickfn@default##1{#1}},
     y tick handler/.code={\def\sseq@ytickfn##1{#1}},
@@ -1659,13 +1665,34 @@
     tick style/.sseq x y alias,
 %
     axes type/.sseq x y alias=axis type,
-    x axis type/.sseq store in=\sseq@xaxistype{border},
-    y axis type/.sseq store in=\sseq@yaxistype{border},
+    axes type/.add code={\let\sseq@axistypesanitizer\sseq@axistypesanitizerb}{\let\sseq@axistypesanitizer\sseq@axistypesanitizera},
+    x axis type/.sseq store in sanitize=\sseq@xaxistype{border}\sseq@axistypesanitizer,
+    y axis type/.sseq store in sanitize=\sseq@yaxistype{border}\sseq@axistypesanitizer,
     x axis origin/.sseq store int in=\sseq@xaxisorigin@center@{0},
     y axis origin/.sseq store int in=\sseq@yaxisorigin@center@{0},
     axes origin/.sseq x y alias=axis origin,
 }
 
+
+\def\sseq@axistypesanitizerb#1#2{
+    \@xp\ifx\csname sseq@leftgridpadding@y#1\endcsname\relax
+        \sseq@error{TODO}
+        \sseq@breakfi
+    \else
+        \def\sseq@sanitize@output{#1}
+    \fi
+}
+
+\def\sseq@axistype@frame{frame} 
+\def\sseq@axistypesanitizera#1#2{
+    \def\temp{#1}
+    \ifx\sseq@axistype@frame\temp
+        \sseq@error{TODO}
+        \sseq@breakfi
+    \fi
+    \sseq@axistypesanitizerb{#1}{#2}
+}
+\let\sseq@axistypesanitizer\sseq@axistypesanitizera
 
 \pgfqkeys{/sseqpages}{%
     class label handler/.code = { % \long so that \ifx\classlabeltextfn\@gobble compares true if this is empty (\@gobble is long...)
@@ -1691,8 +1718,10 @@
     tick gap/.value required,
     x tick gap/.sseq store dimen in=\sseq@xlabelgap{0.5cm},
     y tick gap/.sseq store dimen in=\sseq@ylabelgap{0.5cm},
-    x axis extend start/.sseq store dimen in=\sseq@xaxis@start@extend{0.9cm},
-    y axis extend start/.sseq store dimen in=\sseq@yaxis@start@extend{0.9cm},
+    x axis tail/.sseq store dimen in=\sseq@xaxis@tail{0.9cm},
+    y axis tail/.sseq store dimen in=\sseq@yaxis@tail{0.9cm},
+    x axis extend start/.sseq store dimen in=\sseq@xaxis@start@extend{0.5cm},
+    y axis extend start/.sseq store dimen in=\sseq@yaxis@start@extend{0.5cm},
     axes extend start/.sseq x y alias=axis extend start,
     x axis extend end/.sseq store dimen in=\sseq@xaxis@end@extend{0.5cm},
     y axis extend end/.sseq store dimen in=\sseq@yaxis@end@extend{0.5cm},

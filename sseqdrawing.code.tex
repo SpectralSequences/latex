@@ -14,6 +14,15 @@
 %%    the axes ticks was taking about 1/3 of the compile time (a little under 1s out of a 3.2)
 %%
 
+% Only for integer valued coordinates...
+\def\sseq@qpointxy#1#2{\pgfqpointxy{\numexpr#1+\sseq@xoffset\relax}{\numexpr#2+\sseq@yoffset\relax}}
+
+\def\sseq@transform@xymirror{
+    \pgftransformcm{0}{1}{1}{0}{\pgfqpointxy{\sseq@xoffset}{\sseq@yoffset}} % Reflect x and y axes,
+    \pgftransformshift{\pgfqpointxy{-\sseq@xoffset}{-\sseq@yoffset}}    % but we need to conjugate by a shift of (xoffset,yoffset)
+}
+
+
 \def\sseq@setlayoutparameter#1#2{\@xp\let\csname sseq@#1\@xp\endcsname\csname sseq@#1@#2\endcsname}
 \def\sseq@setlayoutparameters{
     \def\sseq@temp{none}
@@ -23,6 +32,7 @@
         \sseq@drawxaxistrue
     \fi
     \sseq@setlayoutparameter{yaxisorigin}{x\sseq@xaxistype}
+    \sseq@setlayoutparameter{drawyaxis}{x\sseq@xaxistype}
     \sseq@setlayoutparameter{yaxisstartoffset}{x\sseq@xaxistype}
     \sseq@setlayoutparameter{yaxisendoffset}{x\sseq@xaxistype}
     \sseq@setlayoutparameter{bottomgridpadding}{x\sseq@xaxistype}
@@ -37,6 +47,7 @@
         \sseq@drawyaxistrue
     \fi
     \sseq@setlayoutparameter{xaxisorigin}{y\sseq@yaxistype}
+    \sseq@setlayoutparameter{drawxaxis}{y\sseq@xaxistype}
     \sseq@setlayoutparameter{xaxisstartoffset}{y\sseq@yaxistype}
     \sseq@setlayoutparameter{xaxisendoffset}{y\sseq@yaxistype}
     \sseq@setlayoutparameter{leftgridpadding}{y\sseq@yaxistype}
@@ -49,8 +60,10 @@
 
 % Used to determine axis and ticks placement
 \def\sseq@xaxisorigin@yborder{\sseq@xmin}
+\def\sseq@xaxisorigin@yframe{\sseq@xmin}
 \def\sseq@xaxisorigin@ycenter{\sseq@xaxisorigin@center@}
 \def\sseq@yaxisorigin@xborder{\sseq@ymin}
+\def\sseq@yaxisorigin@xframe{\sseq@ymin}
 \def\sseq@yaxisorigin@xcenter{\sseq@yaxisorigin@center@}
 
 % Used to determine clipping and grid boundaries
@@ -58,32 +71,44 @@
 \def\sseq@rightgridpadding@yborder{\sseq@xaxis@end@extend}
 \def\sseq@leftgridpadding@ycenter{\sseq@xaxis@start@extend}
 \def\sseq@rightgridpadding@ycenter{\sseq@xaxis@end@extend}
+\def\sseq@leftgridpadding@yframe{\dimexpr\sseq@yaxisgap-\sseq@yclip@axisgap\relax}
+\def\sseq@rightgridpadding@yframe{5cm} % Just make it big enough to push off the end of the
 
 \def\sseq@bottomgridpadding@xborder{\dimexpr\sseq@xaxisgap-\sseq@xclip@axisgap\relax}
 \def\sseq@topgridpadding@xborder{\sseq@yaxis@end@extend}
 \def\sseq@bottomgridpadding@xcenter{\sseq@yaxis@start@extend}
 \def\sseq@topgridpadding@xcenter{\sseq@yaxis@end@extend}
+\def\sseq@bottomgridpadding@xframe{\dimexpr\sseq@xaxisgap-\sseq@xclip@axisgap\relax}
+\def\sseq@topgridpadding@xframe{5cm}
 
 \def\sseq@leftclippadding@yborder{\dimexpr-\sseq@yaxisgap+\sseq@yclip@axisgap\relax}
 \def\sseq@rightclippadding@yborder{\dimexpr\sseq@xaxis@end@extend+\sseq@clip@padding@right\relax}
-\def\sseq@leftclippadding@ycenter{\dimexpr-\sseq@xaxis@start@extend-\sseq@clip@padding@left\relax}
+\def\sseq@leftclippadding@ycenter{\dimexpr-\sseq@xaxis@start@extend+\sseq@clip@padding@left\relax}
 \def\sseq@rightclippadding@ycenter{\dimexpr\sseq@xaxis@end@extend+\sseq@clip@padding@right\relax}
+\def\sseq@leftclippadding@yframe{\dimexpr-\sseq@yaxisgap+\sseq@yclip@axisgap\relax}
+\def\sseq@rightclippadding@yframe{\dimexpr\sseq@yaxisgap-\sseq@yclip@axisgap\relax}
 
 \def\sseq@bottomclippadding@xborder{\dimexpr-\sseq@xaxisgap+\sseq@xclip@axisgap\relax}
 \def\sseq@topclippadding@xborder{\dimexpr\sseq@yaxis@end@extend+\sseq@clip@padding@top\relax}
 \def\sseq@bottomclippadding@xcenter{\dimexpr-\sseq@yaxis@start@extend-\sseq@clip@padding@bottom\relax}
 \def\sseq@topclippadding@xcenter{\dimexpr\sseq@yaxis@end@extend+\sseq@clip@padding@top\relax}
+\def\sseq@bottomclippadding@xframe{\dimexpr-\sseq@xaxisgap+\sseq@xclip@axisgap\relax}
+\def\sseq@topclippadding@xframe{\dimexpr\sseq@xaxisgap-\sseq@xclip@axisgap\relax}
 
 % Used to figure out how much further beyond (min -- max) to draw axes
-\def\sseq@xaxisstartoffset@yborder{\dimexpr\sseq@xaxis@start@extend+\sseq@yaxisgap\relax}
+\def\sseq@xaxisstartoffset@yborder{\dimexpr\sseq@xaxis@tail+\sseq@yaxisgap\relax}
 \def\sseq@xaxisendoffset@yborder{\sseq@xaxis@end@extend}
 \def\sseq@xaxisstartoffset@ycenter{\sseq@xaxis@start@extend}
 \def\sseq@xaxisendoffset@ycenter{\sseq@xaxis@end@extend}
+\def\sseq@xaxisstartoffset@yframe{\sseq@yaxisgap}
+\def\sseq@xaxisendoffset@yframe{\sseq@yaxisgap}
 
-\def\sseq@yaxisstartoffset@xborder{\dimexpr\sseq@yaxis@start@extend+\sseq@xaxisgap\relax}
+\def\sseq@yaxisstartoffset@xborder{\dimexpr\sseq@yaxis@tail+\sseq@xaxisgap\relax}
 \def\sseq@yaxisendoffset@xborder{\sseq@yaxis@end@extend}
 \def\sseq@yaxisstartoffset@xcenter{\sseq@yaxis@start@extend}
 \def\sseq@yaxisendoffset@xcenter{\sseq@yaxis@end@extend}
+\def\sseq@yaxisstartoffset@xframe{\sseq@xaxisgap}
+\def\sseq@yaxisendoffset@xframe{\sseq@xaxisgap}
 
 %%%
 %%% Draw axes and clip
@@ -108,30 +133,54 @@
         \egroup
     \fi
 }
-\def\sseq@drawxaxis{
+
+% Draws an x axis. Use with \sseq@transform@xymirror to draw y axis.
+% #1 -- horizontal start offset
+% #2 -- horizontal end offset
+% #3 -- vertical offset
+% #4 -- start value
+% #5 -- end value
+% #6 -- vertical value
+\def\sseq@drawaxis@generic#1#2#3#4#5#6{
     \bgroup
-    \pgftransformshift{\pgfqpoint{\sseq@xaxisendoffset}{-\sseq@xaxisgap}}
-    \pgfpathmoveto{\pgfqpointxy{\numexpr\sseq@xmax+\sseq@xoffset\relax}{\numexpr\sseq@yaxisorigin+\sseq@yoffset\relax}}
+    \pgftransformshift{\pgfqpoint{#2}{#3}}
+    \pgfpathmoveto{\sseq@qpointxy{#5}{#6}}
     \egroup
 %
     \bgroup
-    \pgftransformshift{\pgfqpoint{-\sseq@xaxisstartoffset}{-\sseq@xaxisgap}}
-    \pgfpathlineto{\pgfqpointxy{\numexpr\sseq@xmin+\sseq@xoffset\relax}{\numexpr\sseq@yaxisorigin+\sseq@yoffset\relax}}
+    \pgftransformshift{\pgfqpoint{#1}{#3}}
+    \pgfpathlineto{\sseq@qpointxy{#4}{#6}}
     \egroup
+}
+
+\def\sseq@drawxaxis@yborder{
+    \sseq@drawaxis@generic{-\sseq@xaxisstartoffset}{\sseq@xaxisendoffset}{-\sseq@xaxisgap}{\sseq@xmin}{\sseq@xmax}{\sseq@yaxisorigin}
     \pgfusepath{stroke}
 }
-\def\sseq@drawyaxis{
-    \bgroup
-    \pgftransformshift{\pgfqpoint{-\sseq@yaxisgap}{\sseq@yaxisendoffset}}
-    \pgfpathmoveto{\pgfqpointxy{\numexpr\sseq@xaxisorigin+\sseq@xoffset\relax}{\numexpr\sseq@ymax+\sseq@yoffset\relax}}
-    \egroup
-%
-    \bgroup
-    \pgftransformshift{\pgfqpoint{-\sseq@yaxisgap}{-\sseq@yaxisstartoffset}}
-    \pgfpathlineto{\pgfqpointxy{\numexpr\sseq@xaxisorigin+\sseq@xoffset\relax}{\numexpr\sseq@ymin+\sseq@yoffset\relax}}
-    \egroup
-    \pgfusepath{stroke}%
+\let\sseq@drawxaxis@ycenter\sseq@drawxaxis@yborder
+
+\def\sseq@drawxaxis@yframe{
+    \sseq@drawaxis@generic{-\sseq@xaxisstartoffset}{\sseq@xaxisendoffset}{-\sseq@xaxisgap}{\sseq@xmin}{\sseq@xmax}{\sseq@ymin}
+    \sseq@drawaxis@generic{-\sseq@xaxisstartoffset}{\sseq@xaxisendoffset}{ \sseq@xaxisgap}{\sseq@xmin}{\sseq@xmax}{\sseq@ymax}
+    \pgfusepath{stroke}
 }
+\def\sseq@drawyaxis@xborder{
+    \bgroup
+    \sseq@transform@xymirror
+    \sseq@drawaxis@generic{-\sseq@yaxisstartoffset}{\sseq@yaxisendoffset}{-\sseq@yaxisgap}{\sseq@ymin}{\sseq@ymax}{\sseq@xaxisorigin}
+    \pgfusepath{stroke}%
+    \egroup
+}
+\let\sseq@drawyaxis@xcenter\sseq@drawyaxis@xborder
+\def\sseq@drawyaxis@xframe{
+    \bgroup
+    \sseq@transform@xymirror
+    \sseq@drawaxis@generic{-\sseq@yaxisstartoffset}{\sseq@yaxisendoffset}{-\sseq@yaxisgap}{\sseq@ymin}{\sseq@ymax}{\sseq@xmin}
+    \sseq@drawaxis@generic{-\sseq@yaxisstartoffset}{\sseq@yaxisendoffset}{ \sseq@yaxisgap}{\sseq@ymin}{\sseq@ymax}{\sseq@xmax}
+    \pgfusepath{stroke}%
+    \egroup
+}
+
 \ExplSyntaxOn
 \def\sseq@intdivceiling#1#2{%
     \ifnum#1>\z@ % \int_div_truncate:nn rounds towards 0. We want \int_div_ceiling
@@ -149,55 +198,77 @@
 }
 \ExplSyntaxOff
 
-\def\sseq@drawxticks{%
+% #1 -- xmin
+% #2 -- xmax
+% #3 -- step
+% #4 -- offset
+% #5 -- ymin
+% #6 -- xaxisgap
+% #7 -- code
+\def\sseq@tickloop@generic#1#2#3#4#5#6#7{
     \sseq@tempx=\numexpr % min
-        \sseq@intdivceiling{\sseq@xmin}{\sseq@xtickstep} * \sseq@xtickstep
+        \sseq@intdivceiling{#1}{#3} * #3
         -
-        \sseq@intdivceiling{\sseq@xtickstepoffset}{\sseq@xtickstep} * \sseq@xtickstep + \sseq@xtickstepoffset
+        \sseq@intdivceiling{#4}{#3} * #3 + #4
     \relax
-    \ifnum\sseq@tempx<\sseq@xmin\relax
-        \advance\sseq@tempx\sseq@xtickstep\relax
-    \fi
-    \sseq@tempxb=\numexpr\sseq@xmax+1\relax % max
+    \ifnum\sseq@tempx<#1\relax
+        \advance\sseq@tempx#3\relax
+    \fi    
+    \sseq@tempxb=\numexpr#2+1\relax % max
     \loop
         \bgroup
-        \sseq@eval{\@nx\pgftransformshift{\@nx\pgfqpointxy{\the\numexpr\sseq@tempx+\sseq@xoffset\relax}{\the\numexpr\sseq@yaxisorigin+\sseq@yoffset\relax}}}%
-        \pgftransformresetnontranslations
-        \sseq@globaldetonetransform
-        \pgftransformshift{\pgfqpoint{0pt}{\dimexpr-\sseq@xlabelgap-\sseq@xaxisgap\relax}}%
-        \pgftransformresetnontranslations
-        \ifsseq@rotatelabels\sseq@globalrotatetransform\fi
-        \sseq@xtickstyle
-        \tikz@options
-        \pgftext{\hbox{$\sseq@xtickfn{\the\sseq@tempx}$}}%
+        \pgftransformshift{\sseq@qpointxy{\sseq@tempx}{#5}}%
+        \pgftransformshift{\pgfqpoint{0pt}{#6}}
+        #7
         \egroup
-        \advance\sseq@tempx\sseq@xtickstep\relax
+        \advance\sseq@tempx#3\relax
     \ifnum\sseq@tempx<\sseq@tempxb\repeat
 }
-\def\sseq@drawyticks{%
-    \sseq@tempy=\numexpr % min
-        \sseq@intdivceiling{\sseq@ymin}{\sseq@ytickstep} * \sseq@ytickstep
-        -
-        \sseq@intdivceiling{\sseq@ytickstepoffset}{\sseq@ytickstep} * \sseq@ytickstep + \sseq@ytickstepoffset
-    \relax
-    \ifnum\sseq@tempy<\sseq@ymin\relax
-        \advance\sseq@tempy\sseq@ytickstep\relax
+
+
+\def\sseq@drawxticks{%
+    \sseq@tickloop@generic{\sseq@xmin}{\sseq@xmax}{\sseq@xtickstep}{\sseq@xtickstepoffset}{\sseq@yaxisorigin}{-\sseq@xaxisgap}{        
+        \sseq@xtickstyle
+        \tikz@options
+        \pgftransformshift{\pgfqpoint{0pt}{-\sseq@ylabelgap}}
+        \pgftext{\hbox{$\sseq@xtickfn{\the\sseq@tempx}$}}%
+    } 
+    \ifnum\sseq@xmajortickstep>\z@
+        \sseq@tickloop@generic{\sseq@xmin}{\sseq@xmax}{\sseq@xmajortickstep}{\sseq@xtickstepoffset}{\sseq@yaxisorigin}{-\sseq@xaxisgap}{
+            \pgfpathmoveto{\pgfpointorigin}
+            \pgfpathlineto{\pgfpoint{0}{-0.4*\sseq@xaxisgap}}
+        }
     \fi
-    \sseq@tempyb=\numexpr\sseq@ymax+1\relax % max
-    \loop
-        \bgroup
-        \sseq@eval{\@nx\pgftransformshift{\@nx\pgfqpointxy{\the\numexpr\sseq@xaxisorigin+\sseq@xoffset}{\the\numexpr\sseq@tempy+\sseq@yoffset}}}%
-        \pgftransformresetnontranslations
-        \sseq@globaldetonetransform
-        \pgftransformshift{\pgfqpoint{\dimexpr-\sseq@ylabelgap-\sseq@yaxisgap\relax}{0pt}}%
-        \pgftransformresetnontranslations
-        \ifsseq@rotatelabels\sseq@globalrotatetransform\fi
+    \ifnum\sseq@xminortickstep>\z@
+        \sseq@tickloop@generic{\sseq@xmin}{\sseq@xmax}{\sseq@xminortickstep}{\sseq@xtickstepoffset}{\sseq@yaxisorigin}{-\sseq@xaxisgap}{
+            \pgfpathmoveto{\pgfpointorigin}
+            \pgfpathlineto{\pgfpoint{0}{-0.2*\sseq@xaxisgap}}
+        }
+    \fi
+    \pgfusepath{stroke}
+}
+\def\sseq@drawyticks{%
+    \sseq@transform@xymirror
+    \sseq@tickloop@generic{\sseq@ymin}{\sseq@ymax}{\sseq@ytickstep}{\sseq@ytickstepoffset}{\sseq@xaxisorigin}{-\sseq@yaxisgap}{
         \sseq@ytickstyle
         \tikz@options
-        \pgftext{\hbox{$\sseq@ytickfn{\the\sseq@tempy}$}}%
-        \egroup
-        \advance\sseq@tempy\sseq@ytickstep\relax
-    \ifnum\sseq@tempy<\sseq@tempyb\repeat
+        \pgftransformshift{\pgfqpoint{0pt}{-\sseq@ylabelgap}}
+        \pgftransformresetnontranslations
+        \pgftext{\hbox{$\sseq@ytickfn{\the\sseq@tempx}$}}%
+    }
+    \ifnum\sseq@ymajortickstep>\z@
+        \sseq@tickloop@generic{\sseq@ymin}{\sseq@ymax}{\sseq@ymajortickstep}{\sseq@ytickstepoffset}{\sseq@xaxisorigin}{-\sseq@yaxisgap}{
+            \pgfpathmoveto{\pgfpointorigin}
+            \pgfpathlineto{\pgfpoint{0}{-0.4*\sseq@yaxisgap}}
+        }
+    \fi
+    \ifnum\sseq@yminortickstep>\z@
+        \sseq@tickloop@generic{\sseq@ymin}{\sseq@ymax}{\sseq@yminortickstep}{\sseq@ytickstepoffset}{\sseq@xaxisorigin}{-\sseq@yaxisgap}{
+            \pgfpathmoveto{\pgfpointorigin}
+            \pgfpathlineto{\pgfpoint{0}{-0.2*\sseq@yaxisgap}}
+        }
+    \fi
+    \pgfusepath{stroke}
 }
 
 
@@ -282,8 +353,8 @@
 \def\sseq@grid@chess{
     \bgroup
     \pgfscope
-    % Pad on the right and top by either the grid padding, or the remaining piece of the checkerboard before it would start a new square 
-    % (it looks ugly to have a tiny sliver). Annoyingly, mod returns its result with the same sign as its input, so in order to reduce mod 
+    % Pad on the right and top by either the grid padding, or the remaining piece of the checkerboard before it would start a new square
+    % (it looks ugly to have a tiny sliver). Annoyingly, mod returns its result with the same sign as its input, so in order to reduce mod
     % \sseq@xgridstep and get a positive result, we have to do it twice. The 0.5cm*scale here matches the -0.5 in the \pgfpathgrid call.
     \pgfmathsetmacro\sseq@rightpadding{min(
         \sseq@rightgridpadding,
@@ -293,7 +364,7 @@
         \sseq@topgridpadding,
         1cm * mod(mod(-\sseq@ymax,\sseq@ygridstep)+\sseq@ygridstep,\sseq@ygridstep)+0.5cm*\sseq@yscale-0.02cm
     )}
-    % Because of complicated aliasing issues that arise when misusing the \pgfgrid command in this way, 
+    % Because of complicated aliasing issues that arise when misusing the \pgfgrid command in this way,
     % it's more convenient to add a clip than to actually stop things in the right place.
     \clip        (\sseq@xmin,\sseq@ymin) ++ (-0.48, -0.48)
         rectangle ([shift={(\sseq@rightpadding pt,\sseq@toppadding pt)}]\sseq@xmax,\sseq@ymax);
@@ -330,30 +401,30 @@
     % is reasonable enough, but what the heck are these other two terms for? I don't know either, thank god it works.
     \pgftransformshift{\pgfpointxy{
             floor((\sseq@xgridstep-1)/2)/\sseq@xgridstep
-            + \ifodd\sseq@xgridstep\space 0 \else 0.5/\sseq@xgridstep\fi 
+            + \ifodd\sseq@xgridstep\space 0 \else 0.5/\sseq@xgridstep\fi
             + mod(1+\sseq@xmin/\sseq@xgridstep,2*\sseq@xgridstep)
         }{
             floor((\sseq@ygridstep-1)/2)/\sseq@ygridstep
-            + \ifodd\sseq@ygridstep\space 0\else 0.5/\sseq@ygridstep\fi 
+            + \ifodd\sseq@ygridstep\space 0\else 0.5/\sseq@ygridstep\fi
             + mod(1+\sseq@ymin/\sseq@ygridstep,2*\sseq@ygridstep)
         }
     }
     % We use lowlevelsynccm to make the scale adjust the line width. Normally scaling doesn't affect line width, text size, etc, which is sensible.
     % When you apply \pgflowlevelsynccm, pgf loses track of the coordinate matrix and it gets indiscriminately applied to everything.
     % This is good for us, because we're doing this absurd thing where we make a checkerboard by drawing a really really fat line.
-    \pgflowlevelsynccm 
+    \pgflowlevelsynccm
     \pgfsetlinewidth{1cm*\sseq@stepscale}
     \pgfsetdash{{1cm*\sseq@stepscale}{1cm*\sseq@stepscale}}{1cm*\sseq@stepscale}
 %
     % Naturally some trial and error occurred here too.
     % Note the huge multiples of \sseq@xgridstep I added in -- they probably aren't necessary, but I don't understand what's going on so whatever.
-    % The basic idea is that things need to be divisible by twice the grid step. The part I added in the shift above 
+    % The basic idea is that things need to be divisible by twice the grid step. The part I added in the shift above
     % was the remainder when you divide \sseq@xmin by twice the grid step, now we need to add in the multiple of twice the grid step.
     % The -0.5 is ensuring that the checkerboard boundaries lie at half-integer coordinates (I think).
     \pgfpathgrid[stepx= 2cm*\sseq@stepscale,stepy=2cm*\sseq@stepscale]
     { \pgfpointxy
         { -0.5 + \sseq@intdivfloor{\numexpr\sseq@xmin - \sseq@xgridstep\relax}{2*\sseq@xgridstep}*2*\sseq@xgridstep + \sseq@xoffset - 50*\sseq@xgridstep }
-        { -0.5 + \sseq@intdivfloor{\numexpr\sseq@ymin - \sseq@ygridstep\relax}{2*\sseq@ygridstep}*2*\sseq@ygridstep + \sseq@yoffset - 50*\sseq@ygridstep} 
+        { -0.5 + \sseq@intdivfloor{\numexpr\sseq@ymin - \sseq@ygridstep\relax}{2*\sseq@ygridstep}*2*\sseq@ygridstep + \sseq@yoffset - 50*\sseq@ygridstep}
     }{ \pgfpointxy
         { \sseq@xmax + \sseq@xoffset + 50*\sseq@xgridstep }
         { \sseq@ymax + \sseq@yoffset + 50*\sseq@ygridstep  }

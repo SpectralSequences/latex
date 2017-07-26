@@ -27,6 +27,7 @@ Changelog:
 - Families 
 - Insert key for new classes allows control over relative class placement without reordering commands
 - Draw differentials from a range of pages.
+- Frame axis type, ticks.
 
 ### Changed:
 - Ticks are now placed at values congruent to tick offset mod tick step, tick offset defaults to 0
@@ -45,3 +46,4 @@ Changelog:
 - Big range like 600 - 700 no longer will cause an overflow
 - Labels now are rectangle nodes so they don't shift down if they are very wide
 - Fixed a bug with ranges in sseqpage environment
+- The chess grid works correctly now
