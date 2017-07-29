@@ -1601,13 +1601,9 @@
     no labels/.sseq x y alias=no #1 label,
     draw labels/.sseq x y alias=draw #1 label,
 %
-    no x axis/.sseq is if false={drawxaxis},
-    no y axis/.sseq is if false={drawyaxis},
-    no axes/.value forbidden,
-    no axes/.sseq x y alias=no #1 axis,
-    draw x axis/.sseq is if=drawxaxis,
-    draw y axis/.sseq is if=drawyaxis,
-    draw axes/.sseq x y alias=draw #1 axis,
+    no x axis/.style={x axis type=none},
+    no y axis/.style={y axis type=none},
+    no axes/.style={axes type=none},
     rotate labels/.sseq is if=rotatelabels,
 %
     draw x ticks/.sseq is if=drawxaxisticks,
@@ -1631,7 +1627,7 @@
     y major tick step/.sseq store int in=\sseq@ymajortickstep{0},
     minor tick step/.sseq x y alias,
     x minor tick step/.sseq store int in=\sseq@xminortickstep{0},
-    y minor tick step/.sseq store int in=\sseq@yminortickstep{0},    
+    y minor tick step/.sseq store int in=\sseq@yminortickstep{0},
     x tick handler/.code={\def\sseq@xtickfn##1{#1}},
     x tick handler/.sseq default code={\def\sseq@xtickfn@default##1{#1}},
     y tick handler/.code={\def\sseq@ytickfn##1{#1}},
@@ -1666,28 +1662,44 @@
 %
     axes type/.sseq x y alias=axis type,
     axes type/.add code={\let\sseq@axistypesanitizer\sseq@axistypesanitizerb}{\let\sseq@axistypesanitizer\sseq@axistypesanitizera},
+    axes type/.value required,
     x axis type/.sseq store in sanitize=\sseq@xaxistype{border}\sseq@axistypesanitizer,
+    x axis type/.value required,
     y axis type/.sseq store in sanitize=\sseq@yaxistype{border}\sseq@axistypesanitizer,
+    y axis type/.value required,
     x axis origin/.sseq store int in=\sseq@xaxisorigin@center@{0},
     y axis origin/.sseq store int in=\sseq@yaxisorigin@center@{0},
     axes origin/.sseq x y alias=axis origin,
 }
 
+\def\sseq@validaxestypesa{border, center, or none. The value frame only works with the 'axes type' key.}
+\def\sseq@validaxestypesb{border, center, frame, or none.}
+\let\sseq@validaxestypes\sseq@validaxestypesa
 
+\let\sseq@axistypekeya\@firstofone
+\def\sseq@axistypekeyb#1{axes type}
+\let\sseq@axistypekey\sseq@axistypekeya
+
+\def\sseq@uptoequal#1{\sseq@uptoequal@#1\sseq@nil}
+\def\sseq@uptoequal@#1=#2\sseq@nil{#1}
 \def\sseq@axistypesanitizerb#1#2{
+    \let\sseq@validaxestypes\sseq@validaxestypesb
+    \let\sseq@axistypekey\sseq@axistypekeyb
     \@xp\ifx\csname sseq@leftgridpadding@y#1\endcsname\relax
-        \sseq@error{TODO}
+        \sseq@error@xx{invalid-axis-type}{#1}{\sseq@uptoequal{#2}}
         \sseq@breakfi
     \else
         \def\sseq@sanitize@output{#1}
     \fi
+    \let\sseq@validaxestypes\sseq@validaxestypesa
+    \let\sseq@axistypekey\sseq@axistypekeya
 }
 
-\def\sseq@axistype@frame{frame} 
+\def\sseq@axistype@frame{frame}
 \def\sseq@axistypesanitizera#1#2{
     \def\temp{#1}
     \ifx\sseq@axistype@frame\temp
-        \sseq@error{TODO}
+        \sseq@error@xx{invalid-axis-type}{#1}{\sseq@uptoequal{#2}}
         \sseq@breakfi
     \fi
     \sseq@axistypesanitizerb{#1}{#2}
@@ -1730,9 +1742,9 @@
     y axis clip padding/.sseq store dimen in=\sseq@yclip@axisgap{0.1cm},
     axes clip padding/.sseq x y alias=axis clip padding,
     right clip padding/.sseq store dimen in=\sseq@clip@padding@right{0.1cm},
-    left clip padding/.sseq store dimen in=\sseq@clip@padding@left{0.4cm},
+    left clip padding/.sseq store dimen in=\sseq@clip@padding@left{0.1cm},
     top clip padding/.sseq store dimen in=\sseq@clip@padding@top{0.1cm},
-    bottom clip padding/.sseq store dimen in=\sseq@clip@padding@bottom{0.4cm}
+    bottom clip padding/.sseq store dimen in=\sseq@clip@padding@bottom{0.1cm}
 }
 
 %%%

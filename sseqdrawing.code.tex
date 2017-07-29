@@ -29,12 +29,6 @@
 
 \def\sseq@setlayoutparameter#1#2{\@xp\let\csname sseq@#1\@xp\endcsname\csname sseq@#1@#2\endcsname}
 \def\sseq@setlayoutparameters{
-    \def\sseq@temp{none}
-    \ifx\sseq@xaxistype\sseq@temp
-        \sseq@drawxaxisfalse
-    \else
-        \sseq@drawxaxistrue
-    \fi
     \sseq@setlayoutparameter{yaxisorigin}{x\sseq@xaxistype}
     \sseq@setlayoutparameter{drawyaxis}{x\sseq@xaxistype}
     \sseq@setlayoutparameter{yaxisstartoffset}{x\sseq@xaxistype}
@@ -44,12 +38,6 @@
     \sseq@setlayoutparameter{bottomclippadding}{x\sseq@xaxistype}
     \sseq@setlayoutparameter{topclippadding}{x\sseq@xaxistype}
 %
-    \def\sseq@temp{none}
-    \ifx\sseq@yaxistype\sseq@temp
-        \sseq@drawyaxisfalse
-    \else
-        \sseq@drawyaxistrue
-    \fi
     \sseq@setlayoutparameter{xaxisorigin}{y\sseq@yaxistype}
     \sseq@setlayoutparameter{drawxaxis}{y\sseq@xaxistype}
     \sseq@setlayoutparameter{xaxisstartoffset}{y\sseq@yaxistype}
@@ -76,7 +64,10 @@
 \def\sseq@leftgridpadding@ycenter{\sseq@xaxis@start@extend}
 \def\sseq@rightgridpadding@ycenter{\sseq@xaxis@end@extend}
 \def\sseq@leftgridpadding@yframe{\dimexpr\sseq@yaxisgap-\sseq@yclip@axisgap\relax}
-\def\sseq@rightgridpadding@yframe{5cm} % Just make it big enough to push off the end of the
+\def\sseq@rightgridpadding@yframe{5cm} % Just make it big enough to push off the end of the clip
+\def\sseq@leftgridpadding@ynone{\sseq@yaxisgap}
+\def\sseq@rightgridpadding@ynone{\sseq@yaxisgap}
+
 
 \def\sseq@bottomgridpadding@xborder{\dimexpr\sseq@xaxisgap-\sseq@xclip@axisgap\relax}
 \def\sseq@topgridpadding@xborder{\sseq@yaxis@end@extend}
@@ -84,13 +75,17 @@
 \def\sseq@topgridpadding@xcenter{\sseq@yaxis@end@extend}
 \def\sseq@bottomgridpadding@xframe{\dimexpr\sseq@xaxisgap-\sseq@xclip@axisgap\relax}
 \def\sseq@topgridpadding@xframe{5cm}
+\def\sseq@bottomgridpadding@xnone{\sseqxaxisgap}
+\def\sseq@topgridpadding@xnone{\sseq@xaxisgap}
 
 \def\sseq@leftclippadding@yborder{\dimexpr-\sseq@yaxisgap+\sseq@yclip@axisgap\relax}
 \def\sseq@rightclippadding@yborder{\dimexpr\sseq@xaxis@end@extend+\sseq@clip@padding@right\relax}
-\def\sseq@leftclippadding@ycenter{\dimexpr-\sseq@xaxis@start@extend+\sseq@clip@padding@left\relax}
+\def\sseq@leftclippadding@ycenter{\dimexpr-\sseq@xaxis@start@extend-\sseq@clip@padding@left\relax}
 \def\sseq@rightclippadding@ycenter{\dimexpr\sseq@xaxis@end@extend+\sseq@clip@padding@right\relax}
 \def\sseq@leftclippadding@yframe{\dimexpr-\sseq@yaxisgap+\sseq@yclip@axisgap\relax}
 \def\sseq@rightclippadding@yframe{\dimexpr\sseq@yaxisgap-\sseq@yclip@axisgap\relax}
+\def\sseq@leftclippadding@ynone{\dimexpr-\sseq@yaxisgap-\sseq@clip@padding@left\relax}
+\def\sseq@rightclippadding@ynone{\dimexpr\sseq@yaxisgap+\sseq@clip@padding@right\relax}
 
 \def\sseq@bottomclippadding@xborder{\dimexpr-\sseq@xaxisgap+\sseq@xclip@axisgap\relax}
 \def\sseq@topclippadding@xborder{\dimexpr\sseq@yaxis@end@extend+\sseq@clip@padding@top\relax}
@@ -98,6 +93,8 @@
 \def\sseq@topclippadding@xcenter{\dimexpr\sseq@yaxis@end@extend+\sseq@clip@padding@top\relax}
 \def\sseq@bottomclippadding@xframe{\dimexpr-\sseq@xaxisgap+\sseq@xclip@axisgap\relax}
 \def\sseq@topclippadding@xframe{\dimexpr\sseq@xaxisgap-\sseq@xclip@axisgap\relax}
+\def\sseq@bottomclippadding@xnone{\dimexpr-\sseq@xaxisgap-\sseq@clip@padding@bottom\relax}
+\def\sseq@topclippadding@xnone{\dimexpr\sseq@xaxisgap+\sseq@clip@padding@top\relax}
 
 % Used to figure out how much further beyond (min -- max) to draw axes
 \def\sseq@xaxisstartoffset@yborder{\dimexpr\sseq@xaxis@tail+\sseq@yaxisgap\relax}
@@ -118,24 +115,20 @@
 %%% Draw axes and clip
 %%%
 \def\sseq@handlexaxis{
-    \ifsseq@drawxaxis
-        \bgroup
-        \sseq@drawxaxis
-        \ifsseq@drawxaxisticks
-            \sseq@drawxticks
-        \fi
-        \egroup
+    \bgroup
+    \sseq@drawxaxis
+    \ifsseq@drawxaxisticks
+        \sseq@drawxticks
     \fi
+    \egroup
 }
 \def\sseq@handleyaxis{
-    \ifsseq@drawyaxis
-        \bgroup
-        \sseq@drawyaxis
-        \ifsseq@drawyaxisticks
-            \sseq@drawyticks
-        \fi
-        \egroup
+    \bgroup
+    \sseq@drawyaxis
+    \ifsseq@drawyaxisticks
+        \sseq@drawyticks
     \fi
+    \egroup
 }
 
 % Draws an x axis. Use with \sseq@transform@xymirror to draw y axis.
@@ -155,6 +148,13 @@
     \pgftransformshift{\pgfqpoint{#1}{#3}}
     \pgfpathlineto{\sseq@qpointxy{#4}{#6}}
     \egroup
+}
+
+\def\sseq@drawxaxis@ynone{
+    \sseq@drawxaxisticksfalse
+}
+\def\sseq@drawyaxis@xnone{
+    \sseq@drawyaxisticksfalse
 }
 
 \def\sseq@drawxaxis@yborder{
@@ -370,7 +370,7 @@
     )}
     % Because of complicated aliasing issues that arise when misusing the \pgfgrid command in this way,
     % it's more convenient to add a clip than to actually stop things in the right place.
-    \clip        (\sseq@xmin,\sseq@ymin) ++ (-0.48, -0.48)
+    \clip        (\sseq@xmin-\sseq@xoffset,\sseq@ymin-\sseq@yoffset) ++ (-0.48, -0.48)
         rectangle ([shift={(\sseq@rightpadding pt,\sseq@toppadding pt)}]\sseq@xmax,\sseq@ymax);
 %
     \sseq@useclip

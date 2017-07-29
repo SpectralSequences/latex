@@ -1,0 +1,204 @@
+\sseqset{
+    distance label/.sseq style = {orange,{<[width = 4pt]}-},
+    description/.sseq style = {black, align = center},
+    title style={yshift=25pt,font=\Large}
+}
+\catcode`\| = 12 % | is active to be verbatim, but we need to use it here for our arrowhead specification.
+%
+\begin{sseqpage}[ grid = chess,
+    x range = {0}{5}, y range = {0}{5}, math nodes = false,
+    x axis clip padding = 0.15cm, y axis clip padding = 0.15cm,
+    right clip padding = 0.2cm, top clip padding = 0.2cm, axes gap = 25pt,
+    title = {Axis type border layout},    
+]
+\begin{scope}[background]
+\sseq@savedpaths@add{\color{red}\pgfsetpath\sseq@theclippath\pgfusepath{draw}}
+\path (\sseq@xmin-3,\sseq@ymin-3) -- (\sseq@xmax+3,\sseq@ymax+3);
+\end{scope}
+
+\begin{scope}[background,|-|,blue]
+% axis clip padding
+\draw[shift = {(1,-\sseq@xaxisgap)}] (0,0)--(0,\sseq@xclip@axisgap-0);
+\draw[distance label,shift = {(1,-\sseq@xaxisgap+\sseq@xclip@axisgap/2)}] (0,0) .. controls (0.5,0) .. (0.5,-1.5)
+    node[description, below] {x axis\\ clip padding};
+%
+\draw[shift = {(-\sseq@yaxisgap,1)}] (0,0)--(\sseq@yclip@axisgap,0);
+\draw[distance label,shift = {(-\sseq@yaxisgap+\sseq@yclip@axisgap/2,1)}] (0,0) .. controls (0,0.3) .. (-0.7,0.3)
+node[description, left] {y axis\\ clip padding};
+
+
+% border clip padding
+\draw[shift = {(\sseq@xmax cm + \sseq@xaxis@end@extend-0.02cm,\sseq@ymax - 1)}] (-0.02cm,0)--(\sseq@clip@padding@right,0);
+\draw[distance label, shift = {(\sseq@xmax cm + \sseq@xaxis@end@extend+\sseq@clip@padding@right/2,\sseq@ymax-1)}] (0,0) .. controls (0,-0.7) ..(0.7,-0.7)
+    node[description, right] {right clip\\ padding};
+%
+\draw[shift = {(\sseq@xmax - 1,\sseq@ymax cm+\sseq@yaxis@end@extend)}] (0,0)--(0,\sseq@clip@padding@top);
+\draw[distance label, shift = {(\sseq@xmax -1,\sseq@ymax cm+\sseq@yaxis@end@extend+\sseq@clip@padding@top/2)}] (0,0) .. controls (0.2,0) .. (0.2,0.3)
+    node[description, above] {top clip\\ padding};
+
+% axis tail
+\draw[shift = {(\sseq@xmin-\sseq@yaxisgap-0.02cm,\sseq@ymin-\sseq@xaxisgap+0.1cm)}] (0,0) -- (-\sseq@xaxis@tail, 0);
+\draw[distance label,shift = {(\sseq@xmin-\sseq@yaxisgap-0.02cm-\sseq@xaxis@tail/2,\sseq@ymin-\sseq@xaxisgap+0.1cm)}] (0,0) .. controls (0,0.5) .. (-1,0.5)
+    node[description, left]{x axis\\ tail};
+%
+\draw[shift = {(\sseq@xmin-\sseq@yaxisgap+0.1cm,\sseq@ymin-\sseq@xaxisgap-0.02cm)}] (0,0) -- (0, -\sseq@yaxis@tail);
+\draw[distance label,shift = {(\sseq@xmin-\sseq@yaxisgap+0.1cm,\sseq@ymin-\sseq@xaxisgap-0.02cm-\sseq@yaxis@tail/2)}] (0,0) .. controls (0.5,0) .. (0.5,-1)
+    node[description, below]{y axis\\ tail};
+
+% extend end axis
+\draw[shift = {(\sseq@xmax,\sseq@ymin-\sseq@xaxisgap-0.1cm)}] (0,0)--(\sseq@xaxis@end@extend,0);
+\draw[distance label,shift = {(\sseq@xmax cm+\sseq@xaxis@end@extend/2,\sseq@ymin-\sseq@xaxisgap-0.1cm)}] (0,0) -- (0,-0.8)
+    node[description, below] {x axis\\ extend end};
+%
+\draw[shift = {(\sseq@xmin cm-\sseq@yaxisgap-0.1cm,\sseq@ymax)}] (0,0)--(0,\sseq@yaxis@end@extend);
+\draw[distance label,shift = {(\sseq@xmin cm- \sseq@yaxisgap-0.1cm,\sseq@ymax cm+\sseq@yaxis@end@extend/2)}] (0,0) -- (-0.6,0)
+    node[description, left] {y axis\\ extend end};
+
+
+% tick gap
+\draw[shift = {(\sseq@xmin+\sseq@xmax/2+0.2,-0.5-\sseq@xaxisgap)}] (0,0)--(0,-\sseq@xlabelgap);
+\draw[distance label,shift = {(\sseq@xmin+\sseq@xmax/2+0.2,-\sseq@xlabelgap/2-\sseq@xaxisgap)}] (0,0) .. controls (0.5 ,0) .. (0.5,-0.8)
+    node[below,black]{x tick gap};
+%
+\draw[shift = {(-0.5-\sseq@yaxisgap,\sseq@ymin+\sseq@ymax/2+0.2)}] (0,0)--(-\sseq@ylabelgap,0);
+\draw[distance label,shift = {(-\sseq@yaxisgap -\sseq@ylabelgap/2,\sseq@ymin+\sseq@ymax/2+0.2)}] (0,0) .. controls (0, -0.3) .. (-0.5,-0.3)
+node[left,black]{y tick gap};
+
+% axis gap
+\draw[shift = {(\sseq@xmax cm+0.17cm,\sseq@ymin cm-\sseq@xaxisgap+0.02cm)}] (0,0) -- (0, \sseq@xaxisgap);
+\draw[distance label,shift = {(\sseq@xmax cm+0.17cm,\sseq@ymin cm-\sseq@xaxisgap/2+0.02cm)}](0,0) .. controls (2,0) ..  (2,0.5)
+node[above,description]{x axis gap};
+%
+\draw[shift = {(\sseq@xmin cm-\sseq@yaxisgap+0.02cm,\sseq@ymax  cm+0.17cm)}] (0,0) -- (\sseq@yaxisgap,0);
+\draw[distance label,shift = {(\sseq@xmin cm-\sseq@yaxisgap/2+0.02cm,\sseq@ymax cm+0.17cm)}](0,0)--(0,1) %.. controls (0,1) ..  (0.5,1);
+node[above,description]{y axis gap};
+\end{scope}
+
+\class(0,0)
+\class(5,0)
+\class(0,5)
+\end{sseqpage}
+
+
+\begin{sseqpage}[ grid = chess, axes type=frame,
+    title = {Axes type frame layout},
+    x range = {0}{5}, y range = {0}{5}, math nodes = false,
+    x axis clip padding = 0.15cm, y axis clip padding = 0.15cm,
+    right clip padding = 0.2cm, top clip padding = 1cm, axes gap = 25pt
+]
+\begin{scope}[background]
+\sseq@savedpaths@add{\color{red}\pgfsetpath\sseq@theclippath\pgfusepath{draw}}
+\path (\sseq@xmin-3,\sseq@ymin-3) -- (\sseq@xmax+3,\sseq@ymax+3);
+\end{scope}
+
+\begin{scope}[background,|-|,blue]
+% axis clip padding
+\draw[shift = {(\sseq@xmax+0.5,-\sseq@xaxisgap)}] (0,0)--(0,\sseq@xclip@axisgap);
+\draw[shift = {(-\sseq@yaxisgap,\sseq@ymax+0.5)}] (0,0)--(\sseq@yclip@axisgap,0);
+\draw[distance label,shift = {(\sseq@xmax+0.5,-\sseq@xaxisgap+\sseq@xclip@axisgap/2)}] (0,0) .. controls (1,0) .. (1,-0.3)
+node[description, below] {x axis\\ clip padding};
+\draw[distance label,shift = {(-\sseq@yaxisgap+\sseq@yclip@axisgap/2,\sseq@ymax+0.5)}] (0,0) .. controls (0,0.5) .. (-0.5,0.5)
+node[description, left] {y axis\\ clip padding};
+
+\draw[shift = {(\sseq@xmax+0.5,\sseq@ymax cm+\sseq@xaxisgap)}] (0,0)--(0,-\sseq@xclip@axisgap);
+\draw[distance label,shift = {(\sseq@xmax+0.5,\sseq@ymax cm+\sseq@xaxisgap-\sseq@xclip@axisgap/2)}] (0,0) .. controls (-0.5,0) .. (-0.5,0.2)
+node[description, above] {x axis\\ clip padding};
+
+
+\draw[shift = {(\sseq@xmax cm +\sseq@yaxisgap,\sseq@ymax +0.5)}] (-\sseq@yclip@axisgap,0)--(0,0);
+\draw[distance label,shift = {(\sseq@xmax cm +\sseq@yaxisgap-\sseq@yclip@axisgap/2,\sseq@ymax +0.5)}] (0,0) .. controls (0,-0.5) .. (0.2,-0.5)
+node[description, right] {y axis\\ clip padding};
+
+
+% tick gap
+\draw[shift = {(\sseq@xmin+\sseq@xmax/2+0.2,-0.5-\sseq@xaxisgap)}] (0,0)--(0,-\sseq@xlabelgap);
+\draw[shift = {(-0.5-\sseq@yaxisgap,\sseq@ymin+\sseq@ymax/2+0.2)}] (0,0)--(-\sseq@ylabelgap,0);
+\draw[distance label,shift = {(\sseq@xmin+\sseq@xmax/2+0.2,-\sseq@xlabelgap/2-\sseq@xaxisgap)}] (0,0) .. controls (0.5 ,0) .. (0.5,-0.8)
+    node[below,black]{x tick gap};
+\draw[distance label,shift = {(-\sseq@yaxisgap -\sseq@ylabelgap/2,\sseq@ymin+\sseq@ymax/2+0.2)}] (0,0) .. controls (0, -0.3) .. (-0.5,-0.7)
+node[left,black]{y tick gap};
+
+% axis gap
+\draw[shift = {(\sseq@xmax cm+0.17cm,\sseq@ymin cm-\sseq@xaxisgap+0.02cm)}] (0,0) -- (0, \sseq@xaxisgap);
+\draw[shift = {(\sseq@xmin cm-\sseq@yaxisgap+0.02cm,\sseq@ymax  cm+0.17cm)}] (0,0) -- (\sseq@yaxisgap,0);
+\draw[distance label,shift = {(\sseq@xmax cm+0.17cm,\sseq@ymin cm-\sseq@xaxisgap/2+0.02cm)}](0,0) .. controls (2,0) ..  (2,0.5)
+node[above,description]{x axis gap};
+\draw[distance label,shift = {(\sseq@xmin cm-\sseq@yaxisgap/2+0.02cm,\sseq@ymax cm+0.17cm)}](0,0)--(0,1) %.. controls (0,1) ..  (0.5,1);
+node[above,description]{y axis gap};
+
+\draw[shift = {(\sseq@xmax cm-0.02cm,\sseq@ymin cm+0.17cm)}] (0,0) -- (\sseq@yaxisgap,0);
+\draw[distance label,shift = {(\sseq@xmax cm-0.02cm+\sseq@yaxisgap/2,\sseq@ymin cm+0.17cm)}](0,0) .. controls (0,1) ..  (0.8,1)
+    node[right,description]{y axis gap};
+\draw[shift = {(\sseq@xmin cm+0.17cm,\sseq@ymax cm-0.02cm)}] (0,0) -- (0,\sseq@xaxisgap);
+\draw[distance label,shift = {(\sseq@xmin cm+0.17cm,\sseq@ymax cm-0.02cm+\sseq@xaxisgap/2)}](0,0) .. controls (1.3,0) ..  (1.3,0.75)
+    node[above,description]{x axis gap};
+\end{scope}
+
+\class(0,0)
+\class(5,0)
+\class(0,5)
+\end{sseqpage}
+
+
+\begin{sseqpage}[ grid = chess, axes type=center,
+    title = {Axes type center layout},
+    x range = {-3}{3}, y range = {-3}{3}, math nodes = false,
+    x axis clip padding = 0.15cm, y axis clip padding = 0.15cm,
+    right clip padding = 0.2cm, top clip padding = 0.2cm,
+    left clip padding = 0.2cm, bottom clip padding = 0.2cm %axes gap = 25pt
+]
+\begin{scope}[background]
+\sseq@savedpaths@add{\color{red}\pgfsetpath\sseq@theclippath\pgfusepath{draw}}
+\path (\sseq@xmin-3,\sseq@ymin-3) -- (\sseq@xmax+3,\sseq@ymax+3);
+\end{scope}
+
+\begin{scope}[background,|-|,blue]
+
+% tick gap
+\draw[shift = {(\sseq@xmin-0.4,-\sseq@xaxisgap-0.02cm)}] (0,0)--(0,-\sseq@xlabelgap);
+\draw[distance label,shift = {(\sseq@xmin-0.4,-\sseq@xaxisgap-0.02cm-\sseq@xlabelgap/2)}] (0,0) -- (-0.5,0)
+    node[left,black]{x tick gap};
+
+\draw[shift = {(-0.02cm-\sseq@yaxisgap,\sseq@ymin-0.4)}] (0,0)--(-\sseq@ylabelgap,0);
+\draw[distance label,shift = {(-0.02cm-\sseq@yaxisgap -\sseq@ylabelgap/2,\sseq@ymin-0.4)}] (0,0) -- (0,-0.6)
+    node[below,black]{y tick gap};
+
+% border clip padding
+\draw[shift = {(\sseq@xmin cm - \sseq@xaxis@start@extend+0.02cm,\sseq@ymin +1)}] (0,0)--(-\sseq@clip@padding@left,0);
+\draw[distance label, shift = {(\sseq@xmin cm - \sseq@xaxis@start@extend-\sseq@clip@padding@left/2,\sseq@ymin +1)}] (0,0) .. controls (0,-0.5) ..(-0.5,-0.5)
+    node[description, left] {left clip\\ padding};
+%
+\draw[shift = {(\sseq@xmax cm + \sseq@xaxis@end@extend-0.02cm,\sseq@ymin +1)}] (0,0)--(\sseq@clip@padding@right,0);
+\draw[distance label, shift = {(\sseq@xmax cm + \sseq@xaxis@end@extend+\sseq@clip@padding@right/2,\sseq@ymin +1)}] (0,0) .. controls (0,-0.5) ..(0.5,-0.5)
+    node[description, right] {right clip\\ padding};
+%
+\draw[shift = {(\sseq@xmin+1 ,\sseq@ymax cm+\sseq@yaxis@end@extend-0.02cm)}] (0,0)--(0,\sseq@clip@padding@top);
+\draw[distance label, shift = {(\sseq@xmin+1,\sseq@ymax cm -0.02cm+\sseq@yaxis@end@extend+\sseq@clip@padding@top/2)}] (0,0) .. controls (-0.9,0)..(-0.9,0.3)
+    node[description, above] {top clip\\ padding};
+%
+\draw[shift = {(\sseq@xmin +1 ,\sseq@ymin cm-\sseq@yaxis@start@extend+0.02cm)}] (0,0)--(0,-\sseq@clip@padding@bottom);
+\draw[distance label, shift = {(\sseq@xmin +1 ,\sseq@ymin cm +0.02cm - \sseq@yaxis@start@extend-\sseq@clip@padding@bottom/2)}] (0,0) .. controls (-0.9,0)..(-0.9,-0.4)
+    node[description, below] {bottom clip\\ padding};
+
+% extend axis
+\draw[shift = {(\sseq@xmax,-\sseq@xaxisgap+0.1cm)}] (0,0)--(\sseq@xaxis@end@extend,0);
+\draw[distance label,shift = {(\sseq@xmax cm+\sseq@xaxis@end@extend/2,-\sseq@xaxisgap+0.1cm)}] (0,0) .. controls (0,0.5) .. (0.9,0.5)
+    node[description, right] {x axis\\ extend end};
+%
+\draw[shift = {(-\sseq@yaxisgap+0.1cm,\sseq@ymax)}] (0,0)--(0,\sseq@yaxis@end@extend);
+\draw[distance label,shift = {(-\sseq@yaxisgap+0.1cm,\sseq@ymax cm+\sseq@yaxis@end@extend/2)}] (0,0) .. controls (0.4,0)..(0.4,0.7)
+    node[description, above] {y axis\\ extend end};
+%
+\draw[shift = {(\sseq@xmin,-\sseq@xaxisgap+0.1cm)}] (0,0)--(-\sseq@xaxis@start@extend,0);
+\draw[distance label,shift = {(\sseq@xmin cm-\sseq@xaxis@start@extend/2,-\sseq@xaxisgap+0.1cm)}] (0,0) .. controls (0,0.5) .. (-0.7,0.5)
+    node[description, left] {x axis\\ extend start};
+%
+\draw[shift = {(-\sseq@yaxisgap+0.1cm,\sseq@ymin)}] (0,0)--(0,-\sseq@yaxis@start@extend);
+\draw[distance label,shift = {(-\sseq@yaxisgap+0.1cm,\sseq@ymin cm-\sseq@yaxis@start@extend/2)}] (0,0) .. controls (2,0)..(2,-0.7)
+    node[description, below] {y axis\\ extend start};
+\end{scope}
+
+\class(0,0)
+\class(5,0)
+\class(0,5)
+\end{sseqpage}

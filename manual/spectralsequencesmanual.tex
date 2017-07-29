@@ -41,7 +41,7 @@
 \noindent
 The \sseqpages\  package is a specialized tool built on top of \pgfpkg/\tikzpkg\  for drawing spectral sequence charts. It provides a powerful, concise syntax for specifying the data of a spectral sequence, and then allows the user to print various pages of a spectral sequence, automatically choosing which subset of the classes, differentials, and structure lines to display on each page. It also handles most of the details of the layout. At the same time, \sseqpages\  is extremely flexible. It is closely integrated with \tikzpkg\  to ensure that users can take advantage of as much as possible of its expressive power. It is possible to turn off most of the automated layout features and draw replacements using \tikzpkg\  commands. \sseqpages\  also has a carefully designed error reporting system intended to ensure that it is as clear as possible what is going wrong.
 
-Many thanks to the authors of \tikzpkg\  for producing such a wonderful package with such thorough documentation. I would have needed to spend a lot more time reading the \tikzpkg\  code if the documentation weren't so excellent. I took ideas or code or both from \tikzcdpkg\ (part of the code for turning quotes into class or edge labels), \pgfplotspkg\ (axes labels), and \sseqpkg\ (the grid styles, the stack). I lifted a fair amount of code from \TeX stack exchange. Thanks to Eva Belmont for tons of helpful suggestions, bug reports, and productive conversations. Talking to her has helped to clarify many design concepts for the package. Thanks to Eric Peterson for being a very early adopter and reporting many bugs. Also thanks to all my friends, family, and acquaintances listened to me talk about \LaTeX\ programming even though they probably found it dreadfully boring.
+Many thanks to the authors of \tikzpkg\  for producing such a wonderful package with such thorough documentation. I would have needed to spend a lot more time reading the \tikzpkg\  code if the documentation weren't so excellent. I took ideas or code or both from \tikzcdpkg\ (part of the code for turning quotes into class or edge labels), \pgfplotspkg\ (axes labels), and \sseqpkg\ (the grid types, the stack). I lifted a fair amount of code from \TeX stack exchange. Thanks to Eva Belmont for tons of helpful suggestions, bug reports, and productive conversations. Talking to her has helped to clarify many design concepts for the package. Thanks to Eric Peterson for being a very early adopter and reporting many bugs. Also thanks to all my friends, family, and acquaintances listened to me talk about \LaTeX\ programming even though they probably found it dreadfully boring.
 \end{abstract}
 \end{titlepage}
 
@@ -1836,13 +1836,13 @@ These options set the x range (respectively y range) to be a specific interval. 
 \end{keylist}
 
 \begin{keylist}{
-    grid = \meta{grid style},
+    grid = \meta{grid type},
     grid color = \meta{color},
     grid step = \meta{positive integer},
     x grid step = \meta{positive integer},
     y grid step = \meta{positive integer}
 }
-Makes \sseqpages\  draw a grid. The grid styles and a significant part of the code that produces them were stolen from the \sseqpkg\ package.
+Makes \sseqpages\  draw a grid. The grid types and a significant part of the code that produces them were stolen from the \sseqpkg\ package.
 \begin{codeexample}[vbox]
 \begin{sseqdata}[ name = grid example, scale = 0.8 ]
 \class(0,0)
@@ -1864,7 +1864,7 @@ Makes \sseqpages\  draw a grid. The grid styles and a significant part of the co
 \printpage[ name = grid example, grid = none ]
 }
 \end{codeexample}
-It is possible to make your own grid style by defining the command |\sseq@grid@yourgridname| to draw a grid.
+It is possible to make your own grid type by defining the command |\sseq@grid@yourgridname| to draw a grid.
 
 It is a known problem that acrobat reader displays grids very dark and thick. This is caused by the enhance thin lines ``feature'' of Acrobat reader. You can turn it off globally by going into the acrobat reader preferences window and unchecking the ``Enhance thin lines'' checkbox in the ``Rendering'' section. Unfortunately, there is no way to instruct Acrobat Reader to not apply this feature to a particular document. This has apparently been annoying graphic designers for over a decade.
 
@@ -1895,9 +1895,6 @@ The grid step keys change the grid step.
 Suppress or unsuppress the title, x label, y label, or both x and y labels, respectively.
 \end{keylist}
 
-\begin{keylist}{no x axis, no y axis, no axes, draw x axis, draw y axis, draw axes}
-Suppress the axis. Also suppresses axes ticks. If there is a title or axes labels they will still be drawn. You can draw your own axes using \tikzpkg\  inside a \scopeenv\  environment with the |background| key.
-\end{keylist}
 
 \begin{keylist}{no x ticks, no y ticks, no ticks, draw x ticks, draw y ticks, draw ticks}
 Suppress axes ticks (the numbers next to the axes). Only matters if axes are drawn. You can make your own ticks using \tikzpkg\  inside a \scopeenv\  environment with the |background| key. For instance, you might want to label the axes as 0, $n$, $2n$, \ldots You can achieve this as follows: (you can also use |x tick handler|).
@@ -1917,12 +1914,24 @@ Suppress axes ticks (the numbers next to the axes). Only matters if axes are dra
 \end{codeexample}
 \end{keylist}
 
+
 \begin{keylist}{x tick step = \meta{positive integer} (initially 1),y tick step = \meta{positive integer} (initially 1),tick step = \meta{positive integer} (initially 1)}
 Sets the interval between labels.
 \end{keylist}
 
 \begin{keylist}{x tick offset = \meta{integer} (initially 0),y tick offset = \meta{integer} (initially 0),tick offset = \meta{integer} (initially 0)}
 Sets the label offset -- by default the ticks will always be the set of numbers that are 0 mod \meta{tick step}. Change it so that the ticks are the set of numbers that are \meta{tick offset} mod \meta{tick step}.
+\end{keylist}
+
+\begin{keylist}{
+    x major tick step=\meta{nonnegative integer} (initially 0), 
+    y major tick step=\meta{nonnegative integer} (initially 0), 
+    major tick step=\meta{nonnegative integer},
+    x minor tick step=\meta{nonnegative integer} (initially 0), 
+    y minor tick step=\meta{nonnegative integer} (initially 0), 
+    minor tick step=\meta{nonnegative integer}%
+}
+If these are nonzero, they control the placement of tick marks on the axes. The value 0 prevents tick marks from being drawn. Uses |x tick offset| as an offset.
 \end{keylist}
 
 \begin{stylekeylist}{x tick style,y tick style,tick style}
@@ -1962,8 +1971,8 @@ The value for |x tick handler| should be a function that takes in the current $\
 
 \needspace{5\baselineskip}
 \subsection{Layout}
-\begin{keylist}{x axis type = \meta{style} (initially border), y axis type = \meta{style} (initially border),axes type = \meta{style} (initially border)}
-The \meta{style} is either |border| or |center|. The |border| option puts the axes on the bottom and left of the picture; the center option by default places the axes at $\mathtt{x = y = 0}$. This option is only worth using for multi-quadrant spectral sequences. See \example{KRAHSS} and \example{KUHFPSS} for examples where this is used.
+\begin{keylist}{x axis type = \meta{type} (initially border), y axis type = \meta{type} (initially border),axes type = \meta{type} (initially border), no x axis, no y axis, no axes}
+The \meta{type} is either |border|, |center|, |frame|, or |none|. |no axes| is a shorthand for |axes type=none|. The |border| type is the default and puts the axes on the bottom and left of the picture. The |center| type by default places the axes to pass through $(0,0)$; this can be modified using the |x axis origin| and |y axis origin| keys. See \example{KRAHSS} and \example{KUHFPSS} for examples where this is used. The |frame| type draws a frame around the entire chart. 
 %TODO: example?
 \end{keylist}
 
@@ -1972,100 +1981,36 @@ The \meta{style} is either |border| or |center|. The |border| option puts the ax
 If you use |axes style = center|, these keys change the position of the axes. Otherwise, they are ignored.
 \end{keylist}
 %
-%
 \begin{keylist}{x axis gap = \meta{dimension} (initially 0.5cm),y axis gap = \meta{dimension} (initially 0.5cm), axes gap = \meta{dimension} (initially 0.5cm)}
 %
 \end{keylist}
-%
 %
 \begin{keylist}{x tick gap = \meta{dimension} (initially 0.5cm),y tick gap = \meta{dimension} (initially 0.5cm)}
 %
 \end{keylist}
 %
-\begin{keylist}{x axis start extend = \meta{dimension} (initially 0.5cm), y axis start extend = \meta{dimension} (initially 0.5cm),
-                x axis extend end = \meta{dimension} (initially 0.9cm), y axis extend end = \meta{dimension} (initially 0.9cm)}
+\begin{keylist}{
+    x axis start extend = \meta{dimension} (initially 0.5cm), y axis start extend = \meta{dimension} (initially 0.5cm),
+    x axis extend end = \meta{dimension} (initially 0.5cm), y axis extend end = \meta{dimension} (initially 0.5cm),
+    x axis tail = \meta{dimension} (initially 0.9cm), y axis tail = \meta{dimension} (initially 0.9cm)%
+}
 \end{keylist}
 %
 \begin{keylist}{x axis clip padding = \meta{dimension} (initially 0.1cm), y axis clip padding = \meta{dimension} (initially 0.1cm)}
 \end{keylist}
 %
-\begin{keylist}{right clip padding = \meta{dimension} (initially 0.1cm), left clip padding = \meta{dimension} (initially 0.4cm),
-                top clip padding = \meta{dimension} (initially 0.1cm), bottom clip padding = \meta{dimension} (initially 0.4cm)}
+\begin{keylist}{
+    right clip padding = \meta{dimension} (initially 0.1cm), left clip padding = \meta{dimension} (initially 0.1cm),
+     top clip padding = \meta{dimension} (initially 0.1cm), bottom clip padding = \meta{dimension} (initially 0.1cm)%
+}
 \end{keylist}
 
+\afterpage{
 \begin{center}
-\sseqset{
-    distance label/.sseq style = {orange,{<[width = 4pt]}-},
-    description/.sseq style = {black, align = center}
-}
-\begin{sseqpage}[ grid = chess,
-    x range = {0}{5}, y range = {0}{5}, math nodes = false,
-    x axis clip padding = 0.15cm, y axis clip padding = 0.15cm,
-    right clip padding = 0.2cm, top clip padding = 0.2cm, axes gap = 25pt]
-\begin{scope}[background,red]
-\sseq@savedpaths@add{\pgfsetpath\sseq@theclippath\pgfusepath{draw}}
-\end{scope}
-\catcode`\| = 12
-\begin{scope}[background,|-|,blue]
-% axis clip padding
-\draw[shift = {(\sseq@xmax+0.8,-\sseq@xaxisgap)}] (0,0)--(0,\sseq@xclip@axisgap);
-\draw[shift = {(-\sseq@yaxisgap,\sseq@ymax+0.8)}] (0,0)--(\sseq@yclip@axisgap,0);
-\draw[distance label,shift = {(\sseq@xmax+0.8,-\sseq@xaxisgap+\sseq@xclip@axisgap/2)}] (0,0) -- (2,0)
-node[description, right] {x axis\\ clip padding};
-\draw[distance label,shift = {(-\sseq@yaxisgap+\sseq@yclip@axisgap/2,\sseq@ymax+0.8)}] (0,0) .. controls (0,0.5) .. (-0.5,0.5)
-node[description, left] {y axis\\ clip padding};
-
-
-% border clip padding
-\draw[shift = {(\sseq@xmax cm + \sseq@xaxis@end@extend,\sseq@ymin cm-\sseq@xaxisgap-0.3cm)}] (0,0)--(\sseq@clip@padding@right,0);
-\draw[shift = {(\sseq@xmin cm -\sseq@yaxisgap-0.3cm,\sseq@ymax cm+\sseq@yaxis@end@extend)}] (0,0)--(0,\sseq@clip@padding@top);
-\draw[distance label, shift = {(\sseq@xmax cm + \sseq@xaxis@end@extend+\sseq@clip@padding@right/2,\sseq@ymin cm-\sseq@xaxisgap-0.3cm)}] (0,0) .. controls (0,-0.7) ..(1.5,-0.7)
-node[description, right] {right clip\\ padding};
-\draw[distance label, shift = {(\sseq@xmin cm -\sseq@yaxisgap-0.3cm,\sseq@ymax cm+\sseq@yaxis@end@extend+\sseq@clip@padding@top/2)}] (0,0) -- (-2,0)
-node[description, left] {top clip\\ padding};
-
-% extend start axis
-\draw[shift = {(\sseq@xmin-\sseq@yaxisgap-0.02cm,\sseq@ymin-\sseq@xaxisgap+0.1cm)}] (0,0) -- (-\sseq@xaxis@start@extend, 0);
-\draw[shift = {(\sseq@xmin-\sseq@yaxisgap+0.1cm,\sseq@ymin-\sseq@xaxisgap-0.02cm)}] (0,0) -- (0, -\sseq@yaxis@start@extend);
-\draw[distance label,shift = {(\sseq@xmin-\sseq@yaxisgap-0.02cm-\sseq@xaxis@start@extend/2,\sseq@ymin-\sseq@xaxisgap+0.1cm)}] (0,0) .. controls (0,0.5) .. (-1,0.5)
-node[description, left]{x axis\\ extend start};
-\draw[distance label,shift = {(\sseq@xmin-\sseq@yaxisgap+0.1cm,\sseq@ymin-\sseq@xaxisgap-0.02cm-\sseq@yaxis@start@extend/2)}] (0,0) .. controls (0.5,0) .. (0.5,-1)
-node[description, below]{y axis\\ extend start};
-
-% extend end axis
-\draw[shift = {(\sseq@xmax,\sseq@ymin-\sseq@xaxisgap-0.1cm)}] (0,0)--(\sseq@xaxis@end@extend,0);
-\draw[shift = {(\sseq@xmin cm-\sseq@yaxisgap-0.1cm,\sseq@ymax)}] (0,0)--(0,\sseq@yaxis@end@extend);
-\draw[distance label,shift = {(\sseq@xmax cm+\sseq@xaxis@end@extend/2,\sseq@ymin-\sseq@xaxisgap-0.1cm)}] (0,0) -- (0,-1.5)
- node[description, below] {x axis\\ extend end};
-\draw[distance label,shift = {(\sseq@xmin cm- \sseq@yaxisgap-0.1cm,\sseq@ymax cm+\sseq@yaxis@end@extend/2)}] (0,0) .. controls (-2,0) .. (-2,-1)
-node[description, below] {y axis\\ extend end};
-
-
-
-% tick gap
-\draw[shift = {(\sseq@xmin+\sseq@xmax/2+0.2,-0.5-\sseq@xaxisgap)}] (0,0)--(0,-\sseq@xlabelgap);
-\draw[shift = {(-0.5-\sseq@yaxisgap,\sseq@ymin+\sseq@ymax/2+0.2)}] (0,0)--(-\sseq@ylabelgap,0);
-\draw[distance label,shift = {(\sseq@xmin+\sseq@xmax/2+0.2,-\sseq@xlabelgap/2-\sseq@xaxisgap)}] (0,0) .. controls (0.5 ,0) .. (0.5,-0.8)
-    node[below,black]{x tick gap};
-\draw[distance label,shift = {(-\sseq@yaxisgap -\sseq@ylabelgap/2,\sseq@ymin+\sseq@ymax/2+0.2)}] (0,0) .. controls (0, -0.3) .. (-0.5,-0.7)
-node[left,black]{y tick gap};
-
-% axis gap
-\draw[shift = {(\sseq@xmax cm+0.17cm,\sseq@ymin cm-\sseq@xaxisgap+0.02cm)}] (0,0) -- (0, \sseq@xaxisgap);
-\draw[shift = {(\sseq@xmin cm-\sseq@yaxisgap+0.02cm,\sseq@ymax  cm+0.17cm)}] (0,0) -- (\sseq@yaxisgap,0);
-\draw[distance label,shift = {(\sseq@xmax cm+0.17cm,\sseq@ymin cm-\sseq@xaxisgap/2+0.02cm)}](0,0) .. controls (2,0) ..  (2,0.5)
-node[above,description]{x axis gap};
-\draw[distance label,shift = {(\sseq@xmin cm-\sseq@yaxisgap/2+0.02cm,\sseq@ymax cm+0.17cm)}](0,0)--(0,2) %.. controls (0,1) ..  (0.5,1);
-node[above,description]{y axis gap};
-\end{scope}
-
-\class(0,0)
-\class(10,10)
-\draw (0,0) -- (11,11);
-\class(5,0)
-\class(0,5)
-\end{sseqpage}
+\input spectralsequencesmanual-layoutcharts
 \end{center}
+}
+
 
 \parskip=10pt
 \begin{key}{custom clip = \meta{clip path}}

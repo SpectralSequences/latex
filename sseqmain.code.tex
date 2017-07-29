@@ -254,7 +254,7 @@
 %
     % Really this could be anything between -\sseq@xmin and -\sseq@xmax and it wouldn't matter. We'll split the difference.
     \sseq@xoffset=\numexpr\sseq@intdivceiling{\numexpr-\sseq@xmin-\sseq@xmax\relax}{\numexpr4*\sseq@xgridstep\relax}*(2*\sseq@xgridstep)\relax
-    \sseq@yoffset=0%\numexpr(-\sseq@ymin-\sseq@ymax)/2\relax
+    \sseq@yoffset=\numexpr\sseq@intdivceiling{\numexpr-\sseq@ymin-\sseq@ymax\relax}{\numexpr4*\sseq@ygridstep\relax}*(2*\sseq@ygridstep)\relax
 %
 %
     \tikzset{
