@@ -18,8 +18,12 @@
 \def\sseq@qpointxy#1#2{\pgfqpointxy{\numexpr#1+\sseq@xoffset\relax}{\numexpr#2+\sseq@yoffset\relax}}
 
 \def\sseq@transform@xymirror{
-    \pgftransformcm{0}{1}{1}{0}{\pgfqpointxy{\sseq@xoffset}{\sseq@yoffset}} % Reflect x and y axes,
-    \pgftransformshift{\pgfqpointxy{-\sseq@xoffset}{-\sseq@yoffset}}    % but we need to conjugate by a shift of (xoffset,yoffset)
+    \pgfsetxvec{\pgfqpoint{1cm}{0cm}}
+    \pgfsetyvec{\pgfqpoint{0cm}{1cm}}
+    \pgftransformcm{0}{1}{1}{0}{\pgfpointxy{\sseq@xoffset*\sseq@xscale }{\sseq@yoffset}} % Reflect x and y axes,
+    \pgftransformshift{\pgfpointxy{-\sseq@xoffset*\sseq@yscale}{-\sseq@yoffset}}    % but we need to conjugate by a shift of (xoffset,yoffset)
+    \pgfsetyvec{\pgfqpoint{0cm}{\sseq@xscale cm}}
+    \pgfsetxvec{\pgfqpoint{\sseq@yscale cm}{0cm}}
 }
 
 
@@ -213,7 +217,7 @@
     \relax
     \ifnum\sseq@tempx<#1\relax
         \advance\sseq@tempx#3\relax
-    \fi    
+    \fi
     \sseq@tempxb=\numexpr#2+1\relax % max
     \loop
         \bgroup
@@ -227,12 +231,12 @@
 
 
 \def\sseq@drawxticks{%
-    \sseq@tickloop@generic{\sseq@xmin}{\sseq@xmax}{\sseq@xtickstep}{\sseq@xtickstepoffset}{\sseq@yaxisorigin}{-\sseq@xaxisgap}{        
+    \sseq@tickloop@generic{\sseq@xmin}{\sseq@xmax}{\sseq@xtickstep}{\sseq@xtickstepoffset}{\sseq@yaxisorigin}{-\sseq@xaxisgap}{
         \sseq@xtickstyle
         \tikz@options
         \pgftransformshift{\pgfqpoint{0pt}{-\sseq@ylabelgap}}
         \pgftext{\hbox{$\sseq@xtickfn{\the\sseq@tempx}$}}%
-    } 
+    }
     \ifnum\sseq@xmajortickstep>\z@
         \sseq@tickloop@generic{\sseq@xmin}{\sseq@xmax}{\sseq@xmajortickstep}{\sseq@xtickstepoffset}{\sseq@yaxisorigin}{-\sseq@xaxisgap}{
             \pgfpathmoveto{\pgfpointorigin}
