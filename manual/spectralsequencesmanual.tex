@@ -337,7 +337,7 @@ Any code that would work in a \tikzpictureenv\  environment will also work uncha
 The following options work with all of the drawing commands in this package, including |\class|, |\d|, and |\structline|, their friends |\replaceclass|, |\classoptions|, |\doptions|, and |\structlines|, as well as with \tikzpkg\ primitives.
 \begin{keylist}{xshift = \meta{integer},yshift = \meta{integer}}
 Shifts by integer values are the only coordinate changes that are allowed to be applied to |\class|, |\d|, |\structline|, their relatives, or to a \scopeenv\  environment that contains any of these commands. These shift commands help with reusing code. For instance:
-%\begin{codeexample}[width = 6cm]
+\begin{codeexample}[width = 6cm]
 \begin{sseqpage}[ cohomological Serre grading, yscale = 0.45 ]
 \foreach \x in {0,1} \foreach \y in {0,1} {
     \begin{scope}[ xshift = \x, yshift = \y ]
@@ -347,7 +347,7 @@ Shifts by integer values are the only coordinate changes that are allowed to be 
     \end{scope}
 }
 \end{sseqpage}
-%\end{codeexample}
+\end{codeexample}
 This code segment is very useful so \sseqpages\  has the command |\NewSseqGroup| which to make code like this more convenient. The following code produces the same output as above:
 \begin{codeexample}[code only,width = 6cm]
 \NewSseqGroup\examplegroup {} {
@@ -950,7 +950,8 @@ These handlers create reusable styles to be used in spectral sequences. If this 
 \begin{sseqpage}[ mysseq ]
 \class(0,0) \class(0,1) \class(0,2) \class(0,3)
 \class(3,1) \class(3,2) \class(3,3)
-\structline(0,0)(0,1) \structline(0,1)(0,2) \structline(0,2)(0,3)
+\structline(0,0)(0,1) \structline(0,1)(0,2) 
+\structline(0,2)(0,3)
 \structline(3,1)(3,2) \structline(3,2)(3,3)
 \structline[htwostruct](0,0)(3,1)
 \structline[htwostruct](0,1)(3,2)
@@ -970,7 +971,7 @@ This command is from \tikzpkg\  and works in pretty much the same way in \sseqpa
 
 If you need to do multiple loops with a common body, you can just stack the |\foreach| commands:
 \begin{codeexample}[width=6cm]
-\begin{sseqpage}[xscale=0.5]
+\begin{sseqpage}[ xscale = 0.5, x tick step = 2 ]
 \foreach \x in {0,2,...,6}
 \foreach \y in {0,...,3}{
     \class(\x,\y)
@@ -980,7 +981,7 @@ If you need to do multiple loops with a common body, you can just stack the |\fo
 
 You can also loop through tuples, for instance:
 \begin{codeexample}[width=6cm]
-\begin{sseqpage}[xscale=0.5]
+\begin{sseqpage}[ xscale = 0.5 ]
 \foreach \x/\y/\label in {0/1/a,1/1/b,0/0/c,1/0/d}{
     \class["\label" above](\x,\y)
 }
@@ -1768,7 +1769,7 @@ For instance the third row indicates that if there are three classes at the posi
 \declareasstyle{class placement transform}\declareasstyle{add class placement transform}
 The option |class placement transform| allows the user to specify a \tikzpkg\  coordinate transform to adjust the relative position of multiple nodes in the same $\mathtt{(x,y)}$ position. The |class placement transform| key overrides the previous value of transformations, the |add class placement transform| just adds the new transformation to the end of the list. This coordinate transform can only involve rotation and scaling, no translation. Specifying a scaling factor helps if the nodes are too large and overlap. In some cases a rotation makes it easier to see which class is the target of a differential.
 \begin{codeexample}[width = 5cm]
-\begin{sseqpage}[ class placement transform = { xscale = 3 },
+\begin{sseqpage}[ class placement transform = { xscale = 1.5 },
                   class pattern = linear,
                   classes = { draw = none },
                   xscale = 2, x axis extend end = 0.7cm ]
@@ -1794,7 +1795,7 @@ With multiple large class names, the best option is to arrange the classes verti
 \begin{codeexample}[width = 5.5cm]
 \begin{sseqpage}[ classes = {draw = none }, xscale = 2, yscale=1.55,
     class pattern = linear,
-    class placement transform = { scale = 3, rotate = 90 },
+    class placement transform = { scale = 1.5, rotate = 90 },
     right clip padding = 20pt, top clip padding = 20pt,
     x axis gap = 30pt, y axis gap = 20pt ]
 \class["\iota_3\beta\iota_3"](7,0)
@@ -1924,11 +1925,11 @@ Sets the label offset -- by default the ticks will always be the set of numbers 
 \end{keylist}
 
 \begin{keylist}{
-    x major tick step=\meta{nonnegative integer} (initially 0), 
-    y major tick step=\meta{nonnegative integer} (initially 0), 
+    x major tick step=\meta{nonnegative integer} (initially 0),
+    y major tick step=\meta{nonnegative integer} (initially 0),
     major tick step=\meta{nonnegative integer},
-    x minor tick step=\meta{nonnegative integer} (initially 0), 
-    y minor tick step=\meta{nonnegative integer} (initially 0), 
+    x minor tick step=\meta{nonnegative integer} (initially 0),
+    y minor tick step=\meta{nonnegative integer} (initially 0),
     minor tick step=\meta{nonnegative integer}%
 }
 If these are nonzero, they control the placement of tick marks on the axes. The value 0 prevents tick marks from being drawn. Uses |x tick offset| as an offset.
@@ -1972,7 +1973,7 @@ The value for |x tick handler| should be a function that takes in the current $\
 \needspace{5\baselineskip}
 \subsection{Layout}
 \begin{keylist}{x axis type = \meta{type} (initially border), y axis type = \meta{type} (initially border),axes type = \meta{type} (initially border), no x axis, no y axis, no axes}
-The \meta{type} is either |border|, |center|, |frame|, or |none|. |no axes| is a shorthand for |axes type=none|. The |border| type is the default and puts the axes on the bottom and left of the picture. The |center| type by default places the axes to pass through $(0,0)$; this can be modified using the |x axis origin| and |y axis origin| keys. See \example{KRAHSS} and \example{KUHFPSS} for examples where this is used. The |frame| type draws a frame around the entire chart. 
+The \meta{type} is either |border|, |center|, |frame|, or |none|. |no axes| is a shorthand for |axes type=none|. The |border| type is the default and puts the axes on the bottom and left of the picture. The |center| type by default places the axes to pass through $(0,0)$; this can be modified using the |x axis origin| and |y axis origin| keys. See \example{KRAHSS} and \example{KUHFPSS} for examples where this is used. The |frame| type draws a frame around the entire chart.
 %TODO: example?
 \end{keylist}
 
@@ -2025,4 +2026,4 @@ If this is false the spectral sequence chart won't be clipped. I'm not really su
 \begin{key}{rotate labels = \meta{boolean} (default true)(initially false)}
 If you use |rotate = 90| but also want the labels rotated (so that the whole chart is sideways) use this key.
 \end{key}
-\end{document} 
+\end{document}

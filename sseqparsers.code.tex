@@ -692,7 +692,7 @@
         \edef\target{(\sseq@xycoord,\sseq@index)}%
         \let\xtarget\sseq@xcoord
         \let\ytarget\sseq@ycoord
-        \let\ntarget\sseq@index        
+        \let\ntarget\sseq@index
         \edef\targetname{(\sseq@xycoord\ifx\sseq@rawindex\pgfutil@empty\else,\sseq@rawindex\fi)}
     }{
         \ifx\sseq@rawtindex\pgfutil@empty\else
@@ -728,13 +728,13 @@
     }%
 }
 
-% EXPOSE: a wrapper around \sseq@parsecoord. 
+% EXPOSE: a wrapper around \sseq@parsecoord.
 \sseq@DeclareDocumentCommand\parsecoordinate { m r() }{%
     \sseq@parsecoord{#1}{#2}{call of \string\parsecoord}%
 }
 
 
-% EXPOSE: a wrapper around \sseq@dparsecoord. 
+% EXPOSE: a wrapper around \sseq@dparsecoord.
 \sseq@DeclareDocumentCommand \parsedifferential { m r() d() }{%
     \sseq@dparsecoord{#1}{#2}{#3}%
 }
@@ -976,7 +976,7 @@
     \sseq@setinputline
     \sseq@loadinputline
     \sseq@callas{#1}%
-    \gdef\sseq@thepathsofar{#1[/utils/exec={\sseq@thesseqstyle\sseq@thetikzprimitivestyle\the\sseq@scope@toks\sseq@savedoptioncode\sseq@collections@tikzprimitive@hook}]}%
+    \gdef\sseq@thepathsofar{#1[/utils/exec={\sseq@thesseqstyle\sseq@thetikzprimitivestyle\the\sseq@scope@toks\sseq@savedoptioncode}]}%
     \xdef\sseq@whattheusersaid{\string#1}
     \sseq@defer@tikzcommand@
 }

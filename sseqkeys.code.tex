@@ -232,10 +232,10 @@
     \def\pgfkeysdefaultpath{#1/}%
     \def\next{\egroup\@ifnextchar\sseq@nil{\@xp\@secondoftwo\@gobble}{\sseq@keys@try@addtooptions@}}%
     \pgfkeysifdefined{#1/\pgfkeyscurrentname/.@cmd}{%
-        \edef\pgfkeyscurrentkey{#1/\pgfkeyscurrentname}
+        \edef\pgfkeyscurrentkey{#1/\pgfkeyscurrentname}%
         \ifx\pgfkeyscurrentvalue\pgfkeysnovalue@text% Hmm... no value
           \pgfkeysifdefined{#1/\pgfkeyscurrentname/.@def}%
-          {\pgfkeysgetvalue{#1/\pgfkeyscurrentname/.@def}{\pgfkeyscurrentvalue}}
+          {\pgfkeysgetvalue{#1/\pgfkeyscurrentname/.@def}{\pgfkeyscurrentvalue}}%
           {}% no default, so leave it
         \fi%
         \pgfkeysgetvalue{#1/\pgfkeyscurrentname/.@cmd}{\pgfkeys@code}%
@@ -262,8 +262,8 @@
 }
 
 \def\sseq@keys@addtooptions@checkalso@#1\pgfkeysalso#2{%
-    \def\sseq@tempa{/tikz/}
-    \def\sseq@tempb{/pgf/}
+    \def\sseq@tempa{/tikz/}%
+    \def\sseq@tempb{/pgf/}%
     % This is an extra hook I needed to add so that my own keys can execute code when they need to...
     \sseq@keys@addtooptions@checkdo#1\sseq@keys@do\sseq@nil
     \ifx\sseq@nil#2% We're done, restore pgfkeys.
@@ -271,7 +271,7 @@
         \let\pgfkeys@case@two@extern\sseq@pgfkeys@case@two@extern@save
     \else
         \ifx\expandafter#2 % if they wanted to expand the first token, handle that
-            \sseq@add@tikzkey@to@options{\sseq@options@secondpass@iftikz{\relax\relax}} % The last token was an \expandafter, we need to keep it from doing anything
+            \sseq@add@tikzkey@to@options{\sseq@options@secondpass@iftikz{\relax\relax}}% The last token was an \expandafter, we need to keep it from doing anything
             \@xptwo\sseq@keys@addtooptions@checkalso@xp
         \else
             \pgfkeysalso{#2}%
@@ -280,14 +280,14 @@
     \fi
 }
 
-\def\sseq@keys@addtooptions@checkalso@xp#1{
-    \@xp\pgfkeysalso\@xp{#1}
+\def\sseq@keys@addtooptions@checkalso@xp#1{%
+    \@xp\pgfkeysalso\@xp{#1}%
     \sseq@keys@addtooptions@checkalso@
 }
 
 % Used to get collections code to run right.
-\def\sseq@keys@addtooptions@checkdo#1\sseq@keys@do#2{
-    \sseq@add@tikzkey@to@options{\sseq@options@secondpass@iftikz{\unexpanded{#1}}}
+\def\sseq@keys@addtooptions@checkdo#1\sseq@keys@do#2{%
+    \sseq@add@tikzkey@to@options{\sseq@options@secondpass@iftikz{\unexpanded{#1}}}%
     \ifx#2\sseq@nil\else
         #2%
         \@xp\sseq@keys@addtooptions@checkdo
@@ -760,7 +760,7 @@
 % #1 -- token list
 % #2 -- path
 % #3 -- code
-\def\sseq@addstylecodetotoks#1#2#3{
+\def\sseq@addstylecodetotoks#1#2#3{%
     \let\sseq@savedoptioncode@store\sseq@savedoptioncode
     \edef\sseq@savedoptioncode{\the#1}%
     \sseq@addstylecodetooptions{#2}{#3}%
@@ -771,7 +771,7 @@
 % #1 -- macro
 % #2 -- path
 % #3 -- code
-\def\sseq@addstylecodetomacro#1#2#3{
+\def\sseq@addstylecodetomacro#1#2#3{%
     \let\sseq@savedoptioncode@store\sseq@savedoptioncode
     \let\sseq@savedoptioncode#1%
     \sseq@addstylecodetooptions{#2}{#3}%
@@ -884,19 +884,72 @@
 
 \def\sseq@newplotstyles#1{\def\sseq@temppath{#1}\sseq@newplotstyles@#1,\sseq@nil}
 \def\sseq@newplotstyles@#1,{\sseq@newplotstyle{\sseq@trimleadingspaces#1}\@ifnextchar\sseq@nil{\@gobble}{\sseq@newplotstyles@}}
-
 \sseq@newplotstyles{x tick, y tick}
+
+
+%%
+%%
+%%  Families (also called collections in code)
+%%
+%%    These are supposed to make it easy to display / hide and change appearance of logically connected families of classes.
+%%    In order to allow a set of options to be given that applies uniformly to all features, we separately apply the options in each of these bins.    
+%%    
+
 
 \def\sseq@featurelist{\\{class}\\{differential}\\{structline}\\{circleclass}\\{tikzprimitive}}
 \def\sseq@mapfeaturelist#1{\def\\##1{#1}\sseq@featurelist}
 
 \def\sseq@familylist{}
 
-\def\sseq@collections@class@hook{}
-\def\sseq@collections@differential@hook{}
-\def\sseq@collections@structline@hook{}
-\def\sseq@collections@circleclass@hook{}
-\def\sseq@collections@tikzprimitive@hook{}
+\def\sseq@collections@featuretype{}
+\def\sseqnewfamily#1{%
+    % Make five bins associated to the new family, one for each feature type. Add them to storelist with empty defaults.
+    \sseq@mapfeaturelist{
+        \@xp\sseq@setmacronospaces\csname sseq@tempcmd@##1\endcsname{sseq@user@#1@##1@style}
+        \@xp\sseq@setmacronospaces\csname sseq@tempcmd@##1@default\endcsname{sseq@user@#1@##1@style@default}
+        \sseq@eval{\@nx\sseq@addtostorelist\@xptwo\@nx\csname sseq@tempcmd@##1\endcsname{\@xptwo\@nx\csname sseq@tempcmd@##1@default\endcsname}}
+        \@xptwo\def\csname sseq@user@#1@##1@style@default\endcsname{}
+    }
+    % This is for deciding what set of options to apply to a feature
+    \@xp\sseq@setnospaces\csname sseq@tempcmd\endcsname{sseq@user@#1}
+%
+    % A flag to decide whether to draw the family. Set/unset using "draw family" and "no family".
+    \@xp\sseq@addtostorelist\csname sseq@#1@maybedraw\endcsname{}
+    \pgfqkeys{/sseqpages/global}{%
+        #1 style/.ecode={%
+            \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@class{/sseqpages/class,/sseqpages/collections/class}{##1}%
+            \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@differential{/sseqpages/differential,/sseqpages/collections/differential}{##1}%
+            \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@structline{/sseqpages/struct line,/sseqpages/collections/struct line}{##1}%
+            \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@circleclass{/sseqpages/fit,/sseqpages/collections/fit}{##1}%
+            \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@tikzprimitive{/sseqpages/tikz primitives,/sseqpages/collections/tikz primitives}{##1}%
+        },
+        draw #1/.ecode = {\def\@xp\@nx\csname sseq@#1@maybedraw\endcsname{\@nx\sseq@drawtrue}},
+        no #1/.ecode = {\def\@xp\@nx\csname sseq@#1@maybedraw\endcsname{\@nx\sseq@drawfalse}}
+    }%
+    \pgfqkeys{/sseqpages/global/default}{%
+        #1 style/.ecode={%
+            \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@class@default{/sseqpages/class}{##1}%
+            \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@differential@default{/sseqpages/differential}{##1}%
+            \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@structline@default{/sseqpages/struct line}{##1}%
+            \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@circleclass@default{/sseqpages/fit}{##1}%
+            \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@tikzprimitive@default{/sseqpages/tikz primitives}{##1}%
+        },
+        draw #1/.ecode = {\def\@xp\@nx\csname sseq@#1@maybedraw@default\endcsname{\@nx\sseq@drawtrue}},
+        no #1/.ecode = {\def\@xp\@nx\csname sseq@#1@maybedraw@default\endcsname{\@nx\sseq@drawfalse}}
+    }%
+%
+    \pgfqkeys{/sseqpages}{
+        #1/.ecode={
+            \@nx\sseq@d@addto@macro\@nx\sseq@familylist{\@nx\csname sseq@#1@maybedraw\endcsname}
+            \@nx\sseq@options@secondpass{
+                \unexpanded\@xp{\@xp\csname\sseq@tempcmd @\sseq@collections@featuretype @style\endcsname}
+            }
+        }
+    }
+}
+
+
+
 
 \def\sseq@collections@classlabels@hook{}
 \def\sseq@collections@innerclasslabels@hook{}
@@ -974,66 +1027,7 @@
         {\unexpanded\@xp{\sseq@collections@addtohook{/sseqpages/label}{\sseq@collections@structlinelabels@hook}{#1}}},
 }
 
-\def\sseqnewfamily#1{%
-    \sseq@mapfeaturelist{
-        \@xp\sseq@setmacronospaces\csname sseq@tempcmd@##1\endcsname{sseq@user@#1@##1@style}
-        \@xp\sseq@setmacronospaces\csname sseq@tempcmd@##1@default\endcsname{sseq@user@#1@##1@style@default}
-        \sseq@eval{\@nx\sseq@addtostorelist\@xptwo\@nx\csname sseq@tempcmd@##1\endcsname{\@xptwo\@nx\csname sseq@tempcmd@##1@default\endcsname}}
-        \@xptwo\def\csname sseq@user@#1@##1@style@default\endcsname{}
-    }
-%
-    \@xp\sseq@addtostorelist\csname sseq@#1@maybedraw\endcsname{}
-    \pgfqkeys{/sseqpages/global}{%
-        #1 style/.ecode={%
-            \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@class{/sseqpages/class,/sseqpages/collections/class}{##1}%
-            \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@differential{/sseqpages/differential,/sseqpages/collections/differential}{##1}%
-            \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@structline{/sseqpages/struct line,/sseqpages/collections/struct line}{##1}%
-            \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@circleclass{/sseqpages/fit,/sseqpages/collections/fit}{##1}%
-            \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@tikzprimitive{/sseqpages/tikz primitives,/sseqpages/collections/tikz primitives}{##1}%
-        },
-        draw #1/.ecode = {\def\@xp\@nx\csname sseq@#1@maybedraw\endcsname{\@nx\sseq@drawtrue}},
-        no #1/.ecode = {\def\@xp\@nx\csname sseq@#1@maybedraw\endcsname{\@nx\sseq@drawfalse}}
-    }%
-    \pgfqkeys{/sseqpages/global/default}{%
-        #1 style/.ecode={%
-            \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@class@default{/sseqpages/class}{##1}%
-            \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@differential@default{/sseqpages/differential}{##1}%
-            \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@structline@default{/sseqpages/struct line}{##1}%
-            \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@circleclass@default{/sseqpages/fit}{##1}%
-            \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@tikzprimitive@default{/sseqpages/tikz primitives}{##1}%
-        },
-        draw #1/.ecode = {\def\@xp\@nx\csname sseq@#1@maybedraw@default\endcsname{\@nx\sseq@drawtrue}},
-        no #1/.ecode = {\def\@xp\@nx\csname sseq@#1@maybedraw@default\endcsname{\@nx\sseq@drawfalse}}
-    }%
-%
-    \pgfqkeys{/sseqpages}{
-        #1/.ecode={
-            \@nx\sseq@d@addto@macro\@nx\sseq@familylist{\@nx\csname sseq@#1@maybedraw\endcsname}
-            \@nx\sseq@options@secondpass{
-                \@nx\sseq@d@addto@macro\@nx\sseq@collections@class@hook{\unexpanded\@xptwo{\csname sseq@tempcmd@class\endcsname}}
-                \@nx\sseq@d@addto@macro\@nx\sseq@collections@differential@hook{\unexpanded\@xptwo{\csname sseq@tempcmd@differential\endcsname}}
-                \@nx\sseq@d@addto@macro\@nx\sseq@collections@structline@hook{\unexpanded\@xptwo{\csname sseq@tempcmd@structline\endcsname}}
-                \@nx\sseq@d@addto@macro\@nx\sseq@collections@circleclass@hook{\unexpanded\@xptwo{\csname sseq@tempcmd@circleclass\endcsname}}
-                \@nx\sseq@d@addto@macro\@nx\sseq@collections@tikzprimitive@hook{\unexpanded\@xptwo{\csname sseq@tempcmd@tikzprimitive\endcsname}}
-            }
-        },
-        class/#1/.ecode={
-            \@nx\sseq@options@secondpass{\unexpanded\@xptwo{\csname sseq@tempcmd@class\endcsname}}%\showthe\@xptwo\@nx\csname sseq@tempcmd@class\endcsname
-        },
-        differential/#1/.code={
-            \@nx\sseq@options@secondpass{\unexpanded\@xptwo{\csname sseq@tempcmd@differential\endcsname}}
-        },
-        struct line/#1/.code={
-            \@nx\sseq@options@secondpass{\unexpanded\@xptwo{\csname sseq@tempcmd@structline\endcsname}}
-        },
-        fit/#1/.code={
-            \@nx\sseq@options@secondpass{\unexpanded\@xptwo{\csname sseq@tempcmd@fit\endcsname}}
-        },
-        tikz primitives/#1/.code={
-            \@nx\sseq@options@secondpass{\unexpanded\@xptwo{\csname sseq@tempcmd@tikzprimitive\endcsname}}
-        }
-    }
-}
+
 
 
 %%% Global keys handlers and infrastructure
@@ -1209,11 +1203,11 @@
     \patchcmd#1{#2}{#3}{\sseq@patchrepeat{#1}{#2}{#3}}{}%
 }
 
-\def\sseq@stylehandler@processpath#1#2{
+\def\sseq@stylehandler@processpath#1#2{%
     \def\sseq@savedoptioncode{}%
     \sseq@eval{\@nx\sseq@addstylecodetooptions{/sseqpages/#1}{\unexpanded\@xp{\sseq@keybody{*1}}}}%
-    \edef\sseq@savedoptioncode##1{\unexpanded\@xp{\sseq@savedoptioncode}}
-    \sseq@patchrepeat\sseq@savedoptioncode{*1}{##1}
+    \edef\sseq@savedoptioncode##1{\unexpanded\@xp{\sseq@savedoptioncode}}%
+    \sseq@patchrepeat\sseq@savedoptioncode{*1}{##1}%
     \sseq@eval{\@nx\pgfqkeys{/sseqpages/#1}{\sseq@temp/.#2={\unexpanded\@xp{\sseq@savedoptioncode{##1}}}}}%
 }
 
@@ -1221,15 +1215,14 @@
 \pgfqkeys{/handlers}{ % defines sseq style, etc
     sseq @@ make style handler/.style 2 args={%
         .sseq #1/.code={%
-            \def\sseq@keybody####1{##1}
+            \def\sseq@keybody####1{##1}%
             \sseq@keys@lastpart
             \let\sseq@savedoptioncode@store\sseq@savedoptioncode
             \def\sseq@keys@unknown@error{}%
             \let\sseq@add@tikzkey@to@options\sseq@add@tikzkey@to@options@forstylehander
 %
             \sseq@stylehandler@processpath{scope}{#2}%
-            %\tracingall
-            \sseq@stylehandler@processpath{class}{#2}
+            \sseq@stylehandler@processpath{class}{#2}%
             \sseq@stylehandler@processpath{differential}{#2}%
             \sseq@stylehandler@processpath{struct line}{#2}%
             \sseq@stylehandler@processpath{circle classes}{#2}%

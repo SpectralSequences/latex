@@ -196,6 +196,12 @@
         \scantokens{\expandafter\egroup\expandafter\def\expandafter#1\expandafter{\csname #2\endcsname}}%
 }
 
+\def\sseq@setnospaces#1#2{%
+    \bgroup\catcode`\ =9\relax
+        \makeatletter
+        \scantokens{\expandafter\egroup\expandafter\def\expandafter#1\expandafter{\@firstofone{#2}}}%
+}
+
 
 \def\sseq@removeparens{\@xp\sseq@removeparens@}
 \def\sseq@removeparens@(#1){#1}

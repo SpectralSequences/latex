@@ -1465,10 +1465,11 @@
                              /utils/exec={
                                 \let\@nx\sseq@tikz@transform@save\@nx\tikz@transform
                                 \let\@nx\tikz@transform\relax
-                                \@nx\sseq@thelabelstyle\@nx\sseq@theedgelabelstyle
-                                \@xp\@nx\csname sseq@the\sseq@edgetype labelstyle\endcsname
+                                \@nx\sseq@thelabelstyle
                                 \@nx\sseq@collections@labels@hook
+                                \@nx\sseq@theedgelabelstyle
                                 \@nx\sseq@collections@edgelabels@hook
+                                \@xp\@nx\csname sseq@the\sseq@edgetype labelstyle\endcsname
                                 \@xp\@nx\csname sseq@collections@\sseq@edgetype labels@hook\endcsname
                                 \unexpanded\@xp{\sseq@temp}
                                 \ifsseq@rotatelabels\iftikz@fullytransformed\else\@nx\tikz@fullytransformedtrue\@nx\tikz@addtransform{\@nx\pgftransformresetnontranslations\@nx\sseq@globalrotatetransform}\fi\fi

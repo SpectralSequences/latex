@@ -20,8 +20,8 @@
 \def\sseq@transform@xymirror{
     \pgfsetxvec{\pgfqpoint{1cm}{0cm}}
     \pgfsetyvec{\pgfqpoint{0cm}{1cm}}
-    \pgftransformcm{0}{1}{1}{0}{\pgfpointxy{\sseq@xoffset*\sseq@xscale }{\sseq@yoffset}} % Reflect x and y axes,
-    \pgftransformshift{\pgfpointxy{-\sseq@xoffset*\sseq@yscale}{-\sseq@yoffset}}    % but we need to conjugate by a shift of (xoffset,yoffset)
+    \pgftransformcm{0}{1}{1}{0}{\pgfpointxy{\sseq@xoffset*\sseq@xscale }{\sseq@yoffset*\sseq@yscale}} % Reflect x and y axes,
+    \pgftransformshift{\pgfpointxy{-\sseq@xoffset*\sseq@yscale}{-\sseq@yoffset*\sseq@xscale}}    % but we need to conjugate by a shift of (xoffset,yoffset)
     \pgfsetyvec{\pgfqpoint{0cm}{\sseq@xscale cm}}
     \pgfsetxvec{\pgfqpoint{\sseq@yscale cm}{0cm}}
 }
@@ -614,9 +614,9 @@
                     \sseq@thethispagecyclestyle
                 \fi
             \fi
+            \def\sseq@collections@featuretype{class}
             \the\sseq@scope@toks
             \sseq@obj{#1.options}%
-            \sseq@collections@class@hook
         \pgftransformshift{\pgfqpointxy{\numexpr\sseq@tempx +\sseq@xoffset-\sseq@x\relax}{\numexpr\sseq@tempy + \sseq@yoffset-\sseq@y\relax}}
         \iftikz@fullytransformed\pgfgettransform{\savetransform}\fi
         \pgftransformresetnontranslations
@@ -867,6 +867,7 @@
 \def\sseq@drawedge(#1)(#2)#3#4{%
     \begingroup\pgfscope
     \def\sseq@edgetype{#3}
+    \let\sseq@collections@featuretype\sseq@edgetype
     \let\sseq@edgesourceanchor\pgfutil@empty
     \let\sseq@edgetargetanchor\pgfutil@empty
 %
@@ -1020,7 +1021,6 @@
             rotate fit=\tempangle,
             /utils/exec={\sseq@thesseqstyle\sseq@thecircleclassstyle\the\sseq@scope@toks\sseq@savedoptioncode
                 \sseq@obj{#1.options}
-                \sseq@collections@circleclass@hook
                 \sseq@obj{#1.fitnodes}
                 \@xp\pgfkeysalso\@xp{\romannumeral0\sseq@obj{#1.tikzprimoptions}}
             }
