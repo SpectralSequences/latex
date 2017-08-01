@@ -283,7 +283,7 @@
         \ifsseq@drawtitle
             \sseq@eval{\@nx\path (0,-\sseq@yoffset) node[
                 /sseqpages/global/every title,
-                above=\sseq@clip@padding@top+\sseq@yaxis@end@extend+10pt
+                above=\sseq@topclippadding+5pt
                 ] {\unexpanded\expandafter{\sseq@title}};
             }
         \fi
@@ -291,15 +291,19 @@
     % Don't touch the shifts -- they are very persnickety.
     \ifx\sseq@xaxislabel\pgfutil@empty\else\ifsseq@drawxaxislabel
         \sseq@eval{\noexpand\node[
+            align=center,
             /sseqpages/global/every x axis label,
-            yshift=-\sseq@xaxisgap-\sseq@yaxis@start@extend-10pt
+            below,
+            shift={\sseq@xlabelposition},
         ] {\unexpanded\expandafter{\sseq@xaxislabel}};}
     \fi\fi
     \ifx\sseq@yaxislabel\pgfutil@empty\else\ifsseq@drawyaxislabel
         \sseq@eval{\noexpand\node[
+            align=center,
             /sseqpages/global/every y axis label,
+            above,
             rotate=90,
-            yshift=\sseq@yaxisgap+\sseq@xaxis@start@extend+10pt
+            shift={\sseq@ylabelposition},
         ] {\unexpanded\expandafter{\sseq@yaxislabel}};}
     \fi\fi
 %
@@ -394,13 +398,10 @@
         \sseq@yminmax{\xcoord}{\ycoord}%
         \sseq@pushstack@\coord % also need the class stack to calculate other \class commands.
         \sseq@cleanup@obj{partcoord.(\partialcoord).numnodes}%
-        \sseq@cleanup@obj{partcoord.(\partialcoord).numnodespp}%
         \ifnum\nodenum=\@ne
             \sseq@obj@gdef{partcoord.(\partialcoord).numnodes}{0}%
-            \sseq@obj@gdef{partcoord.(\partialcoord).numnodespp}{1}%
         \fi
         \sseq@obj@xdef{partcoord.(\partialcoord).numnodes}{\nodenum}%
-        \sseq@obj@xdef{partcoord.(\partialcoord).numnodespp}{\the\numexpr\nodenum+1}%
         \edef\classname{class.\coord[0]}%
         \ifx\sseq@class@tag\pgfutil@empty\else
             \sseq@obj@ifdef{partcoord.(\partialcoord).tag.\sseq@class@tagprefix\sseq@class@tag}{%
@@ -487,13 +488,10 @@
     \sseq@xminmax{\xcoord}{\ycoord}%
     \sseq@yminmax{\xcoord}{\ycoord}%
     \sseq@cleanup@obj{partcoord.(\partialcoord).numnodes}%
-    \sseq@cleanup@obj{partcoord.(\partialcoord).numnodespp}%
     \ifnum\nodenum=\@ne
         \sseq@obj@gdef{partcoord.(\partialcoord).numnodes}{0}%
-        \sseq@obj@gdef{partcoord.(\partialcoord).numnodespp}{1}%
     \fi
     \sseq@obj@xdef{partcoord.(\partialcoord).numnodes}{\nodenum}%
-    \sseq@obj@xdef{partcoord.(\partialcoord).numnodespp}{\the\numexpr\nodenum+1}%
     \edef\classname{class.\coord[0]}%
     \ifx\sseq@class@tag\pgfutil@empty\else
         \sseq@obj@ifdef{partcoord.(\partialcoord).tag.\sseq@class@tagprefix\sseq@class@tag}{
@@ -528,7 +526,9 @@
     \sseq@obj@xdef{class.\coord.y}{\ycoord}%
     \sseq@obj@xdef{class.\coord.n}{\sseq@classinsert}
     \sseq@obj@gdef{\classname.dependencies}{}%
-    \sseq@obj@xdef{\classname.needstikz}{\ifsseq@needstikz\@nx\sseq@needstikztrue\fi}%
+    \ifsseq@needstikz
+        \sseq@obj@xdef{\classname.needstikz}{\sseq@needstikztrue}%
+    \fi
     \@ifundefined{sseq@tempoffset}{}{%
         \tikz@scan@one@point\sseq@setoffset\sseq@tempoffset
     }%
@@ -784,7 +784,9 @@
     \sseq@obj@xodef{\classname.nodetext.options}{\sseq@classnodetextoptions}
     \sseq@obj@xodef{\classname.labelnodes}{\sseq@classlabelnodes}
     \sseq@obj@gdef{\classname.dependencies}{}
-    \sseq@obj@xdef{\classname.needstikz}{\ifsseq@needstikz\@nx\sseq@needstikztrue\fi}
+    \ifsseq@needstikz
+        \sseq@obj@xdef{\classname.needstikz}{\sseq@needstikztrue}
+    \fi
     \@ifundefined{sseq@tempoffset}{}{\tikz@scan@one@point\sseq@setoffset\sseq@tempoffset}
 %
     \sseq@breakpoint

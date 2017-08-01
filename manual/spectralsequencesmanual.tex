@@ -13,10 +13,6 @@
 %
 % TODO:
 %  families
-%  new layout features
-%  comment on bounding boxes?
-%
-%
 %
 %  consistency issues?
 %  perhaps think about ordering, particularly of "Misc commands" section
@@ -878,8 +874,7 @@ Here is an example where \tikzpkg\ labels with the |background| key are used to 
 For this particular use case, it's probably better to use |title|, |x label|, and |y label|:
 \begin{codeexample}[]
 \begin{sseqdata}[ name = tikz background example2, cohomological Serre grading, classes = fill,
-                  grid = go, title = { Page \page }, x label = { $H^*(B)$ }, y label = { $H^*(F)$ },
-                  x label style = { yshift = 10pt}, y label style = { xshift = 10pt } ]
+                  grid = go, title = { Page \page }, x label = { $H^*(B)$ }, y label = { $H^*(F)$ } ]
 \class(0,0)
 \class(3,0)
 \class(0,2)
@@ -891,6 +886,20 @@ For this particular use case, it's probably better to use |title|, |x label|, an
 \end{codeexample}
 
 But if you need more flexible labeling, you'll likely want to use tikz primitives with |background|. See \example{KF3} for an instance where this key is useful.
+
+One useful tip is that you can ensure consistent bounding boxes between different diagrams using |\path[background] (smallest x, smallest y) -- (largest x, largest y);|:
+\begin{codeexample}[]
+\begin{sseqdata}[ name = boundingboxex, x range = {0}{2}, y range = {0}{2} ]
+\end{sseqdata}
+\printpage[ name = boundingboxex, title = not aligned ]
+
+\printpage[ name = boundingboxex, x label = Hi ]
+
+\begin{sseqpage}[ name = boundingboxex, keep changes, title = aligned ]
+\path[background] (\xmin,\ymin-2) -- (\xmax,\ymax+1);
+\end{sseqpage}
+\printpage[ name = boundingboxex, x label = Hi, title = {} ]
+\end{codeexample}
 \end{key}
 
 \begin{keylist}{page constraint = \meta{predicate}, page constraint or = \meta{predicate}}
@@ -950,7 +959,7 @@ These handlers create reusable styles to be used in spectral sequences. If this 
 \begin{sseqpage}[ mysseq ]
 \class(0,0) \class(0,1) \class(0,2) \class(0,3)
 \class(3,1) \class(3,2) \class(3,3)
-\structline(0,0)(0,1) \structline(0,1)(0,2) 
+\structline(0,0)(0,1) \structline(0,1)(0,2)
 \structline(0,2)(0,3)
 \structline(3,1)(3,2) \structline(3,2)(3,3)
 \structline[htwostruct](0,0)(3,1)
@@ -1878,6 +1887,7 @@ The grid step keys change the grid step.
 \declareasstyle{x label style}
 \declareasstyle{y label style}
 \declareasstyle{label style}
+This make chart labels.
 \begin{codeexample}[width = 6cm]
 \begin{sseqpage}[ title = { An example }, yscale = 0.5,
     x label = { x axis label },
@@ -1889,6 +1899,7 @@ The grid step keys change the grid step.
 \class(2,2)
 \end{sseqpage}
 \end{codeexample}
+Note that if you make multiple versions of the same chart and some of the charts have labels and others don't, they might not align the way you want. An easy solution to this is to use |\path[background] (min x, min y) -- (max x, max y);| where the coordinates are below and to the left, respectively above and to the right, of everything else drawn in any picture. This makes the bounding boxes for all of the pictures the same size, so that they line up even if the exact collection of things drawn changes. See the example at the end of the |background| key for an illustration of this.
 \end{keylist}
 
 

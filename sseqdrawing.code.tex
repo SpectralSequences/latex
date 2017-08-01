@@ -37,6 +37,7 @@
     \sseq@setlayoutparameter{topgridpadding}{x\sseq@xaxistype}
     \sseq@setlayoutparameter{bottomclippadding}{x\sseq@xaxistype}
     \sseq@setlayoutparameter{topclippadding}{x\sseq@xaxistype}
+    \sseq@setlayoutparameter{xlabelposition}{x\sseq@xaxistype}
 %
     \sseq@setlayoutparameter{xaxisorigin}{y\sseq@yaxistype}
     \sseq@setlayoutparameter{drawxaxis}{y\sseq@xaxistype}
@@ -46,6 +47,7 @@
     \sseq@setlayoutparameter{rightgridpadding}{y\sseq@yaxistype}
     \sseq@setlayoutparameter{leftclippadding}{y\sseq@yaxistype}
     \sseq@setlayoutparameter{rightclippadding}{y\sseq@yaxistype}
+    \sseq@setlayoutparameter{ylabelposition}{y\sseq@xaxistype}
 }
 
 % The appropriate one of these is chosen by the "axis type" keys in sseqkeys.
@@ -111,6 +113,15 @@
 \def\sseq@yaxisstartoffset@xframe{\sseq@xaxisgap}
 \def\sseq@yaxisendoffset@xframe{\sseq@xaxisgap}
 
+\def\sseq@xlabelposition@xborder{(0,-\sseq@xaxisstartoffset)}
+\def\sseq@xlabelposition@xcenter{(-\sseq@yaxisgap,-\sseq@xaxisstartoffset-5pt)}
+\def\sseq@xlabelposition@xframe{(0,-\sseq@xaxisgap-\sseq@xlabelgap-10pt)}
+\def\sseq@xlabelposition@xnone{(0,0)}
+
+\def\sseq@ylabelposition@yborder{(0,\sseq@yaxisstartoffset)}
+\def\sseq@ylabelposition@ycenter{(-\sseq@xaxisgap,\sseq@yaxisstartoffset+5pt)}
+\def\sseq@ylabelposition@yframe{(0,\sseq@yaxisgap+\sseq@ylabelgap+10pt)}
+\def\sseq@ylabelposition@ynone{(0,0)}
 %%%
 %%% Draw axes and clip
 %%%
@@ -594,7 +605,7 @@
         \the\sseq@scope@toks
         \sseq@obj{#1.needstikz}
 %
-    \sseq@outofrangetrue
+    \sseq@outofrangetrue\relax % Mysterious that we need this \relax here...
     \ifnum\sseq@tempx<\sseq@xmaxpp\relax\ifnum\sseq@tempx>\sseq@xminmm\relax\ifnum\sseq@tempy<\sseq@ymaxpp\relax\ifnum\sseq@tempy>\sseq@yminmm\relax
         \sseq@outofrangefalse
         \pgfscope
