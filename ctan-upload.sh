@@ -5,13 +5,14 @@ die() { EXITCODE=$1; shift; printf '%s\n' "$*"; exit $EXITCODE; }
 
 # Source the passed file.
 [ -e "$1" ] && . "$1"
+VERS=$2
 
 # Perform sanity checks.
 [ -z "$PKG" ] && die 1 Undefined / empty PKG
 [ -z "$VERS" ] && die 2 Undefined / empty VERS
 [ -z "$AUTHOR" ] && die 3 Undefined / empty AUTHOR
-#[ -z "$FILENAME" ] && die 4 Undefined / empty FILENAME
-#[ ! -e "$FILENAME" ] && die 5 File "$FILENAME" does not exist
+[ -z "$FILENAME" ] && die 4 Undefined / empty FILENAME
+[ ! -e "$FILENAME" ] && die 5 File "$FILENAME" does not exist
 [ -z "$EMAIL" ] && die 6 Undefined / empty EMAIL
 [ -z "$DESCRIPTION" ] && die 7 Undefined / empty DESCRIPTION
 [ -z "$CTANPATH" ] && die 8 Undefined / empty CTANPATH

@@ -3,7 +3,7 @@
 package_files=$( /usr/bin/find  | grep -E ".sty|.tex|.md" )
 echo "Compiling manual"
 cd manual
-texify --pdf --quiet spectralsequencesmanual.tex
+#texify --pdf --quiet spectralsequencesmanual.tex
 if [ $? -ne 0 ] ; then
     echo "Manual failed, quitting."
     exit 1
@@ -11,7 +11,7 @@ fi
 cd ..
 
 echo "Compiling examples"
-./compileexamples.sh | tee timetest.txt
+#./compileexamples.sh | tee timetest.txt
 if [ ${PIPESTATUS[0]} -gt 0 ] ; then
     echo "Examples failed; quitting."
     exit 1
@@ -31,7 +31,10 @@ if [ $1 ] ; then
 fi
 
 echo "Zipping files"
-powershell "Get-ChildItem . -r -Path ".sty","*.tex","*.md","*.pdf" | Write-Zip -OutputPath spectralsequences.zip | Out-Null"
+cd ..
+powershell "Get-ChildItem -r -Path spectralsequences -Include '*.sty','*.tex','*.md','*.pdf'  | Write-Zip -OutputPath spectralsequences.zip | Out-Null"
+mv spectralsequences.zip spectralsequences
+cd spectralsequences
 
 if [ -s commitmessage.txt ] ; then
     echo "Applying dos2unix"
@@ -49,7 +52,7 @@ if [ $1 ] ; then
     while true; do
         read -p $'Do you wish commit the package to CTAN?\n' yn
         case $yn in
-            [Yy]es ) ./ctan-upload.sh ./ctan-upload-fields.def; break;;
+            [Yy]es ) ./ctan-upload.sh ./ctan-upload-fields.def $1; break;;
             [Nn]* ) break;;
             * ) echo "Please answer yes or no.";;
         esac

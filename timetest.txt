@@ -1,15 +1,3 @@
-ANSS-S_2.tex passed in 3.03s
-ANSS-S_3.tex passed in 1.21s
-ASS-S_2.tex passed in 8.32s
-ASS-S_3.tex passed in 3.24s
-ASS-tmf_2.tex passed in 11.27s
-HFPSS-EO2_3.tex passed in 3.88s
-HFPSS-KO.tex passed in 2.98s
-J_RPinfty.tex passed in 6.37s
-MaySS-bo-A(1).tex passed in 2.77s
-MaySS-tmf-A(2).tex passed in 5.52s
-SSS-KF3n.tex passed in 2.26s
-SSS-KZ3.tex passed in 2.14s
-hatcher.tex passed in 1.74s
-unstable_ASS_SO.tex passed in 1.74s
-All tests passed.
+ANSS-S_2.tex passed in 3.61s
+ANSS-S_3.tex passed in 1.69s
+ASS-S_2.tex

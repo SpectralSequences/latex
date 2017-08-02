@@ -1,9 +1,9 @@
 
-spectralsequences v1.0.0-dev
+spectralsequences v1.1.0
 ========================
 Author: Hood Chatham  
 Email: hood@mit.edu  
-Date: 2017-06-21  
+Date: 2017-08-06  
 License: All files have the Latex Project Public License.  
 Description: Print spectral sequence diagrams using pgf/tikz.  
 
@@ -12,9 +12,9 @@ See the file manual/spectralsequencesmanual.pdf for a manual. See the examples d
 Email me at hood@mit.edu to submit bug reports, request new features, etc. The current development copy is hosted at https://github.com/hoodmane/spectralsequences. 
 
 Changelog:
-==========
-    
-## [Unreleased] 
+==========    
+
+## [1.1.0] 
 
 ### Added:
 - \sseqparseint
@@ -45,5 +45,6 @@ Changelog:
 - Big ranges like 0 - 600 now work, provided that you provide an appropriate scale
 - Big range like 600 - 700 no longer will cause an overflow
 - Labels now are rectangle nodes so they don't shift down if they are very wide
-- Fixed a bug with ranges in sseqpage environment
+- Fixed a bug with ranges and the sseqpage environment where classes lying outside the printed range would enlarge the range even if an explicit range was specified.
 - The chess grid works correctly now
+
