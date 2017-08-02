@@ -27,7 +27,7 @@ Changelog:
 - Families 
 - Insert key for new classes allows control over relative class placement without reordering commands
 - Draw differentials from a range of pages.
-- Frame axis type, ticks.
+- Frame axis type, tick marks.
 
 ### Changed:
 - Ticks are now placed at values congruent to tick offset mod tick step, tick offset defaults to 0
