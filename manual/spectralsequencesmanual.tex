@@ -65,20 +65,19 @@ Here is a basic example:
 \end{codeexample}
 |\begin{sseqdata}[|| name = ex1, cohomological Serre grading]| starts the declaration of the data of a spectral sequence named |ex1| whose page $\mathtt{r}$ differentials go $\mathtt{r}$ to the right and down $\mathtt{r-1}$ -- that is, it has cohomological Serre grading. Then we specify four classes and one page 3 differential, and we ask \sseqpages\  to print the third and fourth pages of the spectral sequence. Note that on the fourth page, the source and target of the differential have disappeared.
 
-\subsection{A warning about fragile macros}%TODO: does this go here? somewhere else
-All the data in a \sseqpages\  environment is stored and used later. As a result, most of the \sseqpages\  commands currently cannot tolerate fragile macros. Unfortunately, it is impossible for \sseqpages\  to warn you about this situation -- if you use a fragile command in a place that it doesn't belong, the result will be an incomprehensible error message. If you are getting nonsense error messages, this is probably why. The solution is to convert fragile macros into robust ones. \href{http://www.tex.ac.uk/FAQ-protect.html}{See here for more information.}
-
 \subsection{Installation}
 In both \miktex\ and \texlive\ installation should be automatic -- your \TeX\ distribution should automatically install the package the first time you include |\usepackage{spectralsequences}| in a document and compile it. However, in 2016, \texlive\ made an incompatible change to their database, so no new packages will run on versions of \texlive\ from before 2016. This includes \sseqpages. If you have an old version of \texlive, you can either perform a manual install,
-% TODO: how do you perform a manual install?
-or, better, you should install an up to date version of \texlive.
+or, better, you should install an up to date version of \texlive. If you want to do a manual install, see \href{https://tex.stackexchange.com/a/73017}{this \TeX stack exchange post} for instructions.
 
 \subsection{Memory Constraints}
 In a default \TeX\ install, \pdfLaTeX\ has small static memory caps that prevent it from using more than about 60 megabytes of total ram. However, \spectralsequences\ and \pgfpkg/\tikzpkg\ use a large amount of memory. For this reason, using \pdfLaTeX\ with a default install, you cannot draw more than about 2500 classes across all of your diagrams (fewer if you include differentials, structure lines, and other features). There are a few solutions to this.
 
 The easiest solution is to run \LuaLaTeX. \LuaLaTeX\ dynamically allocates memory and so is unlikely to run out of it. Using \LuaLaTeX\ on my computer, I can compile a document that draws two copies of a diagram with 20,000 classes in it (so a total of 40,000 classes). This takes about 50 seconds and 250 megabytes of ram. I expect any real-world use case will compile fine on a modern computer using \LuaLaTeX. This option has the advantage that any modern \TeX\ install comes with a copy of \LuaLaTeX, and that \LuaLaTeX\ is the designated successor to \pdfLaTeX. It has the disadvantage that there are some incompatibilities between \LuaLaTeX\ and \pdfLaTeX\ so if your document depends on \pdfLaTeX-specific features, it might be a pain to switch to \LuaLaTeX.
 
-Another option is to increase the static memory caps for \pdfLaTeX. See \href{https://tex.stackexchange.com/questions/26205/increase-latex-capacity}{this \TeX stack exchange post} for instructions on how to do this.
+Another option is to increase the static memory caps for \pdfLaTeX. See \href{https://tex.stackexchange.com/a/26213}{this \TeX stack exchange post} for instructions on how to do this.
+
+\subsection{A warning about fragile macros}
+All the data in a \sseqpages\  environment is stored and used later. As a result, most of the \sseqpages\  commands currently cannot tolerate fragile macros. Unfortunately, it is impossible for \sseqpages\  to warn you about this situation -- if you use a fragile command in a place that it doesn't belong, the result will be an incomprehensible error message. If you are getting nonsense error messages, this is probably why. The solution is to convert fragile macros into robust ones. \href{http://www.tex.ac.uk/FAQ-protect.html}{See here for more information.}
 
 
 \section{Package Options and Environments}
@@ -94,7 +93,6 @@ The \sseqdataenv\  environment is for storing a spectral sequence to be printed 
 This environment is used for printing a page of existing spectral sequence that was already specified using the \sseqdataenv\  environment. The body of the environment adds local changes -- classes, differentials, structure lines, and arbitrary \tikzpkg\  options that are by default only printed on this particular page. The \sseqpageenv\  environment can also be used to print a stand-alone page of a spectral sequence -- that is, if you only want to print a single page of the spectral sequence, you can skip using the \sseqdataenv\  environment.
 \end{environment}
 
-\needspace{5\baselineskip}
 \begin{command}{\printpage\moptions}
 This command prints a single page of an existing spectral sequence as-is. This is equivalent to a \sseqpageenv\  environment with an empty body.
 \end{command}
@@ -150,14 +148,13 @@ After a class is the source or target of a differential, it disappears on the ne
 \printpage[ name = replace class example, page = 3 ] \qquad
 \printpage[ name = replace class example, page = 4 ]
 \end{codeexample}
-Note that this will not restore any structure lines coming into or off of the class, if you want the structure lines to persist, you must call |\structline| again (or use the |structline:page| option)
+Note that this will not restore any structure lines coming into or off of the class, if you want the structure lines to persist, you must call |\structline| again (or use the |structline:page| option).
 \end{commandlist}
 
 \begin{commandlist}{{\classoptions\moptions\parargthreeopt{x}{y}{n}},\classoptions\moptions\pararg{classname}, \classoptions\moptions}
 This adds options to an existing class. This can be used in a \sseqpageenv\  environment to modify the appearance of a class for just one drawing of the spectral sequence, for instance to highlight it for discussion purposes.
 
 If there are multiple classes at the coordinate |(x,y)| you may specify which using an integer or a |tag| $n$. By default, this command will affect the first class placed in that position. You can also provide the |class:name| of a class. If no coordinate is indicated at all, then |\lastclass| is used.
-% TODO: make example with \savestack, \restorestack, and \NewCommand that makes this useful.
 \begin{codeexample}[width = 6cm]
 \begin{sseqdata}[ name = class options example,
                   classes = fill ]
@@ -235,7 +232,7 @@ If there are multiple nodes in the source or target coordinate, then there is a 
 \d2(3,0,,2)
 \end{sseqpage}
 \end{codeexample}
-Negative indices will count from the most recent class in the coordinate (so |-1| is the most recent, |-2| is the second most recent, etc). You can also use a |tag|, which works better if the situation is complicated.
+Negative indices will count from the most recent class in the coordinate (so the most recent is |-1|, the second most recent is |-2|, etc). You can also use a |tag|, which works better if the situation is complicated.
 \begin{codeexample}[width = 7.5cm]
 \begin{sseqpage}[ Adams grading, yscale = 0.65 ]
 \class(1,0)
@@ -412,13 +409,21 @@ Note that it is also possible to give a label to a |\node| this way, although th
 \end{sseqpage}
 \end{codeexample}
 
-The |pin| key makes \sseqpages\ draw a line connecting the label to the relevant class, which can provide necessary clarification in large diagrams. The pin key itself can take options which adjust the way that the line is drawn:
-% TODO: make an example
-%\begin{codeexample}
-%
-%\end{codeexample}
+\begin{key}{pin = \meta{style}}
+The |pin| key makes \sseqpages\ draw a line connecting the label to the relevant class, which can provide necessary clarification in dense diagrams. The pin key itself can take options which adjust the way that the line is drawn:
+\begin{codeexample}[width = 6cm]
+\begin{sseqpage}
+\class(0,0)
+\class["xy" {above, xshift=-4pt, pin = red}](0,0)
+\class(0,0)
+\class(0,1)
+\structline
+\end{sseqpage}
+\end{codeexample}
+\end{key}
 
-For either a |\structline| or a |\class| the label normally goes on the right side of the edge. The special |'| option makes it go in the opposite position from the default. I imitated the label handling in the \tikzcdpkg\ package, so if you use \tikzcdpkg, this should be familiar.
+
+For either a |\structline| or a |\class| the label normally goes on the right side of the edge. The special option |'| makes it go in the opposite position from the default. I imitated the label handling in the \tikzcdpkg\ package, so if you use \tikzcdpkg, this should be familiar.
 \begin{codeexample}[width = 6cm]
 \begin{sseqpage}[ Adams grading, yscale = 0.63 ]
 \class(0,0)
@@ -440,6 +445,9 @@ You can also use quotes to label edges drawn with \tikzpkg\ primitives:
 \draw (1,0) to["hi"'{ pos = 0.7, yshift = -0.5em }] (0,1);
 \end{sseqpage}
 \end{codeexample}
+
+\needspace{3\baselineskip}
+\begin{key}{description}
 The |description| key, stolen from \tikzcdpkg, places the label on top of the edge. In order to make this option work correctly, if the background coolor is not the default white, you must inform \sseqpages\ about this using the key |background color = |\meta{color}. In this document, the background color is called \textit{graphicbackground}.
 \begin{codeexample}[width = 6cm]
 \begin{sseqpage}[ no axes, background color = graphicbackground ]
@@ -451,7 +459,7 @@ The |description| key, stolen from \tikzcdpkg, places the label on top of the ed
 \structline["c" description](2,0)(2,1)
 \end{sseqpage}
 \end{codeexample}
-
+\end{key}
 \end{manualentry}
 
 
@@ -479,7 +487,7 @@ This shape is used for |\circleclasses|. It's a variant on the |ellipse| shape t
 There are many more \tikzpkg\ shapes in the shapes library, which you can load using the command |\usetikzlibrary{shapes}|. The following are some examples:
 \begin{codeexample}[width = 6cm]
 \begin{sseqpage}[ no axes, classes = { inner sep = 0.4em },
-                  class placement transform = { scale = 2 },
+                  class placement transform = { scale = 1.8 },
                   yscale = 1.63 ]
 \class(0,0)
 \class[isosceles triangle](2,0)
@@ -896,15 +904,16 @@ But if you need more flexible labeling, you'll likely want to use tikz primitive
 
 One useful tip is that you can ensure consistent bounding boxes between different diagrams using |\path[background] (smallest x, smallest y) -- (largest x, largest y);|:
 \begin{codeexample}[]
-\begin{sseqdata}[ name = boundingboxex, x range = {0}{2}, y range = {0}{2} ]
+\begin{sseqdata}[ name = boundingboxex, x range = {0}{2}, y range = {0}{2}, scale = 0.5 ]
 \end{sseqdata}
 \printpage[ name = boundingboxex, title = not aligned ]
-
+\quad
 \printpage[ name = boundingboxex, x label = Hi ]
-
+\qquad
 \begin{sseqpage}[ name = boundingboxex, keep changes, title = aligned ]
-\path[background] (\xmin,\ymin-2) -- (\xmax,\ymax+1);
+\path[background] (\xmin,\ymin-4) -- (\xmax,\ymax+2);
 \end{sseqpage}
+\quad
 \printpage[ name = boundingboxex, x label = Hi, title = {} ]
 \end{codeexample}
 \end{key}
@@ -978,7 +987,7 @@ These handlers create reusable styles to be used in spectral sequences. If this 
 \end{command}
 
 \begin{command}{\sseqerrortowarning\meta{error-name}}
-Turns the error with the given name into a warning. An error message will start by saying |spectralsequences error: "error-name"|. This is the name you need to put into this command.
+Turns the error with the given name into a warning. An error message will start by saying \let\eatclnifpresent\empty|spectralsequences error: "error-name"|. This is the name you need to put into this command.
 \end{command}
 
 \subsection{Code reuse commands}
@@ -1056,8 +1065,7 @@ You can also nest |\DoUntilOutOfBounds| reasonably:
 \end{codeexample}
 One important difference between |\foreach| and the |\Do| family of commands is that |\Do| has no effect on the stack. This is in order to ensure that they nest properly.
 
-Note that if you are using these commands and you are planning to draw several pictures of the chart with restricted range, you need to specify a range for the \sseqdataenv\ that contains all of the ranges of pages that you want to draw. If you then want to set a smaller default range, use \sseqpageenv\ with |keep changes|.
-% TODO: test that this works.
+Note that if you are using these commands and you are planning to draw several pictures of the chart with restricted range, you need to specify a range for the \sseqdataenv\ that contains all of the ranges of pages that you want to draw. If you then want to set a smaller default range, specify the smaller range the first time you use \sseqpageenv\ or |\printpage| to draw the spectral sequence, and include the |keep changes| key.
 
 The |\Do| command is less general than |\foreach|; the purpose is to provide a syntax for stack-based looping that is similar to |\DoUntilOutOfBounds| but with a fixed range. So |\Do{n}\marg{loop body}| repeats \meta{loop body} |n| times. The assumption is that the loop body draws something relative to the position of the |\lastclass|.
 
@@ -1152,8 +1160,8 @@ The |\structline| and |\changeclasses| commands have argument specification |O{}
 
 \begin{commandlist}{\NewSseqGroup\cmdarg{command}\marg{argspec}\marg{body},
                     \DeclareSseqGroup\cmdarg{command}\marg{argspec}\marg{body}}
-% TODO: explain me
-So that calling |\mygroup(x,y)| prints the whole group shifted to start at $\mathtt{(x,y)}$ instead of $\mathtt{(0,0)}$. For instance:
+These are similar to |\NewSseqCommand| and |\DeclareSseqCommand| except that the commands defined take an optional square bracket delimited options list, followed by an optional parenthesis delimited |(x,y)| pair and wraps the body of the code in |\begin{scope}[xshift = \meta{xcoord}, yshift = \meta{ycoord}, options]|.
+For instance:
 \begin{codeexample}[width = 8cm]
 \DeclareSseqGroup\tower {m} {
     \class(0,0)
@@ -1163,12 +1171,53 @@ So that calling |\mygroup(x,y)| prints the whole group shifted to start at $\mat
     }
 }
 \begin{sseqpage}
-\tower[orange](0,0){4}
-\tower[red](1,1){2}
+\tower[orange]{4}
+\tower(1,1){2}
 \end{sseqpage}
 \end{codeexample}
+Here we define a command which takes an options list, a coordinate, and a single mandatory argument. The options are applied to all the classes and structlines, the coordinate shifts the origin, and the mandatory argument is the length of the tower.
 \end{commandlist}
 
+\subsection{Families}
+\spectralsequences\ has a concept of ``class families'' that can be drawn or suppressed as a group, and that can have styling options applied to them as a group. 
+\begin{command}{\sseqnewfamily\marg{family name}}
+This makes a new family with name \meta{family name}. The effect of this is to define global options |\meta{family name} style| which apply options to all classes in the family, |draw \meta{family name}| which causes the family to be drawn, and |no \meta{family name}| which suppresses the family (drawing is the default behavior of course). It also defines an option |\meta{family name}| which puts a feature into the family -- so it can be used as an option to any of the normal commands like |\class|, |\d|, |\structline|, etc and to a scope. 
+
+\begin{codeexample}[vbox]
+\sseqnewfamily{imJ}
+\begin{sseqdata}[
+    name=ANSS-S_2, Adams grading,
+    class labels={below}, label distance=-1pt,
+    class placement transform={rotate=90,scale=2},
+    differentials=blue,
+    x range={0}{9}, y range={0}{4},
+    xscale=0.7, grid=go
+]
+% Image of J classes
+\begin{scope}[imJ]
+\class[rectangle,fill,inner sep=3pt](0,0)
+\DoUntilOutOfBoundsThenNMore{3}{\etaclass}
+\classoptions["\alpha_1" above left](1,1)
+\class["\alpha_{2/2}",circlen=2](3,1)
+\structline(0,0) \structline[dashed](3,3)
+\class["\alpha_3"](5,1) \d3\relax
+\DoUntilOutOfBounds{ \etaclass \d3 }
+\class["\alpha_{4/4}", rectangle, "16" {font=\tiny,inside}, inner sep=1pt](7,1)
+\DoUntilOutOfBoundsThenNMore{3}{\etaclass}
+\end{scope}
+
+% Other classes
+\class["\beta_{2/2}" {below right=-4pt}, insert = 1](6,2)
+\structline(3,1)
+\class["\beta_{2}" left](8,2)
+\etaclass\structline(6,2,2) % This is a *nu
+\end{sseqdata}
+
+\printpage[name=ANSS-S_2, title = with image of J, imJ style=purple]
+
+\printpage[name=ANSS-S_2, no imJ, x range={2}{9}, title = without image of J]
+\end{codeexample}
+\end{command}
 
 
 \subsection{Utilities}
@@ -1213,7 +1262,7 @@ Sets \cmdarg{macro} equal to the coordinates of the target position of a length 
 \end{command}
 
 \begin{command}{\parsedifferential\meta{page}(\meta{differential coordinate})\opt{\pararg{differential target}}}
-This has the same weird syntax of |\d|, except that you are required to put braces around the page (if it has multiple digits) and you are required to provide at least one coordinate (you have to say |\parsedifferential{2}(\lastclass)| for instance). This effectively calls |\parsecoordinate\source\meta{source coordinate}| and |\parsecoordinate\target\meta{target coordinate}|.
+This has the same weird syntax of |\d|, except that you are required to put braces around the page (if it has multiple digits) and you are required to provide at least one coordinate (you have to say |\parsedifferential{2}(\lastclass)| for instance). This command is similar in effect to saying both |\parsecoordinate\source\meta{source coordinate}| and |\parsecoordinate\target\meta{target coordinate}|, but it handles determination of the target coordinate for you.
 
 
 For instance, consider the following example, suggested by Catherine Ray:
@@ -1717,9 +1766,6 @@ Note that the orange classes and differential do not persist because the |keep c
 
 \begin{keylist}{no differentials,draw differentials}
 The option |no differentials| suppresses all of the differentials on the current page, whereas |draw differentials| causes the page appropriate differentials to be drawn. This is useful for explaining how the computation of a spectral sequence goes, or if you want to display one of the edges of the spectral sequence, like in \example{KF3n}.
-%\begin{codeexample}[]
-%TODO: build example
-%\end{codeexample}
 \end{keylist}
 
 \begin{keylist}{no struct lines,draw struct lines}
@@ -1909,7 +1955,7 @@ This make chart labels.
 Note that if you make multiple versions of the same chart and some of the charts have labels and others don't, they might not align the way you want. An easy solution to this is to use |\path[background] (min x, min y) -- (max x, max y);| where the coordinates are below and to the left, respectively above and to the right, of everything else drawn in any picture. This makes the bounding boxes for all of the pictures the same size, so that they line up even if the exact collection of things drawn changes. See the example at the end of the |background| key for an illustration of this.
 \end{keylist}
 
-
+\needspace{5\baselineskip}
 \begin{keylist}{no title, draw title, no x label, no y label, no labels, draw x label, draw y label, draw labels}
 Suppress or unsuppress the title, x label, y label, or both x and y labels, respectively.
 \end{keylist}
@@ -1951,6 +1997,18 @@ Sets the label offset -- by default the ticks will always be the set of numbers 
     minor tick step=\meta{nonnegative integer}%
 }
 If these are nonzero, they control the placement of tick marks on the axes. The value 0 prevents tick marks from being drawn. Uses |x tick offset| as an offset.
+\begin{codeexample}[width=7cm]
+\begin{sseqpage}[ 
+    tick step = 5,
+    major tick step = 5, 
+    minor tick step = 1, 
+    scale = 0.4,
+    axes type = frame
+]
+\class(0,0)
+\class(10,10)
+\end{sseqpage}
+\end{codeexample}
 \end{keylist}
 
 \begin{stylekeylist}{x tick style,y tick style,tick style}
@@ -1988,11 +2046,17 @@ The value for |x tick handler| should be a function that takes in the current $\
 \end{codeexample}
 \end{keylist}
 
-\needspace{5\baselineskip}
+\newpage
 \subsection{Layout}
 \begin{keylist}{x axis type = \meta{type} (initially border), y axis type = \meta{type} (initially border),axes type = \meta{type} (initially border), no x axis, no y axis, no axes}
-The \meta{type} is either |border|, |center|, |frame|, or |none|. |no axes| is a shorthand for |axes type=none|. The |border| type is the default and puts the axes on the bottom and left of the picture. The |center| type by default places the axes to pass through $(0,0)$; this can be modified using the |x axis origin| and |y axis origin| keys. See \example{KRAHSS} and \example{KUHFPSS} for examples where this is used. The |frame| type draws a frame around the entire chart.
-%TODO: example?
+The \meta{type} is either |border|, |center|, |frame|, or |none|. |no axes| is a shorthand for |axes type=none|. The |border| type is the default and puts the axes on the bottom and left of the picture. The |center| type by default places the axes to pass through $(0,0)$; this can be modified using the |x axis origin| and |y axis origin| keys. See \example{KRAHSS} and \example{KUHFPSS} for examples where this is used. The |frame| type draws a frame around the entire chart:
+
+\begin{codeexample}[width=6cm]
+\begin{sseqpage}[axes type=frame]
+\class(0,0)
+\class(3,2)
+\end{sseqpage}
+\end{codeexample}
 \end{keylist}
 
 \parskip=0pt
@@ -2033,7 +2097,7 @@ If you use |axes style = center|, these keys change the position of the axes. Ot
 
 \parskip=10pt
 \begin{key}{custom clip = \meta{clip path}}
-Give a custom clipping. The clipping specified must be in the form of a valid \tikzpkg\ path, for instance |\clip (0,0) rectangle (10,10);|. This clipping is also applied to any grid and is used to draw ellipses on appropriate differentials or structure lines that go out of bounds and to determine whether a differential or structure line is an ``orphan''. It is not applied to any background elements, which is important because these are often used for axes labels and such that should lie outside of the clipping region. Weird things can happen with out of range edges if use this option with an oddly shaped path.
+Give a custom clipping. The clipping specified must be in the form of a valid \tikzpkg\ path, for instance |\clip (0,0) rectangle (10,10);|. This clipping is also applied to any grid and is used to draw ellipses on appropriate differentials or structure lines that go out of bounds and to determine whether a differential or structure line is an ``orphan''. It is not applied to any background elements, which is important because these are often used for axes labels and such that should lie outside of the clipping region. Weird things can happen with out of range edges if you provide an oddly shaped path.
 \end{key}
 
 \begin{key}{clip = \meta{boolean} (default true)(initially true)}

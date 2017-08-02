@@ -638,7 +638,7 @@
         }%
         \iftikz@fullytransformed\pgfsettransform{\savetransform}\else\pgftransformresetnontranslations\ifsseq@rotatelabels\sseq@globalrotatetransform\fi\fi
         \tikz@options
-        \ifsseq@needstikz   
+        \ifsseq@needstikz
             \let\sseq@mode\tikz@mode
             \tikzset{every text node part/.code/.expand once={\sseq@globalrotatetransform\sseq@obj@ifdef{#1.nodetext.options}{\sseq@obj{#1.nodetext.options}}{}}}%
             \sseq@eval{%
@@ -877,6 +877,13 @@
 % #4 -- options
 \def\sseq@drawedge(#1)(#2)#3#4{%
     \begingroup\pgfscope
+    % If either class is part of a family we aren't drawing, don't draw the edge either.
+    \expandafter\ifx\csname pgf@sh@pi@sseq{#1}\endcsname\pgfpictureid\else
+        \@xp\sseq@break
+    \fi    
+    \expandafter\ifx\csname pgf@sh@pi@sseq{#2}\endcsname\pgfpictureid\else
+        \@xp\sseq@break
+    \fi    
     \def\sseq@edgetype{#3}
     \let\sseq@collections@featuretype\sseq@edgetype
     \let\sseq@edgesourceanchor\pgfutil@empty
@@ -1016,12 +1023,18 @@
 }
 
 
-%
-% #1 -- first coordinate
-% #2 -- second coordinate
-% #3 -- uid
+% #1 -- uid
+% #2 -- first coordinate
+% #3 -- second coordinate
 \def\sseq@circleclass@draw#1#2#3{
     \begingroup
+        % If either class is part of a family we aren't drawing, don't draw the fit either.
+        \expandafter\ifx\csname pgf@sh@pi@sseq{#2}\endcsname\pgfpictureid\else
+            \@xp\sseq@break
+        \fi
+        \expandafter\ifx\csname pgf@sh@pi@sseq{#3}\endcsname\pgfpictureid\else
+            \@xp\sseq@break
+        \fi
         \pgfmathanglebetweenpoints{\pgfpointanchor{sseq{#2}}{center}}{\pgfpointanchor{sseq{#3}}{center}}
         \let\tempangle\pgfmathresult
         \let\tikz@lib@fit@scan@handle\sseq@fit@tikz@lib@fit@scan@handle % install fit modifications.
@@ -1036,6 +1049,7 @@
                 \@xp\pgfkeysalso\@xp{\romannumeral0\sseq@obj{#1.tikzprimoptions}}
             }
         ] {};
+        \sseq@breakpoint
     \endgroup
 }
 % Modifies tikz commands \tikz@lib@fit@scan@handle from \pgf\frontendlayer\tikz\libraries\tikzlibraryfit.code.tex line 81 and

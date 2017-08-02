@@ -12,6 +12,8 @@
 % TODO:
 %  Finish manual TODOs and submit!
 %
+%  Make an argument type for the \d page argument.
+%
 %  Redo sseqerrortest and set up regression test script as part of build (damn I didn't realize we'd lost anything imporant with that find -d disaster)
 %  Maybe we should add some other regression tests too
 %
@@ -284,7 +286,7 @@
     \def\sseq@patchfor{}
 \fi
 
-\input sseqkeys.code.tex            % Exposes directly: \sseqset
+\input sseqkeys.code.tex            % Exposes directly: \sseqset, \sseqnewfamily
 \input sseqmain.code.tex            % Defines all the main commands. Exposes directly: the environments, \xmin, \xmax, etc.
 \input sseqdrawing.code.tex
 

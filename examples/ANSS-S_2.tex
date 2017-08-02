@@ -9,6 +9,8 @@
     minimum height=width("16"),
     minimum width=width("16")
 }}
+
+\sseqnewfamily{imJ}
 \begin{document}
 
 \NewSseqCommand\etaclass{O{}d()}{
@@ -50,6 +52,7 @@
     grid=go,
     right clip padding=2em
 ]
+\begin{scope}[imJ]
 \class[rectangle,fill,inner sep=3pt](0,0)
 \DoUntilOutOfBoundsThenNMore{3}{\etaclass}
 \classoptions["\alpha_1" above left](1,1)
@@ -58,8 +61,7 @@
 \nustruct
 \structline[dashed](3,1)(3,3)
 
-\class["\beta_{2/2}"](6,2)
-\nustruct
+
 \class["\alpha_3"](5,1)
 \d3(\lastclass)
 \DoUntilOutOfBounds{\etaclass\d3(\lastclass)}
@@ -76,6 +78,10 @@
 \replaceclass["\alpha_{6/2}", circlen=2](11,1)
 \structline[dashed](11,1)(11,3)
 
+\class["\alpha_7"](13,1)
+\d3(\lastclass)
+\DoUntilOutOfBounds{\etaclass\d3(\lastclass)}
+
 
 \class["\alpha_{8/5}",ppower=32](15,1)
 \DoUntilOutOfBoundsThenNMore{3}{\etaclass}
@@ -89,22 +95,22 @@
 \replaceclass["\alpha_{10/2}",circlen=2](19,1)
 \structline[dashed](19,1)(19,3)
 
-\class["\alpha_11"](21,1)
+\class["\alpha_{11}"](21,1)
 \d3(\lastclass)
 \DoUntilOutOfBounds{\etaclass\d3(\lastclass)}
+\end{scope}
 
+\class["\beta_{2/2}"](6,2)
+\nustruct
 \class["\beta_{2}" below](8,2)
-\etaclass\structline(\lastclass)(6,2,1) % This is a *nu
+\etaclass\structline(\lastclass)(6,2,2) % This is a *nu
 
-\class["\beta_3" left](14,2)
-\etaclass(14,2,-1)
-\divetaclass["\beta_{4/4}" left]
-\nuclass(14,2,1)\nuclass[circlen=2]\nuclass[circlen=3]\nuclass["P\beta_{2/2}" above left]
+\class["\beta_3" left,insert = 1](14,2)
+\etaclass[insert=1](14,2,-1)
+\divetaclass["\beta_{4/4}" left, insert = 2]
+\nuclass(14,2,2)\nuclass[circlen=2]\nuclass[circlen=3]\nuclass["P\beta_{2/2}" above left]
 \nuclass\divetaclass["P\beta_2"]
 
-\class["\alpha_7"](13,1)
-\d3(\lastclass)
-\DoUntilOutOfBounds{\etaclass\d3(\lastclass)}
 
 \class["\beta_{4/3}"](16,2)
 \etaclass\etaclass
@@ -161,7 +167,7 @@
 \class["P\eta_2"](39,7)
 \end{sseqdata}
 \centering
-\printpage[name=ANSS-S_2]
+\printpage[name=ANSS-S_2, no imJ]
 
 \printpage[name=ANSS-S_2,page=5]
 
