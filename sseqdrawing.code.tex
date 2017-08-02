@@ -561,6 +561,8 @@
     \def\sseq@thispos{(#2,#3)}
     \edef\sseq@thisposnum{\sseq@obj{class.(#2,#3,#4).n}}
     \def\sseq@thisclassnum{#5}
+    \sseq@tempx=#2\relax
+    \sseq@tempy=#3\relax
 }
 
 \def\sseqtooltip#1#2{%
@@ -588,8 +590,6 @@
     \global\advance\sseq@totalclassesdrawn\@ne
     \begingroup
     \sseq@class@getparts#1.
-    \sseq@tempx=\sseq@obj{\sseq@thisclassname.x}\relax
-    \sseq@tempy=\sseq@obj{\sseq@thisclassname.y}\relax
     \sseq@needstikzfalse
     \sseq@options@firstpassmode
         \sseq@thesseqstyle
@@ -638,19 +638,19 @@
         }%
         \iftikz@fullytransformed\pgfsettransform{\savetransform}\else\pgftransformresetnontranslations\ifsseq@rotatelabels\sseq@globalrotatetransform\fi\fi
         \tikz@options
-        \ifsseq@needstikz
+        \ifsseq@needstikz   
             \let\sseq@mode\tikz@mode
-            \tikzset{every text node part/.code/.expand once={\sseq@globalrotatetransform\sseq@obj{#1.nodetext.options}}}%
+            \tikzset{every text node part/.code/.expand once={\sseq@globalrotatetransform\sseq@obj@ifdef{#1.nodetext.options}{\sseq@obj{#1.nodetext.options}}{}}}%
             \sseq@eval{%
                 \@nx\node[/utils/exec={\let\@nx\tikz@mode\@nx\sseq@mode},
                     /handlers/first char syntax/the character "/.initial=\@nx\sseq@handlequote
-                ] (\sseq@thisnodename) {\unexpanded\@xpthree{\sseq@obj{#1.nodetext}}}
+                ] (\sseq@thisnodename) {\sseq@obj@ifdef{#1.nodetext}{\unexpanded\@xpthree{\sseq@obj{#1.nodetext}}}{}}
                 [every text node part/.code={}];
             }%
         \else
             \tikz@node@textfont
-            \edef\sseq@classnodetextoptions{\@xptwo\@nx\sseq@obj{#1.nodetext.options}}
-            \edef\sseq@classnodetext{\@xptwo\@nx\sseq@obj{#1.nodetext}}
+            \edef\sseq@classnodetextoptions{\sseq@obj@ifdef{#1.nodetext.options}{\@xptwo\@nx\sseq@obj{#1.nodetext.options}}{}}
+            \edef\sseq@classnodetext{\sseq@obj@ifdef{#1.nodetext}{\@xptwo\@nx\sseq@obj{#1.nodetext}}{}}
             \sseq@setnodetext{\sseq@classnodetext}{\sseq@classnodetextoptions}
             \let\tikz@fig@name\sseq@thisnodename
             \pgfmultipartnode{\tikz@shape}{\tikz@anchor}{\tikz@fig@name}{\sseq@drawnode}%

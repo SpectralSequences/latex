@@ -73,6 +73,13 @@ In both \miktex\ and \texlive\ installation should be automatic -- your \TeX\ di
 % TODO: how do you perform a manual install?
 or, better, you should install an up to date version of \texlive.
 
+\subsection{Memory Constraints}
+In a default \TeX\ install, \pdfLaTeX\ has small static memory caps that prevent it from using more than about 60 megabytes of total ram. However, \spectralsequences\ and \pgfpkg/\tikzpkg\ use a large amount of memory. For this reason, using \pdfLaTeX\ with a default install, you cannot draw more than about 2500 classes across all of your diagrams (fewer if you include differentials, structure lines, and other features). There are a few solutions to this.
+
+The easiest solution is to run \LuaLaTeX. \LuaLaTeX\ dynamically allocates memory and so is unlikely to run out of it. Using \LuaLaTeX\ on my computer, I can compile a document that draws two copies of a diagram with 20,000 classes in it (so a total of 40,000 classes). This takes about 50 seconds and 250 megabytes of ram. I expect any real-world use case will compile fine on a modern computer using \LuaLaTeX. This option has the advantage that any modern \TeX\ install comes with a copy of \LuaLaTeX, and that \LuaLaTeX\ is the designated successor to \pdfLaTeX. It has the disadvantage that there are some incompatibilities between \LuaLaTeX\ and \pdfLaTeX\ so if your document depends on \pdfLaTeX-specific features, it might be a pain to switch to \LuaLaTeX.
+
+Another option is to increase the static memory caps for \pdfLaTeX. See \href{https://tex.stackexchange.com/questions/26205/increase-latex-capacity}{this \TeX stack exchange post} for instructions on how to do this.
+
 
 \section{Package Options and Environments}
 \begin{manualentry}{Draft Mode}

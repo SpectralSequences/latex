@@ -21,8 +21,6 @@ sed -r --in-place "s/\x1B\[([0-9]{1,3}((;[0-9]{1,3})*)?)?[m|K]//g" timetest.txt
 echo "Cleanup tex output files"
 /usr/bin/find -regextype egrep -regex ".*\.aux|.*\.bbl|.*\.dvi|.*\.log|.*\.synctex.*|.*\.toc|.*\.out|.*\.up.*" -delete
     
-echo "Applying dos2unix"
-echo $package_files | xargs dos2unix --quiet
 
 # If a version number was supplied, replace versions and date strings:
 if [ $1 ] ; then
@@ -36,6 +34,9 @@ echo "Zipping files"
 powershell "Get-ChildItem . -r -Path ".sty","*.tex","*.md","*.pdf" | Write-Zip -OutputPath spectralsequences.zip | Out-Null"
 
 if [ -s commitmessage.txt ] ; then
+    echo "Applying dos2unix"
+    echo $package_files | xargs dos2unix --quiet
+    
     echo "Committing" 
     git commit -a --file commitmessage.txt
     mv commitmessage.txt commitmessage.bak.txt

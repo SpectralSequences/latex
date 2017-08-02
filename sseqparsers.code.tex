@@ -642,7 +642,7 @@
     \let\partialcoord\sseq@xycoord
     \let\xcoord\sseq@xcoord
     \let\ycoord\sseq@ycoord
-    \edef\nodenum{\sseq@obj@ifundef{partcoord.(\partialcoord).numnodespp}{1}{\sseq@obj{partcoord.(\partialcoord).numnodespp}}}%
+    \edef\nodenum{\sseq@obj@ifundef{partcoord.(\partialcoord).numnodes}{1}{\the\numexpr\sseq@obj{partcoord.(\partialcoord).numnodes}+1}}%
     \edef\coordnopar{\xcoord,\ycoord,\nodenum}
     \edef\coord{(\coordnopar)}%
 }

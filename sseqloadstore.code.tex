@@ -82,18 +82,19 @@
 \def\sseq@obj@xdef#1{\@xptwo\xdef\sseq@obj{#1}}
 \def\sseq@obj@protectedxdef#1{\@xptwo\sseq@protected@xdef\sseq@obj{#1}}
 \def\sseq@obj@xodef#1{\@xp\gdef\csname \sseq@obj@fullname{#1}\@xp\endcsname\@xp}
-\def\sseq@obj@let#1{\@xptwo\let\sseq@obj{#1}}
+\def\sseq@obj@let#1{\@xptwo\let\sseq@obj{#1}} % This shouldn't be used anywhere because all object assignments should be global...
+\def\sseq@obj@glet#1{\global\@xptwo\let\sseq@obj{#1}}
 \def\sseq@obj@gletcsname#1#2{\global\@xp\let\csname\sseq@obj@fullname{#1}\@xp\endcsname\csname#2\endcsname}
 \def\sseq@obj@gletobj#1#2{\global\@xp\let\csname\sseq@obj@fullname{#1}\@xp\endcsname\csname\sseq@obj@fullname{#2}\endcsname}
 \def\sseq@obj@undef#1{\global\@xptwo\let\sseq@obj{#1}\relax}
 \def\sseq@obj@show#1{\@xptwo\show\sseq@obj{#1}}
 \def\sseq@obj@ifundef#1{\@ifundefined{\sseq@obj@fullname{#1}}}
 \def\sseq@obj@ifdef#1#2#3{\@ifundefined{\sseq@obj@fullname{#1}}{#3}{#2}}
+\def\sseq@obj@useifdef@else#1#2{\@ifundefined{\sseq@obj@fullname{#1}}{#2}{\sseq@obj{#1}}}
 \def\sseq@obj@inc#1{\bgroup\sseq@tempcount\sseq@obj{#1}\relax\advance\sseq@tempcount\@ne\sseq@obj@xdef{#1}{\the\sseq@tempcount}\egroup}
-\def\sseq@obj@gaddto{\@xptwo\sseq@g@addto@macro\sseq@obj}
-\def\sseq@obj@xaddto{\@xptwo\sseq@x@addto@macro\sseq@obj}
-\def\sseq@obj@xaddto{\@xptwo\sseq@x@addto@macro\sseq@obj}
-\def\sseq@obj@xoaddto#1{\@xp\sseq@g@addto@macro\csname \sseq@obj@fullname{#1}\@xp\endcsname\@xp}
+\def\sseq@obj@gaddto#1{\sseq@obj@ifundef{#1}{\sseq@obj@gdef{#1}}{\@xptwo\sseq@g@addto@macro\sseq@obj{#1}}}
+\def\sseq@obj@xaddto#1{\sseq@obj@ifundef{#1}{\sseq@obj@xdef{#1}}{\@xptwo\sseq@x@addto@macro\sseq@obj{#1}}}
+\def\sseq@obj@xoaddto#1{\sseq@obj@ifundef{#1}{\sseq@obj@xodef{#1}}{\@xp\sseq@g@addto@macro\csname \sseq@obj@fullname{#1}\@xp\endcsname\@xp}}
 \def\sseq@obj@map#1#2{\def\\##1{#2}\sseq@obj{#1}}
 
 
@@ -180,6 +181,6 @@
     \let\sseq@savedpaths@xaddtikzpath@standard\@gobble
     \let\sseq@savedpaths@xaddtikzpath@temporary\@gobble
     % Only update mode for tikzpath
-    \def\sseq@setsavedpaths##1{\@xp\let\@xp\sseq@savedpaths@xaddtikzpath  \csname sseq@savedpaths@xaddtikzpath@##1\endcsname} 
+    \def\sseq@setsavedpaths##1{\@xp\let\@xp\sseq@savedpaths@xaddtikzpath  \csname sseq@savedpaths@xaddtikzpath@##1\endcsname}
 }
 

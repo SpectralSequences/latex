@@ -488,9 +488,6 @@
     \sseq@xminmax{\xcoord}{\ycoord}%
     \sseq@yminmax{\xcoord}{\ycoord}%
     \sseq@cleanup@obj{partcoord.(\partialcoord).numnodes}%
-    \ifnum\nodenum=\@ne
-        \sseq@obj@gdef{partcoord.(\partialcoord).numnodes}{0}%
-    \fi
     \sseq@obj@xdef{partcoord.(\partialcoord).numnodes}{\nodenum}%
     \edef\classname{class.\coord[0]}%
     \ifx\sseq@class@tag\pgfutil@empty\else
@@ -516,16 +513,23 @@
 %
 %
     \sseq@obj@gdef{class.\coord.num}{0}% For \replaceclass
-    \sseq@obj@xodef{\classname.familylist}{\sseq@familylist}
     \sseq@obj@xdef{\classname.page}{\sseq@infinity}%
-    \sseq@obj@xodef{\classname.options}{\sseq@savedoptioncode}%
-    \sseq@obj@xodef{\classname.nodetext}{\sseq@classnodetext}%
-    \sseq@obj@xodef{\classname.nodetext.options}{\sseq@classnodetextoptions}%
-    \sseq@obj@xodef{\classname.labelnodes}{\sseq@classlabelnodes}%
-    \sseq@obj@xdef{class.\coord.x}{\xcoord}%
-    \sseq@obj@xdef{class.\coord.y}{\ycoord}%
     \sseq@obj@xdef{class.\coord.n}{\sseq@classinsert}
-    \sseq@obj@gdef{\classname.dependencies}{}%
+    \ifx\sseq@familylist\pgfutil@empty\else
+        \sseq@obj@xodef{\classname.familylist}{\sseq@familylist}
+    \fi
+    \ifx\sseq@savedoptioncode\pgfutil@empty\else
+        \sseq@obj@xodef{\classname.options}{\sseq@savedoptioncode}%
+    \fi
+    \ifx\sseq@classnodetext\pgfutil@empty\else
+        \sseq@obj@xodef{\classname.nodetext}{\sseq@classnodetext}
+    \fi
+    \ifx\sseq@classnodetextoptions\pgfutil@empty\else
+        \sseq@obj@xodef{\classname.nodetext.options}{\sseq@classnodetextoptions}
+    \fi
+    \ifx\sseq@classlabelnodes\pgfutil@empty\else
+        \sseq@obj@xodef{\classname.labelnodes}{\sseq@classlabelnodes}%
+    \fi
     \ifsseq@needstikz
         \sseq@obj@xdef{\classname.needstikz}{\sseq@needstikztrue}%
     \fi
@@ -537,7 +541,6 @@
     \fi
 %
     \sseq@savedpaths@addclass{class.\coord}%
-    \sseq@obj@gdef{class.\coord.style}{}%
     \sseq@breakpoint
     \endgroup
 }
@@ -581,20 +584,21 @@
     \sseq@processlabels
 %
     \let\partialcoord\coord@partial
+    \edef\sseq@classnum{\sseq@obj@ifdef{class.\coord.num}{\sseq@obj{class.\coord.num}}{0}}
     \@ifundefined{sseq@class@page}{%
         \@ifundefined{sseq@gen}{
             \@ifundefined{sseq@thepage}{
-                \edef\sseq@gen{\sseq@obj{class.\coord.num}}
+                \let\sseq@gen\sseq@classnum
             }{
                 \sseq@obj@pagetogen{class.\coord}{\sseq@thepage} % stores in \sseq@gen
             }
             \let\sseq@genmax\sseq@gen
         }{
             \ifnum\sseq@gen<\z@
-                \edef\sseq@gen{\the\numexpr\sseq@obj{class.\coord.num}+\sseq@gen+1}
+                \edef\sseq@gen{\the\numexpr\sseq@classnum+\sseq@gen+1}
             \fi
             \@ifundefined{sseq@genmax}{\let\sseq@genmax\sseq@gen}{
-                \edef\sseq@genmax{\the\numexpr\sseq@obj{class.\coord.num}+\sseq@genmax+1}
+                \edef\sseq@genmax{\the\numexpr\sseq@classnum+\sseq@genmax+1}
             }
         }
     }{
@@ -602,7 +606,7 @@
         \sseq@class@getgen{\sseq@class@page}
         \@ifundefined{sseq@class@pagemax}{
             % If no max is present, apply options to all pages starting at specified minimum
-            \edef\sseq@genmax{\sseq@obj{class.\coord.num}}%
+            \let\sseq@genmax\sseq@classnum%
             \let\sseq@class@pagemax\sseq@infinity % ensure if "page" is defined, "pagemax" is defined too
         }{
             \let\sseq@genmin\sseq@gen
@@ -614,7 +618,7 @@
         \edef\sseq@class@pagemax{\the\numexpr\sseq@class@pagemax+\@ne}
     }
     \ifnum\sseq@gen=\m@ne
-        \edef\sseq@gen{\sseq@obj{class.\coord.num}}
+        \let\sseq@gen\sseq@classnum
     \fi
     \edef\classname{class.\coord[\sseq@gen]}
     \ifsseq@keepchanges\else
@@ -710,7 +714,7 @@
 }
 \def\sseq@class@getgen#1{
     \bgroup
-        \ifnum\sseq@obj{class.\coord.num}>\z@
+        \ifnum\sseq@classnum>\z@
             \sseq@eval{\unexpanded{\sseq@obj@pagetogen{class.\coord}}{#1}} % stores in \sseq@gen
         \else
             \def\sseq@gen{0}
@@ -780,8 +784,12 @@
     \sseq@obj@xodef{\classname.familylist}{\sseq@familylist}
     \sseq@obj@xdef{\classname.page}{\sseq@infinity}
     \sseq@obj@xodef{\classname.options}{\sseq@savedoptioncode}
-    \sseq@obj@xodef{\classname.nodetext}{\sseq@classnodetext}
-    \sseq@obj@xodef{\classname.nodetext.options}{\sseq@classnodetextoptions}
+    \ifx\sseq@classnodetext\pgfutil@empty\else
+        \sseq@obj@xodef{\classname.nodetext}{\sseq@classnodetext}
+    \fi
+    \ifx\sseq@classnodetextoptions\pgfutil@empty\else
+        \sseq@obj@xodef{\classname.nodetext.options}{\sseq@classnodetextoptions}
+    \fi
     \sseq@obj@xodef{\classname.labelnodes}{\sseq@classlabelnodes}
     \sseq@obj@gdef{\classname.dependencies}{}
     \ifsseq@needstikz
@@ -926,7 +934,6 @@
     \ifsseq@drawdifferential % TODO: probably should get rid of invisible now that we have \kill...
         \sseq@obj@xodef{d.#2\source\target.familylist}{\sseq@familylist}
         \sseq@obj@gdef{d.#2\source\target.page}{#2}
-        \sseq@obj@gdef{d.#2\source\target.style}{}%
         \sseq@obj@xdef{d.#2\source\target.source}{\source}
         \sseq@obj@xdef{d.#2\source\target.target}{\target}
         \sseq@obj@xdef{d.#2\source\target.options}{\ifsseq@needstikz\@nx\sseq@needstikztrue\fi\unexpanded\@xp{\sseq@savedoptioncode}}
