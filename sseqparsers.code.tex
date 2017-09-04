@@ -514,7 +514,7 @@
         \edef\sseq@restcoord{\sseq@removecomma#2,#3\sseq@nil}
     }{
         \sseq@ifintexpr{#1}{
-            \sseq@ifintexpr{#2}{}{\sseq@error@n{invalid-coordinate}{y }\sseq@breakfifi} % breakfifi to get out of ifs from maincoord@
+            \sseq@ifintexpr{#2}{}{\sseq@error@n{invalid-coordinate}{y~}\sseq@breakfifi} % breakfifi to get out of ifs from maincoord@
             \edef\sseq@xcoord{\the\numexpr\sseq@x+(#1)\relax}%
             \edef\sseq@ycoord{\the\numexpr\sseq@y+(#2)\relax}%
             \edef\sseq@xycoord{\sseq@xcoord,\sseq@ycoord}%
@@ -522,7 +522,7 @@
                 \edef\sseq@restcoord{\sseq@removecomma#3\sseq@nil}%
             }%
         }{
-            \sseq@error@n{invalid-coordinate}{x }\sseq@breakfifi % breakfifi to get out of ifs from maincoord@
+            \sseq@error@n{invalid-coordinate}{x~}\sseq@breakfifi % breakfifi to get out of ifs from maincoord@
         }
     }%
 }%

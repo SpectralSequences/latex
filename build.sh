@@ -3,7 +3,7 @@
 package_files=$( /usr/bin/find  | grep -E ".sty|.tex|.md" )
 echo "Compiling manual"
 cd manual
-#texify --pdf --quiet spectralsequencesmanual.tex
+texify --pdf --quiet spectralsequencesmanual.tex
 if [ $? -ne 0 ] ; then
     echo "Manual failed, quitting."
     exit 1
@@ -11,7 +11,7 @@ fi
 cd ..
 
 echo "Compiling examples"
-#./compileexamples.sh | tee timetest.txt
+./compileexamples.sh | tee timetest.txt
 if [ ${PIPESTATUS[0]} -gt 0 ] ; then
     echo "Examples failed; quitting."
     exit 1

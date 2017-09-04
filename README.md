@@ -13,6 +13,11 @@ Email me at hood@mit.edu to submit bug reports, request new features, etc. The c
 
 Changelog:
 ==========    
+## [Unreleased]
+
+### Fixed:
+- Groups defined with \SseqNewGroup now correctly handle arithmetic in their arguments.
+
 
 ## [1.1.0] 
 

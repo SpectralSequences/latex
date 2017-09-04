@@ -14,7 +14,6 @@
 %%
 
 
-
 \ExplSyntaxOn
 
 %%% \sseq@DeclareDocumentCommand
@@ -258,6 +257,7 @@
             {}#4{}
         \end{scope}
         \endgroup
+        \sseq@breakpoint
     }%
     \ifsseq@error
         \@xp\sseq@break
@@ -294,10 +294,19 @@
     \group_end:
 }
 
-\def\sseqnewgroup@splitcoord#1,#2\sseq@nil{%
-    \edef\sseq@scopecall{
-        \@nx\begin{scope}[xshift=#1,yshift=#2,\unexpanded\@xp{\sseq@options}]
+\def\sseqnewgroup@splitcoord#1,#2\sseq@nil{
+    \sseq@ifintexpr{#1}{}{
+        \def\sseq@scopecall{\sseq@error@n{invalid-coordinate}{x~}\sseq@break}
+        \sseq@break
     }
+    \sseq@ifintexpr{#2}{}{
+        \def\sseq@scopecall{\sseq@error@n{invalid-coordinate}{y~}\sseq@break}
+        \sseq@break
+    }
+    \edef\sseq@scopecall{
+        \@nx\begin{scope}[xshift=\the\numexpr#1\relax,yshift=\the\numexpr#2\relax,\unexpanded\@xp{\sseq@options}]
+    }
+    \sseq@breakpoint
 }
 
 
