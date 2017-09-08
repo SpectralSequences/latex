@@ -1,8 +1,8 @@
 %%
-%% Package: spectralsequences v1.1.0
+%% Package: spectralsequences v1.1.0-dev
 %% Author: Hood Chatham
 %% Email: hood@mit.edu
-%% Date: 2017-08-06
+%% Date: 2017-09-07
 %% License: Latex Project Public License
 %%
 %% File: sseqmain.code.tex
@@ -652,9 +652,6 @@
         \sseq@obj@xdef{class.\classname.name}{\sseq@class@name}
         \sseq@obj@xdef{class.namedclass.\sseq@class@name}{\coordnopar}
     \fi
-    \ifcsname sseq@class@showname\endcsname
-        \sseq@eval{\@nx\sseq@handleclassquotes{\sseq@obj{class.\classname.name}}{\sseq@class@showname}}
-    \fi
     \sseq@tempcount=\sseq@gen\relax
     \advance\sseq@tempcount\m@ne
     \loop
@@ -666,6 +663,12 @@
     %
         \ifx\sseq@classnodetext\pgfutil@empty\else
             \sseq@cleanup@obj{\classname.nodetext}
+            \@ifundefined{sseq@class@page}{}{
+                \sseq@obj@xdef{\classname.nodetext}{
+                    \@nx\ifnum\@nx\sseq@thepagecount<\the\numexpr\sseq@class@page+1\relax\relax
+                    \unexpanded\@xptwo{\csname \sseq@obj@fullname{\classname.nodetext}\endcsname\fi}
+                }
+            }
             \sseq@classoptions@obj@addto@withpagerange{\classname.nodetext}{\sseq@classnodetext}
         \fi
         \ifx\sseq@classnodetextoptions\pgfutil@empty\else
@@ -848,6 +851,7 @@
     \sseq@d@grabpage\sseq@kill@
 }
 
+
 % Now we need to parse a potential coordinate.
 \sseq@DeclareDocumentCommandAs\sseq@kill@\kill {d()} {
     \sseq@xsetthiscall{\string\kill\unexpanded\@xp{\sseq@dpage}\IfNoValueF{#1}{(#1)}}%
@@ -857,7 +861,7 @@
     }{%
         \sseq@error@x{d-invalid-page}{\unexpanded\@xp{\sseq@dpage}}\sseq@break%
     }%
-    \sseq@d@setpageminrec{class.\coordinate}{\the\sseq@tempcount}{coordinate}%  automatically handles \sseq@cleanup@obj
+    \sseq@eval{\@nx\sseq@d@setpageminrec{class.\coordinate}{\the\sseq@tempcount}{coordinate}}%  automatically handles \sseq@cleanup@obj
     \sseq@breakpoint
     \endgroup
 }

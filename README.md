@@ -1,9 +1,9 @@
 
-spectralsequences v1.1.0
+spectralsequences v1.1.0-dev
 ========================
 Author: Hood Chatham  
 Email: hood@mit.edu  
-Date: 2017-08-06  
+Date: 2017-09-07  
 License: All files have the Latex Project Public License.  
 Description: Print spectral sequence diagrams using pgf/tikz.  
 
@@ -17,6 +17,8 @@ Changelog:
 
 ### Fixed:
 - Groups defined with \SseqNewGroup now correctly handle arithmetic in their arguments.
+- Labels inside a node now replace each other if two are given so you can make the label change on a given page with \classoptions (reported by Steve Wilson). 
+- \kill had a bug in it that sometimes caused it to act on the wrong page (reported by Steve Wilson).
 
 
 ## [1.1.0] 
