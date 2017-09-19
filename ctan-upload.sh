@@ -5,7 +5,7 @@ die() { EXITCODE=$1; shift; printf '%s\n' "$*"; exit $EXITCODE; }
 
 # Source the passed file.
 [ -e "$1" ] && . "$1"
-VERS=$2
+VERS="$2 $(date +%Y-%m-%d)"
 
 # Perform sanity checks.
 [ -z "$PKG" ] && die 1 Undefined / empty PKG

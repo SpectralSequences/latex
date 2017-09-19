@@ -1,9 +1,9 @@
 
-spectralsequences v1.1.0-dev
+spectralsequences v1.1.1
 ========================
 Author: Hood Chatham  
 Email: hood@mit.edu  
-Date: 2017-09-07  
+Date: 2017-09-18  
 License: All files have the Latex Project Public License.  
 Description: Print spectral sequence diagrams using pgf/tikz.  
 
@@ -13,7 +13,7 @@ Email me at hood@mit.edu to submit bug reports, request new features, etc. The c
 
 Changelog:
 ==========    
-## [Unreleased]
+## [1.1.1]
 
 ### Fixed:
 - Groups defined with \SseqNewGroup now correctly handle arithmetic in their arguments.

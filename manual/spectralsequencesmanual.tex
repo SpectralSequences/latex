@@ -1,8 +1,8 @@
 %%
-%% Package: spectralsequences v1.1.0-dev
+%% Package: spectralsequences v1.1.1 2017-09-16 2017-09-16
 %% Author: Hood Chatham
 %% Email: hood@mit.edu
-%% Date: 2017-09-07
+%% Date: 2017-09-18
 %% License: Latex Project Public License
 %%
 %% File: spectralsequencesmanual.tex
@@ -19,7 +19,7 @@
 %  tutorial
 %  explain / cross reference examples folder?
 %
-
+\def\version{Version 1.1.1}
 
 
 \input spectralsequencesmanualpreamble
@@ -1179,9 +1179,9 @@ Here we define a command which takes an options list, a coordinate, and a single
 \end{commandlist}
 
 \subsection{Families}
-\spectralsequences\ has a concept of ``class families'' that can be drawn or suppressed as a group, and that can have styling options applied to them as a group. 
+\spectralsequences\ has a concept of ``class families'' that can be drawn or suppressed as a group, and that can have styling options applied to them as a group.
 \begin{command}{\sseqnewfamily\marg{family name}}
-This makes a new family with name \meta{family name}. The effect of this is to define global options |\meta{family name} style| which apply options to all classes in the family, |draw \meta{family name}| which causes the family to be drawn, and |no \meta{family name}| which suppresses the family (drawing is the default behavior of course). It also defines an option |\meta{family name}| which puts a feature into the family -- so it can be used as an option to any of the normal commands like |\class|, |\d|, |\structline|, etc and to a scope. 
+This makes a new family with name \meta{family name}. The effect of this is to define global options |\meta{family name} style| which apply options to all classes in the family, |draw \meta{family name}| which causes the family to be drawn, and |no \meta{family name}| which suppresses the family (drawing is the default behavior of course). It also defines an option |\meta{family name}| which puts a feature into the family -- so it can be used as an option to any of the normal commands like |\class|, |\d|, |\structline|, etc and to a scope.
 
 \begin{codeexample}[vbox]
 \sseqnewfamily{imJ}
@@ -1998,10 +1998,10 @@ Sets the label offset -- by default the ticks will always be the set of numbers 
 }
 If these are nonzero, they control the placement of tick marks on the axes. The value 0 prevents tick marks from being drawn. Uses |x tick offset| as an offset.
 \begin{codeexample}[width=7cm]
-\begin{sseqpage}[ 
+\begin{sseqpage}[
     tick step = 5,
-    major tick step = 5, 
-    minor tick step = 1, 
+    major tick step = 5,
+    minor tick step = 1,
     scale = 0.4,
     axes type = frame
 ]

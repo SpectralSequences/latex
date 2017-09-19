@@ -3,7 +3,7 @@
 package_files=$( /usr/bin/find  | grep -E ".sty|.tex|.md" )
 echo "Compiling manual"
 cd manual
-texify --pdf --quiet spectralsequencesmanual.tex
+#texify --pdf --quiet spectralsequencesmanual.tex
 if [ $? -ne 0 ] ; then
     echo "Manual failed, quitting."
     exit 1
@@ -11,7 +11,7 @@ fi
 cd ..
 
 echo "Compiling examples"
-./compileexamples.sh | tee timetest.txt
+#./compileexamples.sh | tee timetest.txt
 if [ ${PIPESTATUS[0]} -gt 0 ] ; then
     echo "Examples failed; quitting."
     exit 1
@@ -23,10 +23,11 @@ echo "Cleanup tex output files"
     
 
 # If a version number was supplied, replace versions and date strings:
-if [ $1 ] ; then
+if [ "$1" ] ; then
     echo "Replacing date strings and version numbers"
     echo $package_files | xargs sed --in-place "s/Date: ....-..-../Date: $(date +%Y-%m-%d)/g"
     sed --in-place "s_ProvidesPackage{spectralsequences}\[.*\]_ProvidesPackage{spectralsequences}[$(date +%Y/%m/%d) v$1]_g" spectralsequences.sty
+    sed --in-place "s_version{.*}_version{Version $1}_g" manual/spectralsequencesmanual.tex
     echo $package_files | xargs sed -E --in-place "s/spectralsequences v[0-9]*\.[0-9]*\.[0-9]*[[:punct:]]?[a-z]*/spectralsequences v$1/g"
 fi
 
@@ -48,7 +49,7 @@ if [ -s commitmessage.txt ] ; then
     git push
 fi
 
-if [ $1 ] ; then
+if [ "$1" ] ; then
     while true; do
         read -p $'Do you wish commit the package to CTAN?\n' yn
         case $yn in
