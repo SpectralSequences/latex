@@ -1073,6 +1073,7 @@ If you need to know how many iterations one of these three commands has gone thr
 \end{commandlist}
 \begin{commandlist}{\NewSseqCommand    \cmdarg{command}\marg{argspec}\marg{body},
                     \DeclareSseqCommand\cmdarg{command}\marg{argspec}\marg{body}}
+% TODO: Explain the difference between NewSseqCommand and DeclareSseqCommand!
 The \xparsepkg\ package provides these very powerful commands for defining macros. They are used internally to the \sseqpages\  package to define |\class|, |\d|, etc. To help you create variants of these commands, I will record here the argument specifications for each of them. See the \href{\xparseurl}{\xparsepkg\ manual} for a better explanation and more information.
 
 To make a command like |\class|, you can use the argument specification |O{}r()|. The argument type \texttt{O\marg{default}} stands for a bracket delimited optional argument with default value \meta{default}. In this case, we've specified the default to be empty. |r()| stands for a ``required'' argument delimited by |(| and |)|. In the command definition, access the optional argument with |#1| and the coordinate with |#2|.

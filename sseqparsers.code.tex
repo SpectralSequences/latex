@@ -587,6 +587,7 @@
 % #1 -- name to define
 % #2 -- coordinate
 % #3 -- the error message
+\def\sseq@eatparens(#1){#1}
 \def\sseq@parsecoord#1#2#3{%
     \def\sseq@index{}
     \def\sseq@errortype{#3}
@@ -603,8 +604,8 @@
     \@xp\let\csname \sseq@macroname#1@partial\endcsname\sseq@xycoord
     \edef#1{(\sseq@xycoord,\sseq@index)}%
     \@xp\edef\csname\sseq@macroname#1nopar\endcsname{\sseq@xycoord,\sseq@index}
-    \@xp\def\csname\sseq@macroname#1name\endcsname{(#2)}%
-    \@xp\def\csname\sseq@macroname#1nameunbraced\endcsname{#2}%
+    \@xp\edef\csname\sseq@macroname#1name\endcsname{(#2)}% 
+    \@xp\edef\csname\sseq@macroname#1nameunbraced\endcsname{\@xptwo\sseq@eatparens\csname\sseq@macroname#1name\endcsname}% edef?
     \@xp\edef\csname\sseq@macroname#1@internalname\endcsname{sseq{\sseq@xycoord,\sseq@index}}%
 }
 
