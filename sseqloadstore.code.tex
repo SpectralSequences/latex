@@ -97,6 +97,8 @@
 \def\sseq@obj@xoaddto#1{\sseq@obj@ifundef{#1}{\sseq@obj@xodef{#1}}{\@xp\sseq@g@addto@macro\csname \sseq@obj@fullname{#1}\@xp\endcsname\@xp}}
 \def\sseq@obj@map#1#2{\def\\##1{#2}\sseq@obj{#1}}
 
+\def\sseq@lettoobj#1#2{\sseq@obj@ifdef{#2}{\@xp\let\@xp#1\csname\sseq@obj@fullname{#2}\endcsname}{\let#1\empty}}
+
 
 \def\sseq@obj@ifchanged#1#2#3{\sseq@obj@ifundef{#1.changed}{#3}{#2}}
 \def\sseq@obj@changedtrue#1{\sseq@obj@gdef{#1.changed}{}}

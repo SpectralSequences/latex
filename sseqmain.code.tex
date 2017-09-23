@@ -266,7 +266,6 @@
     \sseq@setlayoutparameters
     \begin{tikzpicture}[/sseqpages/global/{default} options,\ifsseq@hasname/sseqpages/global/{\sseq@thename} options\fi,/sseqpages/global/{this page} options]%
     \sseq@sseqstyle@globalpart
-    %\pgftransformreset
     \sseq@globaldetonetransform
     \sseq@globalscaletransform
 %
@@ -315,7 +314,6 @@
     \ifsseq@mathnodes
         \tikzset{execute at begin node=$,execute at end node=$}%
     \fi
-    %\let\sseq@error@setup\sseq@error@setup@withinfo
 %
     \begingroup
     \sseq@savedbackgroundpaths
@@ -350,6 +348,33 @@
     \begin{sseqpage}[#1]
     \end{sseqpage}%
 }
+
+\def\copypage#1#2#3{
+    \begingroup
+    \def#1{}
+    \def\sseq@copymacro{#1}
+    \def\sseq@thename{#2}
+    \sseq@storelist@get\sseq@savedpaths
+    \def\sseq@thepage{#3}
+    \sseq@thepagecount=#3\relax
+    \let\sseq@class@drawnode\sseq@copypage@addclass
+    \let\sseq@differential@draw@ifpage\@gobble
+    \let\sseq@structline@draw@ifpage\sseq@copypage@addstructline
+    \let\scope\empty
+    \def\draw##1;{}
+    \let\sseq@pgfkeysdocommand\@gobbletwo
+    \sseq@savedpaths
+    \endgroup
+}
+
+\def\sseq@copypage@addclass#1{
+    \@xp\sseq@x@addto@macro\sseq@copymacro{\@nx\sseq@class@copy{\sseq@thename}{#1}}
+}
+
+\def\sseq@copypage@addstructline#1{
+    \@xp\sseq@x@addto@macro\sseq@copymacro{\@nx\sseq@structline@copy{\sseq@thename}{#1}}
+}
+
 
 %%% Scope
 \newcount\sseq@scope@savestackid
@@ -463,7 +488,13 @@
         \sseq@breakfi
     \fi
 %%%% No more breaks after this point
+    \sseq@processlabels % This sets up the label nodes, now that we know the position of the class (I think that's what we needed?)
+    \sseq@class@main % We segment off the main part of the class so that we can call it separately from the copy method
+    \sseq@breakpoint
+    \endgroup
+}
 %
+\def\sseq@class@main{
     \ifx\sseq@classinsert\empty
         % by default, just insert to the right of previous classes
         \edef\sseq@classinsert{\nodenum}
@@ -483,7 +514,6 @@
         \fi
     \fi
 %
-    \sseq@processlabels % This sets up the label nodes, now that we know the position of the class (I think that's what we needed?)
 %
     \sseq@xminmax{\xcoord}{\ycoord}%
     \sseq@yminmax{\xcoord}{\ycoord}%
@@ -541,10 +571,29 @@
     \fi
 %
     \sseq@savedpaths@addclass{class.\coord}%
-    \sseq@breakpoint
-    \endgroup
 }
 \def\sseq@setoffset#1{\sseq@obj@gdef{\classname.offset}{\pgftransformshift{#1}}}
+
+\def\sseq@class@copy#1#2{
+    \begingroup
+    \let\sseq@thename@saved\sseq@thename
+    \def\sseq@thename{#1}
+    \sseq@lettoobj\sseq@familylist{#2.familylist}
+    \sseq@lettoobj\sseq@savedoptioncode{#2.options}
+    \sseq@lettoobj\sseq@classnodetext{#2.nodetext}
+    \sseq@lettoobj\sseq@classnodetextoptions{#2.nodetext.options}
+    \sseq@lettoobj\sseq@classlabelnodes{#2.labelnodes}
+    \sseq@obj{#2.needstikz}
+    \sseq@lettoobj\sseq@tooltip{#2.tooltip}
+    \sseq@class@getparts#2.
+    \edef\sseq@class@tag{copiedfrom\sseq@thisposnum}
+    \let\sseq@thename\sseq@thename@saved
+    \sseq@eval{\@nx\sseq@cparsecoord{\the\sseq@tempx,\the\sseq@tempy}}
+    \let\sseq@pushstack@\@gobble
+    \sseq@class@main
+    \endgroup
+}
+
 
 % This is for use with "insert" key. Add one to offset index of each class later than the one currently being inserted
 % Takes the partial coordinate "x,y" in #1, and the position that the new class is being inserted into in \sseq@classinsert.
@@ -1262,6 +1311,27 @@
         \sseq@obj@xoaddto{\sseq@structlinename.familylist}{\sseq@familylist}
     \ifnum\sseq@tempcount<\sseq@genmax\repeat
 }
+
+\def\sseq@structline@copy#1#2{
+    \begingroup
+    \sseq@structline@copy@decomposename#2
+    \let\sseq@thename@saved\sseq@thename
+    \def\sseq@pagemin{0}
+    \sseq@parsecoord\source{\sourcename}{source of structure line}%
+    \sseq@parsecoord\target{\targetname}{target of structure line}
+    \def\sseq@thename{#1}
+    \sseq@lettoobj\sseq@familylist{#2.familylist}
+    \sseq@lettoobj\sseq@savedoptioncode{#2.options}
+    \let\sseq@thename\sseq@thename@saved
+    \sseq@structline@structline
+    \endgroup
+}
+
+\def\sseq@structline@copy@decomposename#1.(#2,#3,#4)(#5,#6,#7){
+    \def\sourcename{#2,#3,copiedfrom#4}
+    \def\targetname{#5,#6,copiedfrom#7}
+}
+
 \def\sseq@structline@getgen#1{
     \bgroup
         \sseq@tempcount=\sseq@obj{structline.\source\target.num}\relax
