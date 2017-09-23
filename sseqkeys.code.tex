@@ -792,7 +792,7 @@
         #1s/.ecode={%
             \@nx\sseq@addstylecodetotoks{\sseq@tempcmd}{\sseq@temppath}{##1}
             \@nx\ifsseq@inprogress
-                \@nx\sseq@savedpaths@xadd{\sseq@tempcmd{\@nx\the\sseq@tempcmd}}%
+                \@nx\sseq@savedpaths@xadd{\@nx\sseq@style@object{\sseq@tempcmd{\@nx\the\sseq@tempcmd}}}%
             \@nx\fi
         },%
         change #1s/.ecode={%
@@ -826,7 +826,7 @@
         }%
         \sseq@addstylecodetomacro\sseq@sseqstyle@globalpart{/sseqpages/global}{#1}%
         \ifsseq@inprogress
-            \sseq@savedpaths@xadd{\sseq@sseqstyle{\the\sseq@sseqstyle}}%
+            \sseq@savedpaths@xadd{\@nx\sseq@style@object{\sseq@sseqstyle{\the\sseq@sseqstyle}}}%
         \fi
         % Restore hook
         \let\sseq@addstylecodetooptions@unknown\sseq@keys@unknown
@@ -892,8 +892,8 @@
 %%  Families (also called collections in code)
 %%
 %%    These are supposed to make it easy to display / hide and change appearance of logically connected families of classes.
-%%    In order to allow a set of options to be given that applies uniformly to all features, we separately apply the options in each of these bins.    
-%%    
+%%    In order to allow a set of options to be given that applies uniformly to all features, we separately apply the options in each of these bins.
+%%
 
 
 \def\sseq@featurelist{\\{class}\\{differential}\\{structline}\\{circleclass}\\{tikzprimitive}}

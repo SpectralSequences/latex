@@ -96,7 +96,7 @@
         \global\let\@xp\@nx\csname pgfk@/sseqpages/global/{\sseq@currentoptionpath} options/.@cmd\endcsname
             \@xp\@nx\csname pgfk@/sseqpages/global/{\sseq@currentoptionpath} options/.@cmd\endcsname
     }
-    \sseq@savedpaths@xadd{\sseq@stylelist}
+    \sseq@savedpaths@xadd{\@nx\sseq@style@object{\sseq@stylelist}}
     \sseq@savedpaths@add{\begingroup} % prevent some of the two-pass user macros horrors
     \let\sseq@error@setup\sseq@error@setup@withinfo
 }
@@ -322,10 +322,10 @@
     \sseq@useclip
 %
     \ifsseq@drawdifferentials\else
-        \let\sseq@differential@draw@ifpage\@gobble
+        \let\sseq@differential@object\@gobble
     \fi
     \ifsseq@drawstructlines\else
-        \let\sseq@structline@draw@ifpage\@gobble
+        \let\sseq@structline@object\@gobble
     \fi
 %
     \sseq@usesavedpaths
@@ -349,21 +349,26 @@
     \end{sseqpage}%
 }
 
-\def\copypage#1#2#3{
+
+\def\sseqcopypage#1#2#3{
     \begingroup
-    \def#1{}
+    \def#1{\begingroup}
     \def\sseq@copymacro{#1}
     \def\sseq@thename{#2}
     \sseq@storelist@get\sseq@savedpaths
     \def\sseq@thepage{#3}
     \sseq@thepagecount=#3\relax
+    \def\sseq@beginscope@object{\sseq@g@addto@macro#1{\sseq@savedpaths@add{\sseq@beginscope@object}}}
+    \def\sseq@endscope@object{\sseq@g@addto@macro#1{\sseq@savedpaths@add{\sseq@endscope@object}}}
+    \def\sseq@scope@object##1{\sseq@g@addto@macro#1{\sseq@savedpaths@add{\sseq@scope@object{##1}}}}
+    \def\sseq@style@object##1{\sseq@g@addto@macro#1{\sseq@savedpaths@add{\sseq@style@object{##1}}}}
     \let\sseq@class@drawnode\sseq@copypage@addclass
-    \let\sseq@differential@draw@ifpage\@gobble
-    \let\sseq@structline@draw@ifpage\sseq@copypage@addstructline
-    \let\scope\empty
-    \def\draw##1;{}
+    \let\sseq@differential@object\@gobble
+    \let\sseq@structline@draw\sseq@copypage@addstructline
+    \let\sseq@tikzpath@object\@gobble
     \let\sseq@pgfkeysdocommand\@gobbletwo
     \sseq@savedpaths
+    \sseq@g@addto@macro#1{\endgroup}
     \endgroup
 }
 
@@ -381,7 +386,7 @@
 \def\sseq@scope@secondpasstoks{}
 \def\sseq@scope{\@ifnextchar[{\sseq@scope@}{\sseq@scope@[]}}%]
 \def\sseq@scope@[#1]{%
-    \sseq@scope@savedpaths@add{\begin{scope}}%
+    \sseq@scope@savedpaths@add{\sseq@beginscope@object}%
     % This is a funky hack to fix a problem with shifts. On tmfass, if we don't handle shifts specially, we actually put so much stuff into
     % this \sseq@scope@secondpasstoks macro that we exceed TeX's upper bound for the maximum total macro memory. Or something like that -- I don't understand the error,
     % but it definitely only depends on how much stuff there is overall and on there being lots of scopes, not on any particular part of the diagram.
@@ -389,12 +394,12 @@
     \let\sseq@options@scopeshiftsecondpass\sseq@scope@savedpaths@add
     \sseq@processoptions{scope}{#1}% outputs into \sseq@savedoptioncode
     \edef\sseq@scope@secondpasstoks{\unexpanded\@xp{\sseq@scope@secondpasstoks}\unexpanded\@xp{\sseq@savedoptioncode}}
-    \sseq@eval{\@nx\sseq@scope@savedpaths@add{\sseq@scope@toks{\unexpanded\@xp{\sseq@scope@secondpasstoks}}}}%
+    \sseq@eval{\@nx\sseq@scope@savedpaths@add{\@nx\sseq@scope@object{\sseq@scope@toks{\unexpanded\@xp{\sseq@scope@secondpasstoks}}}}}%
     %\advance\sseq@scope@savestackid\@ne
     %\sseq@savestack@name{scope@save\the\sseq@scope@savestackid}
 }
 \def\sseq@endscope{%
-    \sseq@scope@savedpaths@add{\end{scope}}
+    \sseq@scope@savedpaths@add{\sseq@endscope@object}
     %\sseq@restorestack@name{scope@save\the\sseq@scope@savestackid
 }
 
@@ -868,6 +873,7 @@
     \fi
     \egroup
 }
+
 % #1 -- class
 % #2 -- page
 % If there is a class #1 drawn on page #2, set \sseq@gen to be the generation of that class, otherwise set \sseq@gen to be -1.
@@ -1436,7 +1442,7 @@
     \sseq@obj@xodef{\circleclassobjname.tikzprimoptions}{\sseq@keysfortikzprim}
     \sseq@obj@xdef{\circleclassobjname.fitnodes}{\@nx\tikz@lib@fit{(sseq{\coordanopar})(sseq{\coordbnopar})\sseq@fitalso}}
     %\edef\temp{\@nx\sseq@circleclass@draw{\coorda@internalname}{\coordb@internalname}{\unexpanded\@xp{\sseq@savedoptioncode}}}
-    \sseq@savedpaths@xadd{\@nx\sseq@circleclass@draw@ifpage{\circleclassobjname}{\coordanopar}{\coordbnopar}}
+    \sseq@savedpaths@xadd{\@nx\sseq@circleclass@object{\circleclassobjname}{\coordanopar}{\coordbnopar}}
     \sseq@obj@xdef{\circleclassobjname.page}{\sseq@pagemax}
     \sseq@obj@xdef{\circleclassobjname.pagemin}{\sseq@pagemin}
     \@ifundefined{sseq@fit@pagemax}{

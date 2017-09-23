@@ -12,6 +12,7 @@
 % TODO:
 %
 %  Make an argument type for the \d page argument.
+%  Test copier and add it to the manual
 %
 %  Redo sseqerrortest and set up regression test script as part of build (damn I didn't realize we'd lost anything imporant with that find -d disaster)
 %  Maybe we should add some other regression tests too
@@ -289,6 +290,17 @@
 \input sseqmain.code.tex            % Defines all the main commands. Exposes directly: the environments, \xmin, \xmax, etc.
 \input sseqdrawing.code.tex
 
+% Give standard definitions for savedpaths wrappers
+\def\sseq@beginscope@object{\begin{scope}}
+\def\sseq@endscope@object{\end{scope}}
+\let\sseq@scope@object\@firstofone
+\let\sseq@style@object\@firstofone
+\let\sseq@class@object\sseq@class@draw@ifpage
+\let\sseq@differential@object\sseq@differential@draw@ifpage
+\let\sseq@structline@object\sseq@structline@draw@ifpage
+\let\sseq@circleclass@object\sseq@circleclass@draw@ifpage
+\let\sseq@tikzpath@object\@firstofone
+
 
 %%% Some default key settings
 \sseqset{
@@ -303,7 +315,6 @@
 
 % Extra commands to expose:
 \let\sseqifempty\sseq@ifempty
-
 \def\sseqpower#1#2{\@xp\sseqtypesetpower@\@xp{\the\numexpr#2}{#1}{1}}
 \def\sseqpowerempty#1#2{\@xp\sseqtypesetpower@\@xp{\the\numexpr#2}{#1}{}}
 \def\sseqtypesetpower@#1#2#3{\ifnum#1=\z@#3\else\ifnum#1=\@ne#2\else#2^{#1}\fi\fi}

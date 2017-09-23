@@ -126,10 +126,10 @@
 % This simplifies the code a lot because I don't have to check again where I should put things.
 \sseq@addtostorelist\sseq@savedpaths{}
 \def\sseq@tempsavedpaths{}
-\def\sseq@savedpaths@addclass@standard#1{\sseq@x@addto@macro\sseq@savedpaths{\@nx\sseq@class@draw@ifpage{#1}}}
-\def\sseq@savedpaths@adddifferential@standard#1{\sseq@x@addto@macro\sseq@savedpaths{\@nx\sseq@differential@draw@ifpage{#1}}}
-\def\sseq@savedpaths@addstructline@standard#1{\sseq@x@addto@macro\sseq@savedpaths{\@nx\sseq@structline@draw@ifpage{#1}}}
-\def\sseq@savedpaths@xaddtikzpath@standard#1{\sseq@x@addto@macro\sseq@savedpaths{#1}}
+\def\sseq@savedpaths@addclass@standard#1{\sseq@x@addto@macro\sseq@savedpaths{\@nx\sseq@class@object{#1}}}
+\def\sseq@savedpaths@adddifferential@standard#1{\sseq@x@addto@macro\sseq@savedpaths{\@nx\sseq@differential@object{#1}}}
+\def\sseq@savedpaths@addstructline@standard#1{\sseq@x@addto@macro\sseq@savedpaths{\@nx\sseq@structline@object{#1}}}
+\def\sseq@savedpaths@xaddtikzpath@standard#1{\sseq@x@addto@macro\sseq@savedpaths{\@nx\sseq@tikzpath@object{#1}}}
 \def\sseq@savedpaths@add@standard{\sseq@g@addto@macro\sseq@savedpaths}
 \def\sseq@savedpaths@xadd@standard{\sseq@x@addto@macro\sseq@savedpaths}
 \def\sseq@savedpaths@show@standard{\show\sseq@savedpaths}
