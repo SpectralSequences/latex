@@ -1501,14 +1501,14 @@
     \the\sseq@scope@toks
     \sseq@options@normalmode
     \sseq@processoptions{class/label}{#2}%
-    \sseq@classlabeltextfn{#1}% labeltextfn is a private handler, classlabeltextfn is exposed via "class label handler"
+    \sseq@classlabel@handler{#1}% labeltextfn is a private handler, classlabeltextfn is exposed via "class label handler"
     \ifsseq@classlabel
         \sseq@options@firstpassmode
         \the\sseq@outerclasslabelstyle
         \sseq@x@addto@macro\sseq@classlabelnodes{%
             \@nx\sseq@drawlabel{%
                 \sseq@maybemathswitch\unexpanded\@xp{\processedlabel}\sseq@maybemathswitch}%
-                {% This is setup to prevent a bug where \classoptions and class label style don't work correctly together
+                {% This is set up to prevent a bug where \classoptions and class label style don't work correctly together
                     \the\sseq@sseqstyle\@nx\the\sseq@sseqstyle@page
                     \the\sseq@labelstyle\@nx\the\sseq@labelstyle@page
                     \the\sseq@classlabelstyle\@nx\the\sseq@classlabelstyle@page

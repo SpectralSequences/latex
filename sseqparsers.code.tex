@@ -497,7 +497,8 @@
         \ifpgfutil@in@
             \sseq@parsecoord@maincoord@@#1,\sseq@nil
         \else
-            \sseq@obj@ifdef{class.namedclass.\detokenize{#1}}{
+            \sseq@classname@handler{#1}
+            \sseq@obj@ifdef{class.namedclass.\detokenize\@xp{\processedname}}{
                 \def\sourcename{#1}
                 \@xpthree\sseq@parsecoord@maincoord@named\sseq@obj{class.namedclass.#1}\sseq@nil
             }{
