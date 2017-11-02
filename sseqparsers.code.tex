@@ -499,8 +499,8 @@
         \else
             \sseq@classname@handler{#1}
             \sseq@obj@ifdef{class.namedclass.\detokenize\@xp{\processedname}}{
-                \def\sourcename{#1}
-                \@xpthree\sseq@parsecoord@maincoord@named\sseq@obj{class.namedclass.#1}\sseq@nil
+                \let\sourcename\processedname
+                \@xpthree\sseq@parsecoord@maincoord@named\sseq@obj{class.namedclass.\sourcename}\sseq@nil
             }{
                 \sseq@error{invalid-coordinate}\sseq@breakfifi
             }
@@ -1393,7 +1393,7 @@
 \protected\def\sseqnormalizemonomial#1{
     \bgroup
     \def\sseq@support{}
-    \sseq@ifempty{#1}{1}{
+    \sseq@ifempty{#1}{\egroup\def\processedlabel{1}}{
         \sseqnormalizemonomial@#1\sseq@nil
     }
 }
