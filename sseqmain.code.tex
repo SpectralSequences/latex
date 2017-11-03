@@ -493,7 +493,8 @@
         \sseq@breakfi
     \fi
 %%%% No more breaks after this point
-    \sseq@processlabels % This sets up the label nodes, now that we know the position of the class (I think that's what we needed?)
+    
+    \sseq@processlabels % This sets up the label nodes, now that we know the position of the class (I think that's what we needed?)   
     \sseq@class@main % We segment off the main part of the class so that we can call it separately from the copy method
     \sseq@breakpoint
     \endgroup
@@ -535,15 +536,12 @@
         \sseq@obj@xdef{partcoord.(\partialcoord).tag.\sseq@class@tagprefix\sseq@class@tag}{\nodenum}%
     \fi
     \ifx\sseq@class@name\pgfutil@empty\else
-        \sseq@cleanup@obj{class.\classname.name}
+        \sseq@cleanup@obj{\classname.name}
         \sseq@cleanup@obj{class.namedclass.\sseq@class@name}
         \sseq@namehandler
-        \sseq@obj@xdef{class.\classname.name}{\sseq@class@name}
+        \sseq@obj@xdef{\classname.name}{\sseq@class@name}
         \sseq@obj@xdef{class.namedclass.\sseq@class@name}{\coordnopar}
-    \fi
-    \ifcsname sseq@class@showname\endcsname
-        \sseq@eval{\@nx\sseq@handleclassquotes{\sseq@obj{class.\classname.name}}{\sseq@class@showname}}
-    \fi
+    \fi 
     \sseq@pushstack@\coord
 %
 %
@@ -565,6 +563,9 @@
     \ifx\sseq@classlabelnodes\pgfutil@empty\else
         \sseq@obj@xodef{\classname.labelnodes}{\sseq@classlabelnodes}%
     \fi
+    \ifcsname sseq@class@showname\endcsname
+        \sseq@obj@xodef{\classname.showname}{\sseq@class@showname}
+    \fi    
     \ifsseq@needstikz
         \sseq@obj@xdef{\classname.needstikz}{\sseq@needstikztrue}%
     \fi
@@ -588,6 +589,7 @@
     \sseq@lettoobj\sseq@classnodetext{#2.nodetext}
     \sseq@lettoobj\sseq@classnodetextoptions{#2.nodetext.options}
     \sseq@lettoobj\sseq@classlabelnodes{#2.labelnodes}
+    \sseq@lettoobj\sseq@class@showname{#2.showname}
     \sseq@obj{#2.needstikz}
     \sseq@lettoobj\sseq@tooltip{#2.tooltip}
     \sseq@class@getparts#2.
@@ -733,6 +735,9 @@
             \sseq@cleanup@obj{\classname.labelnodes}
             \sseq@classoptions@obj@addto@withpagerange{\classname.labelnodes}{\sseq@classlabelnodes}
         \fi
+        \ifcsname sseq@class@showname\endcsname
+            \sseq@obj@xodef{\classname.showname}{\sseq@class@showname}
+        \fi
         \ifx\sseq@familylist\pgfutil@empty\else
             \sseq@cleanup@obj{\classname.familylist}
             \sseq@classoptions@obj@addto@withpagerange{\classname.familylist}{\sseq@familylist}
@@ -824,9 +829,6 @@
         \sseq@obj@xdef{class.\classname.name}{\sseq@class@name}
         \sseq@obj@xdef{class.namedclass.\sseq@class@name}{\coordnopar}
     \fi
-    \ifcsname sseq@class@showname\endcsname
-        \sseq@eval{\@nx\sseq@handleclassquotes{\sseq@obj{class.\classname.name}}{\sseq@class@showname}}
-    \fi
     \sseq@cleanup@obj{class.\coord.num}
     \sseq@obj@inc{class.\coord.num}
     \let\partialcoord\coord@partial
@@ -838,6 +840,9 @@
     \fi
     \edef\classname{class.\coord[\sseq@obj{class.\coord.num}]}
 %
+    \ifcsname sseq@class@showname\endcsname
+        \sseq@obj@xodef{\classname.showname}{\sseq@class@showname}
+    \fi
     \sseq@obj@xodef{\classname.familylist}{\sseq@familylist}
     \sseq@obj@xdef{\classname.page}{\sseq@infinity}
     \sseq@obj@xodef{\classname.options}{\sseq@savedoptioncode}
@@ -848,6 +853,9 @@
         \sseq@obj@xodef{\classname.nodetext.options}{\sseq@classnodetextoptions}
     \fi
     \sseq@obj@xodef{\classname.labelnodes}{\sseq@classlabelnodes}
+    \ifcsname sseq@class@showname\endcsname
+        \sseq@obj@xodef{\classname.showname}{\sseq@class@showname}
+    \fi        
     \sseq@obj@gdef{\classname.dependencies}{}
     \ifsseq@needstikz
         \sseq@obj@xdef{\classname.needstikz}{\sseq@needstikztrue}
@@ -1501,7 +1509,7 @@
     \the\sseq@scope@toks
     \sseq@options@normalmode
     \sseq@processoptions{class/label}{#2}%
-    \sseq@classlabeltextfn{#1}% labeltextfn is a private handler, classlabeltextfn is exposed via "class label handler"
+    \sseq@classlabel@handler{#1}% labeltextfn is a private handler, classlabeltextfn is exposed via "class label handler"
     \ifsseq@classlabel
         \sseq@options@firstpassmode
         \the\sseq@outerclasslabelstyle

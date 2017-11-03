@@ -627,7 +627,7 @@
             \fi
             \def\sseq@collections@featuretype{class}
             \the\sseq@scope@toks
-            \sseq@obj{#1.options}%
+            \sseq@obj{#1.options}
         \pgftransformshift{\pgfqpointxy{\numexpr\sseq@tempx +\sseq@xoffset-\sseq@x\relax}{\numexpr\sseq@tempy + \sseq@yoffset-\sseq@y\relax}}
         \iftikz@fullytransformed\pgfgettransform{\savetransform}\fi
         \pgftransformresetnontranslations
@@ -656,7 +656,15 @@
             \pgfmultipartnode{\tikz@shape}{\tikz@anchor}{\tikz@fig@name}{\sseq@drawnode}%
             \tikz@alias
         \fi
+        \let\sseq@classlabelnodes\pgfutil@empty
+        % the value of \sseq@class@showname comes from styles. If there was a local option with showname, it's stored in #1.showname.
+        % local value takes priority.
+        \sseq@obj@ifdef{#1.showname}{\sseq@lettoobj\sseq@class@showname{#1.showname}}{}
+        \ifcsname sseq@class@showname\endcsname
+            \sseq@eval{\@nx\sseq@handleclassquotes@inner{\sseq@obj{#1.name}}{\sseq@class@showname}}
+        \fi           
         \sseq@obj{#1.labelnodes}
+        \sseq@classlabelnodes
         \sseq@obj@ifdef{#1.tooltip}{
             \pgfpointanchor{\sseq@thisnodename}{west}
             \pgf@xa=\pgf@x
@@ -880,10 +888,10 @@
     % If either class is part of a family we aren't drawing, don't draw the edge either.
     \expandafter\ifx\csname pgf@sh@pi@sseq{#1}\endcsname\pgfpictureid\else
         \@xp\sseq@break
-    \fi    
+    \fi
     \expandafter\ifx\csname pgf@sh@pi@sseq{#2}\endcsname\pgfpictureid\else
         \@xp\sseq@break
-    \fi    
+    \fi
     \def\sseq@edgetype{#3}
     \let\sseq@collections@featuretype\sseq@edgetype
     \let\sseq@edgesourceanchor\pgfutil@empty
