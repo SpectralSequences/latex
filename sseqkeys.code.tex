@@ -421,6 +421,9 @@
 
 \sseq@addtostorelist\sseq@classlabel@handler{} % \sseq@classlabel@handler is public via "class label handler"
 \def\sseq@classlabel@handler@default#1{\def\processedlabel{#1}}
+\sseq@addtostorelist\sseq@classname@handler{} % \sseq@classname@handler is public via "class name handler"
+\def\sseq@classname@handler@default#1{\def\processedname{#1}}
+
 \def\sseq@labeltextfn#1{#1} % labeltextfn is private
 \def\sseq@labeltextfn@rotatescale#1{%
     \@nx\ifmmode
@@ -1625,7 +1628,7 @@
     x tick handler/.sseq default code={\def\sseq@xtickfn@default##1{#1}},
     y tick handler/.code={\def\sseq@ytickfn##1{#1}},
     y tick handler/.sseq default code={\def\sseq@ytickfn@default##1{#1}},
-    class label handler/.code = { % \long so that \ifx\classlabeltextfn\@gobble compares true if this is empty (\@gobble is long...)
+    class label handler/.code = { % \long so that \ifx\sseq@classname@handler\@gobble compares true if this is empty (\@gobble is long...)
         \long\def\sseq@classlabel@handler##1{#1}
         \ifx\sseq@classlabel@handler\@gobble
             \def\sseq@classlabel@handler##1{\def\processedlabel{##1}}
@@ -1649,7 +1652,7 @@
             \fi
         \fi
     },
-    class name handler/.code = { % \long so that \ifx\classlabeltextfn\@gobble compares true if this is empty (\@gobble is long...)
+    class name handler/.code = { % \long so that \ifx\sseq@classname@handler\@gobble compares true if this is empty (\@gobble is long...)
         \long\def\sseq@classname@handler##1{#1}
         \ifx\sseq@classname@handler\@gobble
             \def\sseq@classname@handler##1{\def\processedname{##1}}
@@ -1724,7 +1727,7 @@
 \let\sseq@axistypesanitizer\sseq@axistypesanitizera
 
 \pgfqkeys{/sseqpages}{%
-    class label handler/.code = { % \long so that \ifx\classlabeltextfn\@gobble compares true if this is empty (\@gobble is long...)
+    class label handler/.code = { % \long so that \ifx\sseq@classlabel@handler\@gobble compares true if this is empty (\@gobble is long...)
         \long\def\sseq@classlabel@handler##1{#1}
         \ifx\sseq@classlabel@handler\@gobble
             \def\sseq@classlabel@handler##1{\def\processedlabel{##1}}
@@ -1736,7 +1739,7 @@
             \fi
         \fi
     },
-    class name handler/.code = { % \long so that \ifx\classlabeltextfn\@gobble compares true if this is empty (\@gobble is long...)
+    class name handler/.code = { % \long so that \ifx\sseq@classname@handler\@gobble compares true if this is empty (\@gobble is long...)
         \long\def\sseq@classname@handler##1{#1}
         \ifx\sseq@classname@handler\@gobble
             \def\sseq@classname@handler##1{\def\processedname{##1}}

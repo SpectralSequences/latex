@@ -1072,7 +1072,7 @@
         \fi
     \fi
     \sseq@obj@xdef{\sseq@classgenname.page}{#2}
-    \sseq@obj@xdef{\sseq@classgenname.deathinfo}{#3 of differential \sseq@thiscall\space on page #2}
+    \sseq@obj@xdef{\sseq@classgenname.deathinfo}{#3 of differential \sseq@thiscall\ on page #2}
     \bgroup
     \def\foreach{\@nx\@nx\@nx\foreach}
     \protected\def\\{}
@@ -1088,11 +1088,12 @@
     \ifx\sseq@restofstacktrace\pgfutil@empty\else\sseq@tempiftrue\fi
     \sseq@obj@xdef{\sseq@classgenname.deathstacktrace}{%
         \ifsseq@tempif
-            \unexpanded{\\\\}Stack trace for differential \sseq@thiscall\ that killed #3:\unexpanded{\\}%
+            \unexpanded{\\\\}Stack trace for differential \@nx\unexpanded{\sseq@thiscall} that killed #3:\unexpanded{\\}%
             \ifx\sseq@temp\sseq@empty\else\unexpanded{\ \ \ }\@nx\sseq@stack@unexpanded{\unexpanded\@xp{\the\sseq@foreachcall}}\fi
             \unexpanded\@xp{\sseq@restofstacktrace}%
         \fi
     }
+	%\sseq@obj@show{\sseq@classgenname.deathstacktrace}
     \egroup
 }
 
@@ -1501,7 +1502,7 @@
     \the\sseq@scope@toks
     \sseq@options@normalmode
     \sseq@processoptions{class/label}{#2}%
-    \sseq@classlabeltextfn{#1}% labeltextfn is a private handler, classlabeltextfn is exposed via "class label handler"
+    \sseq@classlabel@handler{#1}% labeltextfn is a private handler, sseq@classlabel@handler is exposed via "class label handler"
     \ifsseq@classlabel
         \sseq@options@firstpassmode
         \the\sseq@outerclasslabelstyle
