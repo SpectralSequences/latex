@@ -929,7 +929,6 @@
 }
 
 % For internal use b/c it's faster not to call \sseq@parsecoord
-% There's no noticeable performance boost though... =(
 \prg_new_conditional:Npnn \sseq_if_out_of_bounds_noparse:nn #1#2 {TF} {
     \sseq@tempiftrue
     \ifnum#1<\sseq@xmaxpp\relax\ifnum#1>\sseq@xminmm\relax\ifnum#2<\sseq@ymaxpp\relax\ifnum#2>\sseq@yminmm\relax
@@ -942,7 +941,6 @@
     \fi
 }
 
-
 \sseq@DeclareDocumentCommand \IfOutOfBoundsTF { r() } { \sseq_if_out_of_bounds:nTF { #1 } }
 \sseq@DeclareDocumentCommand \IfOutOfBoundsT  { r() } { \sseq_if_out_of_bounds:nT  { #1 } }
 \sseq@DeclareDocumentCommand \IfOutOfBoundsF  { r() } { \sseq_if_out_of_bounds:nF  { #1 } }
@@ -950,6 +948,31 @@
 \sseq@DeclareDocumentCommand \IfInBoundsT  { r() } { \sseq_if_out_of_bounds:nF  { #1 } }
 \sseq@DeclareDocumentCommand \IfInBoundsF  { r() } { \sseq_if_out_of_bounds:nT  { #1 } }
 
+
+\prg_new_conditional:Npnn \sseq_if_alive:nn #1 #2 { T, F, TF } {
+    \bgroup
+    \sseq@tempiftrue
+    \sseq@parsecoord\coord{#2}{}
+    \@gobbletwo\sseq@breakpoint\sseq@tempiffalse
+    \ifsseq@tempif
+	\sseq@obj@pagetogen{class.\coord}{#1}
+        \ifnum\sseq@gen>-1\relax
+		\egroup
+		\prg_return_true:
+	\else
+		\egroup
+		\prg_return_false:
+	\fi
+    \else
+        \egroup
+        \prg_return_false:
+    \fi
+}
+
+\sseq@DeclareDocumentCommand \IfAliveTF { mr() }{ \sseq_if_alive:nnTF{#1}{#2}}
+\sseq@DeclareDocumentCommand \IfAliveT { mr() } { \sseq_if_alive:nnT{#1}{#2}}
+\sseq@DeclareDocumentCommand \IfAliveF { mr() } { \sseq_if_alive:nnF{#1}{#2}}
+%\def\IfAliveT{}
 
 %%%%%%
 %%%
