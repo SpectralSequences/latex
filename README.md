@@ -20,9 +20,11 @@ Changelog:
 - Added "show names"
 
 ### Changed:
+-
 
 ### Fixed:
 - A bug that made "y axis gap" adjust both axes and "x axis gap" do nothing (thanks Achim).
+- A bug where a random definition of \\ was leaked into global scope.
     
 ## [1.1.1]
 

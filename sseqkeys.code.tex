@@ -203,6 +203,7 @@
     }%
 }
 
+
 \def\sseq@keys@unknown@handlecolor{%
   \sseq@add@tikzkey@to@options{\@nx\sseq@options@secondpass{\@nx\tikz@addoption{\@nx\tikz@compat@color@set{\tikz@key}}}}%
   \sseq@add@tikzkey@to@options{\@nx\sseq@options@secondpass{\def\@nx\tikz@textcolor{\tikz@key}}}%
@@ -293,6 +294,7 @@
         \@xp\sseq@keys@addtooptions@checkdo
     \fi
 }
+
 
 % This has to be expandable, so \sseq@tempa and \sseq@tempb are set to "/tikz/" and "/pgf/" ahead of time
 % Defer the command if it is in directories /pgf or /tikz, otherwise run it now. TODO: explain here why we need this.
@@ -386,17 +388,19 @@
     \@ifnextchar[{\sseq@setlabeldirectionkeys@{#1}}{\sseq@setlabeldirectionkeys@{#1}[/.code]}%]
 }
 \def\sseq@setlabeldirectionkeys@#1[#2]#3{
+    \bgroup
     \def\sseq@temp##1{#3}
     \sseq@temptoks{}
     \def\\##1{
         \sseq@eval{\sseq@temptoks{\the\sseq@temptoks##1#2={\unexpanded\@xp{\sseq@temp{##1}}},}}
     }
     \sseq@labeldirectionlist
-    \sseq@eval{\@nx\pgfqkeys{#1}{\the\sseq@temptoks}}
+    \sseq@eval{\egroup\@nx\pgfqkeys{#1}{\the\sseq@temptoks}}
 }
-
+\begingroup
 \def\\#1{\@xp\sseq@addtostorelist\csname sseq@default@#1@distance\endcsname{1ex}}
 \sseq@labeldirectionlist
+\endgroup
 \def\sseq@defaultlabeldistance#1{\@xp\csname sseq@default@#1@distance\endcsname}
 \def\sseq@setdefaultlabeldistance#1#2{\sseq@savedpaths@add{\@xp\gdef\csname sseq@default@#1@distance\endcsname{#2}}}
 \def\sseq@setdefaultlabeldistances#1{\def\\##1{\sseq@setdefaultlabeldistance{##1}{#1}}\sseq@labeldirectionlist}
@@ -538,7 +542,6 @@
     \let\structline\sseq@structline
 }
 
-
 \sseq@pgfqkeysdirlist{/sseqpages,/sseqpages/tikz primitives}{%
     standard parse/.code={
         \let\sseq@firstpass@shifttransform\@gobbletwo
@@ -558,6 +561,7 @@
     /sseqpages/tikz primitives/handle quote/.sseq @ second pass code={\tikzset{#1}},
     /tikz/handle quote/.code={\sseq@error{tikz-edge-quotes}}
 }
+
 
 \sseq@pgfqkeysdirlist{/sseqpages/class,/sseqpages/differential}{
     standard parse/.sseq @ first pass code={\sseq@error@n{option-tikz-prims-only}{standard parse}},
@@ -1314,9 +1318,11 @@
 }
 \def\sseq@keys@removehandler#1{\sseq@keys@removehandler@#1=\sseq@nil}
 \def\sseq@keys@removehandler@#1/.#2=#3\sseq@nil{%
+    \bgroup
     \def\sseq@temp{#2}%
-    \def\\##1{\def\sseq@tempii{##1}\ifx\sseq@tempii\sseq@temp \sseq@tempiffalse\let\\\@gobble\fi}%
+    \def\\##1{\def\sseq@tempii{##1}\ifx\sseq@tempii\sseq@temp \global\sseq@tempiffalse\let\\\@gobble\fi}%
     \sseq@keys@ignorehandlers
+    \egroup
     \def\sseq@temp{#1}%
 }
 
@@ -1494,6 +1500,7 @@
     \sseq@tempcount=#2 \advance\sseq@tempcount1\xdef\sseq@xmaxpp{\the\sseq@tempcount}%
     \sseq@breakpoint
 }
+
 \def\sseq@yrange#1#2{%
     \global\let\sseq@yminmax\@gobbletwo %
     \sseq@sanitize@intexpr{#1}{x range={#1}{#2}}

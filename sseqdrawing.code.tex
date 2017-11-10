@@ -245,7 +245,7 @@
     \sseq@tickloop@generic{\sseq@xmin}{\sseq@xmax}{\sseq@xtickstep}{\sseq@xtickstepoffset}{\sseq@yaxisorigin}{-\sseq@xaxisgap}{
         \sseq@xtickstyle
         \tikz@options
-        \pgftransformshift{\pgfqpoint{0pt}{-\sseq@ylabelgap}}
+        \pgftransformshift{\pgfqpoint{0pt}{-\sseq@xlabelgap}}
         \pgftext{\hbox{$\sseq@xtickfn{\the\sseq@tempx}$}}%
     }
     \ifnum\sseq@xmajortickstep>\z@
@@ -267,7 +267,7 @@
     \sseq@tickloop@generic{\sseq@ymin}{\sseq@ymax}{\sseq@ytickstep}{\sseq@ytickstepoffset}{\sseq@xaxisorigin}{-\sseq@yaxisgap}{
         \sseq@ytickstyle
         \tikz@options
-        \pgftransformshift{\pgfqpoint{0pt}{-\sseq@xlabelgap}}
+        \pgftransformshift{\pgfqpoint{0pt}{-\sseq@ylabelgap}}
         \pgftransformresetnontranslations
         \pgftext{\hbox{$\sseq@ytickfn{\the\sseq@tempx}$}}%
     }
