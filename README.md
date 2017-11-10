@@ -3,7 +3,7 @@ spectralsequences v1.1.1
 ========================
 Author: Hood Chatham  
 Email: hood@mit.edu  
-Date: 2017-09-18  
+Date: 2017-11-10  
 License: All files have the Latex Project Public License.  
 Description: Print spectral sequence diagrams using pgf/tikz.  
 
@@ -12,7 +12,18 @@ See the file manual/spectralsequencesmanual.pdf for a manual. See the examples d
 Email me at hood@mit.edu to submit bug reports, request new features, etc. The current development copy is hosted at https://github.com/hoodmane/spectralsequences. 
 
 Changelog:
-==========    
+==========
+## [Unreleased]
+### Added:
+- Added copypage
+- Added name handler
+- Added "show names"
+
+### Changed:
+
+### Fixed:
+- A bug that made "y axis gap" adjust both axes and "x axis gap" do nothing (thanks Achim).
+    
 ## [1.1.1]
 
 ### Fixed:

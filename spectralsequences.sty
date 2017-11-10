@@ -2,7 +2,7 @@
 %% Package: spectralsequences v1.1.1 2017-09-16 2017-09-16
 %% Author: Hood Chatham
 %% Email: hood@mit.edu
-%% Date: 2017-09-18
+%% Date: 2017-11-10
 %% License: Latex Project Public License
 %%
 %% A package for drawing spectral sequences
@@ -13,6 +13,14 @@
 %
 %  Make an argument type for the \d page argument.
 %  Test copier and add it to the manual
+%  name handler -- document, make normalizepolynomial put it's output into a command that doesn't have label in the name, make name handler and label handler take same output
+%
+%  Document copier
+%  Document name handler
+%  Add AHSS name handler and document it
+%  Fix show names to work with internal labels
+%  Allow for canonical order specification for monomials
+%  Make xmirror not mirror axes labels
 %
 %  Redo sseqerrortest and set up regression test script as part of build (damn I didn't realize we'd lost anything imporant with that find -d disaster)
 %  Maybe we should add some other regression tests too
@@ -26,7 +34,7 @@
 
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{spectralsequences}[2017/09/18 v1.1.1]
+\ProvidesPackage{spectralsequences}[2017/11/10 v1.1.1]
 
 \RequirePackage{tikz}
 \RequirePackage{etoolbox}

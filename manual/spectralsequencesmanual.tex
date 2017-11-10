@@ -2,7 +2,7 @@
 %% Package: spectralsequences v1.1.1 2017-09-16 2017-09-16
 %% Author: Hood Chatham
 %% Email: hood@mit.edu
-%% Date: 2017-09-18
+%% Date: 2017-11-10
 %% License: Latex Project Public License
 %%
 %% File: spectralsequencesmanual.tex
@@ -77,7 +77,7 @@ The easiest solution is to run \LuaLaTeX. \LuaLaTeX\ dynamically allocates memor
 Another option is to increase the static memory caps for \pdfLaTeX. See \href{https://tex.stackexchange.com/a/26213}{this \TeX stack exchange post} for instructions on how to do this.
 
 \subsection{A warning about fragile macros}
-All the data in a \sseqpages\  environment is stored and used later. As a result, most of the \sseqpages\  commands currently cannot tolerate fragile macros. Unfortunately, it is impossible for \sseqpages\  to warn you about this situation -- if you use a fragile command in a place that it doesn't belong, the result will be an incomprehensible error message. If you are getting nonsense error messages, this is probably why. The solution is to convert fragile macros into robust ones. \href{http://www.tex.ac.uk/FAQ-protect.html}{See here for more information.}
+All the data in a \sseqpages\  environment is stored and used later. As a result, most of the \sseqpages\  commands currently cannot tolerate fragile macros. Unfortunately, it is impossible for \sseqpages\  to warn you about this situation -- if you use a fragile command in a place that it doesn't belong, the result will be an incomprehensible error message. If you are getting nonsense error messages, this might be why. The solution is to convert fragile macros into robust ones. \href{http://www.tex.ac.uk/FAQ-protect.html}{See here for more information.}
 
 
 \section{Package Options and Environments}
@@ -2062,7 +2062,7 @@ The \meta{type} is either |border|, |center|, |frame|, or |none|. |no axes| is a
 
 \parskip=0pt
 \begin{keylist}{x axis origin = \meta{x value} (initially 0), y axis origin = \meta{y value} (initially 0)}
-If you use |axes style = center|, these keys change the position of the axes. Otherwise, they are ignored.
+If you use |axes type = center|, these keys change the position of the axes. Otherwise, they are ignored.
 \end{keylist}
 %
 \begin{keylist}{x axis gap = \meta{dimension} (initially 0.5cm),y axis gap = \meta{dimension} (initially 0.5cm), axes gap = \meta{dimension} (initially 0.5cm)}
@@ -2074,7 +2074,7 @@ If you use |axes style = center|, these keys change the position of the axes. Ot
 \end{keylist}
 %
 \begin{keylist}{
-    x axis start extend = \meta{dimension} (initially 0.5cm), y axis start extend = \meta{dimension} (initially 0.5cm),
+    x axis extend start = \meta{dimension} (initially 0.5cm), y axis extend start = \meta{dimension} (initially 0.5cm),
     x axis extend end = \meta{dimension} (initially 0.5cm), y axis extend end = \meta{dimension} (initially 0.5cm),
     x axis tail = \meta{dimension} (initially 0.9cm), y axis tail = \meta{dimension} (initially 0.9cm)%
 }

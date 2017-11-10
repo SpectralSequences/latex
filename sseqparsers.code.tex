@@ -2,7 +2,7 @@
 %% Package: spectralsequences v1.1.1 2017-09-16 2017-09-16
 %% Author: Hood Chatham
 %% Email: hood@mit.edu
-%% Date: 2017-09-18
+%% Date: 2017-11-10
 %% License: Latex Project Public License
 %%
 %% File: sseqparsers.code.tex
@@ -497,6 +497,7 @@
         \ifpgfutil@in@
             \sseq@parsecoord@maincoord@@#1,\sseq@nil
         \else
+            %\show\sseq@classname@handler
             \sseq@classname@handler{#1}
             \sseq@obj@ifdef{class.namedclass.\detokenize\@xp{\processedname}}{
                 \let\sourcename\processedname
@@ -605,7 +606,7 @@
     \@xp\let\csname \sseq@macroname#1@partial\endcsname\sseq@xycoord
     \edef#1{(\sseq@xycoord,\sseq@index)}%
     \@xp\edef\csname\sseq@macroname#1nopar\endcsname{\sseq@xycoord,\sseq@index}
-    \@xp\edef\csname\sseq@macroname#1name\endcsname{(#2)}% 
+    \@xp\edef\csname\sseq@macroname#1name\endcsname{(#2)}%
     \@xp\edef\csname\sseq@macroname#1nameunbraced\endcsname{\@xptwo\sseq@eatparens\csname\sseq@macroname#1name\endcsname}% edef?
     \@xp\edef\csname\sseq@macroname#1@internalname\endcsname{sseq{\sseq@xycoord,\sseq@index}}%
 }

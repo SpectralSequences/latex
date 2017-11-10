@@ -2,7 +2,7 @@
 %% Package: spectralsequences v1.1.1 2017-09-16 2017-09-16
 %% Author: Hood Chatham
 %% Email: hood@mit.edu
-%% Date: 2017-09-18
+%% Date: 2017-11-10
 %% License: Latex Project Public License
 %%
 %% File: sseqdrawing.code.tex
@@ -267,7 +267,7 @@
     \sseq@tickloop@generic{\sseq@ymin}{\sseq@ymax}{\sseq@ytickstep}{\sseq@ytickstepoffset}{\sseq@xaxisorigin}{-\sseq@yaxisgap}{
         \sseq@ytickstyle
         \tikz@options
-        \pgftransformshift{\pgfqpoint{0pt}{-\sseq@ylabelgap}}
+        \pgftransformshift{\pgfqpoint{0pt}{-\sseq@xlabelgap}}
         \pgftransformresetnontranslations
         \pgftext{\hbox{$\sseq@ytickfn{\the\sseq@tempx}$}}%
     }
@@ -662,7 +662,7 @@
         \sseq@obj@ifdef{#1.showname}{\sseq@lettoobj\sseq@class@showname{#1.showname}}{}
         \ifcsname sseq@class@showname\endcsname
             \sseq@eval{\@nx\sseq@handleclassquotes@inner{\sseq@obj{#1.name}}{\sseq@class@showname}}
-        \fi           
+        \fi
         \sseq@obj{#1.labelnodes}
         \sseq@classlabelnodes
         \sseq@obj@ifdef{#1.tooltip}{

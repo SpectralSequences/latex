@@ -2,7 +2,7 @@
 %% Package: spectralsequences v1.1.1 2017-09-16 2017-09-16
 %% Author: Hood Chatham
 %% Email: hood@mit.edu
-%% Date: 2017-09-18
+%% Date: 2017-11-10
 %% License: Latex Project Public License
 %%
 %% File: sseqkeys.code.tex
@@ -420,8 +420,9 @@
 
 
 \sseq@addtostorelist\sseq@classlabel@handler{} % \sseq@classlabel@handler is public via "class label handler"
-\sseq@addtostorelist\sseq@classname@handler{} % \sseq@classname@handler is public via "class name handler"
 \def\sseq@classlabel@handler@default#1{\def\processedlabel{#1}}
+\sseq@addtostorelist\sseq@classname@handler{} % \sseq@classname@handler is public via "class name handler"
+\def\sseq@classname@handler@default#1{\def\processedname{#1}}
 
 \def\sseq@labeltextfn#1{#1} % labeltextfn is private
 \def\sseq@labeltextfn@rotatescale#1{%
