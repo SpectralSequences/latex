@@ -15,12 +15,17 @@ Changelog:
 ==========
 ## [Unreleased]
 ### Added:
-- Added copypage
-- Added name handler
-- Added "show names"
+- \copypage
+- "name handler" option
+- \SseqAHSSNameHandler and \SseqMonomial 
+- "show names"
+- predicates \IfExistsTF, \IfAliveTF, \IfValidDifferentialTF, and \DrawIfValidDifferentialTF
+- "quiet" environment
 
 ### Changed:
--
+- class label handlers now must output result into \result
+- \sseqnormalizemonomial became \SseqNormalizeMonomial, and now outputs into \result
+- \sseqifempty became \SseqIfEmptyTF 
 
 ### Fixed:
 - A bug that made "y axis gap" adjust both axes and "x axis gap" do nothing (thanks Achim).

@@ -1,0 +1,34 @@
+
+
+\NewSseqCommand \KOstar {m}{
+    \begin{scope}[xshift = -#1, xshift=8*\b, yshift = #1]
+        \class[rectangle,name=b^{\b}[0]](0,0)
+        \class[name=b^{\b} e[0]](1,0) \structline
+        \class[name=b^{\b} e^2[0]](2,0) \structline
+        \class[rectangle,fill=none,name=b^{\b} u[0]](4,0)
+    \end{scope}
+}
+\NewSseqCommand \KOpcell {m}{
+    \d1(b^{\b}[#1]) \d1(b^{\b} u[#1])
+    \replaceclass(b^{\b}[#1+1]) \replaceclass(b^{\b} u[#1+1])
+    \structline(b^{\b}[#1+1])(b^{\b} e[#1+1])
+    \structline[page=2,dashed](b^{\b} e[#1])(b^{\b} e^2[#1+1])
+    \structline[page=2,dashed](b^{\b} e^2[#1])(b^{\b} u[#1+1])
+}
+\NewSseqCommand \KOetacell {m}{
+    \DrawIfValidDifferential2(b^{\b}[#1])
+    \d2(b^{\b} e[#1])
+    \DrawIfValidDifferential3(b^{\b} e^2[#1])
+}
+\begin{sseqdata}[name=KO^*RP^8, Adams grading, class name handler=\SseqAHSSNameHandler,
+    classes=fill, x range={-8}{10},scale=0.5, x tick step = 4 ]
+\foreach \b in {-2,...,2}{
+    \foreach \n in {0,...,6}{\KOstar{\n}}
+    \foreach \n in {1,3,...,5}{\KOpcell{\n}}
+    \foreach \n in {2,3}{\KOetacell{\n}}
+    \structline[dashed](b^{\b}e^2[2])(b^{\b}u[4])
+    \structline[dashed](b^{\b}[4])(b^{\b}e[5])
+}
+\end{sseqdata}
+\printpage[name=KO^*RP^8, title=AHSS for $KO^*\mathbb{R}P^8$]\vskip6pt
+\printpage[name=KO^*RP^8,page=6] 

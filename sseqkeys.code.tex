@@ -424,9 +424,9 @@
 
 
 \sseq@addtostorelist\sseq@classlabel@handler{} % \sseq@classlabel@handler is public via "class label handler"
-\def\sseq@classlabel@handler@default#1{\def\processedlabel{#1}}
+\def\sseq@classlabel@handler@default#1{\def\result{#1}}
 \sseq@addtostorelist\sseq@classname@handler{} % \sseq@classname@handler is public via "class name handler"
-\def\sseq@classname@handler@default#1{\def\processedname{#1}}
+\def\sseq@classname@handler@default#1{\def\result{#1}}
 
 \def\sseq@labeltextfn#1{#1} % labeltextfn is private
 \def\sseq@labeltextfn@rotatescale#1{%
@@ -583,7 +583,7 @@
 
 \def\sseq@classinsert{}
 \pgfqkeys{/sseqpages/class}{
-    name/.code={\sseq@classname@handler{#1}\edef\sseq@class@name{\processedname}\pgfkeysalso{/sseqpages/alias=#1}},
+    name/.code={\sseq@classname@handler{#1}\edef\sseq@class@name{\result}\pgfkeysalso{/sseqpages/alias=#1}},
     show name/.store in=\sseq@class@showname,
     page/.code={\sseq@getnumrange\sseq@class@page{#1}},% page & gen are only for \classoptions.
     generation/.code={\sseq@getnumrange\sseq@gen{#1}}, % \class tests if \sseq@class@page is set and throw an error if so.
@@ -1638,7 +1638,7 @@
     class label handler/.code = { % \long so that \ifx\sseq@classname@handler\@gobble compares true if this is empty (\@gobble is long...)
         \long\def\sseq@classlabel@handler##1{#1}
         \ifx\sseq@classlabel@handler\@gobble
-            \def\sseq@classlabel@handler##1{\def\processedlabel{##1}}
+            \def\sseq@classlabel@handler##1{\def\result{##1}}
         \else
             \edef\sseq@tempa{\unexpanded\@xp{\sseq@classlabel@handler{}}}
             \edef\sseq@tempb{\unexpanded\@xp{\sseq@classlabel@handler{blah}}}
@@ -1650,7 +1650,7 @@
     class label handler/.sseq default code={
         \long\def\sseq@classlabel@handler@default##1{#1}
         \ifx\sseq@classlabel@handler@default\@gobble
-            \def\sseq@classlabel@handler@default##1{\def\processedlabel{##1}}
+            \def\sseq@classlabel@handler@default##1{\def\result{##1}}
         \else
             \edef\sseq@tempa{\unexpanded\@xp{\sseq@classlabel@handler@default{}}}
             \edef\sseq@tempb{\unexpanded\@xp{\sseq@classlabel@handler@default{blah}}}
@@ -1662,7 +1662,7 @@
     class name handler/.code = { % \long so that \ifx\sseq@classname@handler\@gobble compares true if this is empty (\@gobble is long...)
         \long\def\sseq@classname@handler##1{#1}
         \ifx\sseq@classname@handler\@gobble
-            \def\sseq@classname@handler##1{\def\processedname{##1}}
+            \def\sseq@classname@handler##1{\def\result{##1}}
         \else
             \edef\sseq@tempa{\unexpanded\@xp{\sseq@classname@handler{}}}
             \edef\sseq@tempb{\unexpanded\@xp{\sseq@classname@handler{blah}}}
@@ -1674,7 +1674,7 @@
     class name handler/.sseq default code={
         \long\def\sseq@classname@handler@default##1{#1}
         \ifx\sseq@classname@handler@default\@gobble
-            \def\sseq@classname@handler@default##1{\def\processedlabel{##1}}
+            \def\sseq@classname@handler@default##1{\def\result{##1}}
         \else
             \edef\sseq@tempa{\unexpanded\@xp{\sseq@classname@handler@default{}}}
             \edef\sseq@tempb{\unexpanded\@xp{\sseq@classname@handler@default{blah}}}
@@ -1737,7 +1737,7 @@
     class label handler/.code = { % \long so that \ifx\sseq@classlabel@handler\@gobble compares true if this is empty (\@gobble is long...)
         \long\def\sseq@classlabel@handler##1{#1}
         \ifx\sseq@classlabel@handler\@gobble
-            \def\sseq@classlabel@handler##1{\def\processedlabel{##1}}
+            \def\sseq@classlabel@handler##1{\def\result{##1}}
         \else
             \edef\sseq@tempa{\unexpanded\@xp{\sseq@classlabel@handler{}}}
             \edef\sseq@tempb{\unexpanded\@xp{\sseq@classlabel@handler{blah}}}
@@ -1749,7 +1749,7 @@
     class name handler/.code = { % \long so that \ifx\sseq@classname@handler\@gobble compares true if this is empty (\@gobble is long...)
         \long\def\sseq@classname@handler##1{#1}
         \ifx\sseq@classname@handler\@gobble
-            \def\sseq@classname@handler##1{\def\processedname{##1}}
+            \def\sseq@classname@handler##1{\def\result{##1}}
         \else
             \edef\sseq@tempa{\unexpanded\@xp{\sseq@classname@handler{}}}
             \edef\sseq@tempb{\unexpanded\@xp{\sseq@classname@handler{blah}}}

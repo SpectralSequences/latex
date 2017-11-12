@@ -1,0 +1,25 @@
+\begin{sseqdata}[ name = tikz example, Adams grading, math nodes = false,
+                  tikz primitives = { blue, font = \tiny, <- }, circle classes = tikz primitive style,
+                  x range = {0}{2}, x axis extend end = 2em ]
+\class(0,0)
+\class(1,0)
+\class(0,2)
+\d2(1,0)
+\end{sseqdata}
+
+\begin{sseqpage}[ name = tikz example ]
+\circleclasses[ name path = myellipse, inner sep = 3pt, ellipse ratio = 1.6 ] (1,0) (0,2)
+\path[ name path = myline ] (1.3,1.25) -- (0.6,1);
+\draw[ name intersections = { of = myellipse and myline } ]
+      (intersection-1) to (1.3,1.25) node[ right, text width = 1.6cm ] {Consider this differential};
+\end{sseqpage} \qquad
+
+\begin{sseqpage}[ name = tikz example ]
+\draw[ xshift = 1 ] (0,0) to (0.6,0.2) node[ right, text width = 1.1cm ] {This is the source};
+\draw[ yshift = 2 ] (0,0) to (0.6,0.2) node[ right, text width = 1.1cm ] {This is the target};
+\end{sseqpage} \qquad
+
+\begin{sseqpage}[ page = 3, name = tikz example ]
+\circleclasses[ name path = myellipse, inner sep = 3pt, ellipse ratio = 1.6 ] (1,0)(0,2)
+\node[ right, font = \tiny ] at (1.2,1.2) {Now it's gone!};
+\end{sseqpage}

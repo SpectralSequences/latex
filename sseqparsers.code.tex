@@ -234,6 +234,8 @@
 %%
 %% This parser defines the syntax for the page argument of \d.
 %%
+%% #1 -- callback. Will pass control to this function when done.
+%% stores output in \sseq@dpage
 \def\sseq@d@grabpage#1{
     \let\sseq@grabdpage@return#1
     \futurelet\testtok\sseq@grabdpage@
@@ -497,10 +499,15 @@
         \ifpgfutil@in@
             \sseq@parsecoord@maincoord@@#1,\sseq@nil
         \else
-            %\show\sseq@classname@handler
-            \sseq@classname@handler{#1}
-            \sseq@obj@ifdef{class.namedclass.\detokenize\@xp{\processedname}}{
-                \let\sourcename\processedname
+            \pgfutil@in@{lastclass}{#1}
+            \ifpgfutil@in@
+                \def\handledname{#1}
+            \else
+                \sseq@classname@handler{#1}
+                \let\handledname\result
+            \fi
+            \sseq@obj@ifdef{class.namedclass.\detokenize\@xp{\handledname}}{
+                \let\sourcename\handledname
                 \@xpthree\sseq@parsecoord@maincoord@named\sseq@obj{class.namedclass.\sourcename}\sseq@nil
             }{
                 \sseq@error{invalid-coordinate}\sseq@breakfifi
@@ -609,6 +616,15 @@
     \@xp\edef\csname\sseq@macroname#1name\endcsname{(#2)}%
     \@xp\edef\csname\sseq@macroname#1nameunbraced\endcsname{\@xptwo\sseq@eatparens\csname\sseq@macroname#1name\endcsname}% edef?
     \@xp\edef\csname\sseq@macroname#1@internalname\endcsname{sseq{\sseq@xycoord,\sseq@index}}%
+}
+
+% This quiets parsecoord for the rest of the current scope.
+% The reason we did it this way is because parsecoord makes too many local definitions...
+\def\sseq@quiet@parsecoord{
+    \msg_redirect_name:nnn {spectralsequences}{invalid-coordinate}{none}
+    \msg_redirect_name:nnn {spectralsequences}{no-classes}{none}
+    \msg_redirect_name:nnn {spectralsequences}{index-too-large}{none}
+    \msg_redirect_name:nnn {spectralsequences}{undefined-tag}{none}
 }
 
 % #1 & #2 -- the two base commands that were handed to \sseq@parsecoord to swap.
@@ -738,8 +754,12 @@
 
 
 % EXPOSE: a wrapper around \sseq@dparsecoord.
-\sseq@DeclareDocumentCommand \parsedifferential { m r() d() }{%
-    \sseq@dparsecoord{#1}{#2}{#3}%
+\protected\def\sseq@parsedifferential{%
+    \sseq@d@grabpage\sseq@parsedifferential@
+}
+
+\DeclareDocumentCommand \sseq@parsedifferential@ { d() d() } {%
+    \sseq@eval{\@nx\sseq@dparsecoord{\sseq@dpage}{\IfNoValueTF{#1}{\lastclass0}{\unexpanded{#1}}}{\unexpanded{#2}}}%
 }
 
 % Expandable coordinate parsing for \isalive.
@@ -916,16 +936,42 @@
     \egroup
 }
 
+\prg_new_conditional:Npnn \sseq_if_empty:n #1 {T,F,TF} {
+    \sseq@ifempty{\prg_return_true:}{\prg_return_false:}
+}
+
+\let\SseqIfEmptyTF\sseq_if_empty:nTF
+\let\SseqIfEmptyT\sseq_if_empty:nT
+\let\SseqIfEmptyF\sseq_if_empty:nF
+
+% Test if a class exists.
+\prg_new_conditional:Npnn \sseq_if_exists:n #1 { T ,  F , TF } {
+    \bgroup
+    \sseq@tempiftrue
+    \sseq@quiet@parsecoord
+    \sseq@parsecoord\coord{#1}{}
+    \@gobbletwo\sseq@breakpoint\sseq@tempiffalse % this executes \sseq@tempiffalse if we broke, otherwise it gets gobbled
+    \ifsseq@tempif
+        \egroup
+        \prg_return_true:
+    \else
+        \egroup
+        \prg_return_false:
+    \fi
+}
+
+% Test if a class is out of bounds. Return false if the class doesn't exist.
 \prg_new_conditional:Npnn \sseq_if_out_of_bounds:n #1 { T ,  F , TF } {
     \bgroup
     \sseq@tempiftrue
+    \sseq@quiet@parsecoord
     \sseq@parsecoord\coord{#1}{}
     \@gobbletwo\sseq@breakpoint\sseq@tempiffalse % this executes \sseq@tempiffalse if we broke, otherwise it gets gobbled
     \ifsseq@tempif
         \sseq_if_out_of_bounds_noparse:nnTF { \xcoord } { \ycoord }{\egroup\prg_return_true:}{\egroup\prg_return_false:}
     \else
         \egroup
-        \prg_return_false
+        \prg_return_false:
     \fi
 }
 
@@ -942,17 +988,10 @@
     \fi
 }
 
-\sseq@DeclareDocumentCommand \IfOutOfBoundsTF { r() } { \sseq_if_out_of_bounds:nTF { #1 } }
-\sseq@DeclareDocumentCommand \IfOutOfBoundsT  { r() } { \sseq_if_out_of_bounds:nT  { #1 } }
-\sseq@DeclareDocumentCommand \IfOutOfBoundsF  { r() } { \sseq_if_out_of_bounds:nF  { #1 } }
-\sseq@DeclareDocumentCommand \IfInBoundsTF { r() mm } { \sseq_if_out_of_bounds:nTF { #1 } { #3 } { #2 } }
-\sseq@DeclareDocumentCommand \IfInBoundsT  { r() } { \sseq_if_out_of_bounds:nF  { #1 } }
-\sseq@DeclareDocumentCommand \IfInBoundsF  { r() } { \sseq_if_out_of_bounds:nT  { #1 } }
-
-
 \prg_new_conditional:Npnn \sseq_if_alive:nn #1 #2 { T, F, TF } {
     \bgroup
     \sseq@tempiftrue
+    \sseq@quiet@parsecoord
     \sseq@parsecoord\coord{#2}{}
     \@gobbletwo\sseq@breakpoint\sseq@tempiffalse
     \ifsseq@tempif
@@ -970,10 +1009,106 @@
     \fi
 }
 
+
+\protected\def\sseq@DrawIfValidDifferential{\sseq@DrawIfValidDifferential@{}{}}
+\protected\def\sseq@DrawIfValidDifferentialT{\sseq@DrawIfValidDifferential@{T}{}}
+\protected\def\sseq@DrawIfValidDifferentialF{\sseq@DrawIfValidDifferential@{}{F}}
+\protected\def\sseq@DrawIfValidDifferentialTF{\sseq@DrawIfValidDifferential@{T}{F}}
+
+\DeclareDocumentCommand\sseq@DrawIfValidDifferential@{mmO{}}{%
+    \begingroup
+    \sseq@loadinputline
+    \def\sseq@dtype{d}
+    \def\sseq@trueclause{#1}
+    \def\sseq@falseclause{#2}
+    \def\sseq@doptions{#3}
+    \sseq@d@grabpage\sseq@DrawIfValidDifferential@@
+}
+
+
+% #4 -- first coord
+% #5 -- possible second coord
+\DeclareDocumentCommand \sseq@DrawIfValidDifferential@@ { d() d() } {%
+    \ifx\sseq@trueclause\pgfutil@empty
+        \@xp\@firstoftwo
+    \else
+        \@xp\@secondoftwo
+    \fi{\sseq@DrawIfValidDifferential@@@{#1}{#2}{}}
+       {\sseq@DrawIfValidDifferential@@@{#1}{#2}}
+}
+
+% #1 -- first coord
+% #2 -- possible second coord
+% #3 -- rest of true clause
+\def \sseq@DrawIfValidDifferential@@@#1#2#3{
+    \sseq@eval{\endgroup%\@nx\tracingall
+        \exp_not:c{sseq_if_valid_differential:nnT\sseq@falseclause}{\sseq@dpage}{\IfNoValueTF{#1}{\lastclass0}{\unexpanded{#1}}}{\unexpanded{#2}}{%
+            \@nx\d[\exp_not:o{\sseq@doptions}]\sseq@dpage\IfNoValueF{#1}{(\unexpanded{#1})}\IfNoValueF{#2}{(\unexpanded{#2})}%
+            \unexpanded{#3}%
+        }%
+    }%
+}
+
+\protected\def\sseq@IfValidDifferentialTF{\sseq@IfValidDifferential{TF}}
+\protected\def\sseq@IfValidDifferentialT{\sseq@IfValidDifferential{T}}
+\protected\def\sseq@IfValidDifferentialF{\sseq@IfValidDifferential{F}}
+
+\protected\def\sseq@IfValidDifferential#1{%
+    \bgroup
+    \def\sseq@truefalseclauses{#1}
+    \sseq@d@grabpage{\sseq@IfValidDifferential@}
+}
+
+\DeclareDocumentCommand \sseq@IfValidDifferential@ { d() d() } {%
+    \sseq@eval{\egroup\exp_not:c{sseq_if_valid_differential:nn\sseq@truefalseclauses}{\sseq@dpage}{\IfNoValueTF{#1}{\lastclass0}{\unexpanded{#1}}}{\unexpanded{#2}}}%
+}
+
+\prg_new_conditional:Npnn \sseq_if_valid_differential:nn #1 #2 #3 { T, F, TF } {
+    \bgroup
+    \sseq@tempiftrue
+    \sseq@ifintexpr{#1}{%
+        \edef\sseq@pagenum{\the\numexpr#1\relax}
+    }{%
+        \sseq@break% return false
+    }%
+    \sseq@quiet@parsecoord
+    \msg_redirect_name:nnn {spectralsequences} {d-wrong-degree}              {none}
+    \msg_redirect_name:nnn {spectralsequences} {d-target-index-target-coord} {none}
+    \msg_redirect_name:nnn {spectralsequences} {d-named-coord-two-indexes}   {none}
+    \msg_redirect_name:nnn {spectralsequences} {d-hit-wrong-order}           {none}
+    \msg_redirect_name:nnn {spectralsequences} {d-class-already-hit}         {none}
+    \msg_redirect_name:nnn {spectralsequences} {d-hit-same-page-replaceclass}{none}
+    \sseq@dparsecoord{\sseq@pagenum}{#2}{#3}
+    \let\sseq@obj@xdef\@gobbletwo
+    \sseq@d@setpageclass{class.\source}{\sseq@pagenum}{source}
+    \sseq@d@setpageclass{class.\target}{\sseq@pagenum}{target}
+    \@gobbletwo\sseq@breakpoint\sseq@tempiffalse
+    \ifsseq@tempif
+		\egroup
+		\prg_return_true:
+    \else
+        \egroup
+        \prg_return_false:
+    \fi
+}
+
+
+
+\sseq@DeclareDocumentCommand \IfExistsTF { r() } { \sseq_if_exists:nTF { #1 } }
+\sseq@DeclareDocumentCommand \IfExistsT  { r() } { \sseq_if_exists:nT  { #1 } }
+\sseq@DeclareDocumentCommand \IfExistsF  { r() } { \sseq_if_exists:nF  { #1 } }
+
+\sseq@DeclareDocumentCommand \IfOutOfBoundsTF { r() } { \sseq_if_out_of_bounds:nTF { #1 } }
+\sseq@DeclareDocumentCommand \IfOutOfBoundsT  { r() } { \sseq_if_out_of_bounds:nT  { #1 } }
+\sseq@DeclareDocumentCommand \IfOutOfBoundsF  { r() } { \sseq_if_out_of_bounds:nF  { #1 } }
+\sseq@DeclareDocumentCommand \IfInBoundsTF { r() mm } { \sseq_if_out_of_bounds:nTF { #1 } { #3 } { #2 } }
+\sseq@DeclareDocumentCommand \IfInBoundsT  { r() } { \sseq_if_out_of_bounds:nF  { #1 } }
+\sseq@DeclareDocumentCommand \IfInBoundsF  { r() } { \sseq_if_out_of_bounds:nT  { #1 } }
+
 \sseq@DeclareDocumentCommand \IfAliveTF { mr() }{ \sseq_if_alive:nnTF{#1}{#2}}
 \sseq@DeclareDocumentCommand \IfAliveT { mr() } { \sseq_if_alive:nnT{#1}{#2}}
 \sseq@DeclareDocumentCommand \IfAliveF { mr() } { \sseq_if_alive:nnF{#1}{#2}}
-%\def\IfAliveT{}
+
 
 %%%%%%
 %%%
@@ -1414,25 +1549,46 @@
 % We need to check for math subscript characters
 \char_set_catcode_math_subscript:N \_
 
-\protected\def\sseqnormalizemonomial#1{
+\def\sseq@support@std{}
+\protected\def\SseqNormalizeMonomialSetVariables#1{%
     \bgroup
-    \def\sseq@support{}
-    \sseq@ifempty{#1}{\egroup\def\processedlabel{1}}{
-        \sseqnormalizemonomial@#1\sseq@nil
-    }
+    \gdef\sseq@support@std{}%
+    \def\sseqnormalizemonomial@add{%
+        \def\temp{1}%
+        \ifx\sseq@var\temp\else
+            \edef\sseq@var{\unexpanded\@xp{\sseq@var}\unexpanded\@xp{\sseq@subscript}}%
+            \@ifundefined{\sseqnormalizemonomial@varcs}{%
+                \@xp\xdef\csname\sseqnormalizemonomial@varcs\endcsname{0}%
+                \sseq@x@addto@macro\sseq@support@std{\@nx\\{\unexpanded\@xp{\sseq@var}}{\sseqnormalizemonomial@varcs}}%
+            }{}%
+        \fi
+        \sseqnormalizemonomial@testend
+    }%
+    \SseqNormalizeMonomial{#1}%
+    \egroup
 }
-\def\sseqnormalizemonomial@#1{
-    \pgfkeys@spdef\sseq@var{#1}
-    \def\sseq@power{1}
-    \def\sseq@subscript{}
+
+
+\protected\def\SseqNormalizeMonomial#1{%
+    \bgroup
+    \def\sseq@ourinput{#1}%
+    \let\sseq@support\sseq@support@std
+    \sseq@ifempty{#1}{\egroup\def\result{1}}{%
+        \sseqnormalizemonomial@#1\sseq@nil
+    }%
+}
+\def\sseqnormalizemonomial@#1{%
+    \pgfkeys@spdef\sseq@var{#1}%
+    \def\sseq@power{1}%
+    \def\sseq@subscript{}%
     \futurelet\testtok\sseqnormalizemonomial@@
 }
 
-\def\sseqnormalizemonomial@@{
-    \ifx\testtok^
+\def\sseqnormalizemonomial@@{%
+    \ifx\testtok^%
         \let\next\sseqnormalizemonomial@sup
     \else
-        \ifx\testtok_
+        \ifx\testtok_%
             \let\next\sseqnormalizemonomial@sub
         \else
             \let\next\sseqnormalizemonomial@add
@@ -1441,40 +1597,46 @@
     \next
 }
 
-\def\sseqnormalizemonomial@sup^#1{
-    \edef\sseq@power{\the\numexpr#1\relax}
+\def\sseqnormalizemonomial@sup^#1{%
+    \sseq@ifintexpr{#1}{%
+        \edef\sseq@power{\the\numexpr#1\relax}%
+    }{%
+        \sseq@error@xxx{NormalizeMonomial-invalid-exponent}{\unexpanded{#1}}{\unexpanded\@xp{\sseq@var}}{\unexpanded\@xp{\sseq@ourinput}}
+        \let\result\sseq@ourinput
+        \sseq@gobble@to@nil
+    }
     \futurelet\testtok\sseqnormalizemonomial@@
 }
 
-\def\sseqnormalizemonomial@sub_#1{
-    \def\sseq@subscript{_{#1}}
+\def\sseqnormalizemonomial@sub_#1{%
+    \def\sseq@subscript{_{#1}}%
     \futurelet\testtok\sseqnormalizemonomial@@
 }
 
-\def\sseqnormalizemonomial@add{
-    \def\temp{1}
+\def\sseqnormalizemonomial@add{%
+    \def\temp{1}%
     \ifx\sseq@var\temp\else
-        \edef\sseq@var{\unexpanded\@xp{\sseq@var}\unexpanded\@xp{\sseq@subscript}}
-        \@ifundefined{\sseqnormalizemonomial@varcs}{
-            \@xp\edef\csname\sseqnormalizemonomial@varcs\endcsname{\sseq@power}
+        \edef\sseq@var{\unexpanded\@xp{\sseq@var}\unexpanded\@xp{\sseq@subscript}}%
+        \@ifundefined{\sseqnormalizemonomial@varcs}{%
+            \@xp\edef\csname\sseqnormalizemonomial@varcs\endcsname{\sseq@power}%
             \sseq@e@addto@macro\sseq@support{\@nx\\{\unexpanded\@xp{\sseq@var}}{\sseqnormalizemonomial@varcs}}%
-        }{
-            \@xp\edef\csname\sseqnormalizemonomial@varcs\endcsname{\the\numexpr\csname\sseqnormalizemonomial@varcs\endcsname + \sseq@power}
-        }
+        }{%
+            \@xp\edef\csname\sseqnormalizemonomial@varcs\endcsname{\the\numexpr\csname\sseqnormalizemonomial@varcs\endcsname + \sseq@power}%
+        }%
     \fi
     \sseqnormalizemonomial@testend
 }
 
 
-\def\sseqnormalizemonomial@testend{
+\def\sseqnormalizemonomial@testend{%
     \ifx\testtok\sseq@nil
         \sseqnormalizemonomial@done
-        \sseq@smuggle@macro\processedlabel
+        \sseq@smuggle@macro\result
         \egroup
         \let\next\@gobble
     \else
         \@xp\ifx\space\testtok
-            \def\next{\@xp\futurelet\@xp\testtok\@xp\sseqnormalizemonomial@testend\romannumeral-`0}
+            \def\next{\@xp\futurelet\@xp\testtok\@xp\sseqnormalizemonomial@testend\romannumeral-`0}%
         \else
             \let\next\sseqnormalizemonomial@
         \fi
@@ -1484,27 +1646,65 @@
 
 \def\sseqnormalizemonomial@varcs{sseqnormalizemonomial@var@\detokenize\@xp{\sseq@var}}
 
-\def\sseqnormalizemonomial@done{
-    \def\processedlabel{}
-    \def\\##1##2{
+\def\sseqnormalizemonomial@done{%
+    \def\result{}%
+    \def\\##1##2{%
         \sseq@tempcount=\csname ##2\endcsname\relax
         \ifnum\sseq@tempcount=\z@
         \else
             \ifnum\sseq@tempcount=\@ne
-                \sseq@d@addto@macro\processedlabel{##1}
+                \sseq@d@addto@macro\result{##1}%
             \else
-                \sseq@e@addto@macro\processedlabel{\unexpanded{##1}^{\the\sseq@tempcount}}
+                \sseq@e@addto@macro\result{\unexpanded{##1}^{\the\sseq@tempcount}}%
             \fi
         \fi
-    }
+    }%
     \sseq@support
-    \ifx\processedlabel\pgfutil@empty % use 1 for empty monomial
-        \def\processedlabel{1}
+    \ifx\result\pgfutil@empty % use 1 for empty monomial
+        \def\result{1}%
     \fi
 }
 
 % Restore catcode of underscore to letter
 \catcode`\_ = 11\relax
+
+
+\def\SseqAHSSNameHandler#1{
+    \pgfutil@in@[{#1}
+    \ifpgfutil@in@
+        \@xp\@firstofone
+    \else
+        \sseq@error{AHSSNameHandler-missing-cell}{#1}
+        \def\result{#1}
+        \@xp\@gobble
+    \fi{
+        \SseqAHSSNameHandler@#1\sseq@nil
+    }
+}
+
+
+\def\SseqAHSSNameHandler@#1[#2\sseq@nil{
+    \pgfutil@in@]{#2}
+    \ifpgfutil@in@
+        \@xp\@firstofone
+    \else
+        \sseq@error{AHSSNameHandler-missing-cell}{#1[#2}
+        \def\result{#1[#2}
+        \@xp\@gobble
+    \fi{
+        \SseqAHSSNameHandler@@{#1}#2\sseq@nil
+    }
+}
+
+\def\SseqAHSSNameHandler@@#1#2]#3\sseq@nil{
+	\SseqNormalizeMonomial{#1#3}
+    \sseq@ifintexpr{#2}{
+	   \edef\result{\unexpanded\@xp{\result}[\the\numexpr#2+\sseq@y]}
+    }{
+        \sseq@error{AHSSNameHandler-invalid-integer}{#2}{#1[#2]#3}
+        \edef\result{\unexpanded\@xp{\result[#2]}}
+    }
+}
 
 
 

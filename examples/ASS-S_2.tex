@@ -111,7 +111,7 @@
 }
 
 \NewSseqGroup \Phonegroup {G{}}{
-    \sseqset{class label handler = { \sseqnormalizemonomial{##1} }}
+    \sseqset{class label handler = \SseqNormalizeMonomial } 
     \czero["#1c_0" above](-1,-2)
     \Phone[imJ]{P#1}{}
     \nuclass[imJ]\divtwoclass[imJ]\divtwoclass["#1d_0" left,name=d0]

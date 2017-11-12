@@ -428,6 +428,15 @@
 }
 %\pgfqkeys{/codeexample}{every codeexample/.style={width=6cm}}
 
+% This macro in pgfmanual-en-macros.tex seems not to work because the call to \openin is wrong...
+\def\do@codeexamplefromfile{%
+  \immediate\openin\examplesource examples/spectralsequencesmanual-\codeexamplesource.tex\relax % I only changed this line
+  \def\examplelines{}%
+  \readexamplelines
+  \closein\examplesource
+  \expandafter\endofcodeexample\expandafter{\examplelines}%
+}
+
 
 \pgfqkeys{/sseqpages}{
     class/class:name/.forward to=/sseqpages/class/name,

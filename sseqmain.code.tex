@@ -493,8 +493,8 @@
         \sseq@breakfi
     \fi
 %%%% No more breaks after this point
-    
-    \sseq@processlabels % This sets up the label nodes, now that we know the position of the class (I think that's what we needed?)   
+
+    \sseq@processlabels % This sets up the label nodes, now that we know the position of the class (I think that's what we needed?)
     \sseq@class@main % We segment off the main part of the class so that we can call it separately from the copy method
     \sseq@breakpoint
     \endgroup
@@ -541,7 +541,7 @@
         \sseq@namehandler
         \sseq@obj@xdef{\classname.name}{\sseq@class@name}
         \sseq@obj@xdef{class.namedclass.\sseq@class@name}{\coordnopar}
-    \fi 
+    \fi
     \sseq@pushstack@\coord
 %
 %
@@ -565,7 +565,7 @@
     \fi
     \ifcsname sseq@class@showname\endcsname
         \sseq@obj@xodef{\classname.showname}{\sseq@class@showname}
-    \fi    
+    \fi
     \ifsseq@needstikz
         \sseq@obj@xdef{\classname.needstikz}{\sseq@needstikztrue}%
     \fi
@@ -855,7 +855,7 @@
     \sseq@obj@xodef{\classname.labelnodes}{\sseq@classlabelnodes}
     \ifcsname sseq@class@showname\endcsname
         \sseq@obj@xodef{\classname.showname}{\sseq@class@showname}
-    \fi        
+    \fi
     \sseq@obj@gdef{\classname.dependencies}{}
     \ifsseq@needstikz
         \sseq@obj@xdef{\classname.needstikz}{\sseq@needstikztrue}
@@ -997,6 +997,8 @@
 \def\sseq@d@d#1#2{%%
     \sseq@d@setpageminrec{class.\source}{#2}{source}%  automatically handles \sseq@cleanup@obj
     \sseq@d@setpageminrec{class.\target}{#2}{target}
+    %%% This is the last point we might break, so now the differential is good.
+    %%% Note that we can break inside \sseq@d@setpageclass inside \sseq@d@setpageminrec
 %
     \ifsseq@drawdifferential % TODO: probably should get rid of invisible now that we have \kill...
         \sseq@obj@xodef{d.#2\source\target.familylist}{\sseq@familylist}
@@ -1516,7 +1518,7 @@
         \the\sseq@outerclasslabelstyle
         \sseq@x@addto@macro\sseq@classlabelnodes{%
             \@nx\sseq@drawlabel{%
-                \sseq@maybemathswitch\unexpanded\@xp{\processedlabel}\sseq@maybemathswitch}%
+                \sseq@maybemathswitch\unexpanded\@xp{\result}\sseq@maybemathswitch}%
                 {% This is setup to prevent a bug where \classoptions and class label style don't work correctly together
                     \the\sseq@sseqstyle\@nx\the\sseq@sseqstyle@page
                     \the\sseq@labelstyle\@nx\the\sseq@labelstyle@page
@@ -1534,7 +1536,7 @@
         \the\sseq@innerclasslabelstyle
         \sseq@options@normalmode
         \sseq@protectedeval{\@nx\pgfqkeys{/sseqpages/class/label}{#2}}%
-        \sseq@protected@xdef\sseq@classnodetext{\sseq@maybemathswitch\processedlabel\sseq@maybemathswitch}%
+        \sseq@protected@xdef\sseq@classnodetext{\sseq@maybemathswitch\result\sseq@maybemathswitch}%
         \xdef\sseq@classnodetextoptions{%
             %\unexpanded{\def\pgfkeysdefaultpath{/sseqpages/class/node texts/}}%
             \sseq@thelabelstyle\sseq@theclasslabelstyle\sseq@theinnerclasslabelstyle

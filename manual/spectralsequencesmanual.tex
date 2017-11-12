@@ -12,7 +12,13 @@
 
 %
 % TODO:
-%  families
+%
+%  copier
+%  show name
+%
+%  add another AHSS name handler example? Maybe RP8 example is too long.
+% 
+%  maybe move more examples into external files?
 %
 %  consistency issues?
 %  perhaps think about ordering, particularly of "Misc commands" section
@@ -52,7 +58,7 @@ The \sseqpages\  package consists of two main environments -- the \sseqdataenv\ 
 
 Here is a basic example:
 \begin{codeexample}[width = 9cm]
-\begin{sseqdata}[ name = ex1, scale = 0.6,
+\begin{sseqdata}[ name = basic-example, scale = 0.6,
                   cohomological Serre grading ]
 \class(0,0)
 \class(0,2)
@@ -60,10 +66,10 @@ Here is a basic example:
 \class(3,2)
 \d3(0,2)
 \end{sseqdata}
-\printpage[ name = ex1, page = 3 ]  \quad
-\printpage[ name = ex1, page = 4 ]
+\printpage[ name = basic-example, page = 3 ]  \quad
+\printpage[ name = basic-example, page = 4 ]
 \end{codeexample}
-|\begin{sseqdata}[|| name = ex1, cohomological Serre grading]| starts the declaration of the data of a spectral sequence named |ex1| whose page $\mathtt{r}$ differentials go $\mathtt{r}$ to the right and down $\mathtt{r-1}$ -- that is, it has cohomological Serre grading. Then we specify four classes and one page 3 differential, and we ask \sseqpages\  to print the third and fourth pages of the spectral sequence. Note that on the fourth page, the source and target of the differential have disappeared.
+|\begin{sseqdata}[|| name = basic-example, cohomological Serre grading]| starts the declaration of the data of a spectral sequence named |ex1| whose page $\mathtt{r}$ differentials go $\mathtt{r}$ to the right and down $\mathtt{r-1}$ -- that is, it has cohomological Serre grading. Then we specify four classes and one page 3 differential, and we ask \sseqpages\  to print the third and fourth pages of the spectral sequence. Note that on the fourth page, the source and target of the differential have disappeared.
 
 \subsection{Installation}
 In both \miktex\ and \texlive\ installation should be automatic -- your \TeX\ distribution should automatically install the package the first time you include |\usepackage{spectralsequences}| in a document and compile it. However, in 2016, \texlive\ made an incompatible change to their database, so no new packages will run on versions of \texlive\ from before 2016. This includes \sseqpages. If you have an old version of \texlive, you can either perform a manual install,
@@ -265,7 +271,7 @@ This command creates a structure line from \sourcecoord\  to \targetcoord. The s
 If the source or target of a structure line is hit by a differential, then on subsequent pages, the structure line disappears.
 
 If the source or target has had multiple generations (i.e., they got hit and you used |\replaceclass|), then the |\structline| will only appear starting on the first page where the current generation of both the source and target are present. If this is undesirable, you can use the |structline:page| option to change it.
-\begin{codeexample}[width = 7cm]
+\begin{codeexample}[width = 7.5cm]
 \DeclareSseqGroup\tower {} {
     \class(0,0)
     \foreach \y in {1,...,5} {
@@ -279,7 +285,7 @@ If the source or target has had multiple generations (i.e., they got hit and you
 \begin{sseqdata}[ name = structline example,
                   classes = { circle, fill },
                   Adams grading, no axes,
-                  yscale = 1.39 ]
+                  yscale = 1.28 ]
 \class(1,1) \class(1,2)
 \class(2,3) \class(2,3) \class(2,5)
 \tower[classes = blue](0,0)
@@ -302,33 +308,7 @@ This command is a lot like |\structline| except that it puts a circle around the
 
 \begin{commandlist}{\draw,\path,\node,\clip}
 Any code that would work in a \tikzpictureenv\  environment will also work unchanged in a \sseqdataenv\  or \sseqpageenv\  environment, with a few minor differences. This is a very flexible way to add arbitrary background or foreground features to the spectral sequence:
-\begin{codeexample}[]
-\begin{sseqdata}[ name = tikz example, Adams grading, math nodes = false,
-                  tikz primitives = { blue, font = \tiny, <- }, circle classes = tikz primitive style,
-                  x range = {0}{2}, x axis extend end = 2em ]
-\class(0,0)
-\class(1,0)
-\class(0,2)
-\d2(1,0)
-\end{sseqdata}
-
-\begin{sseqpage}[ name = tikz example ]
-\circleclasses[ name path = myellipse, inner sep = 3pt, ellipse ratio = 1.6 ] (1,0) (0,2)
-\path[ name path = myline ] (1.3,1.25) -- (0.6,1);
-\draw[ name intersections = { of = myellipse and myline } ]
-      (intersection-1) to (1.3,1.25) node[ right, text width = 1.6cm ] {Consider this differential};
-\end{sseqpage} \qquad
-
-\begin{sseqpage}[ name = tikz example ]
-\draw[ xshift = 1 ] (0,0) to (0.6,0.2) node[ right, text width = 1.1cm ] {This is the source};
-\draw[ yshift = 2 ] (0,0) to (0.6,0.2) node[ right, text width = 1.1cm ] {This is the target};
-\end{sseqpage} \qquad
-
-\begin{sseqpage}[ page = 3, name = tikz example ]
-\circleclasses[ name path = myellipse, inner sep = 3pt, ellipse ratio = 1.6 ] (1,0)(0,2)
-\node[ right, font = \tiny ] at (1.2,1.2) {Now it's gone!};
-\end{sseqpage}
-\end{codeexample}
+\codeexample[from file=tikz]
 \end{commandlist}
 
 
@@ -562,44 +542,8 @@ We want each differential to go from the |h21| vee to the |id| vee, independent 
 \end{key}
 
 \begin{key}{insert = \meta{integer}}
-If there are multiple classes in the same position, this option allows you to insert classes later into earlier positions. This is intended to help you put logically related classes next to each other. If the integer is positive, it inserts the class in the specified position, and if the integer is negative, it counts backwards from the end. Providing |0| is the same as omitting the option entirely. Values larger in absolute value than the total number of classes are truncated.
- Consider:
-\begin{codeexample}[]
-\DeclareSseqGroup \tower {} {
-    \class(0,0)
-    \DoUntilOutOfBounds {
-        \class(\lastx,\lasty+1)
-        \structline
-    }
-}
-
-\begin{sseqdata}[name=test, y range={0}{4}, class pattern = linear]
-\tower(0,2)
-\tower(0,3)
-\tower(0,1)
-\end{sseqdata}
-\qquad
-\begin{sseqpage}[name=test]
-\tower[red,classes={insert=1}](0,0)
-\end{sseqpage}
-\qquad
-\begin{sseqpage}[name=test]
-\tower[red,classes={insert=2}](0,0)
-\end{sseqpage}
-\qquad
-\begin{sseqpage}[name=test]
-\tower[red,classes={insert=3}](0,0)
-\end{sseqpage}
-\qquad
-\begin{sseqpage}[name=test]
-\tower[red,classes={insert=-2}](0,0)
-\end{sseqpage}
-\qquad
-\begin{sseqpage}[name=test]
-\tower[red,classes={insert=-3}](0,0)
-\end{sseqpage}
-\end{codeexample}
-
+If there are multiple classes in the same position, this option allows you to insert classes later into earlier positions. This is intended to help you put logically related classes next to each other. If the integer is positive, it inserts the class in the specified position, and if the integer is negative, it counts backwards from the end. Providing |0| is the same as omitting the option entirely. Values larger in absolute value than the total number of classes are truncated. Consider:
+\codeexample[from file=insert]
 \end{key}
 
 \begin{key}{offset = \{\pars{\meta{x offset},\meta{y offset}}\}}
@@ -658,53 +602,8 @@ These options only work in |\classoptions|. The |page| option gives a range of p
 \end{codeexample}
 A ``generation'' of a class is the interval from one call of |\class| or |\replaceclass| to the page on which it next supports or is hit by a differential.
 By default the |\classoptions| command adds options only to the most recent generation of the class in a \sseqdataenv\  environment, or on the generation appropriate to the current page in a \sseqpageenv\  environment. Using the |generation| option allows you to provide a single generation or range of generations of the class that the options should apply to. The first generation is generation 0, and the most recent generation is generation -1. Larger negative values count backwards.
-\begin{codeexample}[]
-\begin{sseqdata}[ name = page_example2, Adams grading, xscale = 0.6, yscale = 0.5 ]
-\class(0,2)\class(1,0)
-\d2(1,0)
-\replaceclass(1,0)
-\class(0,3)
-\d3(1,0)
-\replaceclass(1,0)
-\classoptions[fill,red](1,0) % (a) applies to most recent (last) generation.
-\end{sseqdata}
-
-\printpage[ name = page_example2, page = 1 ] % generation 0 of (1,0), not styled
-\quad
-\begin{sseqpage}[ name = page_example2, page = 1, keep changes ]
-\classoptions[fill,blue](1,0) % (b) applies to the generation present on page 1, that is, generation 0.
-\end{sseqpage} \quad
-
-% generation 0 of (1,0), so class is blue from (b)
-\printpage[ name = page_example2, page = 2 ] \quad
-
-% generation 1 of (1,0), class is not styled
-\printpage[ name = page_example2, page = 3 ] \quad
-
-% generation 2 of (1,0), class is red from (a)
-\printpage[ name = page_example2, page = 4 ]
-\end{codeexample}
-
-\begin{codeexample}[]
-\begin{sseqdata}[ name = page_example2, Adams grading,update existing ]
-% (c) applies to all generations, overwrites (b) and (a):
-\classoptions[fill, red, generation = 0 ---- -1](1,0)
-\end{sseqdata}
-
-\printpage[ name = page_example2, page = 1 ]% generation 0 of (1,0), so class is red
-\quad
-\begin{sseqpage}[ name = page_example2, page = 1, keep changes ]
-\classoptions[fill,blue](1,0) % (d) applies to the generation present on page 1, that is, generation 0.
-\end{sseqpage} \quad
-
-% generation 0 of (1,0), class is blue from (d)
-\printpage[ name = page_example2,page = 2 ] \quad
-
-% generation 1 of (1,0), class is red from (c)
-\printpage[ name = page_example2, page = 3 ]
-\quad
-\printpage[ name = page_example2, page = 4 ] % generation 2 of (1,0), class is red from (c)
-\end{codeexample}
+\codeexample[from file=class-page2a]
+\codeexample[from file=class-page2b]
 \end{keylist}
 
 \begin{commandlist}{\xcoord,\ycoord}
@@ -1181,54 +1080,41 @@ Here we define a command which takes an options list, a coordinate, and a single
 
 \subsection{Families}
 \spectralsequences\ has a concept of ``class families'' that can be drawn or suppressed as a group, and that can have styling options applied to them as a group.
-\begin{command}{\sseqnewfamily\marg{family name}}
+\begin{command}{\SseqNewFamily\marg{family name}}
 This makes a new family with name \meta{family name}. The effect of this is to define global options |\meta{family name} style| which apply options to all classes in the family, |draw \meta{family name}| which causes the family to be drawn, and |no \meta{family name}| which suppresses the family (drawing is the default behavior of course). It also defines an option |\meta{family name}| which puts a feature into the family -- so it can be used as an option to any of the normal commands like |\class|, |\d|, |\structline|, etc and to a scope.
 
-\begin{codeexample}[vbox]
-\sseqnewfamily{imJ}
-\begin{sseqdata}[
-    name=ANSS-S_2, Adams grading,
-    class labels={below}, label distance=-1pt,
-    class placement transform={rotate=90,scale=2},
-    differentials=blue,
-    x range={0}{9}, y range={0}{4},
-    xscale=0.7, grid=go
-]
-% Image of J classes
-\begin{scope}[imJ]
-\class[rectangle,fill,inner sep=3pt](0,0)
-\DoUntilOutOfBoundsThenNMore{3}{\etaclass}
-\classoptions["\alpha_1" above left](1,1)
-\class["\alpha_{2/2}",circlen=2](3,1)
-\structline(0,0) \structline[dashed](3,3)
-\class["\alpha_3"](5,1) \d3\relax
-\DoUntilOutOfBounds{ \etaclass \d3 }
-\class["\alpha_{4/4}", rectangle, "16" {font=\tiny,inside}, inner sep=1pt](7,1)
-\DoUntilOutOfBoundsThenNMore{3}{\etaclass}
-\end{scope}
-
-% Other classes
-\class["\beta_{2/2}" {below right=-4pt}, insert = 1](6,2)
-\structline(3,1)
-\class["\beta_{2}" left](8,2)
-\etaclass\structline(6,2,2) % This is a *nu
-\end{sseqdata}
-
-\printpage[name=ANSS-S_2, title = with image of J, imJ style=purple]
-
-\printpage[name=ANSS-S_2, no imJ, x range={2}{9}, title = without image of J]
-\end{codeexample}
+\codeexample[vbox, from file=imJ]
 \end{command}
 
 
 \subsection{Utilities}
-\begin{command}{\sseqparseint\cmdarg{macro}\marg{integer expression}}
+\begin{command}{\SseqParseInt\cmdarg{macro}\marg{integer expression}}
 Stores the result of evaluating an integer expression into \cmdarg{macro}. An integer expression consists of |+|, |-|, |*|, |/|, parentheses, and macros that expand to more of the same. The exact rules regarding what is a valid expression are pretty much what you would expect. Note that juxtaposition is a syntax error, not multiplication, so |2(1+1)| is invalid, you must say |2*(1+1)|.
 \end{command}
 
-\begin{command}{\sseqifempty\marg{expression}\marg{true code}\marg{false code}}
-This tests if an expression is the empty expression. This is mainly useful for giving systematic labels to things. Probably it won't ever matter to you.
-\end{command}
+\begin{commandlist}{
+    \SseqIfEmptyTF\marg{expression}\marg{true code}\marg{false code},
+    \SseqIfEmptyT\marg{expression}\marg{true code},
+    \SseqIfEmptyF\marg{expression}\marg{false code}
+}
+This tests if an expression is the empty expression. This is mainly useful for giving systematic labels to things.
+\end{commandlist}
+
+\begin{commandlist}{
+    \IfExistsTF\marg{page}\pararg{coordinate}\marg{true code}\marg{false code},
+    \IfExistsT\marg{page}\pararg{coordinate}\marg{true code},
+    \IfExistsF\marg{page}\pararg{coordinate}\marg{false code}
+}
+Test whether a class of the given description exists. The description can be any valid coordinate, including a named coordinate. If the coordinate is not valid, this will return false.
+\end{commandlist}
+
+\begin{commandlist}{
+    \IfAliveTF\marg{page}\pararg{coordinate}\marg{true code}\marg{false code},
+    \IfAliveT\marg{page}\pararg{coordinate}\marg{true code},
+    \IfAliveF\marg{page}\pararg{coordinate}\marg{false code}
+}
+Test whether a class is alive on the given page. If the class doesn't exist, this will return false.
+\end{commandlist}
 
 \begin{commandlist}{
     \IfOutOfBoundsTF\pararg{coordinate}\marg{true code}\marg{false code},
@@ -1238,19 +1124,49 @@ This tests if an expression is the empty expression. This is mainly useful for g
     \IfInBoundsT\pararg{coordinate}\marg{true code},
     \IfInBoundsF\pararg{coordinate}\marg{false code}
 }
-Test whether an existing class is in bounds or out of bounds. I don't have an obvious use for these. I had to make commands to do this as part of the drawing code and in order to make |\DoUntilOutOfBounds| and it was no extra effort to expose them. Maybe they will be helpful at some point.
+Test whether a class is in bounds or out of bounds. If no such class exists, returns false.
+\end{commandlist}
+
+\begin{commandlist}{
+    \IfValidDifferentialTF\meta{page}\pararg{coordinate}\opt{\pararg{target coordinate}}\marg{true code}\marg{false code},
+    \IfValidDifferentialT\meta{page}\pararg{coordinate}\opt{\pararg{target coordinate}}\marg{true code},
+    \IfValidDifferentialF\meta{page}\pararg{coordinate}\opt{\pararg{target coordinate}}\marg{false code},
+    \DrawIfValidDifferentialTF\ooptions\meta{page}\pararg{coordinate}\opt{\pararg{target coordinate}}\marg{true code}\marg{false code},
+    \DrawIfValidDifferentialT\ooptions\meta{page}\pararg{coordinate}\opt{\pararg{target coordinate}}\marg{true code},
+    \DrawIfValidDifferentialF\ooptions\meta{page}\pararg{coordinate}\opt{\pararg{target coordinate}}\marg{false code},
+    \DrawIfValidDifferential\ooptions\meta{page}\pararg{coordinate}\opt{\pararg{target coordinate}}\marg{false code}
+}
+Test whether a differential is valid. There are many possible reasons for a differential to not be valid -- the source or target class could not exist, the target could not be in the correct grading, etc. If any error would be generated if you supplied the same arguments to |\d|, this tests false. Otherwise, this tests true. The command |\DrawIfValidDifferental| draws the differential if it is valid, whereas |\DrawIfValidDifferentalT| draws the differential and executes the true code if it is valid,
+|\DrawIfValidDifferentalF| draws the differential or executes false code if it isn't valid, etc.
 \end{commandlist}
 
 
-\begin{command}{\sseqnormalizemonomial}
-This command simplifies a monomial by combining like variables and removing bases that are raised to the 0th power, removing exponents of 1, removing 1's, and replacing the empty monomial with 1. It outputs its result into |\processedlabel|. This command is specifically meant to be used as a value for |class label handler|, so see the example there for the actual purpose. The exponents must be integers or else it will misbehave.
+
+\begin{command}{\SseqNormalizeMonomial}
+This command simplifies a monomial by combining like variables and removing bases that are raised to the 0th power, removing exponents of 1, removing 1's, and replacing the empty monomial with 1. The variables are sorted by first occurrence, use |\SseqNormalizeMonomialSetVariables| to set a different sort order. It outputs its result into |\result|. This command is specifically meant to be used as a value for |class label handler| or |class name handler|. See the example in the documentation for |class label handler| for a realistic example. The exponents must be integers or else it will misbehave.
 \begin{codeexample}[]
-\sseqnormalizemonomial{x^0y^0} $\processedlabel$, \quad
-\sseqnormalizemonomial{x^3yx^{-1}z^0} $\processedlabel$, \quad
-\sseqnormalizemonomial{1x_2^2x^2_2} $\processedlabel$
+\SseqNormalizeMonomial{x^0y^0} $\result$, \quad
+\SseqNormalizeMonomial{x^3yx^{-1}z^0} $\result$, \quad
+\SseqNormalizeMonomial{1x_2^2x^2_2} $\result$
 \end{codeexample}
 \end{command}
 
+\begin{command}{\SseqNormalizeMonomialSetVariables}
+This command takes an undelimited list sets up |\SseqNormalizeMonomial| to sort the variables in the input in the specified order. This is useful for consistency, and particularly important for when you use it to name classes.  For example:
+\begin{codeexample}[]
+% We always want a first, then b, then x_1, then x_2, then x_3
+\SseqNormalizeMonomialSetVariables{abx_1x_2x_3}
+\SseqNormalizeMonomial{ba} $\result$, \quad
+\SseqNormalizeMonomial{bx_1} $\result$, \quad
+\SseqNormalizeMonomial{abx_2x_3x_1} $\result$
+\end{codeexample}
+\SseqNormalizeMonomialSetVariables{}
+\end{command}
+
+
+\begin{command}{\SseqAHSSNameHandler}
+This command expects an argument of the form |\meta{monomial}[\meta{integer expression}]| and defines |\result| to be |m[n]| where |m| is the result of applying |\SseqNormalizeMonomial| to the monomial, and |n| is the result of evaluation the integer expression plus any |yshift| that is present. This is intended for use with in drawing Atiyah Hirzebruch spectral sequences. See |class name handler| for an example of the calculation of $KO^*\mathbb{R}P^8$.
+\end{command}
 
 \subsection{Coordinate parsers and related}
 %    \parsecoordinate and \parsedifferential
@@ -1292,10 +1208,8 @@ For instance, consider the following example, suggested by Catherine Ray:
                 (source) -- (intersection-1);
 }
 \begin{sseqdata}[ name = cathex, Adams grading, differentials = { blue } ]
-\class(0,2)
-\class(0,2)
+\class(0,2)\class(0,2)
 \class(1,0)\class(1,0)
-
 \twods2(1,0,-1,1){2}
 \end{sseqdata}
 \printpage[ name = cathex, page = 1 ]
@@ -1389,11 +1303,11 @@ The command |\lastclass| evaluates to the coordinate of the most recent class on
 \end{sseqpage}
 \end{codeexample}
 
-You can use |\lastx| and |\lasty| in other contexts than in the body of a \sseqpages\ command, most notably inside |\sseqparseint| (they also go fine inside |\pgfmathparse| if you need it or one of its siblings). For instance, consider the following tower command:
+You can use |\lastx| and |\lasty| in other contexts than in the body of a \sseqpages\ command, most notably inside |\SseqParseInt| (they also go fine inside |\pgfmathparse| if you need it or one of its siblings). For instance, consider the following tower command:
 \begin{codeexample}[width=6cm]
 \DeclareSseqCommand \tower { } {
     \savestack
-    \sseqparseint\numclasses{\ymax-\lasty0}
+    \SseqParseInt\numclasses{\ymax-\lasty0}
     \foreach \n in {1,...,\numclasses}{
         \class(\lastx,\lasty+1)
         \structline
@@ -1421,16 +1335,16 @@ This saves and reverts the stack. Saves nest. Most frequently, you will want to 
 \section{Styles}
 The \sseqpages\  package has a large number of styles which control the appearance of specific components (e.g., classes, differentials, or structure lines) of a spectral sequence. Each style has two corresponding keys: |classes| and |change classes|.  Saying |classes = |\marg{keys} adds the keys to the list of options used to style every future class, whereas |change classes = |\marg{keys} only makes sense in a \sseqpageenv\  environment, and temporarily overwrites the list of options. Note that |change classes| only applies to classes that existed before the current page, and that even with the |keep changes| option, the |change classes| options are local to the current page. Compare:
 \begin{codeexample}[width = 8cm]
-\begin{sseqdata}[ name = stylesex ]
+\begin{sseqdata}[ name = style example ]
 \class(0,0)\class(1,1)
 \end{sseqdata}
-\begin{sseqpage}[ name = stylesex,
+\begin{sseqpage}[ name = style example,
                   classes = { fill, blue },
                   title = change new classes ]
 \class(0,1)\class(1,0)
 \end{sseqpage}
 \quad
-\begin{sseqpage}[ name = stylesex,
+\begin{sseqpage}[ name = style example,
                   change classes = { fill, blue },
                   title = change old classes ]
 \class(0,1)\class(1,0)
@@ -1613,20 +1527,20 @@ If an edge runs off the edge of the clipping, \sseqpages\ automatically add an a
 
 \begin{key}{class label handler = \meta{function}}
 \declarecustomhandler{class label handler}{\codehandler}
-The value of |class label handler| is a function that is applied to all labels before displaying them. It should put its output into |\processedlabel|.
+The value of |class label handler| is a function that is applied to all labels before displaying them. It should put its output into |\result|.
 This is intended to help with code reusability. Because these handlers may crash or have annoying side-effects on some input, you may want to toggle the value of this command on and off. To turn this off for the rest of the current spectral sequence you can say |\sseqset{class label handler = {}}|. You can also use the |class label handler| key in a \scopeenv.
 
-The main function \sseqpages\ provides for use here is |\sseqnormalizemonomial{#1}|. This makes it convenient to translate expressions with polynomial labels. You can write your own handlers if your \TeX\ programming skills are sufficient. Let me know if there are any other functions that you want here, and if you implement them yourself, please send me your implementation.
+The main function \sseqpages\ provides for use here is |\SseqNormalizeMonomial{#1}|. This makes it convenient to translate expressions with polynomial labels. You can write your own handlers if your \TeX\ programming skills are sufficient. Let me know if there are any other functions that you want here, and if you implement them yourself, please send me your implementation.
 Here is an example of a function that evaluates an arithmetic expression:
 \begin{codeexample}[width=6cm]
 \begin{sseqpage}[
-    class label handler = { \sseqparseint\processedlabel{#1} }
+    class label handler = { \SseqParseInt\result{#1} }
 ]
 \class["1+1"](0,0)
 \class["1+2*(1+3*(4-1))"](1,1)
 \end{sseqpage}
 \end{codeexample}
-Here's an example using |\sseqnormalizemonomial|:
+Here's an example using |\SseqNormalizeMonomial|:
 \begin{codeexample}[width = 6cm]
 \NewSseqGroup \test {m} {
     \class["1#1"](0,0)
@@ -1635,7 +1549,7 @@ Here's an example using |\sseqnormalizemonomial|:
     \class["\alpha y#1"](1,1)
 }
 \begin{sseqpage}[
-    class label handler = { \sseqnormalizemonomial{#1} },
+    class label handler = { \SseqNormalizeMonomial{#1} },
     classes = { draw = none }, class labels = { font = \small } ]
 \test{}
 \test[red](2,0){y^2}
@@ -1644,13 +1558,13 @@ Here's an example using |\sseqnormalizemonomial|:
 \end{sseqpage}
 \end{codeexample}
 
-Here is another example which demonstrates a useful idiom for drawing Serre spectral sequences. For a more complete example, see \example{KF3n}. Note the use of braces in |{Sq^1\iota_2}|. Without braces, |\sseqnormalizemonomial| will simplify |Sq^1xSq^2x| into $S^2q^3x^2$, which is obviously undesirable, so the correct way to input this is |{Sq^1x}{Sq^2x}|. Unfortunately, |\foreach| strips a pair of braces from its arguments, so you need to put two pairs of braces.
+Here is another example which demonstrates a useful idiom for drawing Serre spectral sequences. For a more complete example, see \example{KF3n}. Note the use of braces in |{Sq^1\iota_2}|. Without braces, |\SseqNormalizeMonomial| will simplify |Sq^1xSq^2x| into $S^2q^3x^2$, which is obviously undesirable, so the correct way to input this is |{Sq^1x}{Sq^2x}|. Unfortunately, |\foreach| strips a pair of braces from its arguments, so you need to put two pairs of braces.
 %\pgfmanualpdflabel{normalizemonomialex-labels}
 \begin{codeexample}[width=8cm]
 \begin{sseqpage}[
   xscale = 1.4,
   classes = { draw = none },
-  class label handler = {\sseqnormalizemonomial{#1}} ]
+  class label handler = {\SseqNormalizeMonomial{#1}} ]
 
 \foreach \x/\xlabel in
   { 0/1, 2/\iota_2, 3/{{Sq^1\iota_2}}, 4/\iota_2^2 }
@@ -1663,6 +1577,15 @@ Here is another example which demonstrates a useful idiom for drawing Serre spec
 \end{codeexample}
 \end{key}
 
+
+\begin{key}{class name handler = \meta{function}}
+\declarecustomhandler{class name handler}{\codehandler}
+The value of |class name handler| is a function that is applied to all labels before displaying them. It should put its output into |\result|.
+The main functions intended for use here are |\SseqAHSSNameHandler| and |\SseqNormalizeMonomial|, though you can make your own.
+The next page is an example drawing the Atiyah Hirzebruch spectral sequence computing $KO^*\mathbb{R}P^{8}$.
+% Have to load from file so that \afterpage doesn't cause trouble with verbatim reading.
+\afterpage{\codeexample[from file=KORP8,vbox]\newpage}
+\end{key}
 
 \section{Global Options}
 These options can only be set at the beginning of a \sseqdataenv\  or \sseqpageenv\  environment. When it makes sense, you can also set a default value using |\sseqset|. Generally, these options either modify the plot style or the logic for the spectral sequence.

@@ -1,0 +1,24 @@
+\begin{sseqdata}[ name = page_example2, Adams grading, xscale = 0.6, yscale = 0.5 ]
+\class(0,2)\class(1,0)
+\d2(1,0)
+\replaceclass(1,0)
+\class(0,3)
+\d3(1,0)
+\replaceclass(1,0)
+\classoptions[fill,red](1,0) % (a) applies to most recent (last) generation.
+\end{sseqdata}
+
+\printpage[ name = page_example2, page = 1 ] % generation 0 of (1,0), not styled
+\quad
+\begin{sseqpage}[ name = page_example2, page = 1, keep changes ]
+\classoptions[fill,blue](1,0) % (b) applies to the generation present on page 1, that is, generation 0.
+\end{sseqpage} \quad
+
+% generation 0 of (1,0), so class is blue from (b)
+\printpage[ name = page_example2, page = 2 ] \quad
+
+% generation 1 of (1,0), class is not styled
+\printpage[ name = page_example2, page = 3 ] \quad
+
+% generation 2 of (1,0), class is red from (a)
+\printpage[ name = page_example2, page = 4 ]

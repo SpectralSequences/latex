@@ -1,0 +1,33 @@
+\DeclareSseqGroup \tower {} {
+    \class(0,0)
+    \DoUntilOutOfBounds {
+        \class(\lastx,\lasty+1)
+        \structline
+    }
+}
+
+\begin{sseqdata}[name=insert-example, y range={0}{4}, class pattern = linear]
+\tower(0,2)
+\tower(0,3)
+\tower(0,1)
+\end{sseqdata}
+\qquad
+\begin{sseqpage}[name=insert-example]
+\tower[red,classes={insert=1}](0,0)
+\end{sseqpage}
+\qquad
+\begin{sseqpage}[name=insert-example]
+\tower[red,classes={insert=2}](0,0)
+\end{sseqpage}
+\qquad
+\begin{sseqpage}[name=insert-example]
+\tower[red,classes={insert=3}](0,0)
+\end{sseqpage}
+\qquad
+\begin{sseqpage}[name=insert-example]
+\tower[red,classes={insert=-2}](0,0)
+\end{sseqpage}
+\qquad
+\begin{sseqpage}[name=insert-example]
+\tower[red,classes={insert=-3}](0,0)
+\end{sseqpage}

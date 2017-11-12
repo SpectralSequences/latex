@@ -416,6 +416,13 @@
 \sseq@newerror{anchor-ignored}    {The coordinate #1 is not a class, but it has an anchor '#3'. Ignoring the anchor and treating it as the literal position #2.}
 \sseq@newerror{invalid-tikz-coord}{The coordinate #1 does not refer to a tikz class but its #2 coordinate is not valid \string\pgfmathparse\ input.}
 
+% handlers
+\sseq@newerror{NormalizeMonomial-invalid-exponent}{The exponent #1 of the variable #2 in the monomial #3 is not a valid integer expression. Giving up on processing this monomial -- I will leave it alone and hope for the best.}
+\sseq@newerror{AHSSNameHandler-missing-cell}{The name #1 has no cell (an integer expression surrounded by brackets). Giving up on processing it and returning my input in \string\result.}
+\sseq@newerror{AHSSNameHandler-invalid-integer}{The cell degree #1 of #2 is not a valid integer expression. I am leaving it alone, but I processed the monomial.}
+
+
+
 %%
 %%
 %% foreach
@@ -558,5 +565,8 @@
 \sseq@newerror{structline-stillborn}{Structline dies before it is born. Perhaps you meant to specify a different source or target?}
 \sseq@newerror{structline-source-target-equal}{The source and target of a \@nx\structline cannot be equal.}
 
+
+\protected\def\sseq@quiet{\msg_redirect_module:nnn{spectralsequences}{error}{info}}
+\protected\def\sseq@endquiet{}
 
 \ExplSyntaxOff
