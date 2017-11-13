@@ -508,7 +508,7 @@
             \fi
             \sseq@obj@ifdef{class.namedclass.\detokenize\@xp{\handledname}}{
                 \let\sourcename\handledname
-                \@xpthree\sseq@parsecoord@maincoord@named\sseq@obj{class.namedclass.\sourcename}\sseq@nil
+                \@xpthree\sseq@parsecoord@maincoord@named\sseq@obj{class.namedclass.\detokenize\@xp{\sourcename}}\sseq@nil
             }{
                 \sseq@error{invalid-coordinate}\sseq@breakfifi
             }
@@ -1699,7 +1699,7 @@
 \def\SseqAHSSNameHandler@@#1#2]#3\sseq@nil{
 	\SseqNormalizeMonomial{#1#3}
     \sseq@ifintexpr{#2}{
-	   \edef\result{\unexpanded\@xp{\result}[\the\numexpr#2+\sseq@y]}
+	    \edef\result{\unexpanded\@xp{\result}[\the\numexpr#2+\sseq@y]}
     }{
         \sseq@error{AHSSNameHandler-invalid-integer}{#2}{#1[#2]#3}
         \edef\result{\unexpanded\@xp{\result[#2]}}
