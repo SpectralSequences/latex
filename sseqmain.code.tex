@@ -1122,8 +1122,10 @@
 
 \def\sseq@d@setpagemin#1#2{
     \ifnum\sseq@obj{#1.page}>#2\relax
-        \sseq@cleanup@obj{#1.page}
-        \sseq@obj@xdef{#1.page}{#2}
+	\ifnum\sseq@obj{#1.pagemin}>#2\relax\else % prevent a d1 from getting rid of a structline that was supposed to start on page 5
+	        \sseq@cleanup@obj{#1.page}
+	        \sseq@obj@xdef{#1.page}{#2}
+	\fi
     \fi
 }
 \def\sseq@differential@draw@ifpage#1{
