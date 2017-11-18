@@ -441,10 +441,10 @@
             \sseq@obj@xdef{partcoord.(\partialcoord).tag.\sseq@class@tagprefix\sseq@class@tag}{\nodenum}%
         \fi
         \ifx\sseq@class@name\pgfutil@empty\else
-            \sseq@cleanup@obj{class.\classname.name}
+            \sseq@cleanup@obj{\classname.name}
             \sseq@cleanup@obj{class.namedclass.\detokenize\@xp{\sseq@class@name}}
             \sseq@namehandler
-            \sseq@obj@xdef{class.\classname.name}{\sseq@class@name}
+            \sseq@obj@xdef{\classname.name}{\sseq@class@name}
             \sseq@obj@xdef{class.namedclass.\detokenize\@xp{\sseq@class@name}}{\coordnopar}
         \fi
         \sseq@breakpoint
@@ -698,12 +698,12 @@
         \sseq@obj@xdef{partcoord.(\partialcoord).tag.\sseq@class@tagprefix\sseq@class@tag}{\sseq@index}%
     \fi  
     \ifx\sseq@class@name\pgfutil@empty\else
-        \sseq@obj@ifdef{class.\classname.name}{
-            \sseq@error@nn{classoptions-class-already-named}{\coord}{\sseq@obj{class.\classname.name}}%could be warning
+        \sseq@obj@ifdef{\classname.name}{
+            \sseq@error@nn{classoptions-class-already-named}{\coord}{\sseq@obj{\classname.name}}%could be warning
         }{}
-        \sseq@cleanup@obj{class.\classname.name}
+        \sseq@cleanup@obj{\classname.name}
         \sseq@cleanup@obj{class.namedclass.\detokenize\@xp{\sseq@class@name}}
-        \sseq@obj@xdef{class.\classname.name}{\sseq@class@name}
+        \sseq@obj@xdef{\classname.name}{\sseq@class@name}
         \sseq@obj@xdef{class.namedclass.\detokenize\@xp{\sseq@class@name}}{\coordnopar}
     \fi
     \sseq@tempcount=\sseq@gen\relax
@@ -827,9 +827,9 @@
         \sseq@obj@xdef{partcoord.(\partialcoord).tag.\sseq@class@tagprefix\sseq@class@tag}{\nodenum}%
     \fi
     \ifx\sseq@class@name\pgfutil@empty\else
-        \sseq@cleanup@obj{class.\classname.name}
+        \sseq@cleanup@obj{\classname.name}
         \sseq@cleanup@obj{class.namedclass.\detokenize\@xp{\sseq@class@name}}
-        \sseq@obj@xdef{class.\classname.name}{\sseq@class@name}
+        \sseq@obj@xdef{\classname.name}{\sseq@class@name}
         \sseq@obj@xdef{class.namedclass.\detokenize\@xp{\sseq@class@name}}{\coordnopar}
     \fi
     \let\partialcoord\coord@partial
@@ -1103,7 +1103,6 @@
             \unexpanded\@xp{\sseq@restofstacktrace}%
         \fi
     }
-	%\sseq@obj@show{\sseq@classgenname.deathstacktrace}
     \egroup
 }
 

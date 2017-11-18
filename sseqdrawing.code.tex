@@ -661,7 +661,9 @@
         % local value takes priority.
         \sseq@obj@ifdef{#1.showname}{\sseq@lettoobj\sseq@class@showname{#1.showname}}{}
         \ifcsname sseq@class@showname\endcsname
-            \sseq@eval{\@nx\sseq@handleclassquotes@inner{\sseq@obj{#1.name}}{\sseq@class@showname}}
+            \sseq@obj@ifdef{#1.name}{
+	            \sseq@eval{\@nx\sseq@handleclassquotes@inner{\sseq@obj{#1.name}}{\sseq@class@showname}}
+	    }{}
         \fi
         \sseq@obj{#1.labelnodes}
         \sseq@classlabelnodes

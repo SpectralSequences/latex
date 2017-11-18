@@ -28,8 +28,11 @@ Changelog:
 - \sseqifempty became \SseqIfEmptyTF 
 
 ### Fixed:
-- A bug that made "y axis gap" adjust both axes and "x axis gap" do nothing (thanks Achim).
-- A bug where a random definition of \\ was leaked into global scope.
+- A bug that made "y axis gap" adjust both axes and "x axis gap" do nothing (reported by Achim Krause).
+- A bug where a random definition of \\ was leaked into global scope (reported by Achim Krause).
+- Now a \structline defined with option page=n will not be deleted by a shorter differential.
+
+
     
 ## [1.1.1]
 

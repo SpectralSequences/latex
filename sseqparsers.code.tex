@@ -503,14 +503,14 @@
             \ifpgfutil@in@
                 \def\handledname{#1}
             \else
-                \sseq@classname@handler{#1}
+                \sseq@protectedeval{\@nx\sseq@classname@handler{\sseq@classnameprefix#1\sseq@classnamepostfix}}
                 \let\handledname\result
             \fi
             \sseq@obj@ifdef{class.namedclass.\detokenize\@xp{\handledname}}{
                 \let\sourcename\handledname
                 \@xpthree\sseq@parsecoord@maincoord@named\sseq@obj{class.namedclass.\detokenize\@xp{\sourcename}}\sseq@nil
             }{
-                \sseq@error{invalid-coordinate}\sseq@breakfifi
+		\sseq@error{invalid-coordinate}\sseq@breakfifi
             }
         \fi
     \fi
