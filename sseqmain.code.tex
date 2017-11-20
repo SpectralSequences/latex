@@ -696,7 +696,7 @@
         \sseq@obj@xdef{class.\coord.tag}{\sseq@class@tagprefix\sseq@class@tag}%
         \sseq@cleanup@obj{partcoord.(\partialcoord).tag.\sseq@class@tagprefix\sseq@class@tag}%
         \sseq@obj@xdef{partcoord.(\partialcoord).tag.\sseq@class@tagprefix\sseq@class@tag}{\sseq@index}%
-    \fi  
+    \fi
     \ifx\sseq@class@name\pgfutil@empty\else
         \sseq@obj@ifdef{\classname.name}{
             \sseq@error@nn{classoptions-class-already-named}{\coord}{\sseq@obj{\classname.name}}%could be warning
@@ -804,12 +804,12 @@
     \sseq@processlabels
     \sseq@obj@ifundef{class.\coord.num}{\sseq@error@x{replaceclass-no-class}{\coordname}\sseq@break}{}
     \sseq@ifdead\coord{}{\sseq@error@x{replaceclass-not-dead-yet}{\coordname}\sseq@break}
-%    
+%
     \edef\oldclassname{class.\coord[\sseq@obj{class.\coord.num}]}
     \sseq@cleanup@obj{class.\coord.num}
     \sseq@obj@inc{class.\coord.num}
     \edef\classname{class.\coord[\sseq@obj{class.\coord.num}]}
-%   
+%
     \ifsseq@keepchanges\else
         \ifnum\the\numexpr\sseq@obj{\oldclassname.page}<\sseq@thepagecount\else
             \edef\sseq@temp{\sseq@obj{\oldclassname.page}}
@@ -817,7 +817,7 @@
             \sseq@breakfifi
         \fi
     \fi
-%    
+%
     \let\partialcoord\coord@partial
     \ifx\sseq@class@tag\pgfutil@empty\else
         \sseq@obj@ifdef{partcoord.(\partialcoord).tag.\sseq@class@tagprefix\sseq@class@tag}{%
@@ -826,7 +826,15 @@
         \sseq@cleanup@obj{partcoord.(\partialcoord).tag.\sseq@class@tagprefix\sseq@class@tag}%
         \sseq@obj@xdef{partcoord.(\partialcoord).tag.\sseq@class@tagprefix\sseq@class@tag}{\nodenum}%
     \fi
-    \ifx\sseq@class@name\pgfutil@empty\else
+    \ifx\sseq@class@name\pgfutil@empty
+        \sseq@obj@ifdef{\oldclassname.name}{
+            \sseq@lettoobj\sseq@class@name{\oldclassname.name}
+            \sseq@cleanup@obj{\classname.name}
+            \sseq@cleanup@obj{class.namedclass.\detokenize\@xp{\sseq@class@name}}        
+            \sseq@obj@xdef{\classname.name}{\sseq@class@name}
+            \sseq@obj@xdef{class.namedclass.\detokenize\@xp{\sseq@class@name}}{\coordnopar}
+        }{}
+    \else
         \sseq@cleanup@obj{\classname.name}
         \sseq@cleanup@obj{class.namedclass.\detokenize\@xp{\sseq@class@name}}
         \sseq@obj@xdef{\classname.name}{\sseq@class@name}
