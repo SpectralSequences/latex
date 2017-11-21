@@ -355,6 +355,7 @@
     \def#1{\begingroup}
     \def\sseq@copymacro{#1}
     \def\sseq@thename{#2}
+    \global\let\sseq@savedpaths@save\sseq@savedpaths
     \sseq@storelist@get\sseq@savedpaths
     \def\sseq@thepage{#3}
     \sseq@thepagecount=#3\relax
@@ -370,6 +371,7 @@
     \sseq@savedpaths
     \sseq@g@addto@macro#1{\endgroup}
     \endgroup
+    \let\sseq@savedpaths\sseq@savedpaths@save
 }
 
 \def\sseq@copypage@addclass#1{
