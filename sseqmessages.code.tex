@@ -260,7 +260,8 @@
 \ExplSyntaxOn
 \char_set_catcode_space:N\ % Needed to make pretocmd work -- there are always spaces after every command, and they need to be retokenized as spaces
 
-\def\sseqerrortowarning#1{ \msg_redirect_name:nnn { spectralsequences } { #1 } { warning } }
+\def\sseqerrortowarning#1{\msg_redirect_name:nnn{spectralsequences}{#1}{warning}}
+\def\sseq@quieterror#1{\msg_redirect_name:nnn{spectralsequences}{#1}{none}}
 
 \def\sseq@error     {\msg_error:nn    {spectralsequences}}
 \def\sseq@error@n   {\msg_error:nnn   {spectralsequences}}

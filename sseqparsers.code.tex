@@ -99,10 +99,12 @@
 
 % Spaces matter to us, because \sseq@ifintexpr{1 1} is false but \sseqsifintexpr{11} is true
 % so we make spaces into catcode other and use \scantokens
+\def\sseq@fexpsafenil{\@nx\sseq@fexpsafenil}
+
 \def\sseq@ifintexpr#1{%
     \bgroup
     \sseq@tempcount\z@
-    \sseq@ifintexpr@{needsint}#1\sseq@nil%
+    \sseq@ifintexpr@{needsint}#1\sseq@fexpsafenil%
     \@xp\egroup\next
 }
 
@@ -113,7 +115,7 @@
     \ifx\testtok\bgroup%
         \let\next\sseq@ifintexpr@false
     \else
-        \ifx\testtok\sseq@nil
+        \ifx\testtok\sseq@fexpsafenil
             \@xp\let\@xp\next\csname sseq@ifintexpr@@\sseq@ifintexpr@state @done\endcsname
         \else
             % We need to check here for a space because \string<space> produces NO OUTPUT regardless of the catcode of the space.
@@ -155,8 +157,8 @@
 % so then "\csname hello\testtok\endcsname" is an error. This indexes into our state machine,
 % cases: a digits, + or -, * or /, (, ), or something else (anything else always leads to false
 \def\sseq@ifintexpr@@@@#1{%
-    \ifx#1\sseq@nil
-        \def\next{\csname sseq@ifintexpr@@\sseq@ifintexpr@state @done\endcsname\sseq@nil}%
+    \ifx#1\sseq@fexpsafenil
+        \def\next{\csname sseq@ifintexpr@@\sseq@ifintexpr@state @done\endcsname\sseq@fexpsafenil}%
     \else
         \sseq@ifdigit{#1}%
             {\sseq@ifintexpr@next{digit}}%
@@ -187,8 +189,8 @@
     \next
 }
 
-\def\sseq@ifintexpr@true#1\sseq@nil{\ifnum\sseq@tempcount=\z@ \let\next\@firstoftwo\else\let\next\@secondoftwo\fi}
-\def\sseq@ifintexpr@false#1\sseq@nil{\let\next\@secondoftwo}
+\def\sseq@ifintexpr@true#1\sseq@fexpsafenil{\ifnum\sseq@tempcount=\z@ \let\next\@firstoftwo\else\let\next\@secondoftwo\fi}
+\def\sseq@ifintexpr@false#1\sseq@fexpsafenil{\let\next\@secondoftwo}
 
 \def\sseq@makeifint#1#2#3{\@xp\def\csname sseq@ifintexpr@@#1@#2\endcsname{#3}}
 \def\sseq@ifintexpr@next#1{\@xp\let\@xp\next\csname sseq@ifintexpr@@\sseq@ifintexpr@state @#1\endcsname}

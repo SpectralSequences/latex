@@ -581,6 +581,8 @@
 }
 \def\sseq@setoffset#1{\sseq@obj@gdef{\classname.offset}{\pgftransformshift{#1}}}
 
+\def\sseq@copy@nameprefix{}
+
 \def\sseq@class@copy#1#2{
     \begingroup
     \let\sseq@thename@saved\sseq@thename
@@ -591,9 +593,12 @@
     \sseq@lettoobj\sseq@classnodetextoptions{#2.nodetext.options}
     \sseq@lettoobj\sseq@classlabelnodes{#2.labelnodes}
     \sseq@lettoobj\sseq@class@showname{#2.showname}
+    \sseq@lettoobj\sseq@class@name{#2.name}
+    \edef\sseq@class@name{\unexpanded\@xp{\sseq@copy@nameprefix}\unexpanded\@xp{\sseq@class@name}}
     \sseq@obj{#2.needstikz}
     \sseq@lettoobj\sseq@tooltip{#2.tooltip}
     \sseq@class@getparts#2.
+    \sseq@quieterror{class-tag-already-defined}
     \edef\sseq@class@tag{copiedfrom\sseq@thisposnum}
     \let\sseq@thename\sseq@thename@saved
     \sseq@eval{\@nx\sseq@cparsecoord{\the\sseq@tempx,\the\sseq@tempy}}
