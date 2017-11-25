@@ -512,7 +512,7 @@
                 \let\sourcename\handledname
                 \@xpthree\sseq@parsecoord@maincoord@named\sseq@obj{class.namedclass.\detokenize\@xp{\sourcename}}\sseq@nil
             }{
-		\sseq@error{invalid-coordinate}\sseq@breakfifi
+                 \sseq@error{invalid-coordinate}\sseq@breakfifi
             }
         \fi
     \fi
@@ -600,13 +600,17 @@
 % #3 -- the error message
 \def\sseq@eatparens(#1){#1}
 \def\sseq@parsecoord#1#2#3{%
-    \def\sseq@index{}
-    \def\sseq@errortype{#3}
+    \def\sseq@index{}%
+    \def\sseq@errortype{#3}%
     \sseq@parsecoord@maincoord{#2}%
     \let\sseq@rawindex\sseq@restcoord
     \ifx\sseq@index\pgfutil@empty
         \@xp\sseq@parsecoord@index
     \fi
+    \sseq@parsecoord@setupvariables{#1}{#2}
+}
+
+\def\sseq@parsecoord@setupvariables#1#2{
     % TODO: clean this up a bit? it's pretty ad-hoc.
     % Whenever you update this, make sure to update sseq@paredcoords@swap below too.
     \@xp\let\csname x\sseq@macroname#1\endcsname\sseq@xcoord
@@ -620,6 +624,7 @@
     \@xp\edef\csname\sseq@macroname#1@internalname\endcsname{sseq{\sseq@xycoord,\sseq@index}}%
 }
 
+
 % This quiets parsecoord for the rest of the current scope.
 % The reason we did it this way is because parsecoord makes too many local definitions...
 \def\sseq@quiet@parsecoord{
@@ -629,24 +634,40 @@
     \msg_redirect_name:nnn {spectralsequences}{undefined-tag}{none}
 }
 
+
+% These are used for \replacesource and \replacetarget, though they might be useful for other things too.
+\def\sseq@parsedcoord@save#1#2{
+    \cs_gset_eq:cc { sseq@parsedcoord@save@x#1 } { x\sseq@macroname#2 }
+    \cs_gset_eq:cc { sseq@parsedcoord@save@y#1 } { y\sseq@macroname#2 }
+    \cs_gset_eq:cc { sseq@parsedcoord@save@n#1 } { n\sseq@macroname#2 }
+    \cs_gset_eq:cc { \sseq@macroname#1@partial } { \sseq@macroname#2@partial }
+    \cs_gset_eq:cN { sseq@parsedcoord@save@#1 } #2
+    \cs_gset_eq:cc { sseq@parsedcoord@save@#1nopar } { \sseq@macroname#2nopar }
+    \cs_gset_eq:cc { sseq@parsedcoord@save@#1name } { \sseq@macroname#2name }
+    \cs_gset_eq:cc { sseq@parsedcoord@save@#1nameunbraced } { \sseq@macroname#2nameunbraced }
+    \cs_gset_eq:cc { sseq@parsedcoord@save@#1@internalname } { \sseq@macroname#2@internalname }
+}
+
+\def\sseq@parsedcoord@restore#1#2{
+    \cs_set_eq:cc { x\sseq@macroname#1 } { sseq@parsedcoord@save@x#2 }
+    \cs_set_eq:cc { y\sseq@macroname#1 } { sseq@parsedcoord@save@y#2 }
+    \cs_set_eq:cc { n\sseq@macroname#1 } { sseq@parsedcoord@save@n#2 }
+    \cs_set_eq:cc { \sseq@macroname#1@partial } { #2@partial }
+    \cs_set_eq:Nc #1 { sseq@parsedcoord@save@#2 }
+    \cs_set_eq:cc { \sseq@macroname#1nopar } { sseq@parsedcoord@save@#2nopar }
+    \cs_set_eq:cc { \sseq@macroname#1name } { sseq@parsedcoord@save@#2name }
+    \cs_set_eq:cc { \sseq@macroname#1nameunbraced } { sseq@parsedcoord@save@#2nameunbraced }
+    \cs_set_eq:cc { \sseq@macroname#1@internalname } { sseq@parsedcoord@save@#2@internalname }
+}
+
 % #1 & #2 -- the two base commands that were handed to \sseq@parsecoord to swap.
 % This is only used in \structline to normalize the name of structure lines, so that sseqpages knows what you are talking about
 % if you say \structline(coorda)(coordb) and then later \structline(coordb)(coorda)
-\cs_new:Npn \sseq_swapmacros:NN #1#2 {
-    \let\sseq@temp#1 \let#1#2 \let#2\sseq@temp
-}
-\cs_generate_variant:Nn \sseq_swapmacros:NN { cc }
-
 \def\sseq@parsedcoords@swap#1#2{
-    \sseq_swapmacros:cc { x\sseq@macroname#1 } { x\sseq@macroname#2 }
-    \sseq_swapmacros:cc { y\sseq@macroname#1 } { y\sseq@macroname#2 }
-    \sseq_swapmacros:cc { n\sseq@macroname#1 } { n\sseq@macroname#2 }
-    \sseq_swapmacros:cc { \sseq@macroname#1@partial } { \sseq@macroname#2@partial }
-    \sseq_swapmacros:NN #1 #2
-    \sseq_swapmacros:cc { \sseq@macroname#1nopar } { \sseq@macroname#2nopar }
-    \sseq_swapmacros:cc { \sseq@macroname#1name } { \sseq@macroname#2name }
-    \sseq_swapmacros:cc { \sseq@macroname#1nameunbraced } { \sseq@macroname#2nameunbraced }
-    \sseq_swapmacros:cc { \sseq@macroname#1@internalname } { \sseq@macroname#2@internalname }
+    \sseq@parsedcoord@save{swaptempa}{#1}
+    \sseq@parsedcoord@save{swaptempb}{#2}
+    \sseq@parsedcoord@restore{#1}{swaptempb}
+    \sseq@parsedcoord@restore{#2}{swaptempa}
 }
 
 % EXPOSE: a wrapper around \sseq@parsecoord. Use full name of coordinate to avoid name class with sseq@parsecoord.
@@ -693,16 +714,8 @@
             \sseq@error{d-named-coord-two-indexes}
         \fi
     \fi
-    \let\sourcecoord\sseq@xycoord
-%
-    \let\xsource\sseq@xcoord
-    \let\ysource\sseq@ycoord
-    \let\nsource\sseq@index
-%
-    \edef\source{(\sseq@xycoord,\sseq@index)}%
-    \ifx\sourcename\undefined
-        \edef\sourcename{(\sseq@xycoord\ifx\sseq@rawindex\pgfutil@empty\else,\sseq@rawindex\fi)}
-    \fi
+    \sseq@parsecoord@setupvariables{\source}{(\sseq@xycoord\ifx\sseq@rawindex\pgfutil@empty\else,\sseq@rawindex\fi)}
+    \let\sourcecoord\source@partial
     \IfNoValueTF{#3}{
         \ifsseq@hasdegree\else\sseq@error{d-no-degree}\@xp\sseq@break\fi
         \sseq@eval{\edef\@nx\sseq@xycoord{\@nx\sseq@differential@gettarget{#1}{\sseq@xycoord}}}
@@ -710,11 +723,7 @@
         \def\sseq@errortype{target ~ of ~ differential}
         \sseq@parsecoord@index
         \let\targetcoord\sseq@xycoord
-        \edef\target{(\sseq@xycoord,\sseq@index)}%
-        \let\xtarget\sseq@xcoord
-        \let\ytarget\sseq@ycoord
-        \let\ntarget\sseq@index
-        \edef\targetname{(\sseq@xycoord\ifx\sseq@rawindex\pgfutil@empty\else,\sseq@rawindex\fi)}
+        \sseq@parsecoord@setupvariables{\target}{(\sseq@xycoord\ifx\sseq@rawindex\pgfutil@empty\else,\sseq@rawindex\fi)}
     }{
         \ifx\sseq@rawtindex\pgfutil@empty\else
             \sseq@error{d-target-index-target-coord}
@@ -730,6 +739,8 @@
             \fi
         \fi
     }
+    \sseq@parsedcoord@save{lastsource}{\source}
+    \sseq@parsedcoord@save{lasttarget}{\target}
 }
 
 \def\sseq@differential@gettarget#1#2{\sseq@differential@gettarget@{#1}#2\sseq@nil}
@@ -1711,4 +1722,4 @@
 
 
 
-\ExplSyntaxOff 
+\ExplSyntaxOff

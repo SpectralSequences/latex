@@ -1819,7 +1819,11 @@
 }
 \def\sseq@globalscaleoption#1{%
     \sseq@globaldetonefalse
-    \@xp\gdef\@xp\sseq@globalscaletransform\@xp{\sseq@globalscaletransform#1}%
+    \@ifundefined{sseq@globalscaletransform}{
+        \@xp\gdef\@xp\sseq@globalscaletransform@default\@xp{\sseq@globalscaletransform@default#1}%
+    }{
+        \@xp\gdef\@xp\sseq@globalscaletransform\@xp{\sseq@globalscaletransform#1}%
+    }
 }
 \pgfqkeys{/sseqpages/global}{%
     x/.sseq @ illegal,
@@ -1859,8 +1863,13 @@
             \sseq@break
         \fi
         \sseq@globalscaleoption{\pgfsetxvec{\pgfpointxy{#1}{0}}}
-        \pgfmathparse{\sseq@xscale*#1}
-        \edef\sseq@xscale{\pgfmathresult}
+        \@ifundefined{sseq@xscale}{
+            \pgfmathparse{\sseq@xscale@default*#1}
+            \edef\sseq@xscale@default{\pgfmathresult}
+        }{
+            \pgfmathparse{\sseq@xscale*#1}
+            \edef\sseq@xscale{\pgfmathresult}        
+        }
         \sseq@breakpoint
     },
     xscale/.value required,
@@ -1878,8 +1887,13 @@
             \sseq@break
         \fi
         \sseq@globalscaleoption{\pgfsetyvec{\pgfpointxy{0}{#1}}}
-        \pgfmathparse{\sseq@yscale*#1}
-        \edef\sseq@yscale{\pgfmathresult}
+        \@ifundefined{sseq@yscale}{
+            \pgfmathparse{\sseq@yscale@default*#1}
+            \edef\sseq@yscale@default{\pgfmathresult}
+        }{
+            \pgfmathparse{\sseq@yscale*#1}
+            \edef\sseq@yscale{\pgfmathresult}
+        }
         \sseq@breakpoint
     },
     yscale/.value required,

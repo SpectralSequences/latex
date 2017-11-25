@@ -789,10 +789,38 @@
         \sseq@smuggle@macro\sseq@gen
     \egroup
 }
+
 \sseq@DeclareDocumentCommand\replaceclass{od()}{%
     \begingroup
     \sseq@loadinputline
     \sseq@xsetthiscall{\string\replaceclass\IfNoValueF{#1}{[\unexpanded{#1}]}\unexpanded{(#2)}}
+%
+    \IfNoValueTF{#2}{
+        \def\sseq@coord{\lastclass0}
+    }{
+        \def\sseq@coord{#2}
+    }
+    \sseq@parsecoord\coord{\sseq@coord}{coordinate passed to \string\replaceclass}%
+    \sseq@replaceclassmain{#1}
+}
+
+\sseq@DeclareDocumentCommand\replacesource{o}{
+    \begingroup
+    \sseq@loadinputline
+    \sseq@xsetthiscall{\string\replacesource\IfNoValueF{#1}{[\unexpanded{#1}]}}
+    \sseq@parsedcoord@restore{\coord}{lastsource}
+    \sseq@replaceclassmain{#1}
+}
+
+\sseq@DeclareDocumentCommand\replacetarget{o}{
+    \begingroup
+    \sseq@loadinputline
+    \sseq@xsetthiscall{\string\replacetarget\IfNoValueF{#1}{[\unexpanded{#1}]}}
+    \sseq@parsedcoord@restore{\coord}{lasttarget}
+    \sseq@replaceclassmain{#1}
+}
+
+\def\sseq@replaceclassmain#1{
     \sseq@options@firstpassmode
     \the\sseq@sseqstyle
     \the\sseq@classstyle
@@ -801,13 +829,6 @@
     \IfNoValueF{#1}{%
         \sseq@processoptions{class}{#1}% Outputs result into \sseq@savedoptioncode
     }%
-%
-    \IfNoValueTF{#2}{
-        \def\sseq@coord{\lastclass0}
-    }{
-        \def\sseq@coord{#2}
-    }
-    \sseq@parsecoord\coord{\sseq@coord}{\string\classoptions}%
     \sseq@processlabels
     \sseq@obj@ifundef{class.\coord.num}{\sseq@error@x{replaceclass-no-class}{\coordname}\sseq@break}{}
     \sseq@ifdead\coord{}{\sseq@error@x{replaceclass-not-dead-yet}{\coordname}\sseq@break}
@@ -837,7 +858,7 @@
         \sseq@obj@ifdef{\oldclassname.name}{
             \sseq@lettoobj\sseq@class@name{\oldclassname.name}
             \sseq@cleanup@obj{\classname.name}
-            \sseq@cleanup@obj{class.namedclass.\detokenize\@xp{\sseq@class@name}}        
+            \sseq@cleanup@obj{class.namedclass.\detokenize\@xp{\sseq@class@name}}
             \sseq@obj@xdef{\classname.name}{\sseq@class@name}
             \sseq@obj@xdef{class.namedclass.\detokenize\@xp{\sseq@class@name}}{\coordnopar}
         }{}
@@ -934,6 +955,8 @@
 \sseq@DeclareDocumentCommandAs\sseq@kill@\kill {d()} {
     \sseq@xsetthiscall{\string\kill\unexpanded\@xp{\sseq@dpage}\IfNoValueF{#1}{(#1)}}%
     \sseq@parsecoord\coordinate{\IfNoValueTF{#1}{\lastclass}{#1}}{}%
+    \sseq@parsedcoord@save{lastsource}{\coordinate}
+    \sseq@parsedcoord@save{lasttarget}{\coordinate}
     \sseq@ifintexpr{\sseq@dpage}{%
         \sseq@tempcount=\numexpr\sseq@dpage\relax % this is a convenient way to get rid of spaces because #3 has to be a number
     }{%

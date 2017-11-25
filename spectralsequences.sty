@@ -14,6 +14,7 @@
 %  Make an argument type for the \d page argument.
 %
 %  Document copier
+%  Document \replacesource and \replacetarget
 %  Fix show names to work with internal labels
 %  document show name
 %  document class name prefix / postfix
@@ -63,7 +64,8 @@
     % Defined in sseqmessages:
     \quiet\endquiet
     % These are defined in sseqmain:
-    \class\classoptions\replaceclass\d\doptions\kill\structline\structlineoptions\circleclasses
+    \class\classoptions\replaceclass\replacesource\replacetarget
+    \d\doptions\kill\structline\structlineoptions\circleclasses
     % The following are defined in sseqparsers:
     \pgfmathparse\isalive\lastx\lasty\lastclass\savestack\restorestack\pushstack\nameclass\tagclass
     \parsecoordinate\parsedifferential\getdtarget\gettag
