@@ -63,8 +63,8 @@
     \sseq@installmacros
     \sseq@installmsghooks
     \sseq@install@xparse@Uarggrabber
-    \def\xmin{\protect\sseq@xmin}\def\xmax{\protect\sseq@xmax}
-    \def\ymin{\protect\sseq@ymin}\def\ymax{\protect\sseq@ymax}
+    \protected\def\xmin{\sseq@xmin}\protected\def\xmax{\sseq@xmax}
+    \protected\def\ymin{\sseq@ymin}\protected\def\ymax{\sseq@ymax}
 %
     \sseq@modtikzcommands % Defer evaluation of tikz primitives
     \sseq@patchfor % patch \foreach to work with deferred macros
@@ -137,8 +137,8 @@
     \sseq@installmacros
     \sseq@installmsghooks
     \sseq@install@xparse@Uarggrabber
-    \def\xmin{\protect\sseq@xmin}\def\xmax{\protect\sseq@xmax}
-    \def\ymin{\protect\sseq@ymin}\def\ymax{\protect\sseq@ymax}
+    \protected\def\xmin{\sseq@xmin}\protected\def\xmax{\sseq@xmax}
+    \protected\def\ymin{\sseq@ymin}\protected\def\ymax{\sseq@ymax}
     \sseq@modtikzcommands % Redefine tikz primitives to store themselves in the appropriate place
     \sseq@patchfor % Change foreach to record it's variable values in the appropriate places
     \pgfkeys{/handlers/first char syntax/the character "/.initial=\sseq@handlequote}% install quotes parsing

@@ -1482,10 +1482,6 @@
 \@xp\sseq@addtostorelist\@xp\sseq@ymin\@xp{\sseq@infinity}
 \@xp\sseq@addtostorelist\@xp\sseq@xmax\@xp{\@xp-\sseq@infinity}
 \@xp\sseq@addtostorelist\@xp\sseq@ymax\@xp{\@xp-\sseq@infinity}
-\sseq@addtostorelist\xmin{\protect\sseq@xmin}
-\sseq@addtostorelist\ymin{\protect\sseq@ymin}
-\sseq@addtostorelist\xmax{\protect\sseq@xmax}
-\sseq@addtostorelist\ymax{\protect\sseq@ymax}
 % These are used to decide whether to add a certain node to savedpaths.
 % In general the check is whether xmin<=xcoord<=xmax, but since Latex has no <=, set xminmm=xmin-1, xmaxpp=xmax+1.
 % If the user doesn't specify a range, all nodes should be rendered
@@ -1504,8 +1500,6 @@
     \sseq@sanitize@intexpr{#2}{x range={#1}{#2}}
     \xdef\sseq@xmin{\the\numexpr#1}%
     \xdef\sseq@xmax{\the\numexpr#2}%
-    \let\xmin\sseq@xmin
-    \let\xmax\sseq@xmax
     % Need to know decremented \xmin and incremented \xmax to decide which nodes to print
     \sseq@tempcount=#1 \advance\sseq@tempcount-1\xdef\sseq@xminmm{\the\sseq@tempcount}%
     \sseq@tempcount=#2 \advance\sseq@tempcount1\xdef\sseq@xmaxpp{\the\sseq@tempcount}%
@@ -1519,8 +1513,6 @@
     \global\sseq@specifiedyrangetrue
     \gdef\sseq@ymin{#1}%
     \gdef\sseq@ymax{#2}%
-    \let\ymin\sseq@ymin
-    \let\ymax\sseq@ymax
     \sseq@tempcount=#1 \advance\sseq@tempcount-1\xdef\sseq@yminmm{\the\sseq@tempcount}%
     \sseq@tempcount=#2 \advance\sseq@tempcount1\xdef\sseq@ymaxpp{\the\sseq@tempcount}%
 }
