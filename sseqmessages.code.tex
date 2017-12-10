@@ -260,7 +260,8 @@
 \ExplSyntaxOn
 \char_set_catcode_space:N\ % Needed to make pretocmd work -- there are always spaces after every command, and they need to be retokenized as spaces
 
-\def\sseqerrortowarning#1{\msg_redirect_name:nnn{spectralsequences}{#1}{warning}}
+\def\SseqErrorToWarning#1{\msg_redirect_name:nnn{spectralsequences}{#1}{warning}}
+\let\sseqerrortowarning\SseqErrorToWarning
 \def\sseq@quieterror#1{\msg_redirect_name:nnn{spectralsequences}{#1}{none}}
 
 \def\sseq@error     {\msg_error:nn    {spectralsequences}}
@@ -499,9 +500,13 @@
 \sseq@newerror{unknown-grid}{Undefined grid style '#1'.}
 \sseq@newerror{unknown-class-pattern}{Unknown class pattern '\sseq@classpattern'.}
 \sseq@newerror{class-placement-shift}{Shifts are illegal in the transformations applied in "class placement" key. If you want to shift your nodes, use \string\sseqnewclasspattern.} % #1 <- x shift, #2 <- shift amount
-\sseq@newerror{do-command-failed}{\string\sseq@pgfkeysdocommand{#1}{#2} failed.}
+\sseq@newerror@internal{do-command-failed}{\string\sseq@pgfkeysdocommand{#1}{#2} failed.}
 
 \sseq@newerror{standard-parse}{You cannot use \string#1 inside a scope that has either the background key or coordinate transformations other than integer shifts.}
+
+\sseq@newerror{no-tooltip}{You cannot use the 'tooltip' option without either using the 'tooltips' package option or giving your own definition for '\string\sseqtooltip'.
+    Tooltips aren't enabled by default because they use the 'pdfcomment' package which creates two extra auxiliary files.%
+}
 
 %%
 %%

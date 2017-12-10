@@ -565,7 +565,7 @@
     \sseq@tempy=#3\relax
 }
 
-\def\sseqtooltip#1#2{%
+\def\sseq@tooltip@wrapper#1#2{%
     \edef\temp{\detokenize\@xpthree{#2}}%
     \edef\temp{\@xp\sseqtooltip@replaceslashes\@xp{\temp}}%
     \sseq@eval{\@nx\pdftooltip{\unexpanded{#1}}{\temp}}%
@@ -638,35 +638,35 @@
         }%
         \iftikz@fullytransformed\pgfsettransform{\savetransform}\else\pgftransformresetnontranslations\ifsseq@rotatelabels\sseq@globalrotatetransform\fi\fi
         \tikz@options
+        % the value of \sseq@class@showname comes from styles. If there was a local option with showname, it's stored in #1.showname.
+        % local value takes priority.
+        \let\sseq@classlabelnodes\pgfutil@empty
+        \edef\sseq@classnodetextoptions{\sseq@obj@ifdef{#1.nodetext.options}{\@xptwo\@nx\sseq@obj{#1.nodetext.options}}{}}
+        \edef\sseq@classnodetext{\sseq@obj@ifdef{#1.nodetext}{\@xptwo\@nx\sseq@obj{#1.nodetext}}{}}
+        \sseq@obj@ifdef{#1.showname}{\sseq@lettoobj\sseq@class@showname{#1.showname}}{}
+        \ifcsname sseq@class@showname\endcsname
+            \sseq@obj@ifdef{#1.name}{
+	            \sseq@eval{\@nx\sseq@handleclassquotes@inner{\sseq@obj{#1.name}}{\sseq@class@showname}}
+	       }{}
+        \fi
         \ifsseq@needstikz
             \let\sseq@mode\tikz@mode
-            \tikzset{every text node part/.code/.expand once={\sseq@globalrotatetransform\sseq@obj@ifdef{#1.nodetext.options}{\sseq@obj{#1.nodetext.options}}{}}}%
+            \tikzset{every text node part/.code/.expand once={\sseq@globalrotatetransform\sseq@classnodetextoptions{}}}%
             \sseq@eval{%
                 \@nx\node[/utils/exec={\let\@nx\tikz@mode\@nx\sseq@mode},
                     /handlers/first char syntax/the character "/.initial=\@nx\sseq@handlequote
-                ] (\sseq@thisnodename) {\sseq@obj@ifdef{#1.nodetext}{\unexpanded\@xpthree{\sseq@obj{#1.nodetext}}}{}}
+                ] (\sseq@thisnodename) {\unexpanded\@xp{\sseq@classnodetext}}
                 [every text node part/.code={}];
             }%
         \else
             \tikz@node@textfont
-            \edef\sseq@classnodetextoptions{\sseq@obj@ifdef{#1.nodetext.options}{\@xptwo\@nx\sseq@obj{#1.nodetext.options}}{}}
-            \edef\sseq@classnodetext{\sseq@obj@ifdef{#1.nodetext}{\@xptwo\@nx\sseq@obj{#1.nodetext}}{}}
             \sseq@setnodetext{\sseq@classnodetext}{\sseq@classnodetextoptions}
             \let\tikz@fig@name\sseq@thisnodename
             \pgfmultipartnode{\tikz@shape}{\tikz@anchor}{\tikz@fig@name}{\sseq@drawnode}%
             \tikz@alias
         \fi
-        \let\sseq@classlabelnodes\pgfutil@empty
-        % the value of \sseq@class@showname comes from styles. If there was a local option with showname, it's stored in #1.showname.
-        % local value takes priority.
-        \sseq@obj@ifdef{#1.showname}{\sseq@lettoobj\sseq@class@showname{#1.showname}}{}
-        \ifcsname sseq@class@showname\endcsname
-            \sseq@obj@ifdef{#1.name}{
-	            \sseq@eval{\@nx\sseq@handleclassquotes@inner{\sseq@obj{#1.name}}{\sseq@class@showname}}
-	    }{}
-        \fi
         \sseq@obj{#1.labelnodes}
-        \sseq@classlabelnodes
+        \sseq@classlabelnodes % classlabelnodes comes from show name
         \sseq@obj@ifdef{#1.tooltip}{
             \pgfpointanchor{\sseq@thisnodename}{west}
             \pgf@xa=\pgf@x

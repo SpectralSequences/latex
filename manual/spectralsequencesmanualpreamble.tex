@@ -14,7 +14,7 @@
 
 \documentclass{ltxdoc}
 \usepackage[a4paper,left=2.25cm,right=2.25cm,top=2.5cm,bottom=2.5cm,nohead]{geometry}
-\usepackage{spectralsequences}
+\usepackage[tooltips]{spectralsequences}
 \usetikzlibrary{shapes.geometric}
 \usepackage{amssymb}
 \usepackage{afterpage}
@@ -190,6 +190,9 @@
   \foreach \xx in {#2} {%
     \expandafter\extractkey\xx\space= \marg{keys}\@nil%
     \declareasstyle{\@xp\removespace\mykey\nil}% tells latex not to italicize body
+    % The link created in \extractkey is named "key name " with a space at the end.
+    % So it won't work. We need to make our own link without the space in it.
+    \sseq@eval{\@nx\pgfmanualpdflabel{\@xp\removespace\mykey\nil}{}}%
   }%
   \pgfmanualbody
 }{%

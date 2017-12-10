@@ -13,19 +13,23 @@ Email me at hood@mit.edu to submit bug reports, request new features, etc. The c
 
 Changelog:
 ==========
-## [Unreleased]
+## [1.2.0]
 ### Added:
+- \replacesource and \replacetarget
 - \copypage
 - "name handler" option
-- \SseqAHSSNameHandler and \SseqMonomial 
-- "show names"
+- \SseqAHSSNameHandler
+- \SseqNormalizeMonomialSetVariables
+- "show name" option
 - predicates \IfExistsTF, \IfAliveTF, \IfValidDifferentialTF, and \DrawIfValidDifferentialTF
 - "quiet" environment
 
 ### Changed:
 - class label handlers now must output result into \result
-- \sseqnormalizemonomial became \SseqNormalizeMonomial, and now outputs into \result
-- \sseqifempty became \SseqIfEmptyTF 
+- renamed \sseqnormalizemonomial to \SseqNormalizeMonomial, and now outputs into \result
+- renamed \sseqifempty to \SseqIfEmptyTF 
+- renamed \sseqerrortowarning to \SseqErrorToWarning
+- tooltips now disabled unless you use the package option "tooltips" to prevent extraneous auxiliary files.
 
 ### Fixed:
 - A bug that made "y axis gap" adjust both axes and "x axis gap" do nothing (reported by Achim Krause).

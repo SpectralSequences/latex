@@ -9,8 +9,8 @@
     \end{scope}
 }
 \NewSseqCommand \KOpcell {m}{
-    \d1(b^{\b}[#1]) \d1(b^{\b} u[#1])
-    \replaceclass(b^{\b}[#1+1]) \replaceclass(b^{\b} u[#1+1])
+    \d1(b^{\b}[#1])   \replacetarget
+    \d1(b^{\b} u[#1]) \replacetarget
     \structline(b^{\b}[#1+1])(b^{\b} e[#1+1])
     \structline[page=2,dashed](b^{\b} e[#1])(b^{\b} e^2[#1+1])
     \structline[page=2,dashed](b^{\b} e^2[#1])(b^{\b} u[#1+1])
@@ -21,7 +21,7 @@
     \DrawIfValidDifferential3(b^{\b} e^2[#1])
 }
 \begin{sseqdata}[name=KO^*RP^8, Adams grading, class name handler=\SseqAHSSNameHandler,
-    classes=fill, x range={-8}{10},scale=0.5, x tick step = 4 ]
+    classes=fill, x range={-8}{10},xscale=0.7, yscale=0.5, x tick step = 4 ]
 \foreach \b in {-2,...,2}{
     \foreach \n in {0,...,6}{\KOstar{\n}}
     \foreach \n in {1,3,...,5}{\KOpcell{\n}}

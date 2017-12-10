@@ -13,11 +13,6 @@
 %
 % TODO:
 %
-%  copier
-%  show name
-%
-%  add another AHSS name handler example? Maybe RP8 example is too long.
-% 
 %  maybe move more examples into external files?
 %
 %  consistency issues?
@@ -57,8 +52,8 @@ Many thanks to the authors of \tikzpkg\  for producing such a wonderful package 
 The \sseqpages\  package consists of two main environments -- the \sseqdataenv\  environment, which specifies the data for a named spectral sequence, and the \sseqpageenv\  environment, which prints a single page of a spectral sequence. The |\printpage| command is also available as a synonym for a \sseqpageenv\  environment with an empty body.
 
 Here is a basic example:
-\begin{codeexample}[width = 9cm]
-\begin{sseqdata}[ name = basic-example, scale = 0.6,
+\begin{codeexample}[width = 8.7cm]
+\begin{sseqdata}[ name = basic, xscale = 0.6,
                   cohomological Serre grading ]
 \class(0,0)
 \class(0,2)
@@ -66,10 +61,10 @@ Here is a basic example:
 \class(3,2)
 \d3(0,2)
 \end{sseqdata}
-\printpage[ name = basic-example, page = 3 ]  \quad
-\printpage[ name = basic-example, page = 4 ]
+\printpage[ name = basic, page = 3 ]  \quad
+\printpage[ name = basic, page = 4 ]
 \end{codeexample}
-|\begin{sseqdata}[|| name = basic-example, cohomological Serre grading]| starts the declaration of the data of a spectral sequence named |ex1| whose page $\mathtt{r}$ differentials go $\mathtt{r}$ to the right and down $\mathtt{r-1}$ -- that is, it has cohomological Serre grading. Then we specify four classes and one page 3 differential, and we ask \sseqpages\  to print the third and fourth pages of the spectral sequence. Note that on the fourth page, the source and target of the differential have disappeared.
+\codeverb|\begin{sseqdata}[name = basic, cohomological Serre grading]| starts the declaration of the data of a spectral sequence named |basic| with cohomological Serre grading -- that is, the page $\mathtt{r}$ differentials go $\mathtt{r}$ to the right and down $\mathtt{r-1}$. Then we specify four classes and one page 3 differential, and we ask \sseqpages\  to print the third and fourth pages of the spectral sequence. Note that on the fourth page, the source and target of the differential have disappeared.
 
 \subsection{Installation}
 In both \miktex\ and \texlive\ installation should be automatic -- your \TeX\ distribution should automatically install the package the first time you include |\usepackage{spectralsequences}| in a document and compile it. However, in 2016, \texlive\ made an incompatible change to their database, so no new packages will run on versions of \texlive\ from before 2016. This includes \sseqpages. If you have an old version of \texlive, you can either perform a manual install,
@@ -138,17 +133,17 @@ If a class is the source or the target of a differential on a certain page, then
 See the \pgfmanualpdfref{class options}{class options} section for a list of the sort of options available for classes.
 \end{command}
 
-\begin{commandlist}{{\replaceclass\ooptions\parargthreeopt{x}{y}{n}},\replaceclass\ooptions\pararg{classname}}
-After a class is the source or target of a differential, it disappears on the next page. However, some differentials are not injective or not surjective. Using the command |\replaceclass| causes a new symbol to appear on the page after a class supported or accepted a differential (or both). If there are multiple classes at the coordinate |(x,y)| you may specify which using an integer or a |tag| $n$. By default, this command will affect the first class placed in that position. You can also provide the |class:name| of a class.
+\begin{commandlist}{{\replaceclass\ooptions\parargthreeopt{x}{y}{n}},\replaceclass\ooptions\pararg{classname}, \replacesource\ooptions, \replacetarget\ooptions}
+After a class is the source or target of a differential, it disappears on the next page. However, some differentials are not injective or not surjective. Using the command |\replaceclass| causes a new symbol to appear on the page after a class supported or accepted a differential (or both). If there are multiple classes at the coordinate |(x,y)| you may specify which using an integer or a |tag| $n$. By default, this command will affect the first class placed in that position. You can also provide the |class:name| of a class. The variants |\replacesource| and |\replacetarget| replace the source and target respectively of the most recent differential.
 \begin{codeexample}[]
 \begin{sseqdata}[name = replace class example, Adams grading, classes = {draw = none } ]
 \class["\mathbb{Z}"](0,3)
 \class["\mathbb{Z}"](1,1)
 \class["\mathbb{Z}"](1,0)
 \d["\cdot 2"]2(1,1)
-\replaceclass["\mathbb{Z}/2"](0,3)
-\d[->>]3(1,0)
-\replaceclass["2\mathbb{Z}"](1,0)
+\replacetarget["\mathbb{Z}/2"] %\replaceclass["\mathbb{Z}/2"](0,3)
+\d[-> >]3(1,0)
+\replacesource["2\mathbb{Z}"]    % \replaceclass["2\mathbb{Z}"](1,0)
 \end{sseqdata}
 \printpage[ name = replace class example, page = 2 ] \qquad
 \printpage[ name = replace class example, page = 3 ] \qquad
@@ -498,16 +493,38 @@ These options control the size of a node. This is typically useful to make the s
 \end{keylist}
 
 \begin{key}{class:name = \meta{node name}}
-The |\class| command makes a \tikzpkg\ node on appropriate pages. You can refer to this node using \tikzpkg\ commands by using coordinates. Using the |class:name| option, you can give the node a second shorter name. One potential benefit to this is that it is immune to coordinate transformations. For example, in the following code, |xshift| does not apply to the nodes specified by |(id)| and |(eta)| but does apply to the coordinate specified by |(1,1)|:
+The |\class| command makes a \tikzpkg\ node on appropriate pages. You can refer to this node using \tikzpkg\ commands by using its coordinates. Using the |class:name| option, you can give the node a name, which you can use to refer to the class. Using names creates more readable code. The |show name| option can be used to display the names of classes. You can modify the names of classes systematically using the options |class name prefix|, |class name postfix|, and |class name handler|.
 
+Named classes are immune to coordinate transformations. For example, in the following code, |xshift| does not apply to the nodes specified by |(id)| and |(eta)| but does apply to the coordinate specified by |(1,1)|:
 \begin{codeexample}[width = 6cm]
-\begin{sseqpage}
-\class[class:name = id](0,0)
-\class[class:name = eta](1,1)
+\begin{sseqpage}[classes = { show name=above }]
+\class[class:name = 1](0,0)
+\class[class:name = \eta](1,1)
 \class(2,1)
-\draw[xshift = 1] (id) -- (eta);
-\draw[xshift = 1,blue] (id) -- (1,1);
+\structline[xshift = 1] (1) (\eta)
+\structline[xshift = 1,blue] (1) (1,1)
 \end{sseqpage}
+\end{codeexample}
+\end{key}
+
+\begin{key}{show name = \meta{label options}}
+This option is like saying |"class name"\marg{label options}| if the class has a name, and does nothing if the class has no name. If the class has multiple names, only the most recent is used. This is particularly useful with class styles, . For instance, by saying |this page classes = { show name = above }| you can display names of all of the sources and targets of differentials on each page.
+\begin{codeexample}[width=7cm]
+\begin{sseqdata}[ 
+    name = show name example,
+    this page classes = { show name = {above right, pin} }
+]
+\class[name=a](0,2)
+\class[name=b](0,3)
+\class[name=x](1,0)
+\d2(x)(a)
+\replacesource[name=2x]
+\d3(x)(b)
+\end{sseqdata}
+
+\printpage[name=show name example,page=2]
+
+\printpage[name=show name example,page=3]
 \end{codeexample}
 \end{key}
 
@@ -558,8 +575,8 @@ By default, a class uses the offset specified by |class pattern|. Occasionally t
 \draw(0,1)--(0,2);
 \class(1,0)
 \d2(1,0,,1)
+\replacetarget
 \d2(1,0,,2)
-\replaceclass(0,2)
 \end{sseqdata}
 \printpage[name = offset example, page=2]
 \printpage[name = offset example, page=3]
@@ -572,7 +589,7 @@ By default, a class uses the offset specified by |class pattern|. Occasionally t
 \begin{key}{tooltip = \meta{text}}
 This key generates a ``tooltip'' over the given class. That is, if you hover your mouse over it, a little window will popup with the tooltip text. This is particularly useful to give the coordinates or names of classes in large charts where it may be hard to tell from looking at the picture what position the class is in, or there may not be room to supply names to classes.
 
-The tooltip is made using the |\pdftooltip| command from the |pdfcomment| package. This cannot handle math, but it will print math expressions into \TeX input form. Not all pdf viewers will display the tooltip correctly. If this concerns you, the command |\sseqtooltip| is used to produce the tooltip, and you can redefine it as any other command that takes |\sseqtooltip|\marg{text}\marg{tooltip text} and produces a tooltip. For instance, on \href{https://tex.stackexchange.com/a/164186/23866}{this stack exchange post}, there is code that supposedly produces tooltips that work with Evince. I have not tested whether it works by itself or whether it works with my package, but you could. You could potentially figure out how to get math to work in tooltips too -- if you find a satisfactory method, please let me know.
+The tooltip is made using the |\pdftooltip| command from the |pdfcomment| package. The |pdfcomment| package generates two extra auxiliary files, so it is not included by default. In order to use the |tooltip| option, you have to use the |tooltips| package option (e.g., load \sseqpages\ with |\usepackage[tooltips]{spectralsequences}|). This cannot handle math, but it will print math expressions into \TeX\ input form. Not all pdf viewers will display the tooltip correctly. If this concerns you, the command |\sseqtooltip| is used to produce the tooltip, and you can redefine it as any other command that takes |\sseqtooltip|\marg{text}\marg{tooltip text} and produces a tooltip. For instance, on \href{https://tex.stackexchange.com/a/164186/23866}{this stack exchange post}, there is code that supposedly produces tooltips that work with Evince. I have not tested whether it works by itself or whether it works with my package, but you could. You could potentially figure out how to get math to work in tooltips too -- if you find a satisfactory method, please let me know.
 
 Anyways, here's an example:
 \begin{codeexample}[]
@@ -674,10 +691,8 @@ This key is only for |\structline| and |\structlineoptions|. By default, the |\s
 \class(0,4)
 \class(1,0)
 \class(1,1)
-\d2(1,0)(0,2)
-\d3(1,1)(0,4)
-\replaceclass(1,0)
-\replaceclass(1,1)
+\d2(1,0)(0,2) \replacesource
+\d3(1,1)(0,4) \replacesource
 \structline(1,0)(1,1)
 \end{sseqdata}
 \printpage[name = structpage example,page = 3]
@@ -693,10 +708,8 @@ By specifying a page number, you can adjust which page the |\structline| starts 
 \class(0,4)
 \class(1,0)
 \class(1,1)
-\d2(1,0)(0,2)
-\d3(1,1)(0,4)
-\replaceclass(1,0)
-\replaceclass(1,1)
+\d2(1,0)(0,2) \replacesource
+\d3(1,1)(0,4) \replacesource
 \structline[structline:page = 2](1,0)(1,1)
 \end{sseqdata}
 \printpage[name = structpage example2,page = 1]
@@ -818,18 +831,19 @@ One useful tip is that you can ensure consistent bounding boxes between differen
 \end{key}
 
 \begin{keylist}{page constraint = \meta{predicate}, page constraint or = \meta{predicate}}
+\declarecustomhandler{page constraint}{\codehandler}
 This places a constraint on the pages in which the \tikzpkg\  primitive is printed. This predicate should look something like
-\texttt{(\string\page< = 4)} |&&| \texttt{(\string\page> = 3)}. The predicate is anded together with any previous predicates, so that you can use this as an option for a \scopeenv\  and again for the individual \tikzpkg\ primitive.
+\texttt{(\string\page\ <= 4)} |&&| \texttt{(\string\page\ >= 3)}. The predicate is anded together with any previous predicates, so that you can use this as an option for a \scopeenv\  and again for the individual \tikzpkg\ primitive.
 
 \begin{commandlist}{\isalive\pararg{coordinate},\isalive\{\pararg{coordinate 1}$\cdots$\pararg{coordinate n}\}}
 This command can only be used with |page constraint|. Saying
-$$|page constraint = ||{|\pars{\meta{x},\meta{y}\opt{,\meta{index}}}|}}|$$
+\[|page constraint = {\pars{\meta{x},\meta{y}\opt{,}\oarg{index}}}}}|\]
 will print the \tikzpkg\  primitive only on pages where the specified class is alive. Saying
-$$|page constraint = ||{\isalive|\pars{\meta{coordinate 1}}\,\cdots\,\pars{\meta{coordinate n}}|}|$$
+\[|page constraint = {\isalive(\meta{coordinate 1})|\,\cdots\,|(\meta{coordinate n})}|\]
 is equivalent to
-$$|page constraint = ||{\isalive|\pararg{coordinate 1}| &&|\,\cdots\,|&& \isalive|\pararg{coordinate n}|}|$$
+\[|page constraint = {\isalive\pararg{coordinate 1} &&|\,\cdots\,|&& \isalive\pararg{coordinate n}}|\]
 Writing
-$$|\draw[||page constraint = ||{\isalive(1,0)(2,2)}](1,0)|\texttt{-{}-}|(2,2);|$$
+\[\codeverb|\draw[page constraint = {\isalive(1,0)(2,2)}](1,0)|\texttt{-{}-}|(2,2);|\]
 is the same as |\structline(1,0)(2,2)|, except that you can't later use |\structlineoptions| on it (and it won't have the |struct lines| style applied).
 \end{commandlist}
 \end{keylist}
@@ -885,9 +899,15 @@ These handlers create reusable styles to be used in spectral sequences. If this 
 \end{keylist}
 \end{command}
 
-\begin{command}{\sseqerrortowarning\meta{error-name}}
+\begin{command}{\SseqErrorToWarning\meta{error-name}}
 Turns the error with the given name into a warning. An error message will start by saying \let\eatclnifpresent\empty|spectralsequences error: "error-name"|. This is the name you need to put into this command.
 \end{command}
+
+\begin{environment}{{quiet}}
+This environment quiets error messages that occur inside of it. \sseqpages\ is pretty good at error recovery, and so most of commands will fail gracefully and do nothing if their preconditions aren't met. If there are any parsing errors in the body of the |{quiet}| environment, prepare to see low level internal error messages. You might also run into bugs in \sseqpages\ -- the error recovery code hasn't been that carefully tested. If you do get low level error messages, remember to comment out the |{quiet}| environment before trying to debug.
+
+This is particularly useful for code reuse commands. Sometimes there is a source of long differentials that only applies to classes that haven't already supported shorter differentials. Sometimes there should be a structure line if a certain class exists, but it might not exist. In these cases, the |{quiet}| environment will help you out. See also |\DrawIfValidDifferential|, which is a variant of |\d| that behaves as if it were inside a |{quiet}| environment.
+\end{environment}
 
 \subsection{Code reuse commands}
 \begin{command}{\foreach }
@@ -1078,6 +1098,10 @@ For instance:
 Here we define a command which takes an options list, a coordinate, and a single mandatory argument. The options are applied to all the classes and structlines, the coordinate shifts the origin, and the mandatory argument is the length of the tower.
 \end{commandlist}
 
+\begin{command}{\SseqCopyPage\cmdarg{command}\marg{spectral sequence name}\marg{page}}
+This copies all of the classes and structlines on page |\meta{page}| of the spectral sequence named |\meta{spectral sequence name}|, throwing out differentials and tikz primitives. The resulting |\cmdarg{command}| has syntax as if you had used |\DeclareSseqGroup| with no extra arguments -- that is, it takes an optional options list, which are passed to a scope, and an optional coordinate pair.
+\end{command}
+
 \subsection{Families}
 \spectralsequences\ has a concept of ``class families'' that can be drawn or suppressed as a group, and that can have styling options applied to them as a group.
 \begin{command}{\SseqNewFamily\marg{family name}}
@@ -1228,8 +1252,8 @@ The |\nameclass| command gives a name to a class. It's similar to saying |\dopti
 The |\tagclass| command gives a tag to a class. It's similar to saying |\doptions[tag = |\meta{name}|]|, but faster. See \example{tmfmayss} for a use case for this.
 \end{command}
 
-\begin{command}{\gettag\cmdarg{somecontrolsequence}\pararg{coordinate}}
-The |\gettag| command finds the most recent tag applied to the coordinate and stores it into the command. This is useful for connecting groups of nodes. For example, consider the following code, inspired by \example{tmfmayss}.
+\begin{command}{\gettag\cmdarg{macro}\pararg{coordinate}}
+The |\gettag| command finds the most recent tag applied to the coordinate and stores it into |\cmdarg{macro}|. This is useful for connecting groups of nodes. For example, consider the following code, inspired by \example{tmfmayss}.
 \begin{codeexample}[width=6cm]
 \DeclareSseqCommand \tower { O{} } {
     \begin{scope}[#1]
@@ -1439,7 +1463,7 @@ These options change the appearance of all transient cycles (e.g., those classes
 \end{stylekeylist}
 
 \begin{stylekeylist}{this page classes, this page cycles, change this page classes,change this page cycles}
-These options change the appearance of all cycles which support or are hit by a differential on this page. Any class that is hit on the current page is also a transient cycle, and so |this page classes| takes precedence over |transient cycles|
+These options change the appearance of all cycles which support or are hit by a differential on this page. Any class that is hit on the current page is also a transient cycle, and so |this page classes| takes precedence over |transient cycles|.
 \begin{codeexample}[width = 6cm]
 \begin{sseqdata}[ name = this page cycles example, Adams grading,
                   transient cycles = { red, fill }, this page cycles = { blue } ]
@@ -1580,12 +1604,32 @@ Here is another example which demonstrates a useful idiom for drawing Serre spec
 
 \begin{key}{class name handler = \meta{function}}
 \declarecustomhandler{class name handler}{\codehandler}
-The value of |class name handler| is a function that is applied to all labels before displaying them. It should put its output into |\result|.
-The main functions intended for use here are |\SseqAHSSNameHandler| and |\SseqNormalizeMonomial|, though you can make your own.
+The value of |class name handler| is a function that is applied to all names before using them. It should put its output into |\result|.
+The main functions intended for use here are |\SseqAHSSNameHandler| and |\SseqNormalizeMonomial|, though you can make your own. This is applied both when you name the class, as in \codeverb|\class[name=a](\meta{coordinate})| and when you refer to a class by name, as in |\structline(a)(b)|. One advantage if you are using |\SseqNormalizeMonomial| is that you can ensure that |xy| and |yx| refer to the same class:
+\begin{codeexample}[]
+\SseqNormalizeMonomialSetVariables{xy}
+\begin{sseqpage}[ class name handler = \SseqNormalizeMonomial, 
+                  classes = {show name = {right,pin}} ]
+\class[name=xy](0,0)
+\class[name=yxy](0,1)
+\class(1,0)
+\structline(yx)(yyx)
+\end{sseqpage}
+\end{codeexample}
 The next page is an example drawing the Atiyah Hirzebruch spectral sequence computing $KO^*\mathbb{R}P^{8}$.
 % Have to load from file so that \afterpage doesn't cause trouble with verbatim reading.
-\afterpage{\codeexample[from file=KORP8,vbox]\newpage}
+\afterpage{%
+    An AHSS using \scantokens{|class name handler = \SseqAHSSNameHandler|:}
+    \par
+    \codeexample[from file=KORP8,vbox]
+    \newpage
+}
 \end{key}
+
+\begin{keylist}{class name prefix = \meta{prefix}, class name postfix = \meta{postfix}}
+These keys add respectively a prefix or a postfix to all names of all classes in the scope. This is applied both when you name the class, as in \codeverb|\class[name=a](\meta{coordinate})| and when you refer to a class by name, as in |\structline(a)(b)|.
+The prefix and postfix are added to the command before the |class name handler| is applied, so if you say |name=\meta{the name}| then the name actually given to the class is the value of |\result| after saying |\classnamehander{\meta{name prefix}\meta{the name}\meta{name postfix}}|
+\end{keylist}
 
 \section{Global Options}
 These options can only be set at the beginning of a \sseqdataenv\  or \sseqpageenv\  environment. When it makes sense, you can also set a default value using |\sseqset|. Generally, these options either modify the plot style or the logic for the spectral sequence.
@@ -1622,7 +1666,7 @@ You can make a named grading convention by saying \codeverb|\sseqset{my grading/
 \end{sseqpage}
 \end{codeexample}
 \begin{codeexample}[width = 6cm]
-% equivalent to degree = {-1}{#1-1}:
+% equivalent to degree = {-1}{#1}:
 \begin{sseqpage}[ Adams grading ]
 \class(0,2)
 \class(1,0)
@@ -1751,7 +1795,7 @@ For instance the third row indicates that if there are three classes at the posi
 \end{key}
 
 
-\begin{key}{class placement transform = \marg{transform keys}, add class placement transform = \marg{transform keys} }
+\begin{keylist}{class placement transform = \marg{transform keys}, add class placement transform = \marg{transform keys} }
 \declareasstyle{class placement transform}\declareasstyle{add class placement transform}
 The option |class placement transform| allows the user to specify a \tikzpkg\  coordinate transform to adjust the relative position of multiple nodes in the same $\mathtt{(x,y)}$ position. The |class placement transform| key overrides the previous value of transformations, the |add class placement transform| just adds the new transformation to the end of the list. This coordinate transform can only involve rotation and scaling, no translation. Specifying a scaling factor helps if the nodes are too large and overlap. In some cases a rotation makes it easier to see which class is the target of a differential.
 \begin{codeexample}[width = 5cm]
@@ -1777,7 +1821,7 @@ The option |class placement transform| allows the user to specify a \tikzpkg\  c
 \draw[->,red](3,0,1)--(0,0);
 \end{sseqpage}
 \end{codeexample}
-With multiple large class names, the best option is to arrange the classes vertically:
+With multiple large class labels, the best option is to arrange the classes vertically:
 \begin{codeexample}[width = 5.5cm]
 \begin{sseqpage}[ classes = {draw = none }, xscale = 2, yscale=1.55,
     class pattern = linear,
@@ -1799,7 +1843,7 @@ With multiple large class names, the best option is to arrange the classes verti
 \class["\iota_2\beta P^1\iota_3"](8,2)
 \end{sseqpage}
 \end{codeexample}
-\end{key}
+\end{keylist}
 
 \begin{key}{math nodes = \meta{boolean} (default true)(initially true)}
 This key instructs \sseqpages\  to put all labels in math mode automatically.
@@ -1913,12 +1957,12 @@ Sets the label offset -- by default the ticks will always be the set of numbers 
 \end{keylist}
 
 \begin{keylist}{
-    x major tick step=\meta{nonnegative integer} (initially 0),
-    y major tick step=\meta{nonnegative integer} (initially 0),
-    major tick step=\meta{nonnegative integer},
-    x minor tick step=\meta{nonnegative integer} (initially 0),
-    y minor tick step=\meta{nonnegative integer} (initially 0),
-    minor tick step=\meta{nonnegative integer}%
+    x major tick step = \meta{nonnegative integer} (initially 0),
+    y major tick step = \meta{nonnegative integer} (initially 0),
+    major tick step = \meta{nonnegative integer},
+    x minor tick step = \meta{nonnegative integer} (initially 0),
+    y minor tick step = \meta{nonnegative integer} (initially 0),
+    minor tick step = \meta{nonnegative integer}%
 }
 If these are nonzero, they control the placement of tick marks on the axes. The value 0 prevents tick marks from being drawn. Uses |x tick offset| as an offset.
 \begin{codeexample}[width=7cm]
@@ -1970,7 +2014,6 @@ The value for |x tick handler| should be a function that takes in the current $\
 \end{codeexample}
 \end{keylist}
 
-\newpage
 \subsection{Layout}
 \begin{keylist}{x axis type = \meta{type} (initially border), y axis type = \meta{type} (initially border),axes type = \meta{type} (initially border), no x axis, no y axis, no axes}
 The \meta{type} is either |border|, |center|, |frame|, or |none|. |no axes| is a shorthand for |axes type=none|. The |border| type is the default and puts the axes on the bottom and left of the picture. The |center| type by default places the axes to pass through $(0,0)$; this can be modified using the |x axis origin| and |y axis origin| keys. See \example{KRAHSS} and \example{KUHFPSS} for examples where this is used. The |frame| type draws a frame around the entire chart:

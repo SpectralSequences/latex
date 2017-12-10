@@ -1,7 +1,7 @@
 \sseqset{
     distance label/.sseq style = {orange,{<[width = 4pt]}-},
     description/.sseq style = {black, align = center},
-    title style={yshift=25pt,font=\Large}
+    title style={yshift=35pt,font=\Large}
 }
 \catcode`\| = 12 % | is active to be verbatim, but we need to use it here for our arrowhead specification.
 %
@@ -9,7 +9,7 @@
     x range = {0}{5}, y range = {0}{5}, math nodes = false,
     x axis clip padding = 0.15cm, y axis clip padding = 0.15cm,
     right clip padding = 0.2cm, top clip padding = 0.2cm, axes gap = 25pt,
-    title = {Axis type border layout},    
+    title = {Axis type border layout}
 ]
 \begin{scope}[background]
 \sseq@savedpaths@add{\color{red}\pgfsetpath\sseq@theclippath\pgfusepath{draw}}
@@ -79,6 +79,7 @@ node[above,description]{y axis gap};
 \class(0,5)
 \end{sseqpage}
 
+\vskip20pt
 
 \begin{sseqpage}[ grid = chess, axes type=frame,
     title = {Axes type frame layout},
@@ -201,4 +202,4 @@ node[above,description]{y axis gap};
 \class(0,0)
 \class(5,0)
 \class(0,5)
-\end{sseqpage}
+\end{sseqpage} 

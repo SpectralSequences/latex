@@ -495,13 +495,13 @@
     }
 }
 
-
+% We just do the parsing in sseqkeys, \sseq@handleclassquotes@inner which does the main work is defined sseqmain. 
 \def\sseq@handlescopequotes#1#2{% We use this via \let\tikz@quotes@as\sseq@handleclassquotes
     /utils/exec={% so it's called inside \pgfkeysalso{stuff}. Need to surround with /utils/exec={} to get out.
        \global\let\sseq@classnodetext\pgfutil@empty%
        \global\let\sseq@classnodetextoptions\pgfutil@empty%
        \global\let\sseq@classlabelnodes\pgfutil@empty%
-       \sseq@handleclassquotes@inner{#1}{#2}%
+       \sseq@handleclassquotes@inner{#1}{#2}
     }
 }
 
@@ -592,7 +592,7 @@
 \pgfqkeys{/sseqpages/class}{
     name/.code={%
 	\sseq@protectedeval{\@nx\sseq@classname@handler{\sseq@classnameprefix#1\sseq@classnamepostfix}}%
-	\edef\sseq@class@name{\result}%
+	\edef\sseq@class@name{\unexpanded\@xp{\result}}%
 	\pgfkeysalso{/sseqpages/alias/.expand once=\detokenize\@xp{\sseq@class@name}}%
     },
     show name/.store in=\sseq@class@showname,
@@ -600,7 +600,7 @@
     generation/.code={\sseq@getnumrange\sseq@gen{#1}}, % \class tests if \sseq@class@page is set and throw an error if so.
     tag/.code={\sseq@d@addto@macro\sseq@class@tag{#1}},
     offset/.store in=\sseq@tempoffset,
-    tooltip/.sseq @ first pass code={\def\sseq@tooltip{#1}},
+    tooltip/.sseq @ first pass code={\ifx\sseqtooltip\undefined \sseq@error{no-tooltip}\else \def\sseq@tooltip{#1}\fi},
     insert/.store in=\sseq@classinsert
 }
 
@@ -1868,7 +1868,7 @@
             \edef\sseq@xscale@default{\pgfmathresult}
         }{
             \pgfmathparse{\sseq@xscale*#1}
-            \edef\sseq@xscale{\pgfmathresult}        
+            \edef\sseq@xscale{\pgfmathresult}
         }
         \sseq@breakpoint
     },

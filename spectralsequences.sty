@@ -13,11 +13,6 @@
 %  Try catch blocks
 %  Make an argument type for the \d page argument.
 %
-%  Document copier
-%  Document \replacesource and \replacetarget
-%  Fix show names to work with internal labels
-%  document show name
-%  document class name prefix / postfix
 %  Make xmirror not mirror axes labels
 %
 %  Redo sseqerrortest and set up regression test script as part of build (damn I didn't realize we'd lost anything imporant with that find -d disaster)
@@ -38,7 +33,6 @@
 \RequirePackage{etoolbox}
 \RequirePackage{xparse}
 \RequirePackage{verbatim}
-\RequirePackage{pdfcomment}
 
 \usetikzlibrary{quotes}
 \usetikzlibrary{fit}
@@ -51,8 +45,14 @@
 %\usetikzlibrary{profiler}
 
 \newif\ifsseq@draftmode
+\newif\ifsseq@tooltip
 \DeclareOption{draft}{\sseq@draftmodetrue}
+\DeclareOption{tooltips}{\sseq@tooltiptrue}
 \ProcessOptions\relax
+
+\ifsseq@tooltip
+    \RequirePackage{pdfcomment}
+\fi
 
 \def\sseq@authorname{Hood Chatham}
 \def\sseq@authoremail{hood@mit.edu}
@@ -300,7 +300,7 @@
 \fi
 
 \input sseqkeys.code.tex            % Exposes directly: \sseqset, \sseqnewfamily
-\input sseqmain.code.tex            % Defines all the main commands. Exposes directly: the environments, \xmin, \xmax, etc.
+\input sseqmain.code.tex            % Defines all the main commands. Exposes directly: the environments, \xmin, \xmax, etc, \SseqCopyPage
 \input sseqdrawing.code.tex
 
 % Give standard definitions for savedpaths wrappers
@@ -325,6 +325,10 @@
     differentials=->,
     pins=help lines
 }
+
+\ifsseq@tooltip
+    \let\sseqtooltip\sseq@tooltip@wrapper
+\fi
 
 % Extra commands to expose:
 \let\sseqifempty\sseq@ifempty

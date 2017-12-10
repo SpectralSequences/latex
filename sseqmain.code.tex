@@ -350,10 +350,10 @@
 }
 
 
-\def\sseqcopypage#1#2#3{
+\def\SseqCopyPage#1#2#3{
     \begingroup
     \def#1{\begingroup}
-    \def\sseq@copymacro{#1}
+    \global\let\sseq@copymacro\empty
     \def\sseq@thename{#2}
     \global\let\sseq@savedpaths@save\sseq@savedpaths
     \sseq@storelist@get\sseq@savedpaths
@@ -371,15 +371,17 @@
     \sseq@savedpaths
     \sseq@g@addto@macro#1{\endgroup}
     \endgroup
+    \@xp\let\csname\sseq@macroname#1 code\endcsname\sseq@copymacro
+    \DeclareSseqGroup #1 {} { \csname\sseq@macroname#1 code\endcsname }
     \let\sseq@savedpaths\sseq@savedpaths@save
 }
 
 \def\sseq@copypage@addclass#1{
-    \@xp\sseq@x@addto@macro\sseq@copymacro{\@nx\sseq@class@copy{\sseq@thename}{#1}}
+    \sseq@x@addto@macro\sseq@copymacro{\@nx\sseq@class@copy{\sseq@thename}{#1}}
 }
 
 \def\sseq@copypage@addstructline#1{
-    \@xp\sseq@x@addto@macro\sseq@copymacro{\@nx\sseq@structline@copy{\sseq@thename}{#1}}
+    \sseq@x@addto@macro\sseq@copymacro{\@nx\sseq@structline@copy{\sseq@thename}{#1}}
 }
 
 
@@ -592,7 +594,7 @@
     \sseq@lettoobj\sseq@classnodetext{#2.nodetext}
     \sseq@lettoobj\sseq@classnodetextoptions{#2.nodetext.options}
     \sseq@lettoobj\sseq@classlabelnodes{#2.labelnodes}
-    \sseq@lettoobj\sseq@class@showname{#2.showname}
+    \sseq@obj@ifdef{#2.showname}{\sseq@lettoobj\sseq@class@showname{#2.showname}}{}
     \sseq@lettoobj\sseq@class@name{#2.name}
     \edef\sseq@class@name{\unexpanded\@xp{\sseq@copy@nameprefix}\unexpanded\@xp{\sseq@class@name}}
     \sseq@obj{#2.needstikz}
@@ -1551,7 +1553,7 @@
     \the\sseq@scope@toks
     \sseq@options@normalmode
     \sseq@processoptions{class/label}{#2}%
-    \sseq@classlabel@handler{#1}% labeltextfn is a private handler, sseq@classlabel@handler is exposed via "class label handler"
+    \sseq@classlabel@handler{#1}% labeltextfn is a private handler for transformations, sseq@classlabel@handler is exposed via "class label handler"
     \ifsseq@classlabel
         \sseq@options@firstpassmode
         \the\sseq@outerclasslabelstyle

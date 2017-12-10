@@ -519,22 +519,29 @@
 }
 
 \def\sseq@parsecoord@maincoord@@#1,#2,#3\sseq@nil{%
-    \sseq@obj@ifdef{class.namedclass.\detokenize{#1}}{
-        \def\sourcename{#1}
-        \@xpthree\sseq@parsecoord@maincoord@named\sseq@obj{class.namedclass.#1}\sseq@nil
-        \edef\sseq@restcoord{\sseq@removecomma#2,#3\sseq@nil}
-    }{
-        \sseq@ifintexpr{#1}{
-            \sseq@ifintexpr{#2}{}{\sseq@error@n{invalid-coordinate}{y~}\sseq@breakfifi} % breakfifi to get out of ifs from maincoord@
-            \edef\sseq@xcoord{\the\numexpr\sseq@x+(#1)\relax}%
-            \edef\sseq@ycoord{\the\numexpr\sseq@y+(#2)\relax}%
-            \edef\sseq@xycoord{\sseq@xcoord,\sseq@ycoord}%
-            \sseq@ifempty{#3}{\let\sseq@restcoord\pgfutil@empty}{%
-                \edef\sseq@restcoord{\sseq@removecomma#3\sseq@nil}%
-            }%
-        }{
+    \sseq@ifintexpr{#1}{%
+        \sseq@ifintexpr{#2}{}{\sseq@error@n{invalid-coordinate}{y~}\sseq@breakfifi} % breakfifi to get out of ifs from maincoord@
+        \edef\sseq@xcoord{\the\numexpr\sseq@x+(#1)\relax}%
+        \edef\sseq@ycoord{\the\numexpr\sseq@y+(#2)\relax}%
+        \edef\sseq@xycoord{\sseq@xcoord,\sseq@ycoord}%
+        \sseq@ifempty{#3}{\let\sseq@restcoord\pgfutil@empty}{%
+            \edef\sseq@restcoord{\sseq@removecomma#3\sseq@nil}%
+        }%
+    }{%
+        \pgfutil@in@{lastclass}{#1}%
+        \ifpgfutil@in@
+            \def\handledname{#1}%
+        \else
+            \sseq@protectedeval{\@nx\sseq@classname@handler{\sseq@classnameprefix#1\sseq@classnamepostfix}}%
+            \let\handledname\result
+        \fi
+        \sseq@obj@ifdef{class.namedclass.\detokenize\@xp{\handledname}}{%
+            \def\sourcename{#1}
+            \@xpthree\sseq@parsecoord@maincoord@named\sseq@obj{class.namedclass.\detokenize{#1}}\sseq@nil
+            \edef\sseq@restcoord{\sseq@removecomma#2,#3\sseq@nil}%
+        }{%
             \sseq@error@n{invalid-coordinate}{x~}\sseq@breakfifi % breakfifi to get out of ifs from maincoord@
-        }
+        }%
     }%
 }%
 
@@ -1375,13 +1382,15 @@
     }
 }
 
-\def\sseq@tikzprimitives@coords@maybenamedclass#1{
+\def\sseq@tikzprimitives@coords@maybenamedclass#1{%
     \sseq@tikzprimitive@getcoord@anchor#1.\sseq@nil % puts coord into \sseq@tempcoord, anchor if any into \sseq@tempanchor
-    \sseq@protectedeval{\@nx\sseq@obj@ifdef{class.namedclass.\@nx\detokenize{\sseq@tempcoord}}}{% need this detokenize here to prevent it from throwing errors when there's a command inside...
-        \sseq@x@addto@macro\sseq@thepathsofar{(sseq{\sseq@obj{class.namedclass.\sseq@tempcoord}\sseq@tempanchor})}
-    }{
-        \sseq@tikzprimitives@coords@notaclass{#1}
-    }
+    \protected@edef\sseq@tempcoord{\sseq@tempcoord}%
+    % need this detokenize here to prevent it from throwing errors when there's a command inside...
+    \sseq@obj@ifdef{class.namedclass.\detokenize\@xp{\sseq@tempcoord}}{
+        \sseq@x@addto@macro\sseq@thepathsofar{(sseq{\sseq@obj{class.namedclass.\detokenize\@xp{\sseq@tempcoord}}\sseq@tempanchor})}%
+    }{%
+        \sseq@tikzprimitives@coords@notaclass{#1}%
+    }%
 }
 
 \let\sseq@tikzprimitives@coords@maybeclass@save\sseq@tikzprimitives@coords@maybeclass
