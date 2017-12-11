@@ -68,7 +68,7 @@
 \def\sseq@DoUntilOutOfBounds@ #1 {
     \sseq@esetthiscall{\string\DoUntilOutOfBoundsThenNMore}
     \sseq@opushstacktrace{\string\DoUntilOutOfBounds}
-    \ifx\xmin\sseq@xmin\else\ifx\ymin\sseq@ymin\else
+    \ifx\sseq@xminmax\@gobbletwo\else\ifx\sseq@yminmax\@gobbletwo\else
         \sseq@error@x{DoUntil-no-bound}{\string\DoUntilOutOfBounds}
         \sseq@breakfifi
     \fi\fi
@@ -90,7 +90,7 @@
 \def\sseq@DoUntilOutOfBoundsThenNMore@ #1#2 {
     \sseq@esetthiscall{\string\DoUntilOutOfBoundsThenNMore\unexpanded{#1}}
     \sseq@opushstacktrace{\string\DoUntilOutOfBoundsThenNMore{#1}}
-    \ifx\xmin\sseq@xmin\else\ifx\ymin\sseq@ymin\else
+    \ifx\sseq@xminmax\@gobbletwo\else\ifx\sseq@yminmax\@gobbletwo\else
         \sseq@error@n{DoUntil-no-bound}{\DoUntilOutOfBoundsThenNMore}
         \sseq@breakfifi
     \fi\fi
@@ -131,7 +131,7 @@
             \sseq@tempy=\lasty{0}\relax
             \bool_set_false:N \l_tmpb_bool % This is to record whether there is a defined x range or y range. If neither, we'll throw an error.
 %            \def\sseq@checkbound{\bool_set_false:N \l_tmpb_bool}
-            \ifx\xmin\sseq@xmin
+            \ifx\sseq@xminmax\@gobbletwo
                 \ifnum\sseq@tempx>\sseq@tempxb
                     \bool_set_true:N \l_tmpb_bool % We have a descent condition
 %                    \sseq@d@addto@macro\sseq@checkbound{
@@ -150,7 +150,7 @@
                     \fi
                 \fi
             \fi
-            \ifx\ymin\sseq@ymin
+            \ifx\sseq@yminmax\@gobbletwo
                 \ifnum\sseq@tempy>\sseq@tempyb
                     \bool_set_true:N \l_tmpb_bool
 %                    \sseq@d@addto@macro\sseq@checkbound{

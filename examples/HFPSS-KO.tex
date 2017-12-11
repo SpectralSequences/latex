@@ -3,7 +3,6 @@
 %%
 %% File: example_KUHFPSS.tex
 %%
-%%    I think this is one of Eric Peterson's favorite spectral sequences, and his enthusiasm for it has rubbed off on me a bit.
 %%    Here our group is C_2 which acts on the periodicity element by -1, so again we have a norm element v in degree 2|G| = 4.
 %%    There are easier ways to understand this, but I explained the EO_3 one in terms of the comparison map from the ANSS,
 %%    and that's interesting here too. In the ANSS at 2, there is a differential d3(\alpha_3) = \alpha_1^4. Here a cobar calculation
@@ -43,6 +42,8 @@
 % This is just to make sure the bounding box doesn't move around
 \path[background] (\xmin-1,\ymin-1) rectangle (\xmax+1,\ymax+1);
 
+\def\xmin{-12}
+\def\xmax{14}
 \sseqparseint\xitstart{\xmin/8*8-16} % division is integer division (I think with rounding towards 0...) so /8*8 rounds up to the nearest multiple of 8?
 \sseqparseint\xitgap{\xitstart+4}
 \sseqparseint\xitend{\xmax+2}
@@ -73,6 +74,7 @@
 
 \newpage
 \begin{sseqpage}[name=KRHFPSS,page=0,keep changes]
+\def\xmin{-12}\def\xmax{14}
 \pgfmathsetmacro\antidiag{min(-\xmin,\ymax+0.8)}
 \clip[background,xshift=0.2cm,yshift=-0.33cm](-\antidiag,\antidiag)--(-1,1)--(-0.4,0)--(\xmax + 0.28,0)--(\xmax+0.28,\antidiag)--cycle;
 \foreach \z in {2,6}{

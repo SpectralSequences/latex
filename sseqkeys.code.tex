@@ -1497,6 +1497,7 @@
 
 \sseq@addiftostorelist{specifiedxrange}
 \sseq@addiftostorelist{specifiedyrange}
+% We used to \let\xmin\sseq@xmin in here, but that's a bad idea. Hopefully things work now...
 \def\sseq@xrange#1#2{%
     \global\let\sseq@xminmax\@gobbletwo % Don't need to calculate range of nodes if user specifies it
     \global\sseq@specifiedxrangetrue
@@ -1504,8 +1505,6 @@
     \sseq@sanitize@intexpr{#2}{x range={#1}{#2}}
     \xdef\sseq@xmin{\the\numexpr#1}%
     \xdef\sseq@xmax{\the\numexpr#2}%
-    \let\xmin\sseq@xmin
-    \let\xmax\sseq@xmax
     % Need to know decremented \xmin and incremented \xmax to decide which nodes to print
     \sseq@tempcount=#1 \advance\sseq@tempcount-1\xdef\sseq@xminmm{\the\sseq@tempcount}%
     \sseq@tempcount=#2 \advance\sseq@tempcount1\xdef\sseq@xmaxpp{\the\sseq@tempcount}%
@@ -1514,13 +1513,11 @@
 
 \def\sseq@yrange#1#2{%
     \global\let\sseq@yminmax\@gobbletwo %
-    \sseq@sanitize@intexpr{#1}{x range={#1}{#2}}
-    \sseq@sanitize@intexpr{#2}{x range={#1}{#2}}
+    \sseq@sanitize@intexpr{#1}{y range={#1}{#2}}
+    \sseq@sanitize@intexpr{#2}{y range={#1}{#2}}
     \global\sseq@specifiedyrangetrue
     \xdef\sseq@ymin{\the\numexpr#1}%
     \xdef\sseq@ymax{\the\numexpr#2}%
-    \let\xmin\sseq@xmin
-    \let\xmax\sseq@xmax
     \sseq@tempcount=#1 \advance\sseq@tempcount-1\xdef\sseq@yminmm{\the\sseq@tempcount}%
     \sseq@tempcount=#2 \advance\sseq@tempcount1\xdef\sseq@ymaxpp{\the\sseq@tempcount}%
 }

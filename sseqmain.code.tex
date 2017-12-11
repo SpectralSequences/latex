@@ -63,8 +63,14 @@
     \sseq@installmacros
     \sseq@installmsghooks
     \sseq@install@xparse@Uarggrabber
-    \protected\def\xmin{\sseq@xmin}\protected\def\xmax{\sseq@xmax}
-    \protected\def\ymin{\sseq@ymin}\protected\def\ymax{\sseq@ymax}
+    % The behavior of xmax and xmin is very particular, so it's best not to mess with them. 
+    % In particular, they shouldn't be expanded until printing no matter what, but we don't want
+    % \pgfmathparse to barf on them. \pgfmathparse really doesn't like engine protected macros,
+    % so in no case should this be engine protected. (Wish we could test an argument for the presence 
+    % of engine protected macros). If we try to do that, \sseq@ifpgfmathexpr will break in 
+    % \sseq@tikzprimitives@coords@notaclass@handle@.
+    \def\xmin{\protect\sseq@xmin}\def\xmax{\protect\sseq@xmax}
+    \def\ymin{\protect\sseq@ymin}\def\ymax{\protect\sseq@ymax}
 %
     \sseq@modtikzcommands % Defer evaluation of tikz primitives
     \sseq@patchfor % patch \foreach to work with deferred macros
@@ -137,8 +143,8 @@
     \sseq@installmacros
     \sseq@installmsghooks
     \sseq@install@xparse@Uarggrabber
-    \protected\def\xmin{\sseq@xmin}\protected\def\xmax{\sseq@xmax}
-    \protected\def\ymin{\sseq@ymin}\protected\def\ymax{\sseq@ymax}
+    \def\xmin{\protect\sseq@xmin}\def\xmax{\protect\sseq@xmax}
+    \def\ymin{\protect\sseq@ymin}\def\ymax{\protect\sseq@ymax}
     \sseq@modtikzcommands % Redefine tikz primitives to store themselves in the appropriate place
     \sseq@patchfor % Change foreach to record it's variable values in the appropriate places
     \pgfkeys{/handlers/first char syntax/the character "/.initial=\sseq@handlequote}% install quotes parsing
@@ -218,6 +224,10 @@
 %
     \ifx\sseq@xmin\sseq@infinity\sseq@error{no-range}\def\sseq@xmin{0}\def\sseq@xmax{0}\@xp\sseq@break\fi % could be warning
     \ifx\sseq@ymin\sseq@infinity\sseq@error{no-range}\def\sseq@ymin{0}\def\sseq@ymax{0}\@xp\sseq@break\fi
+    \let\xmin\sseq@xmin
+    \let\xmax\sseq@xmax
+    \let\ymin\sseq@ymin
+    \let\ymax\sseq@ymax
 %
     \ifnum\numexpr\sseq@xmax-\sseq@xmin\relax>\numexpr\maxdimen/\dimexpr1pt\relax-1\relax
         \sseq@error@xx{range-super-overflow}{x}

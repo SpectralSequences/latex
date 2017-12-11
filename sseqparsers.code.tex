@@ -1438,7 +1438,7 @@
         \edef\sseq@index{,\unexpanded\@xp{\sseq@removecomma#3\sseq@nil}}
         \edef\sseq@indexnocomma{\unexpanded\@xp{\sseq@removecomma#3\sseq@nil}}
     }
-    \sseq@ifpgfmathexpr{#1}{
+    \sseq@ifpgfmathexpr{#1}{%
         % Decide whether we can keep the result, which is stored in \sseq@mathresult
         \protected@edef\sseq@tempa{#1}
         \edef\sseq@tempb{#1}

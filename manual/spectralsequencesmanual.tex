@@ -510,7 +510,7 @@ Named classes are immune to coordinate transformations. For example, in the foll
 \begin{key}{show name = \meta{label options}}
 This option is like saying |"class name"\marg{label options}| if the class has a name, and does nothing if the class has no name. If the class has multiple names, only the most recent is used. This is particularly useful with class styles, . For instance, by saying |this page classes = { show name = above }| you can display names of all of the sources and targets of differentials on each page.
 \begin{codeexample}[width=7cm]
-\begin{sseqdata}[ 
+\begin{sseqdata}[
     name = show name example,
     this page classes = { show name = {above right, pin} }
 ]
@@ -1608,7 +1608,7 @@ The value of |class name handler| is a function that is applied to all names bef
 The main functions intended for use here are |\SseqAHSSNameHandler| and |\SseqNormalizeMonomial|, though you can make your own. This is applied both when you name the class, as in \codeverb|\class[name=a](\meta{coordinate})| and when you refer to a class by name, as in |\structline(a)(b)|. One advantage if you are using |\SseqNormalizeMonomial| is that you can ensure that |xy| and |yx| refer to the same class:
 \begin{codeexample}[]
 \SseqNormalizeMonomialSetVariables{xy}
-\begin{sseqpage}[ class name handler = \SseqNormalizeMonomial, 
+\begin{sseqpage}[ class name handler = \SseqNormalizeMonomial,
                   classes = {show name = {right,pin}} ]
 \class[name=xy](0,0)
 \class[name=yxy](0,1)

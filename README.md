@@ -35,10 +35,13 @@ Changelog:
 - A bug that made "y axis gap" adjust both axes and "x axis gap" do nothing (reported by Achim Krause).
 - A bug where a random definition of \\ was leaked into global scope (reported by Achim Krause).
 - Now a \structline defined with option page=n will not be deleted by a shorter differential.
-
+- A parser error that caused infinite recurse under certain conditions
+- Class names now work with commands in their name (particularly, greek letters)
+- \sseq@ifintexpr no longer breaks if the expression ends in \empty
+- Using \sseqset to give default scaling values for xscale and yscale now works as expected.
 
     
-## [1.1.1]
+## [1.1.1] (2017-09-18)
 
 ### Fixed:
 - Groups defined with \SseqNewGroup now correctly handle arithmetic in their arguments.
@@ -46,7 +49,7 @@ Changelog:
 - \kill had a bug in it that sometimes caused it to act on the wrong page (reported by Steve Wilson).
 
 
-## [1.1.0] 
+## [1.1.0] (2017-08-06)
 
 ### Added:
 - \sseqparseint
@@ -80,3 +83,4 @@ Changelog:
 - Fixed a bug with ranges and the sseqpage environment where classes lying outside the printed range would enlarge the range even if an explicit range was specified.
 - The chess grid works correctly now
 
+## [1.0.0] (2017-06-21)
