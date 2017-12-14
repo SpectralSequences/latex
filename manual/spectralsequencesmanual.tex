@@ -1,8 +1,8 @@
 %%
-%% Package: spectralsequences v1.1.1 2017-09-16 2017-09-16
+%% Package: spectralsequences v1.2.0 2017-09-16 2017-09-16
 %% Author: Hood Chatham
 %% Email: hood@mit.edu
-%% Date: 2017-11-10
+%% Date: 2017-12-10
 %% License: Latex Project Public License
 %%
 %% File: spectralsequencesmanual.tex
@@ -167,7 +167,7 @@ If there are multiple classes at the coordinate |(x,y)| you may specify which us
 \begin{sseqpage}[ name = class options example,
                   right clip padding = 0.6cm ]
 \classoptions[red](2,1,2) % Only is red on this page!
-\node[ background, text width = 10em ] at (0.3,-2.2)
+\node[ background ] at (0.3,-2.2)
     {\textup{The red class is the problem}};
 \end{sseqpage}
 \end{codeexample}
@@ -1099,7 +1099,7 @@ Here we define a command which takes an options list, a coordinate, and a single
 \end{commandlist}
 
 \begin{command}{\SseqCopyPage\cmdarg{command}\marg{spectral sequence name}\marg{page}}
-This copies all of the classes and structlines on page |\meta{page}| of the spectral sequence named |\meta{spectral sequence name}|, throwing out differentials and tikz primitives. The resulting |\cmdarg{command}| has syntax as if you had used |\DeclareSseqGroup| with no extra arguments -- that is, it takes an optional options list, which are passed to a scope, and an optional coordinate pair.
+This defines \cmdarg{command} to print all of the classes and structlines on page |\meta{page}| of the spectral sequence named |\meta{spectral sequence name}|, throwing out differentials and tikz primitives. The resulting command has syntax as if you had used |\DeclareSseqGroup| with no extra arguments -- that is, it takes an optional options list, which are passed to a scope, and an optional coordinate pair.
 \end{command}
 
 \subsection{Families}

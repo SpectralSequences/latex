@@ -28,6 +28,8 @@ TICKET="$(curl -c $COOKIEJAR -s 'https://ctan.org/upload' |
 	sed -n -r '/^ value=".*"$/s/^ value="(.*)"$/\1\n/p')"
 [ -z "$TICKET" ] && die 11 Failed to download ticket number
 
+echo $FILENAME
+
 # Send the archive.
 RESPONSE=./ctan-upload.response.html
 curl --form-string ticket="$TICKET" \

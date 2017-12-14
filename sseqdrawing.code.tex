@@ -1,8 +1,8 @@
 %%
-%% Package: spectralsequences v1.1.1 2017-09-16 2017-09-16
+%% Package: spectralsequences v1.2.0 2017-09-16 2017-09-16
 %% Author: Hood Chatham
 %% Email: hood@mit.edu
-%% Date: 2017-11-10
+%% Date: 2017-12-10
 %% License: Latex Project Public License
 %%
 %% File: sseqdrawing.code.tex
@@ -243,10 +243,11 @@
 
 \def\sseq@drawxticks{%
     \sseq@tickloop@generic{\sseq@xmin}{\sseq@xmax}{\sseq@xtickstep}{\sseq@xtickstepoffset}{\sseq@yaxisorigin}{-\sseq@xaxisgap}{
-        \sseq@xtickstyle
-        \tikz@options
         \pgftransformshift{\pgfqpoint{0pt}{-\sseq@xlabelgap}}
-        \pgftext{\hbox{$\sseq@xtickfn{\the\sseq@tempx}$}}%
+        \pgftransformresetnontranslations
+        %\@xp\tikzset\@xp{\sseq@xtickstyle}
+        %\pgftext{\tikz@options\tikz@textfont\hbox{$\sseq@xtickfn{\the\sseq@tempx}$}}%
+        \@xp\node\@xp[\sseq@xtickstyle]{\hbox{$\sseq@xtickfn{\the\sseq@tempx}$}};
     }
     \ifnum\sseq@xmajortickstep>\z@
         \sseq@tickloop@generic{\sseq@xmin}{\sseq@xmax}{\sseq@xmajortickstep}{\sseq@xtickstepoffset}{\sseq@yaxisorigin}{-\sseq@xaxisgap}{
@@ -265,11 +266,11 @@
 \def\sseq@drawyticks{%
     \sseq@transform@xymirror
     \sseq@tickloop@generic{\sseq@ymin}{\sseq@ymax}{\sseq@ytickstep}{\sseq@ytickstepoffset}{\sseq@xaxisorigin}{-\sseq@yaxisgap}{
-        \sseq@ytickstyle
-        \tikz@options
         \pgftransformshift{\pgfqpoint{0pt}{-\sseq@ylabelgap}}
         \pgftransformresetnontranslations
-        \pgftext{\hbox{$\sseq@ytickfn{\the\sseq@tempx}$}}%
+        %\@xp\tikzset\@xp{\sseq@ytickstyle}
+        %\pgftext{\tikz@options\tikz@textfont\hbox{$\sseq@ytickfn{\the\sseq@tempx}$}}%
+        \@xp\node\@xp[\sseq@ytickstyle]{\hbox{$\sseq@ytickfn{\the\sseq@tempy}$}};
     }
     \ifnum\sseq@ymajortickstep>\z@
         \sseq@tickloop@generic{\sseq@ymin}{\sseq@ymax}{\sseq@ymajortickstep}{\sseq@ytickstepoffset}{\sseq@xaxisorigin}{-\sseq@yaxisgap}{

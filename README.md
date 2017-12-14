@@ -1,9 +1,9 @@
 
-spectralsequences v1.1.1
+spectralsequences v1.2.0
 ========================
 Author: Hood Chatham  
 Email: hood@mit.edu  
-Date: 2017-11-10  
+Date: 2017-12-10  
 License: All files have the Latex Project Public License.  
 Description: Print spectral sequence diagrams using pgf/tikz.  
 
@@ -13,6 +13,12 @@ Email me at hood@mit.edu to submit bug reports, request new features, etc. The c
 
 Changelog:
 ==========
+
+## [Unreleased]
+### Fixed:
+- Tick style didn't work, now it does.
+
+
 ## [1.2.0]
 ### Added:
 - \replacesource and \replacetarget
