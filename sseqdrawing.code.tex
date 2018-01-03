@@ -1,5 +1,5 @@
 %%
-%% Package: spectralsequences v1.2.0 2017-09-16 2017-09-16
+%% Package: spectralsequences v1.2.0
 %% Author: Hood Chatham
 %% Email: hood@mit.edu
 %% Date: 2017-12-10
@@ -221,23 +221,23 @@
 % #6 -- xaxisgap
 % #7 -- code
 \def\sseq@tickloop@generic#1#2#3#4#5#6#7{
-    \sseq@tempx=\numexpr % min
+    \sseq@tempcount=\numexpr % min
         \sseq@intdivceiling{#1}{#3} * #3
         -
         \sseq@intdivceiling{#4}{#3} * #3 + #4
     \relax
-    \ifnum\sseq@tempx<#1\relax
-        \advance\sseq@tempx#3\relax
+    \ifnum\sseq@tempcount<#1\relax
+        \advance\sseq@tempcount#3\relax
     \fi
-    \sseq@tempxb=\numexpr#2+1\relax % max
+    \sseq@tempcountb=\numexpr#2+1\relax % max
     \loop
         \bgroup
-        \pgftransformshift{\sseq@qpointxy{\sseq@tempx}{#5}}%
+        \pgftransformshift{\sseq@qpointxy{\sseq@tempcount}{#5}}%
         \pgftransformshift{\pgfqpoint{0pt}{#6}}
         #7
         \egroup
-        \advance\sseq@tempx#3\relax
-    \ifnum\sseq@tempx<\sseq@tempxb\repeat
+        \advance\sseq@tempcount#3\relax
+    \ifnum\sseq@tempcount<\sseq@tempcountb\repeat
 }
 
 
@@ -247,7 +247,7 @@
         \pgftransformresetnontranslations
         %\@xp\tikzset\@xp{\sseq@xtickstyle}
         %\pgftext{\tikz@options\tikz@textfont\hbox{$\sseq@xtickfn{\the\sseq@tempx}$}}%
-        \@xp\node\@xp[\sseq@xtickstyle]{\hbox{$\sseq@xtickfn{\the\sseq@tempx}$}};
+        \@xp\node\@xp[\sseq@xtickstyle]{\hbox{$\sseq@xtickfn{\the\sseq@tempcount}$}};
     }
     \ifnum\sseq@xmajortickstep>\z@
         \sseq@tickloop@generic{\sseq@xmin}{\sseq@xmax}{\sseq@xmajortickstep}{\sseq@xtickstepoffset}{\sseq@yaxisorigin}{-\sseq@xaxisgap}{
@@ -270,7 +270,7 @@
         \pgftransformresetnontranslations
         %\@xp\tikzset\@xp{\sseq@ytickstyle}
         %\pgftext{\tikz@options\tikz@textfont\hbox{$\sseq@ytickfn{\the\sseq@tempx}$}}%
-        \@xp\node\@xp[\sseq@ytickstyle]{\hbox{$\sseq@ytickfn{\the\sseq@tempy}$}};
+        \@xp\node\@xp[\sseq@ytickstyle]{\hbox{$\sseq@ytickfn{\the\sseq@tempcount}$}};
     }
     \ifnum\sseq@ymajortickstep>\z@
         \sseq@tickloop@generic{\sseq@ymin}{\sseq@ymax}{\sseq@ymajortickstep}{\sseq@ytickstepoffset}{\sseq@xaxisorigin}{-\sseq@yaxisgap}{
@@ -973,6 +973,7 @@
     \pgfpathlineto{\sseq@targetcoord}%
     \pgfgetpath\thispath
     \pgfusepath{discard}%
+    \pgfintersectionsortbysecondpath
     \pgfintersectionofpaths{\pgfsetpath\sseq@theclippath}{\pgfsetpath\thispath}%
     \ifcase\pgfintersectionsolutions\relax
         % No intersections, but one or both endpoints may be out of range but still in clipping region due to scaling. Add ellipses as appropriate.
@@ -1004,7 +1005,8 @@
 }
 
 \def\sseq@drawedge@handletrickyedge{%
-    \ifsseq@draworphanedges
+    \ifsseq@draworphanedges        
+        \pgfintersectionsortbysecondpath
         \pgfintersectionofpaths{\pgfsetpath\sseq@therangepath}{\pgfsetpath\thispath}%
         \ifnum\pgfintersectionsolutions=\z@
             \sseq@drawedgefalse % don't draw orphan edges that never intersect actual range
@@ -1025,8 +1027,8 @@
 
 
 \def\sseq@drawedge@handleorphan{%
-    \def\sseq@sourcecoord{\pgfpointintersectionsolution{1}}%
-    \def\sseq@targetcoord{\pgfpointintersectionsolution{2}}%
+    \def\sseq@sourcecoord{\pgfpointintersectionsolution{2}}%
+    \def\sseq@targetcoord{\pgfpointintersectionsolution{1}}%
     \edef\temparrowstartspec{\@nx\pgfsetarrowsstart{\csname sseq@runoffarrow@start@\sseq@edgetype @spec\endcsname}}%
     \edef\temparrowendspec{\@nx\pgfsetarrowsend{\csname sseq@runoffarrow@end@\sseq@edgetype @spec\endcsname}}%
     \pgfcoordinate{tempa}{\sseq@sourcecoord}%

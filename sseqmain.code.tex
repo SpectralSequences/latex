@@ -1,5 +1,5 @@
 %%
-%% Package: spectralsequences v1.2.0 2017-09-16 2017-09-16
+%% Package: spectralsequences v1.2.0
 %% Author: Hood Chatham
 %% Email: hood@mit.edu
 %% Date: 2017-12-10
@@ -63,11 +63,11 @@
     \sseq@installmacros
     \sseq@installmsghooks
     \sseq@install@xparse@Uarggrabber
-    % The behavior of xmax and xmin is very particular, so it's best not to mess with them. 
+    % The behavior of xmax and xmin is very particular, so it's best not to mess with them.
     % In particular, they shouldn't be expanded until printing no matter what, but we don't want
     % \pgfmathparse to barf on them. \pgfmathparse really doesn't like engine protected macros,
-    % so in no case should this be engine protected. (Wish we could test an argument for the presence 
-    % of engine protected macros). If we try to do that, \sseq@ifpgfmathexpr will break in 
+    % so in no case should this be engine protected. (Wish we could test an argument for the presence
+    % of engine protected macros). If we try to do that, \sseq@ifpgfmathexpr will break in
     % \sseq@tikzprimitives@coords@notaclass@handle@.
     \def\xmin{\protect\sseq@xmin}\def\xmax{\protect\sseq@xmax}
     \def\ymin{\protect\sseq@ymin}\def\ymax{\protect\sseq@ymax}

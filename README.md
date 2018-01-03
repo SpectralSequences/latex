@@ -17,9 +17,9 @@ Changelog:
 ## [Unreleased]
 ### Fixed:
 - Tick style didn't work, now it does.
+- Orphan edges are consistently oriented correctly now (reported by Eric Peterson).
 
-
-## [1.2.0]
+## [1.2.0] (2017-12-10)
 ### Added:
 - \replacesource and \replacetarget
 - \copypage
