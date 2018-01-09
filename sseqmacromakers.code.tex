@@ -179,6 +179,9 @@
 }
 \let\begingroupa\begingroup
 \let\begingroupb\begingroup
+\newtoks\sseq@macro@setthiscall@toks
+\newtoks\sseq@macro@defaultarggetters@toks
+
 \cs_new_protected:Npn\DeclareSseqCommand#1#2#3{%
     \cs_if_exist:cTF { sseq @ builtin @ \cs_to_str:N #1 } {\sseq@error@x{wont-override-system-macro}{\string#1}\sseq@break} {}
     \cs_if_free:cT { sseq @ usermacro @ \cs_to_str:N #1 } {
@@ -200,18 +203,18 @@
     % You might think we could skip this patching, and it's probably possible.
     % However, this is responsible for turning the #'s of catcode other into #'s of catcode arg. I don't have as good of a way to do that.
     % Also, this allows me to use \sseq@parseargspec after defining the command, so I don't have to run any error checking inside of it
-    % because if the argspec is invalid, \DeclareDocumentCommand will let me know.\sseq@temptoks
+    % because if the argspec is invalid, \DeclareDocumentCommand will let me know.
     \cs_if_exist:cTF{ sseq @ usermacro @ \cs_to_str:N #1 @@unique@@ start \c_space_tl code }{
         \patchcmd:cnfnn{ sseq @ usermacro @ \cs_to_str:N #1 @@unique@@ start \c_space_tl code }{\endgroup{}}{
             \@xp\endgroup
             \@xp\begingroupa
-            \the\sseq@temptoks
+            \the\sseq@macro@setthiscall@toks
         }{}{\sseq@error@x{usermacro-failed-patch}{\string#1}}
         \cs_gset_eq:cc { sseq @ usermacro @ \cs_to_str:N #1 @@unique@@ start \c_space_tl code } { sseq @ usermacro @ \cs_to_str:N #1 @@unique@@ start \c_space_tl code}
     }{
         \pretocmd:cfnn{ sseq @ usermacro @ \cs_to_str:N #1 @@unique@@ start }{
             \@xp\begingroupb
-            \the\sseq@temptoks
+            \the\sseq@macro@setthiscall@toks
         }{}{\sseq@error@x{usermacro-failed-patch}{\string#1}}
     }
     \cs_gset_eq:cc { sseq @ usermacro @ \cs_to_str:N #1 } { sseq @ usermacro @ \cs_to_str:N #1 }
@@ -257,7 +260,7 @@
     \ifsseq@error
         \@xp\sseq@break
     \fi
-    \sseq@temptoks\@xp{\sseq@SseqGroup@argspec} % This gets added to the command by DeclareSseqCommand
+    \sseq@macro@setthiscall@toks\@xp{\sseq@SseqGroup@argspec} % This gets added to the command by DeclareSseqCommand
     #1#2{od()}{%
         %can't use \sseq@atbeginusermacro@msgsetup until next spot b/c don't know what the whole call looks like yet
         \IfNoValueTF{##1}{\def\sseq@options{}}{\def\sseq@options{##1}}%
@@ -267,20 +270,19 @@
             \sseqnewgroup@splitcoord##2\sseq@nil
         }%
         \csname sseq @ usermacro @ \sseq@macroname #2 @ helper \@xp\endcsname\@gobbletwo % This gobble eats the endgroup added by sseqDeclareDocumentCommand
-    }%
-
+    }
     \sseq@parseargspec@newgroup{#2}{#3}%
     % You might think we could skip this patching, and it's probably possible.
     % However, this is responsible for turning the #'s of catcode other into #'s of catcode arg. I don't have as good of a way to do that.
     \cs_if_exist:cTF{ sseq @ usermacro @ \cs_to_str:N #2 @ helper \c_space_tl code }{
         \pretocmd:cfnn { sseq @ usermacro @ \cs_to_str:N #2 @ helper \c_space_tl code }{
-            \the\sseq@temptoks
+            \the\sseq@macro@setthiscall@toks
         }{}{\sseq@error@x{usermacro-failed-patch}{\string#1}}
         % globalize definition:
         \cs_gset_eq:cc { sseq @ usermacro @ \cs_to_str:N #2 @ helper \c_space_tl code } { sseq @ usermacro @ \cs_to_str:N #2 @ helper \c_space_tl code }
     }{
         \pretocmd:cfnn { sseq @ usermacro @ \cs_to_str:N #2 @ helper }{
-            \the\sseq@temptoks
+            \the\sseq@macro@setthiscall@toks
         }{}{\sseq@error@x{usermacro-failed-patch}{\string#1}}
     }
     \cs_gset_eq:cc { sseq @ usermacro @ \cs_to_str:N #2 @ helper } { sseq @ usermacro @ \cs_to_str:N #2 @ helper } % globalize definition
@@ -310,20 +312,20 @@
 \bgroup\catcode`\#=12\relax
     \gdef\sseq@SseqGroup@argspec{
         \sseq@eval{\global\sseq@groupargspectoks{\IfNoValueF{#1}{\unexpanded{[#1]}}\IfNoValueF{#2}{\unexpanded{(#2)}}}}
-        \@gobbletwo
+        \@gobbletwo % What does this \@gobbletwo do?
     }
     \gdef\sseq@thearg{#\the\sseq@tempcount}
 \egroup
 
 
 % When there are arguments with default values (O, D, R, G), we need to put them into temporary macros to compare them and see if they are the default value
-% that's what temptoksii is for.
+% that's what \sseq@macro@defaultarggetters@toks is for.
 \def\sseq@parseargspec#1#2{%
     \sseq@tempcount=\z@
     \sseq@temptoks{\@nx#1}% Holds the stuff that goes in \esetthiscall (so most stuff)
-    \sseq@temptoksii{}
+    \sseq@macro@defaultarggetters@toks{}
     \sseq@parseargspec@#2\sseq@nil
-    \sseq@eval{\sseq@temptoks{\the\sseq@temptoksii\@nx\sseq@usermacro@esetthiscall{\the\sseq@temptoks}}}
+    \sseq@eval{\sseq@macro@setthiscall@toks{\the\sseq@macro@defaultarggetters@toks\@nx\sseq@usermacro@esetthiscall{\the\sseq@temptoks}}}
 }
 
 % For NewGroup:
@@ -331,12 +333,11 @@
 \def\sseq@parseargspec@newgroup#1#2{%
     \sseq@tempcount=\z@
     \sseq@temptoks{}
-    \sseq@temptoksii{}%
+    \sseq@macro@defaultarggetters@toks{}%
     \sseq@parseargspec@#2\sseq@nil
-    % What's the second temptoks for?
     \sseq@eval{
-        \sseq@temptoks{
-            \the\sseq@temptoksii
+        \sseq@macro@setthiscall@toks{
+            \the\sseq@macro@defaultarggetters@toks
             \@nx\sseq@esetthiscall{
                 \@nx\@nx\@nx#1
                 \@nx\the\sseq@groupargspectoks
@@ -375,7 +376,7 @@
 }
 
 \def\sseq@parseargspec@setargdefault#1{%
-    \sseq@e@addto@toks\sseq@temptoksii{%
+    \sseq@e@addto@toks\sseq@macro@defaultarggetters@toks{%
         \def\@xp\@nx\csname sseq@parseargspec@temparg\@alph\sseq@tempcount\endcsname{\sseq@thearg}%
         \def\@xp\@nx\csname sseq@parseargspec@tempdefault\@alph\sseq@tempcount\endcsname{\unexpanded{#1}}%
     }

@@ -1005,7 +1005,7 @@
 }
 
 \def\sseq@drawedge@handletrickyedge{%
-    \ifsseq@draworphanedges        
+    \ifsseq@draworphanedges
         \pgfintersectionsortbysecondpath
         \pgfintersectionofpaths{\pgfsetpath\sseq@therangepath}{\pgfsetpath\thispath}%
         \ifnum\pgfintersectionsolutions=\z@

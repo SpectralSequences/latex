@@ -13,16 +13,12 @@
 %  Try catch blocks
 %  Make an argument type for the \d page argument.
 %  deal with xmin, xmax, etc (was there actually a problem we were trying to fix?)
-%  Make xmirror not mirror axes labels
 %
 %  Redo sseqerrortest and set up regression test script as part of build (damn I didn't realize we'd lost anything imporant with that find -d disaster)
 %  Maybe we should add some other regression tests too
 %
 %  Lower priority:
-%   speed up off page edges (uses 10% of the draw time for page 0 of tmfass)
-%   improve \DoUntilOutOfBounds progress check
 %   error messages that should be warnings by default?
-%   should we specify our favorite conditionals library?
 %
 
 
@@ -121,7 +117,6 @@
 \newif\ifsseq@error
 
 \newtoks\sseq@temptoks
-\newtoks\sseq@temptoksii
 \newtoks\sseq@scope@toks
 
 \newcount\sseq@thepagecount
