@@ -240,26 +240,40 @@
         \@xp\sseq@break
     \fi
 %
-    \sseq@tempdimen = \dimexpr \textwidth -\sseq@clip@padding@right - \sseq@xaxis@end@extend - \sseq@xaxis@start@extend - \sseq@yaxisgap \relax
-    \sseq@tempcount = \numexpr \sseq@tempdimen /\sseq@xscalecm \relax
-    \ifnum \numexpr\sseq@xmax-\sseq@xmin + 1 > \sseq@tempcount
-      \pgfmathparse{\sseq@tempdimen/1cm/(\sseq@xmax-\sseq@xmin+1)}
-      \sseq@error@xxxx{range-overflow}{x}
-            {from \sseq@xmin\space to \sseq@xmax\space (xmax - xmin = \the\numexpr\sseq@xmax-\sseq@xmin)}
-            {\the\sseq@tempcount}% max x range
-            {\pgfmathresult}% max xscale
-        \@xp\sseq@break
+    \ifx\sseq@fitwidth\pgfutil@empty % Check to make sure chart will fit on page
+        \sseq@tempdimen = \dimexpr \textwidth - \sseq@totalxmargin\relax
+        \sseq@tempcount = \numexpr \sseq@tempdimen /\sseq@xscalecm \relax
+        \ifnum \numexpr\sseq@xmax-\sseq@xmin + 1 > \sseq@tempcount
+          \pgfmathparse{\sseq@tempdimen/1cm/(\sseq@xmax-\sseq@xmin+1)}
+          \sseq@error@xxxx{range-overflow}{x}
+                {from \sseq@xmin\space to \sseq@xmax\space (xmax - xmin = \the\numexpr\sseq@xmax-\sseq@xmin)}
+                {\the\sseq@tempcount}% max x range
+                {\pgfmathresult}% max xscale
+            \@xp\sseq@break
+        \fi
+    \else % scale to fit target width
+        \sseq@tempdimen = \dimexpr \sseq@fitwidth - \sseq@totalxmargin\relax
+        \sseq@xscalecm = \dimexpr\sseq@tempdimen/(\sseq@xmax-\sseq@xmin)\relax
+        \pgfmathsetmacro\sseq@xscale{\sseq@xscalecm /1cm}
+        \sseq@globalscaleoption{\pgfsetxvec{\pgfpoint{\sseq@xscalecm}{0cm}}}
     \fi
 %
-    \sseq@tempdimen = \dimexpr \textheight - \sseq@clip@padding@top - \sseq@yaxis@end@extend - \sseq@yaxis@start@extend - \sseq@xaxisgap \relax
-    \sseq@tempcount = \numexpr \sseq@tempdimen /\sseq@yscalecm \relax
-    \ifnum \numexpr\sseq@ymax-\sseq@ymin +1 > \sseq@tempcount
-        \pgfmathparse{\sseq@tempdimen/1cm/(\sseq@ymax-\sseq@ymin+1)}
-        \sseq@error@xxxx{range-overflow}{y}
-            {from \sseq@ymin\space to \sseq@ymax\space (ymax - ymin = \the\numexpr\sseq@ymax-\sseq@ymin)}
-            {\the\sseq@tempcount}% max x range
-            {\pgfmathresult}% max xscale
-        \@xp\sseq@break
+    \ifx\sseq@fitheight\pgfutil@empty % Check to make sure chart will fit on page
+        \sseq@tempdimen = \dimexpr \textheight - \sseq@totalymargin \relax
+        \sseq@tempcount = \numexpr \sseq@tempdimen /\sseq@yscalecm \relax
+        \ifnum \numexpr\sseq@ymax-\sseq@ymin +1 > \sseq@tempcount
+            \pgfmathparse{\sseq@tempdimen/1cm/(\sseq@ymax-\sseq@ymin+1)}
+            \sseq@error@xxxx{range-overflow}{y}
+                {from \sseq@ymin\space to \sseq@ymax\space (ymax - ymin = \the\numexpr\sseq@ymax-\sseq@ymin)}
+                {\the\sseq@tempcount}% max x range
+                {\pgfmathresult}% max xscale
+            \@xp\sseq@break
+        \fi
+    \else % Set yscale to fit target height
+        \sseq@tempdimen = \dimexpr \sseq@fitheight - \sseq@totalymargin\relax
+        \sseq@yscalecm = \dimexpr\sseq@tempdimen/(\sseq@ymax-\sseq@ymin)\relax
+        \pgfmathsetmacro\sseq@yscale{\sseq@yscalecm /1cm}
+        \sseq@globalscaleoption{\pgfsetyvec{\pgfpoint{0cm}{\sseq@yscalecm}}}
     \fi
 %
     % Really this could be anything between -\sseq@xmin and -\sseq@xmax and it wouldn't matter. We'll split the difference.

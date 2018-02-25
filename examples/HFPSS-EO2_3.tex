@@ -17,9 +17,12 @@
 \begin{document}
 \begin{sseqdata}[name=EO(2),Adams grading,
     y range={0}{14},x range={0}{160},
-    xscale=0.15, x tick step=5,
+    scale to fit width = \textwidth - 50pt,
+    scale to fit height = \textheight - 50pt,
+    x tick step=5,
     classes={fill, tooltip={(\xcoord,\ycoord)}},
-    title=Page \page
+    title=Page \page,
+    draw orphan edges = false
 ]
 \foreach \v in {0,...,8}{
     \foreach \b in {0,...,11}{
@@ -43,9 +46,13 @@
 % v^2ab^2 is in degree 2*24 + 3 + 2*10 = 71, 5
 % b^{pn+1} = b^{7} is in degree 7*10 = 70,14
 \foreach \v in {2,5}{
-    \foreach \b in {0,...,6}{
+    \foreach \b in {0,...,3}{
         \d9(\v*24 + 3 +10*\b,1+2*\b)
     }
+}
+\foreach \v in {2}
+\foreach \b in {4,6}{
+    \d9(\v*24 + 3 +10*\b,1+2*\b)
 }
 \end{sseqdata}
 \printpage[name=EO(2),page=0,title={\phantom{Page 5}}]

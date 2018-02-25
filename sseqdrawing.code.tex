@@ -122,6 +122,9 @@
 \def\sseq@ylabelposition@ycenter{(-\sseq@xaxisgap,\sseq@yaxisstartoffset+5pt)}
 \def\sseq@ylabelposition@yframe{(0,\sseq@yaxisgap+\sseq@ylabelgap+10pt)}
 \def\sseq@ylabelposition@ynone{(0,0)}
+
+\def\sseq@totalxmargin{(\sseq@clip@padding@right + \sseq@xaxis@end@extend + \sseq@xaxis@start@extend + \sseq@yaxisgap)}
+\def\sseq@totalymargin{(\sseq@clip@padding@top + \sseq@yaxis@end@extend + \sseq@yaxis@start@extend + \sseq@xaxisgap)}
 %%%
 %%% Draw axes and clip
 %%%
@@ -589,7 +592,7 @@
 
 
 % #1 -- the name of the class object given as (x,y,n)[gen]
-% Mandatory fields: 
+% Mandatory fields:
 %   partcoord.(x,y).numnodes
 %   (x,y,n).num -- number of generations of this class
 %   (x,y,n).n   -- node n of numnodes (needed to allow node position to differ from creation order).
@@ -610,9 +613,9 @@
     \global\advance\sseq@totalclassesdrawn\@ne
     \begingroup
     \sseq@class@getparts#1.
-    % defines: 
+    % defines:
     % \sseq@thisnodename  -- name we should give the pdfnode
-    % \sseq@thispos -- (x,y) 
+    % \sseq@thispos -- (x,y)
     % \sseq@thispostotalnodes -- total number of nodes at (x,y)
     % \sseq@thisposnodeindex  -- index of this node
     \sseq@needstikzfalse

@@ -1288,19 +1288,24 @@
 }
 
 %%% Define global keys setter
+% Most keys are run twice -- once in the "/sseqpages/global" directory and once in the "/sseqpages/global/default" directory
+% The default "default" behavior is to add the option to the "sseq" style.
+% Keys prefixed by a tilde or using an "ignored" handler are only run in the "/sseqpages/global directory".
 \gdef\sseq@globalkeys#1{%
     \let\sseq@storetilde~%
     \def~{}%
-    \pgfqkeys{/sseqpages/global}{#1}%
-    \sseq@globalkeys@#1,\sseq@nil
+    \pgfqkeys{/sseqpages/global}{#1}% run keys in global directory
+    \sseq@globalkeys@#1,\sseq@nil % handle defaults
     \let~\sseq@storetilde
 }
 
 \def\sseq@globalkeys@#1,{%
     \sseq@tempiftrue
-    \sseq@keys@removehandler{#1}%
-    \ifsseq@tempif
+    \sseq@keys@removehandler{#1}% this sets \sseq@tempif to be false if it has an ignored handler
+    % It also sets \sseq@temp to be the key.
+    \ifsseq@tempif % If not ignored handler
         \pgfkeys{/sseqpages/\sseq@temp/.sseq @ global only}%
+        % Check if no previous default behavior is defined, and if not, define it to pass key to sseqs.
         \pgfkeysifdefined{/sseqpages/global/default/\sseq@temp/.@cmd}{}{%
             \pgfkeys{/sseqpages/global/default/\sseq@temp/.ecode={\@nx\pgfkeysalso{sseqs={\sseq@temp}}}}%
         }%
@@ -1311,7 +1316,7 @@
 \def\sseq@globalkeys@eatentry#1,{%
     \sseq@globalkeys@next
 }
-
+% iterate over keys, throwing away empty keys and ones that start with ~.
 \def\sseq@globalkeys@next{%
     \@ifnextchar\sseq@nil{\@gobble}{%
         \@ifnextchar~{\sseq@globalkeys@eatentry}{%
@@ -1322,6 +1327,7 @@
     }%
 }
 
+% Handlers to ignore for
 \def\sseq@keys@ignorehandlers{%
     \\{value forbidden}\\{value required}\\{default}%\\{sseq store in}\\{sseq is if}%
     \\{sseq default code}\\{sseq default code 2 args}%
@@ -1821,6 +1827,8 @@
         \@xp\gdef\@xp\sseq@globalscaletransform\@xp{\sseq@globalscaletransform#1}%
     }
 }
+
+
 \pgfqkeys{/sseqpages/global}{%
     x/.sseq @ illegal,
     y/.sseq @ illegal,
@@ -1845,7 +1853,10 @@
     ymirror/.value forbidden,
     mirror/.forward to=/sseqpages/global/xmirror,
     mirror/.forward to=/sseqpages/global/ymirror,
+    scale to fit width/.sseq store dimen in=\sseq@fitwidth{},
+    scale to fit height/.sseq store dimen in=\sseq@fitheight{},    
     xscale/.code={%
+        \let\sseq@fitwidth\pgfutil@empty
         \sseq@ifpgfmathexpr{int(#1-1)}{}{
             \sseq@error@nn{invalid-scale}{x}{#1}%
             \sseq@break
@@ -1870,6 +1881,7 @@
     },
     xscale/.value required,
     yscale/.code={%
+        \let\sseq@fitheight\pgfutil@empty
         \sseq@ifpgfmathexpr{int(#1-1)}{}{
             \sseq@error@nn{invalid-scale}{y}{#1}%
             \sseq@break
