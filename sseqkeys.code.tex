@@ -30,7 +30,6 @@
 \protected\def\sseqset#1{\pgfqkeys{/sseqpages/userstyles}{#1}}
 
 \def\sseq@sseqsetdirectory{/sseqpages/global/default}
-
 \def\sseq@set{\pgfqkeys{/sseqpages}}
 
 %%%
@@ -59,7 +58,7 @@
 % Lots of options mainly do stuff on the drawing run, but still need to warn the sseq setup algorithms that they're around
 % on the first pass. Some only do things on the first pass or only do things on the second pass.
 % For example, shifts: shifts apply a coordinate transform on the second pass, but also need to factor into the coordinates of
-% classes etc which are computed at specification time not at draw time. So xshift=2 increases \sseq@x by 2 on it's first pass and
+% classes etc which are computed at specification time not at draw time. So xshift=2 increases \sseq@x by 2 on its first pass and
 % applies a coordinate transform by 2cm on the second pass.
 
 % normal mode does the firstpass options now and saves the secondpass options in \sseq@savedoptioncode for later use.

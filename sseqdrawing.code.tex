@@ -555,16 +555,6 @@
             { \csname sseq@\sseq@classpattern yoffset#1/#2\endcsname }
     }}
 }
-\def\sseq@class@getparts#1(#2,#3,#4)[#5].{
-    \sseq@seterrorannotation@drawing{#1}{#2}{#3}{#4}{#5}
-    \def\sseq@thisclassname{class.(#2,#3,#4)}
-    \def\sseq@thisnodename{sseq{#2,#3,#4}}
-    \def\sseq@thispos{(#2,#3)}
-    \edef\sseq@thisposnum{\sseq@obj{class.(#2,#3,#4).n}}
-    \def\sseq@thisclassnum{#5}
-    \sseq@tempx=#2\relax
-    \sseq@tempy=#3\relax
-}
 
 \def\sseq@tooltip@wrapper#1#2{%
     \edef\temp{\detokenize\@xpthree{#2}}%
@@ -582,7 +572,36 @@
 }
 }
 
-% #1 -- the name of the node object
+
+% #1 -- "class."
+% (#2,#3,#4) -- the class name x,y,n
+% #5 -- generation
+\def\sseq@class@getparts#1(#2,#3,#4)[#5].{
+    \sseq@seterrorannotation@drawing{#1}{#2}{#3}{#4}{#5}
+    \def\sseq@thisnodename{sseq{#2,#3,#4}}
+    \def\sseq@thispos{(#2,#3)}
+    \edef\sseq@thisposnodeindex{\sseq@obj{class.(#2,#3,#4).n}}
+    \edef\sseq@thispostotalnodes{\sseq@obj{partcoord.(#2,#3).numnodes}}
+    \def\sseq@thisclassnum{#5}
+    \sseq@tempx=#2\relax
+    \sseq@tempy=#3\relax
+}
+
+
+% #1 -- the name of the class object given as (x,y,n)[gen]
+% Mandatory fields: 
+%   partcoord.(x,y).numnodes
+%   (x,y,n).num -- number of generations of this class
+%   (x,y,n).n   -- node n of numnodes (needed to allow node position to differ from creation order).
+%   class.page  -- the death page of the class
+% Optional fields:
+%   class.options   -- Options for this class.
+%   class.nodetext  -- The internal text of the node
+%   class.nodetext.options -- options (color, font) to change the nodetext
+%   class.labelnodes -- a list of external labels
+%   class.name & class.showname  -- If there is a name, use it as a label in some way
+%   class.tooltip   -- Make a tooltip. Fails if the user didn't load package with tooltip option
+%   class.needstikz -- Use tikz to draw this node
 % Someday I should document this horrible mess of code here
 \newif\ifsseq@permanentcycle
 \newcount\sseq@totalclassesdrawn
@@ -591,7 +610,13 @@
     \global\advance\sseq@totalclassesdrawn\@ne
     \begingroup
     \sseq@class@getparts#1.
+    % defines: 
+    % \sseq@thisnodename  -- name we should give the pdfnode
+    % \sseq@thispos -- (x,y) 
+    % \sseq@thispostotalnodes -- total number of nodes at (x,y)
+    % \sseq@thisposnodeindex  -- index of this node
     \sseq@needstikzfalse
+    % Apply first pass styles? TODO: What is this for again?
     \sseq@options@firstpassmode
         \sseq@thesseqstyle
         \sseq@theclassstyle
@@ -607,12 +632,14 @@
         \sseq@obj{#1.needstikz}
 %
     \sseq@outofrangetrue\relax % Mysterious that we need this \relax here...
+    % If we are in range, we'll draw the node, if not we just mark the coordinate.
     \ifnum\sseq@tempx<\sseq@xmaxpp\relax\ifnum\sseq@tempx>\sseq@xminmm\relax\ifnum\sseq@tempy<\sseq@ymaxpp\relax\ifnum\sseq@tempy>\sseq@yminmm\relax
         \sseq@outofrangefalse
         \pgfscope
+        % Finish options setup
         \let\tikz@options\pgfutil@empty
         \let\tikz@alias=\pgfutil@empty
-        \def\pgfkeysdefaultpath{/sseqpages/class/}
+        \def\pgfkeysdefaultpath{/sseqpages/class/}%
         \sseq@options@secondpassmode
             \sseq@thesseqstyle
             \sseq@theclassstyle
@@ -629,15 +656,18 @@
             \def\sseq@collections@featuretype{class}
             \the\sseq@scope@toks
             \sseq@obj{#1.options}
+        % Set up node position coordinate transform
         \pgftransformshift{\pgfqpointxy{\numexpr\sseq@tempx +\sseq@xoffset-\sseq@x\relax}{\numexpr\sseq@tempy + \sseq@yoffset-\sseq@y\relax}}
         \iftikz@fullytransformed\pgfgettransform{\savetransform}\fi
         \pgftransformresetnontranslations
         \sseq@globalrotatetransform
+        % Now the origin is at (x,y). Set up class placement offset.
         \sseq@classplacementtransform
         \sseq@obj@ifdef{#1.offset}{\sseq@obj{#1.offset}}{%
-            \sseq@offset{\sseq@thisposnum}{\sseq@obj{partcoord.\sseq@thispos.numnodes}}%
+            \sseq@offset{\sseq@thisposnodeindex}{\sseq@thispostotalnodes}%
         }%
         \iftikz@fullytransformed\pgfsettransform{\savetransform}\else\pgftransformresetnontranslations\ifsseq@rotatelabels\sseq@globalrotatetransform\fi\fi
+        %
         \tikz@options
         % the value of \sseq@class@showname comes from styles. If there was a local option with showname, it's stored in #1.showname.
         % local value takes priority.
@@ -650,118 +680,129 @@
 	            \sseq@eval{\@nx\sseq@handleclassquotes@inner{\sseq@obj{#1.name}}{\sseq@class@showname}}
 	       }{}
         \fi
+        % Okay now we're ready to make the node
         \ifsseq@needstikz
+            % The options code above put mode information into \tikz@mode which gets wiped by tikz
             \let\sseq@mode\tikz@mode
-            \tikzset{every text node part/.code/.expand once={\sseq@globalrotatetransform\sseq@classnodetextoptions{}}}%
             \sseq@eval{%
-                \@nx\node[/utils/exec={\let\@nx\tikz@mode\@nx\sseq@mode},
-                    /handlers/first char syntax/the character "/.initial=\@nx\sseq@handlequote
-                ] (\sseq@thisnodename) {\unexpanded\@xp{\sseq@classnodetext}}
-                [every text node part/.code={}];
+                \@nx\node[%
+                        every text node part/.code/.expand once={\sseq@globalrotatetransform\sseq@classnodetextoptions{}},%
+                        /utils/exec={\let\@nx\tikz@mode\@nx\sseq@mode}] % Set mode based on outer options
+                  (\sseq@thisnodename) {\unexpanded\@xp{\sseq@classnodetext}};%
             }%
         \else
             \tikz@node@textfont
-            \sseq@setnodetext{\sseq@classnodetext}{\sseq@classnodetextoptions}
+            \sseq@setnodetext{\sseq@classnodetext}{\sseq@classnodetextoptions}%
             \let\tikz@fig@name\sseq@thisnodename
             \pgfmultipartnode{\tikz@shape}{\tikz@anchor}{\tikz@fig@name}{\sseq@drawnode}%
-            \tikz@alias
+            \tikz@alias % makes extra names for this shape
         \fi
-        \sseq@obj{#1.labelnodes}
-        \sseq@classlabelnodes % classlabelnodes comes from show name
-        \sseq@obj@ifdef{#1.tooltip}{
-            \pgfpointanchor{\sseq@thisnodename}{west}
-            \pgf@xa=\pgf@x
-            \pgfpointanchor{\sseq@thisnodename}{south}
-            \pgf@ya=\pgf@y
-%
-            \pgf@process{\pgfpointdiff{\pgfpointtransformed{\pgfpointanchor{\sseq@thisnodename}{west}}}{\pgfpointtransformed{\pgfpointanchor{\sseq@thisnodename}{east}}}}
-            \pgf@xb=\pgf@x
-            \pgf@process{\pgfpointdiff{\pgfpointtransformed{\pgfpointanchor{\sseq@thisnodename}{south}}}{\pgfpointtransformed{\pgfpointanchor{\sseq@thisnodename}{north}}}}
-            \pgf@yb=\pgf@y
-%
-            \setbox\tikz@tempbox=\hbox{
-                \pgfinterruptpicture
-                \sseqtooltip{\rule{\pgf@xb}{0pt}\rule{0pt}{\pgf@yb}}{\sseq@obj{#1.tooltip}}
-                \endpgfinterruptpicture
-            }
-            {%
-                \pgftransformshift{\pgfqpoint{\pgf@xa}{\pgf@ya}}%
-                \pgfapproximatenonlineartransformation%
-                \pgfqboxsynced{\tikz@tempbox}%
-            }%
-        }{}
+        \sseq@obj{#1.labelnodes}%
+        \sseq@classlabelnodes % classlabelnodes comes from show name (I guess it can't put them into #1.labelnodes? TODO: why?)
+        \sseq@obj@ifdef{#1.tooltip}{\sseq@dotooltip{#1}}{}%
         \endpgfscope
     \fi\fi\fi\fi
+    % If the node is out of range, to save time we don't draw anything. However, structlines etc may depend on the out of range node,
+    % so we mark the coordinate.
     \ifsseq@outofrange
         \sseq@eval{\@nx\pgftransformshift{\@nx\pgfqpointxy{\numexpr\sseq@tempx+\sseq@xoffset-\sseq@x\relax}{\numexpr\sseq@tempy+\sseq@yoffset-\sseq@y\relax}}}%
         \pgftransformresetnontranslations
         \sseq@globalrotatetransform
         \sseq@classplacementtransform
-        \sseq@offset{\sseq@thisposnum}{\sseq@obj{partcoord.\sseq@thispos.numnodes}}
+        \sseq@offset{\sseq@thisposnodeindex}{\sseq@thispostotalnodes}%
         \pgfcoordinate{\sseq@thisnodename}{\pgfpointorigin}%
     \fi
     \endgroup
 }
 
+\def\sseq@dotooltip#1{%
+    \pgfpointanchor{\sseq@thisnodename}{west}%
+    \pgf@xa=\pgf@x
+    \pgfpointanchor{\sseq@thisnodename}{south}%
+    \pgf@ya=\pgf@y
+%
+    \pgf@process{\pgfpointdiff{\pgfpointtransformed{\pgfpointanchor{\sseq@thisnodename}{west}}}{\pgfpointtransformed{\pgfpointanchor{\sseq@thisnodename}{east}}}}%
+    \pgf@xb=\pgf@x
+    \pgf@process{\pgfpointdiff{\pgfpointtransformed{\pgfpointanchor{\sseq@thisnodename}{south}}}{\pgfpointtransformed{\pgfpointanchor{\sseq@thisnodename}{north}}}}%
+    \pgf@yb=\pgf@y
+%
+    \setbox\tikz@tempbox=\hbox{%
+        \pgfinterruptpicture
+        \sseqtooltip{\rule{\pgf@xb}{0pt}\rule{0pt}{\pgf@yb}}{\sseq@obj{#1.tooltip}}%
+        \endpgfinterruptpicture
+    }
+    {%
+        \pgftransformshift{\pgfqpoint{\pgf@xa}{\pgf@ya}}%
+        \pgfapproximatenonlineartransformation%
+        \pgfqboxsynced{\tikz@tempbox}%
+    }%
+}
+
 % #1 -- label text
 % #2 -- options
+% Make the node textbox.
 \def\sseq@setnodetext#1#2{%
-    \setbox\pgfnodeparttextbox=\hbox{%
-        \pgfscope%
-        #2
-        \tikzset{every text node part/.try}%
-        \ifx\tikz@textopacity\pgfutil@empty%
-        \else%
-         \pgfsetfillopacity{\tikz@textopacity}%
-          \pgfsetstrokeopacity{\tikz@textopacity}%
-        \fi%
-        \pgfinterruptpicture
-      \ifx\tikz@text@width\pgfutil@empty%
-        \tikz@textfont%
-      \else%
-        \begingroup%
-        	\pgfmathsetlength{\pgf@x}{\tikz@text@width}%
-          \pgfutil@minipage[t]{\pgf@x}\leavevmode\hbox{}%
+    \sseq@ifempty{#2}{% more often than not, the node is empty...
+        \setbox\pgfnodeparttextbox=\hbox{}%
+    }{%
+        \setbox\pgfnodeparttextbox=\hbox{%
+            \pgfscope%
+            #2
+            \tikzset{every text node part/.try}%
+            \ifx\tikz@textopacity\pgfutil@empty%
+            \else%
+             \pgfsetfillopacity{\tikz@textopacity}%
+              \pgfsetstrokeopacity{\tikz@textopacity}%
+            \fi%
+            \pgfinterruptpicture
+          \ifx\tikz@text@width\pgfutil@empty%
             \tikz@textfont%
-            \tikz@text@action%
-      \fi%
-        \ifx\tikz@textcolor\pgfutil@empty%
-        \else%
-          \pgfutil@colorlet{.}{\tikz@textcolor}%
-        \fi%
-        \pgfsetcolor{.}%
-          \tikz@atbegin@node%
-          #1%
-          \tikz@atend@node%
-           \ifx\tikz@text@width\pgfutil@empty%
-           \else%
-              \pgfutil@endminipage%
-            \endgroup%
+          \else%
+            \begingroup%
+            	\pgfmathsetlength{\pgf@x}{\tikz@text@width}%
+              \pgfutil@minipage[t]{\pgf@x}\leavevmode\hbox{}%
+                \tikz@textfont%
+                \tikz@text@action%
           \fi%
-          \endpgfinterruptpicture
-      \endpgfscope%
-    }%
-    \ifx\tikz@text@width\pgfutil@empty%
-    \else%
-      \pgfmathsetlength{\pgf@x}{\tikz@text@width}%
-      \wd\pgfnodeparttextbox=\pgf@x%
-    \fi%
-    \ifx\tikz@text@height\pgfutil@empty%
-    \else%
-      \pgfmathsetlength{\pgf@x}{\tikz@text@height}%
-      \ht\pgfnodeparttextbox=\pgf@x%
-    \fi%
-    \ifx\tikz@text@depth\pgfutil@empty%
-    \else%
-      \pgfmathsetlength{\pgf@x}{\tikz@text@depth}%
-      \dp\pgfnodeparttextbox=\pgf@x%
-    \fi%
+            \ifx\tikz@textcolor\pgfutil@empty%
+            \else%
+              \pgfutil@colorlet{.}{\tikz@textcolor}%
+            \fi%
+            \pgfsetcolor{.}%
+              \tikz@atbegin@node%
+              #1%
+              \tikz@atend@node%
+               \ifx\tikz@text@width\pgfutil@empty%
+               \else%
+                  \pgfutil@endminipage%
+                \endgroup%
+              \fi%
+              \endpgfinterruptpicture
+          \endpgfscope%
+        }%
+        \ifx\tikz@text@width\pgfutil@empty%
+        \else%
+          \pgfmathsetlength{\pgf@x}{\tikz@text@width}%
+          \wd\pgfnodeparttextbox=\pgf@x%
+        \fi%
+        \ifx\tikz@text@height\pgfutil@empty%
+        \else%
+          \pgfmathsetlength{\pgf@x}{\tikz@text@height}%
+          \ht\pgfnodeparttextbox=\pgf@x%
+        \fi%
+        \ifx\tikz@text@depth\pgfutil@empty%
+        \else%
+          \pgfmathsetlength{\pgf@x}{\tikz@text@depth}%
+          \dp\pgfnodeparttextbox=\pgf@x%
+        \fi%
+    }
 }
+
+% A small part of the tikz main loop that has been paired down as much as possible for efficiency.
 \def\sseq@drawnode{%
   \pgfutil@tempdima=\pgflinewidth%
   {%
     \tikz@mode%
-    %\iftikz@mode@clip \sseq@error@internal{Clip shouldn't happen here, but this error should be caught earlier}{}\fi %
     \iftikz@mode@draw%
         \iftikz@mode@double%
         % Change line width
@@ -794,27 +835,27 @@
 
 % #1 -- label text
 % #2 -- options
-\def\sseq@drawlabel#1#2{
+\def\sseq@drawlabel#1#2{%
     \bgroup\pgfscope
-    \def\tikz@mode{}
+    \def\tikz@mode{}%
     \let\sseq@tikz@transform@save\tikz@transform
-    \pgfkeyssetvalue{/pgf/inner xsep}{2pt}
-    \pgfkeyssetvalue{/pgf/inner ysep}{2pt}
+    \pgfkeyssetvalue{/pgf/inner xsep}{2pt}%
+    \pgfkeyssetvalue{/pgf/inner ysep}{2pt}%
     \def\tikz@shape{rectangle}
-    \let\tikz@transform\empty % The next line was set up to fix the classlabelstyle glitch
+    \let\tikz@transform\empty % The next line was set up to fix the classlabelstyle glitch (what does this mean?)
     \sseq@options@secondpassmode
     \sseq@thesseqstyle\sseq@thelabelstyle\sseq@theclasslabelstyle#2
     \tikz@options
     \pgftransformreset
-    \pgftransformshift{\tikz@node@at}
+    \pgftransformshift{\tikz@node@at}%
     \tikz@lib@pos@call
     \tikz@transform
     \tikz@mode
     \let\tikz@transform\sseq@tikz@transform@save
-    \sseq@setnodetext{\sseq@labeltextfn{#1}}{}
+    \sseq@setnodetext{\sseq@labeltextfn{#1}}{}%
     \pgfmultipartnode{\tikz@shape}{\tikz@anchor}{label}{\sseq@drawnode}%
     \ifsseq@pin
-        \def\sseq@pinoptions{}
+        \def\sseq@pinoptions{}%
         \let\tikz@options\empty
         \let\tikz@mode\empty
         \sseq@thepinstyle
@@ -822,11 +863,11 @@
         \sseq@pinoptions
         \tikz@options
         \tikz@mode
-        \sseq@drawedge@findsourcetarget{\tikz@fig@name}{}{label}{}
+        \sseq@drawedge@findsourcetarget{\tikz@fig@name}{}{label}{}%
         \pgfpathmoveto{\sseq@sourcecoord}%
         \pgfpathlineto{\sseq@targetcoord}%
         \sseq@eval{\noexpand\pgfusepath{%
-            draw
+            draw,
             \iftikz@mode@fill fill,\fi
             \iftikz@mode@draw draw,\fi
         }}%
