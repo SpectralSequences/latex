@@ -32,10 +32,10 @@
 \def\sseqdata{\@ifnextchar[{\sseqdata@}{\sseqdata@[]}}%}
 
 \def\sseqdata@[#1]{%
-    \edef\sseq@restorefont{\font@name}
+    \edef\sseq@restorefont{\font@name}%
     \selectfont\nullfont % Avoid space hazards!
 
-    \def\par{}
+    \def\par{}%
 %
     \ifx\pgfpictureid\@undefined\else %Uh-oh, we're inside tikz.
         \sseq@error@n{env-inside-tikz}{sseqdata}\@xp\sseq@breakdataenv
@@ -108,7 +108,7 @@
 }
 
 % Just store all the settings
-\def\endsseqdata{
+\def\endsseqdata{%
     \let\sseq@error@setup\sseq@error@setup@noinfo
     \sseq@checkend{sseqdata}
     \sseq@savedpaths@add{\endgroup} % prevent some of the two-pass user macros horrors
@@ -121,9 +121,9 @@
 \def\sseqpage{\@ifnextchar[{\sseqpage@}{\sseqpage@[]}} %]
 
 \def\sseqpage@[#1]{%
-    \edef\sseq@restorefont{\font@name}
+    \edef\sseq@restorefont{\font@name}%
     \selectfont\nullfont % Avoid space hazards!
-    \def\par{}
+    \def\par{}%
 %
     \ifx\pgfpictureid\@undefined\else %Uh-oh, we're inside tikz.
         \sseq@error@n{env-inside-tikz}{sseqpage}\@xp\sseq@breakpageenv
@@ -217,6 +217,7 @@
     \sseq@checkend{sseqpage}
     \sseq@savedpaths@add{\endgroup} % prevent some of the two-pass user macros horrors
 %
+    \sseq@setlayoutparameters
     \sseq@xscalecm=\sseq@xscale cm
     \sseq@yscalecm=\sseq@yscale cm
 %
@@ -287,7 +288,6 @@
         every node/.style={}
     }
     \let\errmessage\sseq@errmessage@std
-    \sseq@setlayoutparameters
     \begin{tikzpicture}[/sseqpages/global/{default} options,\ifsseq@hasname/sseqpages/global/{\sseq@thename} options\fi,/sseqpages/global/{this page} options]%
     \sseq@sseqstyle@globalpart
     \sseq@globaldetonetransform
@@ -369,7 +369,7 @@
 
 % Shorthand for sseqpage with empty body
 \def\printpage[#1]{%
-    \begin{sseqpage}[#1]
+    \begin{sseqpage}[#1]%
     \end{sseqpage}%
 }
 
@@ -494,20 +494,26 @@
 
 
 %%% "Quick" commands for "compiled" code.
-\def\sseq@qclass(#1,#2){
-    \sseq@obj@inccheckdef{partcoord.(#1,#2).numnodes}
-    \edef\tempn{\sseq@obj{partcoord.(#1,#2).numnodes}}
-    \edef\classname{class.(#1,#2,\tempn)}
+\def\sseq@qcolor#1{\unexpanded{\sseq@options@secondpass{\tikz@addoption{\tikz@compat@color@set{#1}}\def\tikz@textcolor{#1}}}}
+
+\def\sseq@qclass{\@ifnextchar[{\sseq@qclass@}{\sseq@qclass@[]}}
+\def\sseq@qclass@[#1](#2,#3){
+    \sseq@obj@inccheckdef{partcoord.(#2,#3).numnodes}
+    \edef\tempn{\sseq@obj{partcoord.(#2,#3).numnodes}}
+    \edef\classname{class.(#2,#3,\tempn)}
     \sseq@obj@xdef{\classname.n}{\tempn}
     \sseq@obj@xdef{\classname.num}{0}
     \sseq@obj@xdef{\classname[0].page}{\sseq@infinity}
-    \sseq@savedpaths@addclass{class.(#1,#2,\tempn)}
+    \sseq@obj@xdef{\classname[0].options}{#1}
+    \sseq@savedpaths@addclass{class.(#2,#3,\tempn)}
 }
-\def\sseq@qclassnamed(#1,#2)#3{
-    \sseq@qclass(#1,#2)
-    \def\sseq@class@name{#3}
+
+\def\sseq@qclassnamed{\@ifnextchar[{\sseq@qclassnamed@}{\sseq@qclassnamed@[]}}
+\def\sseq@qclassnamed@[#1](#2,#3)#4{
+    \sseq@qclass@[#1](#2,#3)
+    \def\sseq@class@name{#4}
     \sseq@obj@xdef{\classname[0].name}{\sseq@class@name}
-    \sseq@obj@xdef{class.namedclass.\detokenize\@xp{\sseq@class@name}}{#1,#2,\tempn}
+    \sseq@obj@xdef{class.namedclass.\detokenize\@xp{\sseq@class@name}}{#2,#3,\tempn}
 }
 
 \def\sseq@qdnamed#1(#2)(#3){\sseq@eval{\@nx\sseq@qd#1(\sseq@obj{class.namedclass.\detokenize{#2}})(\sseq@obj{class.namedclass.\detokenize{#3}})}}
@@ -678,7 +684,7 @@
     \sseq@lettoobj\sseq@tooltip{#2.tooltip}
     \sseq@class@getparts#2.
     \sseq@quieterror{class-tag-already-defined}
-    \edef\sseq@class@tag{copiedfrom\sseq@thisposnum}
+    \edef\sseq@class@tag{copiedfrom\sseq@thisposnodeindex}
     \let\sseq@thename\sseq@thename@saved
     \sseq@eval{\@nx\sseq@cparsecoord{\the\sseq@tempx,\the\sseq@tempy}}
     \let\sseq@pushstack@\@gobble
@@ -1362,7 +1368,7 @@
     \endgroup
 }
 \def\sseq@structline@structline{
-    \@ifundefined{sseq@structline@pagemax}{}{\sseq@error{structline-no-page-max}}% could be warning
+    \@ifundefined{sseq@structline@pagemax}{}{\ifnum\sseq@structline@pagemax=\sseq@infinity\else \sseq@error{structline-no-page-max}\fi}% could be warning
     \ifnum\sseq@pagemin<\sseq@obj{class.\source[\sseq@obj{class.\source.num}].page}\relax\else
         \sseq@error{structline-stillborn}
         \sseq@breakfi

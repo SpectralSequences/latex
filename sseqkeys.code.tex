@@ -617,7 +617,7 @@
     \pgfutil@in@{--}{#2}\ifpgfutil@in@
         \sseq@getnumrange@range#1#2\sseq@nil
     \else
-        \edef#1{\the\numexpr#2}
+        \sseq@getnumrange@range#1#2--\sseq@infinity\sseq@nil
     \fi
 }
 \def\sseq@getnumrange@range#1#2--#3\sseq@nil{\edef#1{\the\numexpr#2}\@xp\edef\csname\sseq@macroname#1max\endcsname{\the\numexpr#3}}
@@ -1854,7 +1854,7 @@
     mirror/.forward to=/sseqpages/global/xmirror,
     mirror/.forward to=/sseqpages/global/ymirror,
     scale to fit width/.sseq store dimen in=\sseq@fitwidth{},
-    scale to fit height/.sseq store dimen in=\sseq@fitheight{},    
+    scale to fit height/.sseq store dimen in=\sseq@fitheight{},
     xscale/.code={%
         \let\sseq@fitwidth\pgfutil@empty
         \sseq@ifpgfmathexpr{int(#1-1)}{}{
