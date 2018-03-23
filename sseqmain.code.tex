@@ -395,8 +395,8 @@
     \sseq@savedpaths
     \sseq@g@addto@macro#1{\endgroup}
     \endgroup
-    \@xp\let\csname\sseq@macroname#1 code\endcsname\sseq@copymacro
-    \DeclareSseqGroup #1 {} { \csname\sseq@macroname#1 code\endcsname }
+    \@xp\let\csname\sseq@macroname#1 copiedcode\endcsname\sseq@copymacro
+    \DeclareSseqGroup #1 {} { \csname\sseq@macroname#1 copiedcode\endcsname }
     \let\sseq@savedpaths\sseq@savedpaths@save
 }
 
