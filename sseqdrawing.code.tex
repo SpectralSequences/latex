@@ -751,7 +751,7 @@
 % #2 -- options
 % Make the node textbox.
 \def\sseq@setnodetext#1#2{%
-    \sseq@ifempty{#2}{% more often than not, the node is empty...
+    \sseq@ifempty{#1}{% more often than not, the node is empty...
         \setbox\pgfnodeparttextbox=\hbox{}%
     }{%
         \setbox\pgfnodeparttextbox=\hbox{%
