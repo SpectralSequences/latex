@@ -1624,6 +1624,7 @@
 }
 \let\sseq@processlabels\sseq@processlabels@default
 
+\let\sseqlastlabel\empty
 % I can't remember why we need to defer this. If at some point I figure this out, I should explain why here and in the definition of \class...
 \def\sseq@handleclassquotes@inner#1#2{%
     \begingroup\pgfscope
@@ -1635,6 +1636,7 @@
     \sseq@theclasslabelstyle
     \the\sseq@scope@toks
     \sseq@options@normalmode
+    \gdef\sseqlastlabel{#2}
     \sseq@processoptions{class/label}{#2}%
     \sseq@classlabel@handler{#1}% labeltextfn is a private handler for transformations, sseq@classlabel@handler is exposed via "class label handler"
     \ifsseq@classlabel
