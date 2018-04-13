@@ -1116,7 +1116,6 @@
             \sseq@temp@ii/.code/.expanded={%
                 \unexpanded{#3{##1}}{\sseq@temp=\unexpanded{##1}}%
                 \unexpanded{\edef#1{\unexpanded\@xp{\sseq@sanitize@output}}}%
-                %\show\@nx#1
                 \sseq@breakpoint
             },
             \sseq@temp@ii/.value required,
@@ -1391,7 +1390,7 @@
             \sseq@thepagecount=\sseq@thepage\relax
             \let\page\sseq@thepage
             \edef\sseq@thepagemm{\the\numexpr\sseq@thepagecount-1\relax}
-            \ifx\sseq@thepagemax\undefined
+            \ifx\sseq@thepagemax\sseq@infinity
                 \edef\sseq@thepagemaxpp{\the\numexpr\sseq@thepagecount+1\relax}
             \else
                 \ifnum\sseq@thepagemax=\z@
