@@ -1,4 +1,4 @@
-\ProvidesClass{spectralsequence-example.sty}
+\ProvidesClass{spectralsequence-example}
 \LoadClass{article}
 \RequirePackage[landscape,margin=0.8cm,paperheight=16in, paperwidth=9in]{geometry}
 \RequirePackage{spectralsequences}

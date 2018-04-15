@@ -1852,8 +1852,9 @@
     ymirror/.value forbidden,
     mirror/.forward to=/sseqpages/global/xmirror,
     mirror/.forward to=/sseqpages/global/ymirror,
-    scale to fit width/.sseq store dimen in=\sseq@fitwidth{},
-    scale to fit height/.sseq store dimen in=\sseq@fitheight{},
+    width/.sseq store dimen in=\sseq@fitwidth{},
+    width/.append code={},
+    height/.sseq store dimen in=\sseq@fitheight{},
     xscale/.code={%
         \let\sseq@fitwidth\pgfutil@empty
         \sseq@ifpgfmathexpr{int(#1-1)}{}{

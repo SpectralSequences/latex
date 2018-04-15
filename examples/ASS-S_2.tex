@@ -161,7 +161,8 @@
     class labels={above left=0.2em,black},
     x range={0}{46},
     y range={0}{23},
-    scale to fit height = \textheight  - 50pt,
+    height = \textheight - 20pt,
+    width = \textwidth,
     differentials = blue,
     classes = { tooltip = { (\xcoord,\ycoord) } },
     grid = go,
@@ -310,8 +311,6 @@
     differentials=blue,
     x range={0}{40},
     y range={0}{10},
-    xscale=0.7,
-    yscale=1.7,
     grid=go,
     right clip padding=2em
 ]
@@ -348,8 +347,11 @@
 %\classoptions["P^4h_3" left](39,17,1)
 \end{sseqpage}
 
-\newgeometry{margin = 0.1cm}
-\printpage[name=ASS-S_2,page=2,xscale=0.7,yscale=0.8,keep changes]
+%\newgeometry{margin = 0.1cm}
+\printpage[name=ASS-S_2,page=2]
+%\newbox\tempbox
+%\setbox\tempbox = \hbox{\printpage[name=ASS-S_2,page=2,keep changes]}
+%\showthe\wd\tempbox
 
 %\printpage[name=ASS-S_2,page=2]
 

@@ -38,7 +38,6 @@
     \sseq@setlayoutparameter{bottomclippadding}{x\sseq@xaxistype}
     \sseq@setlayoutparameter{topclippadding}{x\sseq@xaxistype}
     \sseq@setlayoutparameter{xlabelposition}{x\sseq@xaxistype}
-    \sseq@setlayoutparameter{totalymargin}{x\sseq@xaxistype}
 %
     \sseq@setlayoutparameter{xaxisorigin}{y\sseq@yaxistype}
     \sseq@setlayoutparameter{drawxaxis}{y\sseq@yaxistype}
@@ -49,7 +48,6 @@
     \sseq@setlayoutparameter{leftclippadding}{y\sseq@yaxistype}
     \sseq@setlayoutparameter{rightclippadding}{y\sseq@yaxistype}
     \sseq@setlayoutparameter{ylabelposition}{y\sseq@xaxistype}
-    \sseq@setlayoutparameter{totalxmargin}{y\sseq@xaxistype}
 }
 
 % The appropriate one of these is chosen by the "axis type" keys in sseqkeys.
@@ -125,12 +123,6 @@
 \def\sseq@ylabelposition@yframe{(0,\sseq@yaxisgap+\sseq@ylabelgap+10pt)}
 \def\sseq@ylabelposition@ynone{(0,0)}
 
-% Some fudge here...
-\def\sseq@totalxmargin@yborder{(\sseq@clip@padding@right + \sseq@xaxis@end@extend + \sseq@xaxisstartoffset + 0.2001pt )}
-\def\sseq@totalxmargin@yframe{(\sseq@clip@padding@right + \sseq@xaxis@end@extend + \sseq@xaxisstartoffset + 4pt)}
-
-\def\sseq@totalymargin@xborder{(\sseq@clip@padding@top + \sseq@yaxis@end@extend + \sseq@yaxisstartoffset + 0.2001pt)}
-\def\sseq@totalymargin@xframe{(\sseq@bottomclippadding + \sseq@topclippadding)}
 %%%
 %%% Draw axes and clip
 %%%
