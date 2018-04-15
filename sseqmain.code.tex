@@ -128,7 +128,7 @@
     \ifx\pgfpictureid\@undefined\else %Uh-oh, we're inside tikz.
         \sseq@error@n{env-inside-tikz}{sseqpage}\@xp\sseq@breakpageenv
     \fi
-    \ifsseq@inprogress % Uh-oh, we're already in a sseq environment. 
+    \ifsseq@inprogress % Uh-oh, we're already in a sseq environment.
         \sseq@error@n{env-inside-sseq}{sseqpage}\@xp\sseq@breakpageenv
     \fi
     \sseq@inprogresstrue
@@ -174,7 +174,7 @@
             \fi
             \sseq@tempiffalse
             \def\sseq@currentoptionpath{this page}
-            \pgfqkeys{/sseqpages/global}{{this page} options/.code={},#1}            
+            \pgfqkeys{/sseqpages/global}{{this page} options/.code={},#1}
         }
     \else
         \edef\sseq@thename{temp@sseq@number@\the\sseq@anonsseqcount}
@@ -242,12 +242,17 @@
         \@xp\sseq@break
     \fi
 %
+    \bgroup
+    \def\sseq@xscale{1cm}\def\sseq@yscale{1cm}
+    \sseq@xscalecm=\sseq@xscale cm
+    \sseq@yscalecm=\sseq@yscale cm
     \setbox\sseq@measureheightwidthbox=\hbox{%
         \begin{sseq@tikzpicture}%
         \end{sseq@tikzpicture}%
     }
-    \edef\sseq@totalxmargin{\the\dimexpr\wd\sseq@measureheightwidthbox - \sseq@xscalecm*(\sseq@xmax-\sseq@xmin)}
-    \edef\sseq@totalymargin{\the\dimexpr\ht\sseq@measureheightwidthbox - \sseq@yscalecm*(\sseq@ymax-\sseq@ymin)}
+    \xdef\sseq@totalxmargin{\the\dimexpr\wd\sseq@measureheightwidthbox - \sseq@xscalecm*(\sseq@xmax-\sseq@xmin)}
+    \xdef\sseq@totalymargin{\the\dimexpr\ht\sseq@measureheightwidthbox - \sseq@yscalecm*(\sseq@ymax-\sseq@ymin)}
+    \egroup
     \ifx\sseq@fitwidth\pgfutil@empty % Check to make sure chart will fit on page
         \sseq@tempdimen = \dimexpr \textwidth - \sseq@totalxmargin\relax
         \sseq@tempcount = \numexpr \sseq@tempdimen / \sseq@xscalecm \relax
