@@ -1,14 +1,15 @@
-ANSS-S_2.tex [0;32mpassed[0m in 3.61s
-ANSS-S_3.tex [0;31mfailed[0m
-ASS-S_2.tex [0;32mpassed[0m in 8.68s
-ASS-S_3.tex [0;32mpassed[0m in 3.20s
-ASS-tmf_2.tex [0;32mpassed[0m in 11.83s
-HFPSS-EO2_3.tex [0;32mpassed[0m in 4.06s
-HFPSS-KO.tex [0;31mfailed[0m
-J_RPinfty.tex [0;32mpassed[0m in 7.67s
-MaySS-bo-A(1).tex [0;32mpassed[0m in 2.69s
-MaySS-tmf-A(2).tex [0;32mpassed[0m in 6.07s
-SSS-KF3n.tex [0;31mfailed[0m
-SSS-KZ3.tex [0;32mpassed[0m in 2.38s
-hatcher.tex [0;32mpassed[0m in 1.28s
-unstable_ASS_SO.tex [0;32mpassed[0m in 1.19s
+ANSS-S_2.tex passed in 5.26s
+ANSS-S_3.tex passed in 1.86s
+ASS-S_2.tex passed in 11.23s
+ASS-S_3.tex passed in 4.15s
+ASS-tmf_2.tex passed in 14.06s
+HFPSS-EO2_3.tex passed in 5.64s
+HFPSS-KO.tex passed in 2.85s
+J_RPinfty.tex passed in 8.23s
+MaySS-bo-A(1).tex passed in 3.70s
+MaySS-tmf-A(2).tex passed in 7.14s
+SSS-KF3n.tex passed in 6.05s
+SSS-KZ3.tex passed in 2.81s
+hatcher.tex passed in 1.43s
+unstable_ASS_SO.tex passed in 1.29s
+All tests passed.

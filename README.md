@@ -16,13 +16,15 @@ Changelog:
 
 ## [Unreleased]
 ### Added:
-- "scale to width" and "scale to height" global keys.
+- "width" and "height" global keys.
+- \lastlabel
 - \sseq@qclass and friends for fast compiled spectral sequences.
 
 ### Fixed:
 - Tick style didn't work, now it does.
 - Orphan edges are consistently oriented correctly now (reported by Eric Peterson).
 - A bug that emitted an extra space with every spectralsequence page.
+- "name" didn't work correctly in \SseqCopyPage because of an internal naming clash.
 
 ## [1.2.0] (2017-12-10)
 ### Added:

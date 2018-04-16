@@ -222,72 +222,7 @@
     \sseq@xscalecm=\sseq@xscale cm
     \sseq@yscalecm=\sseq@yscale cm
 %
-% check that range is okay
-%
-    \ifx\sseq@xmin\sseq@infinity\sseq@error{no-range}\def\sseq@xmin{0}\def\sseq@xmax{0}\@xp\sseq@break\fi % could be warning
-    \ifx\sseq@ymin\sseq@infinity\sseq@error{no-range}\def\sseq@ymin{0}\def\sseq@ymax{0}\@xp\sseq@break\fi
-    \let\xmin\sseq@xmin
-    \let\xmax\sseq@xmax
-    \let\ymin\sseq@ymin
-    \let\ymax\sseq@ymax
-%
-    \ifnum\numexpr\sseq@xmax-\sseq@xmin\relax>\numexpr\maxdimen/\dimexpr1pt\relax-1\relax
-        \sseq@error@xx{range-super-overflow}{x}
-            {from \sseq@xmin\space to \sseq@xmax\space (xmax - xmin = \the\numexpr\sseq@xmax-\sseq@xmin)}
-        \@xp\sseq@break
-    \fi
-    \ifnum\numexpr\sseq@ymax-\sseq@ymin\relax>\numexpr\maxdimen/\dimexpr1pt\relax-1\relax
-        \sseq@error@xx{range-super-overflow}{y}
-            {from \sseq@ymin\space to \sseq@ymax\space (ymax - ymin = \the\numexpr\sseq@ymax-\sseq@ymin)}
-        \@xp\sseq@break
-    \fi
-%
-    \bgroup
-    \def\sseq@xscale{1cm}\def\sseq@yscale{1cm}
-    \sseq@xscalecm=\sseq@xscale cm
-    \sseq@yscalecm=\sseq@yscale cm
-    \setbox\sseq@measureheightwidthbox=\hbox{%
-        \begin{sseq@tikzpicture}%
-        \end{sseq@tikzpicture}%
-    }
-    \xdef\sseq@totalxmargin{\the\dimexpr\wd\sseq@measureheightwidthbox - \sseq@xscalecm*(\sseq@xmax-\sseq@xmin)}
-    \xdef\sseq@totalymargin{\the\dimexpr\ht\sseq@measureheightwidthbox - \sseq@yscalecm*(\sseq@ymax-\sseq@ymin)}
-    \egroup
-    \ifx\sseq@fitwidth\pgfutil@empty % Check to make sure chart will fit on page
-        \sseq@tempdimen = \dimexpr \textwidth - \sseq@totalxmargin\relax
-        \sseq@tempcount = \numexpr \sseq@tempdimen / \sseq@xscalecm \relax
-        \ifnum \numexpr\sseq@xmax-\sseq@xmin + 1 > \sseq@tempcount
-          \pgfmathparse{\sseq@tempdimen/1cm/(\sseq@xmax-\sseq@xmin+1)}
-          \sseq@error@xxxx{range-overflow}{x}
-                {from \sseq@xmin\space to \sseq@xmax\space (xmax - xmin = \the\numexpr\sseq@xmax-\sseq@xmin)}
-                {\the\sseq@tempcount}% max x range
-                {\pgfmathresult}% max xscale
-            \@xp\sseq@break
-        \fi
-    \else % scale to fit target width
-        \sseq@tempdimen = \dimexpr \sseq@fitwidth - \sseq@totalxmargin\relax
-        \sseq@xscalecm = \dimexpr\sseq@tempdimen/(\sseq@xmax-\sseq@xmin)\relax
-        \pgfmathsetmacro\sseq@xscale{\sseq@xscalecm /1cm}
-        \sseq@globalscaleoption{\pgfsetxvec{\pgfpoint{\sseq@xscalecm}{0cm}}}
-    \fi
-%
-    \ifx\sseq@fitheight\pgfutil@empty % Check to make sure chart will fit on page
-        \sseq@tempdimen = \dimexpr \textheight - \sseq@totalymargin \relax
-        \sseq@tempcount = \numexpr \sseq@tempdimen /\sseq@yscalecm \relax
-        \ifnum \numexpr\sseq@ymax-\sseq@ymin +1 > \sseq@tempcount
-            \pgfmathparse{\sseq@tempdimen/1cm/(\sseq@ymax-\sseq@ymin+1)}
-            \sseq@error@xxxx{range-overflow}{y}
-                {from \sseq@ymin\space to \sseq@ymax\space (ymax - ymin = \the\numexpr\sseq@ymax-\sseq@ymin)}
-                {\the\sseq@tempcount}% max x range
-                {\pgfmathresult}% max xscale
-            \@xp\sseq@break
-        \fi
-    \else % Set yscale to fit target height
-        \sseq@tempdimen = \dimexpr \sseq@fitheight - \sseq@totalymargin\relax
-        \sseq@yscalecm = \dimexpr\sseq@tempdimen/(\sseq@ymax-\sseq@ymin)\relax
-        \pgfmathsetmacro\sseq@yscale{\sseq@yscalecm /1cm}
-        \sseq@globalscaleoption{\pgfsetyvec{\pgfpoint{0cm}{\sseq@yscalecm}}}
-    \fi
+    \sseq@checkrangeandfindscale
 %
     % Really this could be anything between -\sseq@xmin and -\sseq@xmax and it wouldn't matter. We'll split the difference.
     \sseq@xoffset=\numexpr\sseq@intdivceiling{\numexpr-\sseq@xmin-\sseq@xmax\relax}{\numexpr4*\sseq@xgridstep\relax}*(2*\sseq@xgridstep)\relax
@@ -324,6 +259,117 @@
     \sseq@breakpoint
     \ignorespacesafterend
 }
+
+\def\sseq@checkrangeandfindscale{
+    \ifx\sseq@xmin\sseq@infinity\sseq@error{no-range}\def\sseq@xmin{0}\def\sseq@xmax{0}\@xp\sseq@break\fi % could be warning
+    \ifx\sseq@ymin\sseq@infinity\sseq@error{no-range}\def\sseq@ymin{0}\def\sseq@ymax{0}\@xp\sseq@break\fi
+    \let\xmin\sseq@xmin
+    \let\xmax\sseq@xmax
+    \let\ymin\sseq@ymin
+    \let\ymax\sseq@ymax
+%
+    \ifnum\numexpr\sseq@xmax-\sseq@xmin\relax>\numexpr\maxdimen/\dimexpr1pt\relax-1\relax
+        \sseq@error@xx{range-super-overflow}{x}
+            {from \sseq@xmin\space to \sseq@xmax\space (xmax - xmin = \the\numexpr\sseq@xmax-\sseq@xmin)}
+        \@xp\sseq@break
+    \fi
+    \ifnum\numexpr\sseq@ymax-\sseq@ymin\relax>\numexpr\maxdimen/\dimexpr1pt\relax-1\relax
+        \sseq@error@xx{range-super-overflow}{y}
+            {from \sseq@ymin\space to \sseq@ymax\space (ymax - ymin = \the\numexpr\sseq@ymax-\sseq@ymin)}
+        \@xp\sseq@break
+    \fi
+%
+    \sseq@globalscaleoption{\pgfsetxvec{\pgfpoint{\sseq@xscalecm}{0cm}}\pgfsetyvec{\pgfpoint{0cm}{\sseq@yscalecm}}}
+    \let\sseq@xscale@save\sseq@xscale
+    \let\sseq@yscale@save\sseq@yscale
+%
+    \def\sseq@fittingiterations{1}
+%
+    \ifx\sseq@fitwidth\pgfutil@empty % Check to make sure chart will fit on page
+        \edef\sseq@findscalewidth{\the\textwidth}
+    \else % scale to fit target width
+        \ifnum\sseq@xmax=\sseq@xmin
+            \sseq@error@n{height-width-range-zero}{width}{x}
+            \let\sseq@fitwidth\pgfutil@empty
+        \else
+            \let\sseq@findscalewidth\sseq@fitwidth
+            \def\sseq@fittingiterations{3}
+        \fi
+    \fi
+%
+    \ifx\sseq@fitheight\pgfutil@empty % Check to make sure chart will fit on page
+        \edef\sseq@findscaleheight{\the\textheight}
+    \else % Set yscale to fit target height
+        \ifnum\sseq@ymax=\sseq@ymin
+            \sseq@error@n{height-width-range-zero}{height}{y}
+            \let\sseq@fitheight\pgfutil@empty
+        \else
+            \let\sseq@findscaleheight\sseq@fitheight
+            \def\sseq@fittingiterations{3}
+        \fi
+    \fi
+    \sseq@findscale
+%
+    \ifx\sseq@fitwidth\pgfutil@empty
+        \ifdim\dimexpr\sseq@scaledwidth>\textwidth
+          \sseq@error@xxxx{range-overflow}{x}
+                {from \sseq@xmin\space to \sseq@xmax\space (xmax - xmin = \the\numexpr\sseq@xmax-\sseq@xmin)}
+                {\sseq@maxxrange}% max x range
+                {\sseq@xscale}% max xscale
+            \@xp\sseq@break
+        \fi
+                %\sseq@tempdimen = \dimexpr \textheight - \sseq@totalymargin \relax
+        \let\sseq@xscale\sseq@xscale@save
+        \sseq@xscalecm = \sseq@xscale cm
+    \fi
+%
+    \ifx\sseq@fitheight\pgfutil@empty
+        \ifdim\dimexpr\sseq@scaledheight>\textheight
+            \pgfmathparse{\sseq@tempdimen/1cm/(\sseq@ymax-\sseq@ymin+1)}
+            \sseq@error@xxxx{range-overflow}{y}
+                {from \sseq@ymin\space to \sseq@ymax\space (ymax - ymin = \the\numexpr\sseq@ymax-\sseq@ymin)}
+                {\sseq@maxyrange}% max y range
+                {\sseq@yscale}% max yscale
+            \@xp\sseq@break
+        \fi
+        \let\sseq@yscale\sseq@yscale@save
+        \sseq@yscalecm = \sseq@yscale cm
+    \fi
+}
+
+\ExplSyntaxOn
+\def\sseq@findscale{
+    \sseq@findscale@step
+    \pgfmathtruncatemacro\sseq@maxxrange{(\textwidth -\sseq@totalxmargin)/(\sseq@xscale@save cm)}
+    \pgfmathtruncatemacro\sseq@maxyrange{(\textheight -\sseq@totalymargin)/(\sseq@yscale@save cm)}
+    \edef\sseq@scaledwidth{\the\wd\sseq@measureheightwidthbox}
+    \edef\sseq@scaledheight{\the\ht\sseq@measureheightwidthbox}
+    \prg_replicate:nn{\sseq@fittingiterations}{\sseq@findscale@step}
+}
+\ExplSyntaxOff
+
+\def\sseq@findscale@step{
+    \setbox\sseq@measureheightwidthbox=\hbox{%
+        \begin{sseq@tikzpicture}%
+        \end{sseq@tikzpicture}%
+    }
+    \edef\sseq@totalxmargin{\the\dimexpr\wd\sseq@measureheightwidthbox - \sseq@xscalecm*(\sseq@xmax-\sseq@xmin)}
+    \edef\sseq@totalymargin{\the\dimexpr\ht\sseq@measureheightwidthbox - \sseq@yscalecm*(\sseq@ymax-\sseq@ymin)}
+%
+    \ifnum\sseq@xmax>\sseq@xmin
+        \sseq@tempdimen = \dimexpr \sseq@findscalewidth - \sseq@totalxmargin\relax
+        \sseq@xscalecm = \dimexpr\sseq@tempdimen/(\sseq@xmax-\sseq@xmin)\relax
+        \pgfmathsetmacro\sseq@xscale{\sseq@xscalecm /1cm}
+    \fi
+%
+    \ifnum\sseq@ymax>\sseq@ymin
+        \sseq@tempdimen = \dimexpr \sseq@findscaleheight - \sseq@totalymargin\relax
+        \sseq@yscalecm = \dimexpr\sseq@tempdimen/(\sseq@ymax-\sseq@ymin)\relax
+        \pgfmathsetmacro\sseq@yscale{\sseq@yscalecm /1cm}
+    \fi
+}
+
+
 
 \def\sseq@tikzpicture{
     \begin{tikzpicture}[/sseqpages/global/{default} options,\ifsseq@hasname/sseqpages/global/{\sseq@thename} options\fi,/sseqpages/global/{this page} options]%
@@ -1641,7 +1687,10 @@
 }
 \let\sseq@processlabels\sseq@processlabels@default
 
-\let\sseqlastlabel\empty
+% Exposed:
+\def\sseq@lastlabel{\sseq@lastlabel@}
+\let\sseq@lastlabel@\empty
+
 % I can't remember why we need to defer this. If at some point I figure this out, I should explain why here and in the definition of \class...
 \def\sseq@handleclassquotes@inner#1#2{%
     \begingroup\pgfscope
@@ -1653,7 +1702,7 @@
     \sseq@theclasslabelstyle
     \the\sseq@scope@toks
     \sseq@options@normalmode
-    \gdef\sseqlastlabel{#2}
+    \gdef\sseq@lastlabel@{#2}
     \sseq@processoptions{class/label}{#2}%
     \sseq@classlabel@handler{#1}% labeltextfn is a private handler for transformations, sseq@classlabel@handler is exposed via "class label handler"
     \ifsseq@classlabel

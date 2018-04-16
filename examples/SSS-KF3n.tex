@@ -19,18 +19,18 @@
     class pattern=linear,
     classes={draw=none},
     class label handler = \SseqNormalizeMonomial,
-    width = \textwidth - 10pt,
+    width = \textwidth - 15pt,
     height = \textheight - 10pt,
     bocksteinSS/.style={
         page=0, y range={-1}{0},
         no differentials, no labels, no y ticks, no title,
-        xscale=1,yscale=1.5, x axis extend end=40pt, y axis extend end = 40pt, x axis gap =50pt,
+        yscale=1.5, x axis extend end=40pt, y axis extend end = 40pt, x axis gap =50pt,
         class label handler = {},
     }
 }
 
 \begin{sseqdata}[name=K(Z/3;2),
-    x range={0}{8}, xscale=2.2, yscale=1.5,
+    x range={0}{8},
     x label={$H^*(K(\Z/3,2),\Z/3)$},
     y label={$H^*(K(\Z/3,1),\Z/3)$},
     right clip padding=20pt, x axis gap=20pt,
@@ -169,7 +169,7 @@
 
 
 \newpage
-\begin{sseqdata}[name=K(Z/3;3),xscale=2.2,yscale=1.7,y axis gap=40pt,x axis gap=30pt, x range={0}{9},
+\begin{sseqdata}[name=K(Z/3;3),,y axis gap=40pt,x axis gap=30pt, x range={0}{9},
     x label={$H^*(K(\Z/3,2),\Z/3)$},
     y label={$H^*(K(\Z/3,1),\Z/3)$}
 ]
@@ -221,7 +221,7 @@
 \printpage[name=K(Z/3;3),page=9]
 \newpage
 
-\begin{sseqpage}[ name=K(Z/3;3), bocksteinSS,xscale=1 ]
+\begin{sseqpage}[ name=K(Z/3;3), bocksteinSS ]
 \begin{scope}[background]
 \node[anchor=west] at (-2.2,0) { H^*(K(\Z/3,3),\Z/3)};
 \node[anchor=west] at (-2.2,-1) { H^*(K(\Z/3,3),\Z)};
@@ -242,7 +242,7 @@
 
 
 \begin{sseqdata}[name=K(Z/3;4),
-    xscale=2,yscale=1.5,y axis gap=20pt,x axis gap=30pt, x range={0}{10},
+    y axis gap=20pt,x axis gap=30pt, x range={0}{10},
     x label = {$H^*(K(\Z/3,3),\Z/3)$},
     y label = {$H^*(K(\Z/3,4),\Z/3)$},
     class label handler = {}
