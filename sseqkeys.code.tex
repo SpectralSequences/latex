@@ -552,7 +552,7 @@
         \let\sseq@checktransform\sseq@checktransform@error
         \sseq@d@addto@options{\sseq@nodeparse}
     },
-    background/.code={\sseq@setsavedpaths{background}\pgfkeysalso{standard parse}},
+    background/.code={\sseq@backgroundpathstrue\sseq@setsavedpaths{background}\pgfkeysalso{standard parse}},
     foreground/.code={\ifsseq@keepchanges\sseq@setsavedpaths{standard}\else\sseq@setsavedpaths{temporary}\fi\pgfkeysalso{node parse}}
 }
 
@@ -2049,7 +2049,8 @@
 
 \def\sseq@pageconstraint{1}
 \def\sseq@pageconstraint@true{1}
-
+% \ifsseq@backgroundpaths is used to save time on 
+\sseq@addiftostorelist{backgroundpaths}
 \sseq@pgfqkeysdirlist{/sseqpages/scope,/sseqpages/tikz primitives}{
     page constraint/.code={
         \sseq@updatepageconstraint{#1}{&&}
@@ -2059,7 +2060,7 @@
     },
     page/.code={\sseq@getnumrange\temp{#1}\sseq@updatepageconstraintrange},
     set page constraint/.store in=\sseq@pageconstraint,
-    background/.code={\sseq@standardparse\sseq@setsavedpaths{background}\pgfkeysalso{standard parse}},
+    background/.code={\sseq@backgroundpathstrue\sseq@standardparse\sseq@setsavedpaths{background}\pgfkeysalso{standard parse}},
 }
 
 \sseq@pgfqkeysdirlist{/sseqpages/scope,/sseqpages/tikz primitives,/sseqpages/fit}{

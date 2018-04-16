@@ -88,6 +88,7 @@
 \def\sseq@obj@gletobj#1#2{\global\@xp\let\csname\sseq@obj@fullname{#1}\@xp\endcsname\csname\sseq@obj@fullname{#2}\endcsname}
 \def\sseq@obj@undef#1{\global\@xptwo\let\sseq@obj{#1}\relax}
 \def\sseq@obj@show#1{\@xptwo\show\sseq@obj{#1}}
+%\def\sseq@obj@ifx#1#2{\@xp\ifx\csname\sseq@obj@fullname{#1}\@xp\endcsname\csname\sseq@obj@fullname{#2}\endcsname{\@firstoftwo}{\@secondoftwo}}
 \def\sseq@obj@ifundef#1{\@ifundefined{\sseq@obj@fullname{#1}}}
 \def\sseq@obj@ifdef#1#2#3{\@ifundefined{\sseq@obj@fullname{#1}}{#3}{#2}}
 \def\sseq@obj@useifdef@else#1#2{\@ifundefined{\sseq@obj@fullname{#1}}{#2}{\sseq@obj{#1}}}

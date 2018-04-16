@@ -211,7 +211,6 @@
     \let\sseq@error@setup\sseq@error@setup@withinfo
 }
 
-\newbox\sseq@measureheightwidthbox
 % Here we do all of the work to actually print the page
 \def\endsseqpage{
     \let\sseq@error@setup\sseq@error@setup@noinfo
@@ -222,7 +221,26 @@
     \sseq@xscalecm=\sseq@xscale cm
     \sseq@yscalecm=\sseq@yscale cm
 %
-    \sseq@checkrangeandfindscale
+    % To use old values, need the scale, target width, target height, xmin, xmax, ymin, ymax, and backgroundpaths to be the same
+    \edef\sseq@scalehash{\sseq@xscale;\sseq@yscale;\sseq@fitwidth;\sseq@fitheight;\sseq@xmin;\sseq@xmax;\sseq@ymin;\sseq@ymax}
+    \sseq@tempiffalse
+    \sseq@obj@ifdef{scalehash.\sseq@scalehash}{
+        \@xp\ifx\csname\sseq@obj@fullname{scalehash.\sseq@scalehash}\endcsname\sseq@savedbackgroundpaths
+            \sseq@tempiftrue 
+        \fi
+    }{}
+    \ifsseq@tempif % Cache hit
+        \sseq@lettoobj\sseq@xscale{scalehash.\sseq@scalehash.xscale}
+        \sseq@lettoobj\sseq@yscale{scalehash.\sseq@scalehash.yscale}
+        \sseq@xscalecm = \sseq@xscale cm
+        \sseq@yscalecm = \sseq@yscale cm
+    \else % Otherwise
+        \sseq@checkrangeandfindscale % calculate scale, check for error
+        % cache result
+        \sseq@obj@xdef{scalehash.\sseq@scalehash.xscale}{\sseq@xscale}
+        \sseq@obj@xdef{scalehash.\sseq@scalehash.yscale}{\sseq@yscale}
+        \sseq@obj@xodef{scalehash.\sseq@scalehash}{\sseq@savedbackgroundpaths}
+    \fi
 %
     % Really this could be anything between -\sseq@xmin and -\sseq@xmax and it wouldn't matter. We'll split the difference.
     \sseq@xoffset=\numexpr\sseq@intdivceiling{\numexpr-\sseq@xmin-\sseq@xmax\relax}{\numexpr4*\sseq@xgridstep\relax}*(2*\sseq@xgridstep)\relax
@@ -260,6 +278,7 @@
     \ignorespacesafterend
 }
 
+\newbox\sseq@measureheightwidthbox
 \def\sseq@checkrangeandfindscale{
     \ifx\sseq@xmin\sseq@infinity\sseq@error{no-range}\def\sseq@xmin{0}\def\sseq@xmax{0}\@xp\sseq@break\fi % could be warning
     \ifx\sseq@ymin\sseq@infinity\sseq@error{no-range}\def\sseq@ymin{0}\def\sseq@ymax{0}\@xp\sseq@break\fi
@@ -293,7 +312,9 @@
             \let\sseq@fitwidth\pgfutil@empty
         \else
             \let\sseq@findscalewidth\sseq@fitwidth
-            \def\sseq@fittingiterations{3}
+            \ifsseq@backgroundpaths
+                \def\sseq@fittingiterations{3}
+            \fi
         \fi
     \fi
 %
@@ -305,7 +326,9 @@
             \let\sseq@fitheight\pgfutil@empty
         \else
             \let\sseq@findscaleheight\sseq@fitheight
-            \def\sseq@fittingiterations{3}
+            \ifsseq@backgroundpaths
+                \def\sseq@fittingiterations{3}
+            \fi
         \fi
     \fi
     \sseq@findscale
