@@ -14,7 +14,7 @@ Email me at hood@mit.edu to submit bug reports, request new features, etc. The c
 Changelog:
 ==========
 
-## [Unreleased]
+## [1.2.1] (2018-10-08)
 ### Fixed:
 - Tick style didn't work, now it does.
 - Orphan edges are consistently oriented correctly now (reported by Eric Peterson).
