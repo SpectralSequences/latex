@@ -1,8 +1,8 @@
 %%
-%% Package: spectralsequences v1.2.0
+%% Package: spectralsequences v1.2.1
 %% Author: Hood Chatham
 %% Email: hood@mit.edu
-%% Date: 2017-12-10
+%% Date: 2018-10-08
 %% License: Latex Project Public License
 %%
 %% File: sseqkeys.code.tex
@@ -30,7 +30,6 @@
 \protected\def\sseqset#1{\pgfqkeys{/sseqpages/userstyles}{#1}}
 
 \def\sseq@sseqsetdirectory{/sseqpages/global/default}
-
 \def\sseq@set{\pgfqkeys{/sseqpages}}
 
 %%%
@@ -59,7 +58,7 @@
 % Lots of options mainly do stuff on the drawing run, but still need to warn the sseq setup algorithms that they're around
 % on the first pass. Some only do things on the first pass or only do things on the second pass.
 % For example, shifts: shifts apply a coordinate transform on the second pass, but also need to factor into the coordinates of
-% classes etc which are computed at specification time not at draw time. So xshift=2 increases \sseq@x by 2 on it's first pass and
+% classes etc which are computed at specification time not at draw time. So xshift=2 increases \sseq@x by 2 on its first pass and
 % applies a coordinate transform by 2cm on the second pass.
 
 % normal mode does the firstpass options now and saves the secondpass options in \sseq@savedoptioncode for later use.
@@ -618,7 +617,7 @@
     \pgfutil@in@{--}{#2}\ifpgfutil@in@
         \sseq@getnumrange@range#1#2\sseq@nil
     \else
-        \edef#1{\the\numexpr#2}
+        \sseq@getnumrange@range#1#2--\sseq@infinity\sseq@nil
     \fi
 }
 \def\sseq@getnumrange@range#1#2--#3\sseq@nil{\edef#1{\the\numexpr#2}\@xp\edef\csname\sseq@macroname#1max\endcsname{\the\numexpr#3}}
@@ -1289,19 +1288,24 @@
 }
 
 %%% Define global keys setter
+% Most keys are run twice -- once in the "/sseqpages/global" directory and once in the "/sseqpages/global/default" directory
+% The default "default" behavior is to add the option to the "sseq" style.
+% Keys prefixed by a tilde or using an "ignored" handler are only run in the "/sseqpages/global directory".
 \gdef\sseq@globalkeys#1{%
     \let\sseq@storetilde~%
     \def~{}%
-    \pgfqkeys{/sseqpages/global}{#1}%
-    \sseq@globalkeys@#1,\sseq@nil
+    \pgfqkeys{/sseqpages/global}{#1}% run keys in global directory
+    \sseq@globalkeys@#1,\sseq@nil % handle defaults
     \let~\sseq@storetilde
 }
 
 \def\sseq@globalkeys@#1,{%
     \sseq@tempiftrue
-    \sseq@keys@removehandler{#1}%
-    \ifsseq@tempif
+    \sseq@keys@removehandler{#1}% this sets \sseq@tempif to be false if it has an ignored handler
+    % It also sets \sseq@temp to be the key.
+    \ifsseq@tempif % If not ignored handler
         \pgfkeys{/sseqpages/\sseq@temp/.sseq @ global only}%
+        % Check if no previous default behavior is defined, and if not, define it to pass key to sseqs.
         \pgfkeysifdefined{/sseqpages/global/default/\sseq@temp/.@cmd}{}{%
             \pgfkeys{/sseqpages/global/default/\sseq@temp/.ecode={\@nx\pgfkeysalso{sseqs={\sseq@temp}}}}%
         }%
@@ -1313,6 +1317,7 @@
     \sseq@globalkeys@next
 }
 
+% iterate over keys, throwing away empty keys and ones that start with ~.
 \def\sseq@globalkeys@next{%
     \@ifnextchar\sseq@nil{\@gobble}{%
         \@ifnextchar~{\sseq@globalkeys@eatentry}{%
@@ -1323,6 +1328,7 @@
     }%
 }
 
+% Handlers to ignore for
 \def\sseq@keys@ignorehandlers{%
     \\{value forbidden}\\{value required}\\{default}%\\{sseq store in}\\{sseq is if}%
     \\{sseq default code}\\{sseq default code 2 args}%
@@ -1386,7 +1392,7 @@
             \sseq@thepagecount=\sseq@thepage\relax
             \let\page\sseq@thepage
             \edef\sseq@thepagemm{\the\numexpr\sseq@thepagecount-1\relax}
-            \ifx\sseq@thepagemax\undefined
+            \ifx\sseq@thepagemax\sseq@infinity
                 \edef\sseq@thepagemaxpp{\the\numexpr\sseq@thepagecount+1\relax}
             \else
                 \ifnum\sseq@thepagemax=\z@

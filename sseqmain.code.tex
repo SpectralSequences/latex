@@ -1,8 +1,8 @@
 %%
-%% Package: spectralsequences v1.2.0
+%% Package: spectralsequences v1.2.1
 %% Author: Hood Chatham
 %% Email: hood@mit.edu
-%% Date: 2017-12-10
+%% Date: 2018-10-08
 %% License: Latex Project Public License
 %%
 %% File: sseqmain.code.tex
@@ -32,15 +32,15 @@
 \def\sseqdata{\@ifnextchar[{\sseqdata@}{\sseqdata@[]}}%}
 
 \def\sseqdata@[#1]{%
-    \edef\sseq@restorefont{\font@name}
+    \edef\sseq@restorefont{\font@name}%
     \selectfont\nullfont % Avoid space hazards!
 
-    \def\par{}
+    \def\par{}%
 %
     \ifx\pgfpictureid\@undefined\else %Uh-oh, we're inside tikz.
         \sseq@error@n{env-inside-tikz}{sseqdata}\@xp\sseq@breakdataenv
     \fi
-    \ifsseq@inprogress % Uh-oh, we're already in a sseq environment. This is not good.
+    \ifsseq@inprogress % Uh-oh, we're already in a sseq environment.
         \sseq@error@n{env-inside-sseq}{sseqdata}\@xp\sseq@breakdataenv
     \fi
     \sseq@inprogresstrue
@@ -108,11 +108,11 @@
 }
 
 % Just store all the settings
-\def\endsseqdata{
+\def\endsseqdata{%
     \let\sseq@error@setup\sseq@error@setup@noinfo
-    \sseq@checkend{sseqdata}
+    \sseq@checkend{sseqdata}%
     \sseq@savedpaths@add{\endgroup} % prevent some of the two-pass user macros horrors
-    \xdef\sseq@restorestyles{\sseq@stylelist}
+    \xdef\sseq@restorestyles{\sseq@stylelist}%
     \sseq@storecmds
     \ignorespacesafterend
     \sseq@breakpoint
@@ -121,9 +121,9 @@
 \def\sseqpage{\@ifnextchar[{\sseqpage@}{\sseqpage@[]}} %]
 
 \def\sseqpage@[#1]{%
-    \edef\sseq@restorefont{\font@name}
+    \edef\sseq@restorefont{\font@name}%
     \selectfont\nullfont % Avoid space hazards!
-    \def\par{}
+    \def\par{}%
 %
     \ifx\pgfpictureid\@undefined\else %Uh-oh, we're inside tikz.
         \sseq@error@n{env-inside-tikz}{sseqpage}\@xp\sseq@breakpageenv
@@ -355,7 +355,7 @@
 
 % Shorthand for sseqpage with empty body
 \def\printpage[#1]{%
-    \begin{sseqpage}[#1]
+    \begin{sseqpage}[#1]%
     \end{sseqpage}%
 }
 
@@ -381,8 +381,8 @@
     \sseq@savedpaths
     \sseq@g@addto@macro#1{\endgroup}
     \endgroup
-    \@xp\let\csname\sseq@macroname#1 code\endcsname\sseq@copymacro
-    \DeclareSseqGroup #1 {} { \csname\sseq@macroname#1 code\endcsname }
+    \@xp\let\csname\sseq@macroname#1 copiedcode\endcsname\sseq@copymacro
+    \DeclareSseqGroup #1 {} { \csname\sseq@macroname#1 copiedcode\endcsname }
     \let\sseq@savedpaths\sseq@savedpaths@save
 }
 
@@ -477,6 +477,59 @@
 
 
 \protected\def\sseq@xcoord{}\protected\def\sseq@ycoord{}
+
+
+%%% "Quick" commands for "compiled" code.
+\def\sseq@qclass(#1,#2){
+    \sseq@obj@inccheckdef{partcoord.(#1,#2).numnodes}
+    \edef\tempn{\sseq@obj{partcoord.(#1,#2).numnodes}}
+    \edef\classname{class.(#1,#2,\tempn)}
+    \sseq@obj@xdef{\classname.n}{\tempn}
+    \sseq@obj@xdef{\classname.num}{0}
+    \sseq@obj@xdef{\classname[0].page}{\sseq@infinity}
+    \sseq@savedpaths@addclass{class.(#1,#2,\tempn)}
+}
+\def\sseq@qclassnamed(#1,#2)#3{
+    \sseq@qclass(#1,#2)
+    \def\sseq@class@name{#3}
+    \sseq@obj@xdef{\classname[0].name}{\sseq@class@name}
+    \sseq@obj@xdef{class.namedclass.\detokenize\@xp{\sseq@class@name}}{#1,#2,\tempn}
+}
+
+\def\sseq@qdnamed#1(#2)(#3){\sseq@eval{\@nx\sseq@qd#1(\sseq@obj{class.namedclass.\detokenize{#2}})(\sseq@obj{class.namedclass.\detokenize{#3}})}}
+\def\sseq@qd#1(#2,#3,#4)(#5,#6,#7){
+    \bgroup
+    \def\sseq@dname{d.#1(#2,#3,#4)(#5,#6,#7)}
+    \def\source{(#2,#3,#4)}
+    \def\target{(#5,#6,#7)}
+    \sseq@obj@gdef{\sseq@dname.page}{#1}
+    \sseq@obj@gdef{\sseq@dname.source}{(#2,#3,#4)}
+    \sseq@obj@gdef{\sseq@dname.target}{(#5,#6,#7)}
+    \sseq@d@setpageminrec{class.\source}{#1}{source}%  automatically handles \sseq@cleanup@obj
+    \sseq@d@setpageminrec{class.\target}{#1}{target}
+    \sseq@savedpaths@adddifferential{\sseq@dname}
+    \egroup
+}
+
+\def\sseq@qstructlinenamed(#1)(#2){\sseq@eval{\@nx\sseq@qstructline(\sseq@obj{class.namedclass.\detokenize{#1}})(\sseq@obj{class.namedclass.\detokenize{#2}})}}
+\def\sseq@qstructline(#1,#2,#3)(#4,#5,#6){
+    \def\source{(#1,#2,#3)}
+    \def\target{(#4,#5,#6)}
+    \sseq@obj@xdef{structline.\source\target.num}{0}
+    \def\sseq@pagemin{0}
+    \edef\sseq@structlinename{structline.\source\target[\sseq@obj{structline.\source\target.num}]}
+    \sseq@cleanup@obj{\sseq@structlinename.page}
+    \sseq@obj@xdef{\sseq@structlinename.page}{\sseq@infinity}
+    \sseq@obj@xdef{\sseq@structlinename.pagemin}{\sseq@pagemin}
+    \sseq@obj@xdef{\sseq@structlinename.source}{\source}
+    \sseq@obj@xdef{\sseq@structlinename.target}{\target}
+    \sseq@class@adddependence{class.\source}{\sseq@structlinename}% If the source or target is already dead, this will set structlinename.page
+    \sseq@class@adddependence{class.\target}{\sseq@structlinename}
+    \sseq@savedpaths@addstructline{structline.\source\target}
+    %\sseq@cleanup@obj{\sseq@structlinename.options}
+    %\sseq@obj@xdef{\sseq@structlinename.options}{\ifsseq@needstikz\@nx\sseq@needstikztrue\fi\unexpanded\@xp{\sseq@savedoptioncode}}
+}
+
 
 %%%%%
 %%
@@ -930,7 +983,7 @@
     \egroup
 }
 
-% #1 -- class
+% #1 -- object
 % #2 -- page
 % If there is a class #1 drawn on page #2, set \sseq@gen to be the generation of that class, otherwise set \sseq@gen to be -1.
 \def\sseq@obj@pagetogen#1#2{
@@ -1021,20 +1074,20 @@
 
 \def\sseq@d@main#1#2#3#4#5{%
     \sseq@options@firstpassmode
-    \def\sseq@edgetype{differential}
+    \def\sseq@edgetype{differential}%
     \the\sseq@sseqstyle
     \the\sseq@edgestyle
     \the\sseq@differentialstyle
     \the\sseq@scope@toks
     \sseq@options@normalmode
-    \IfNoValueF{#2}{
+    \IfNoValueF{#2}{%
         \sseq@processoptions{differential}{#2}% Outputs result into \sseq@savedoptioncode
-    }
+    }%
     \sseq@xsetthiscall{\@xp\string\csname#1\endcsname\IfNoValueF{#2}{\unexpanded{[#2]}}\unexpanded{#3}\IfNoValueF{#4}{\unexpanded{(#4)}}\IfNoValueF{#5}{\unexpanded{(#5)}}}%
     \sseq@ifintexpr{#3}{%
         \sseq@tempcount=\numexpr#3\relax % this is a convenient way to get rid of spaces because #3 has to be a number
     }{%
-        \sseq@error@n{d-invalid-page}{#3}\sseq@break%
+        \sseq@error@n{d-invalid-page}{#3}\sseq@break
     }%
     \sseq@eval{\@nx\sseq@dparsecoord{\the\sseq@tempcount}{\IfNoValueTF{#4}{\lastclass0}{\unexpanded{#4}}}{\unexpanded{#5}}}
     \sseq@eval{\unexpanded{\csname sseq@d@#1\endcsname{#2}}{\the\sseq@tempcount}}%
@@ -1196,7 +1249,7 @@
     \bgroup
     \sseq@eval{
         \@nx\sseq@drawedge\sseq@obj{#1.source}\sseq@obj{#1.target}{differential}{%
-            \@xptwo\@nx\sseq@obj{#1.options}
+            \@nx\sseq@obj{#1.options}
         }
     }
     \egroup
@@ -1295,7 +1348,7 @@
     \endgroup
 }
 \def\sseq@structline@structline{
-    \@ifundefined{sseq@structline@pagemax}{}{\sseq@error{structline-no-page-max}}% could be warning
+    \@ifundefined{sseq@structline@pagemax}{}{\ifnum\sseq@structline@pagemax=\sseq@infinity\else \sseq@error{structline-no-page-max}\fi}% could be warning
     \ifnum\sseq@pagemin<\sseq@obj{class.\source[\sseq@obj{class.\source.num}].page}\relax\else
         \sseq@error{structline-stillborn}
         \sseq@breakfi
@@ -1551,6 +1604,7 @@
 }
 \let\sseq@processlabels\sseq@processlabels@default
 
+\let\sseqlastlabel\empty
 % I can't remember why we need to defer this. If at some point I figure this out, I should explain why here and in the definition of \class...
 \def\sseq@handleclassquotes@inner#1#2{%
     \begingroup\pgfscope
@@ -1562,6 +1616,7 @@
     \sseq@theclasslabelstyle
     \the\sseq@scope@toks
     \sseq@options@normalmode
+    \gdef\sseqlastlabel{#2}    
     \sseq@processoptions{class/label}{#2}%
     \sseq@classlabel@handler{#1}% labeltextfn is a private handler for transformations, sseq@classlabel@handler is exposed via "class label handler"
     \ifsseq@classlabel
@@ -1570,7 +1625,7 @@
         \sseq@x@addto@macro\sseq@classlabelnodes{%
             \@nx\sseq@drawlabel{%
                 \sseq@maybemathswitch\unexpanded\@xp{\result}\sseq@maybemathswitch}%
-                {% This is setup to prevent a bug where \classoptions and class label style don't work correctly together
+                {% This is set up to prevent a bug where \classoptions and class label style don't work correctly together
                     \the\sseq@sseqstyle\@nx\the\sseq@sseqstyle@page
                     \the\sseq@labelstyle\@nx\the\sseq@labelstyle@page
                     \the\sseq@classlabelstyle\@nx\the\sseq@classlabelstyle@page

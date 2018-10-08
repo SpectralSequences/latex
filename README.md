@@ -1,9 +1,9 @@
 
-spectralsequences v1.2.0
+spectralsequences v1.2.1
 ========================
 Author: Hood Chatham  
 Email: hood@mit.edu  
-Date: 2017-12-10  
+Date: 2018-10-08  
 License: All files have the Latex Project Public License.  
 Description: Print spectral sequence diagrams using pgf/tikz.  
 
@@ -18,6 +18,11 @@ Changelog:
 ### Fixed:
 - Tick style didn't work, now it does.
 - Orphan edges are consistently oriented correctly now (reported by Eric Peterson).
+- Fixed name class in copypage
+- Fixed incompatibility with new expl3 version (reported by Eric Peterson). The fix amounts to replacing a \cs_new:Npn with a \cs_gset:Npn.
+
+### Added:
+- \sseqlastlabel
 
 ## [1.2.0] (2017-12-10)
 ### Added:

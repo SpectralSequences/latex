@@ -1,8 +1,8 @@
 %%
-%% Package: spectralsequences v1.2.0
+%% Package: spectralsequences v1.2.1
 %% Author: Hood Chatham
 %% Email: hood@mit.edu
-%% Date: 2017-12-10
+%% Date: 2018-10-08
 %% License: Latex Project Public License
 %%
 %% A package for drawing spectral sequences
@@ -23,7 +23,7 @@
 
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{spectralsequences}[2017/12/10 v1.2.0]
+\ProvidesPackage{spectralsequences}[2018/10/08 v1.2.1]
 
 \RequirePackage{tikz}
 \RequirePackage{etoolbox}
@@ -62,6 +62,7 @@
     % These are defined in sseqmain:
     \class\classoptions\replaceclass\replacesource\replacetarget
     \d\doptions\kill\structline\structlineoptions\circleclasses
+    \lastlabel
     % The following are defined in sseqparsers:
     \pgfmathparse\isalive\lastx\lasty\lastclass\savestack\restorestack\pushstack\nameclass\tagclass
     \parsecoordinate\parsedifferential\getdtarget\gettag
