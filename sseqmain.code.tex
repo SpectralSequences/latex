@@ -248,7 +248,7 @@
             {from \sseq@xmin\space to \sseq@xmax\space (xmax - xmin = \the\numexpr\sseq@xmax-\sseq@xmin)}
             {\the\sseq@tempcount}% max x range
             {\pgfmathresult}% max xscale
-        \@xp\sseq@break
+        %\@xp\sseq@break
     \fi
 %
     \sseq@tempdimen = \dimexpr \textheight - \sseq@clip@padding@top - \sseq@yaxis@end@extend - \sseq@yaxis@start@extend - \sseq@xaxisgap \relax
@@ -1616,7 +1616,7 @@
     \sseq@theclasslabelstyle
     \the\sseq@scope@toks
     \sseq@options@normalmode
-    \gdef\sseqlastlabel{#2}    
+    \gdef\sseqlastlabel{#2}
     \sseq@processoptions{class/label}{#2}%
     \sseq@classlabel@handler{#1}% labeltextfn is a private handler for transformations, sseq@classlabel@handler is exposed via "class label handler"
     \ifsseq@classlabel

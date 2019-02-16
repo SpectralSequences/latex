@@ -13,7 +13,6 @@
 %%   For the user commands, sets up call stack, thiscall, etc
 %%
 
-
 \ExplSyntaxOn
 
 %%% Install user commands
@@ -79,6 +78,16 @@
       }
 }% END \@ifpackagelater
 
+% On 2018/10/01, the commit "Reimplement the ignore_spaces peek functions in terms of peek_spaces" did what it says.
+% Inside of \sseq@DeclareDocumentCommandAs we \let \peek_meaning to \peek_meaning_ignore_spaces
+% which is bad news if \peek_meaning_ignore_spaces is defined in terms of \peek_meaning. This fixes this bug by
+% redefining \peek_meaning_ignore_spaces in terms of a copy of \peek_meaning.
+\@ifpackagelater{expl3}{2018/10/01}{
+    \cs_set_eq:NN\copy_of_peek_meaning:NTF\peek_meaning:NTF
+    \cs_set:Npn\peek_meaning_ignore_spaces:NTF#1#2#3{\peek_remove_spaces:n{\copy_of_peek_meaning:NTF#1{#2}{#3}}}
+    \cs_set_eq:NN\copy_of_peek_meaning_remove:NTF\peek_meaning_remove:NTF
+    \cs_set:Npn\peek_meaning_remove_ignore_spaces:NTF#1#2#3{\peek_remove_spaces:n{\copy_of_peek_meaning_remove:NTF#1{#2}{#3}}}
+}{}
 
 \cs_new_protected:Npn \sseq__xparse_normalize_type_U:w #1 {
     \quark_if_recursion_tail_stop_do:nn {#1} { \__xparse_bad_arg_spec:wn }

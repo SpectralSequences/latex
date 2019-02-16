@@ -786,11 +786,12 @@
 % Doesn't do any error checking -- the error checking is done by passing it through \sseq@parsecoord in a non-\edef context.
 % #1 -- a callback. Must be a single command b/c it's an N in \exp_args
 % #2 -- the coordinate
-\cs_new:Npn \exp_last_unbraced:NNNf #1#2#3#4
+\cs_set:Npn \exp_last_unbraced:NNNf #1#2#3#4
   {
     \exp_after:wN #1
     \exp_after:wN #2
-    \exp_after:wN #3 \tex_romannumeral:D -`0 #4
+    \exp_after:wN #3
+    \exp:w \exp_end_continue_f:w #4
   }
 
 \def\sseq@parsecoordex{\exp_last_unbraced:NNNf\sseq@parsecoordex@}
