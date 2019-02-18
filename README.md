@@ -1,9 +1,9 @@
 
-spectralsequences v1.2.1
+spectralsequences v1.2.2
 ========================
 Author: Hood Chatham  
 Email: hood@mit.edu  
-Date: 2018-10-08  
+Date: 2019-02-18  
 License: All files have the Latex Project Public License.  
 Description: Print spectral sequence diagrams using pgf/tikz.  
 
