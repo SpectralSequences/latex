@@ -3,9 +3,10 @@
 package_files=$( /usr/bin/find  | grep -E ".sty|.tex|.md" )
 echo "Compiling manual"
 cd manual
-texify --pdf --quiet spectralsequencesmanual.tex
-#latexmk -pdf -silent spectralsequencesmanual.tex
-if [ $? -ne 0 ] ; then
+#texify --pdf --quiet spectralsequencesmanual.tex
+#latexmk --pdf spectralsequencesmanual.tex
+latexmk -pdf spectralsequencesmanual.tex | egrep --color=none -o "(\[.*\])|^\!.*|^l\..*|^Latexmk.*"
+if [ ${PIPESTATUS[0]} -ne 0 ] ; then
     echo "Manual failed, quitting."
     exit 1
 fi
@@ -20,7 +21,8 @@ fi
 sed -r --in-place "s/\x1B\[([0-9]{1,3}((;[0-9]{1,3})*)?)?[m|K]//g" timetest.txt
 
 echo "Cleanup tex output files"
-/usr/bin/find -regextype egrep -regex ".*\.aux|.*\.bbl|.*\.dvi|.*\.log|.*\.synctex.*|.*\.toc|.*\.out|.*\.up.*" -delete
+#Was /usr/bin/find
+find -regextype egrep -regex ".*\.aux|.*\.fdb_latexmk|.*\.fls|.*\.bbl|.*\.dvi|.*\.log|.*\.synctex.*|.*\.toc|.*\.out|.*\.up.*" -delete
     
 
 # If a version number was supplied, replace versions and date strings:
@@ -33,8 +35,11 @@ if [ "$1" ] ; then
 fi
 
 echo "Zipping files"
+rm -f spectralsequences.zip
 cd ..
-powershell "Get-ChildItem -r -Path spectralsequences -Include '*.sty','*.tex','*.md','*.pdf'  | Write-Zip -OutputPath spectralsequences.zip | Out-Null"
+#powershell "Get-ChildItem -r -Path spectralsequences -Include '*.sty','*.tex','*.md','*.pdf'  | Write-Zip -OutputPath spectralsequences.zip | Out-Null"
+find spectralsequences -regextype egrep -regex ".*\.sty|.*\.tex|.*\.md" | xargs dos2unix --quiet
+find spectralsequences -regextype egrep -regex ".*\.sty|.*\.tex|.*\.md|.*\.pdf" | zip spectralsequences.zip --quiet -@
 mv spectralsequences.zip spectralsequences
 cd spectralsequences
 
@@ -50,13 +55,13 @@ if [ -s commitmessage.txt ] ; then
     git push
 fi
 
-if [ "$1" ] ; then
-    while true; do
-        read -p $'Do you wish commit the package to CTAN?\n' yn
-        case $yn in
-            [Yy]es ) ./ctan-upload.sh ./ctan-upload-fields.def $1; break;;
-            [Nn]* ) break;;
-            * ) echo "Please answer yes or no.";;
-        esac
-    done
-fi
+#if [ "$1" ] ; then
+#    while true; do
+#        read -p $'Do you wish commit the package to CTAN?\n' yn
+#        case $yn in
+#            [Yy]es ) ./ctan-upload.sh ./ctan-upload-fields.def $1; break;;
+#            [Nn]* ) break;;
+#            * ) echo "Please answer yes or no.";;
+#        esac
+#    done
+#fi

@@ -143,7 +143,7 @@ After a class is the source or target of a differential, it disappears on the ne
 \class["\mathbb{Z}"](1,0)
 \d["\cdot 2"]2(1,1)
 \replacetarget["\mathbb{Z}/2"] %\replaceclass["\mathbb{Z}/2"](0,3)
-\d[-> >]3(1,0)
+\d[->>]3(1,0)
 \replacesource["2\mathbb{Z}"]    % \replaceclass["2\mathbb{Z}"](1,0)
 \end{sseqdata}
 \printpage[ name = replace class example, page = 2 ] \qquad
@@ -958,6 +958,7 @@ The one use case that |\foreach| doesn't cover all that well is if you want the 
     \structline
 }
 \class(4,0)
+\d3
 \DoUntilOutOfBounds{
     \class(\lastx+1,\lasty+1)
     \structline
@@ -1051,21 +1052,21 @@ An example where this is actually useful:
 \end{codeexample}
 
 
-The |\d| command has argument specification |O{} U( r()|. The argument type |U| is special to \sseqpages, and is a variant of until that reinserts the delimiting token. This allows the |(| token to also delimit the beginning of the |r()| argument. Note that the argument type |U| is specially added by \sseqpages\ and might be removed in the future if the \LaTeX3 team yells at me or something.
-    \ExplSyntaxOn
-    \cs_set_eq:NN \__xparse_add_type_U:w \sseq__xparse_add_type_U:w
-    \cs_set_eq:NN \__xparse_normalize_type_U:w \sseq__xparse_normalize_type_U:w
-    \sseq@install@xparse@Uarggrabber
-    \ExplSyntaxOff
-\begin{codeexample}[width = 7cm,vbox]
-\DeclareDocumentCommand {\demo} { O{} U( r() }
-    {  \#1 = \textcolor{purple}{\{#1\}};
-       \#2 = \textcolor{purple}{\{#2\}};
-       \#3 = \textcolor{purple}{\{#3\}}  }
-\hbox{\demo[opts]page(x,y)}
-\bigskip
-\hbox{\demo5(x,y)}
-\end{codeexample}
+%The |\d| command has argument specification |O{} U( r()|. The argument type |U| is special to \sseqpages, and is a variant of until that reinserts the delimiting token. This allows the |(| token to also delimit the beginning of the |r()| argument. Note that the argument type |U| is specially added by \sseqpages\ and might be removed in the future if the \LaTeX3 team yells at me or something.
+%    \ExplSyntaxOn
+%    \cs_set_eq:NN \__xparse_add_type_U:w \sseq__xparse_add_type_U:w
+%    \cs_set_eq:NN \__xparse_normalize_type_U:w \sseq__xparse_normalize_type_U:w
+%    \sseq@install@xparse@Uarggrabber
+%    \ExplSyntaxOff
+%\begin{codeexample}[width = 7cm,vbox]
+%\DeclareDocumentCommand {\demo} { O{} U( r() }
+%    {  \#1 = \textcolor{purple}{\{#1\}};
+%       \#2 = \textcolor{purple}{\{#2\}};
+%       \#3 = \textcolor{purple}{\{#3\}}  }
+%\hbox{\demo[opts]page(x,y)}
+%\bigskip
+%\hbox{\demo5(x,y)}
+%\end{codeexample}
 
 The |\structline| and |\changeclasses| commands have argument specification |O{}r()r()|.
 \begin{codeexample}[width = 7cm,vbox]
@@ -1208,41 +1209,41 @@ This has the same weird syntax of |\d|, except that you are required to put brac
 
 
 For instance, consider the following example, suggested by Catherine Ray:
-\begin{codeexample}[]
-% O{} U( r() is the arg-spec for \d, O{} U( r() mm looks like \d with one extra mandatory arguments
-\NewSseqCommand{\twods}{ O{} U( r() d()  m }{
-    \parsedifferential{#2}(#3)(#4)             % Store the target position in \target
-    \nameclass{source}(\sourcecoord,\nsource)  % give names to the three classes
-    \nameclass{target1}(\targetcoord,\ntarget)
-    \nameclass{target2}(\targetcoord,#5)
-%
-    \circleclasses[ cc:differential style, name path = circ,
-                    #1, page = #2--#2 ]
-                    (target1)(target2)         % Circle the classes, use differential style
-%
-    % record source and targets as hit.
-    \kill#2(source) \kill#2(target1) \kill#2(target2)
-%
-    \path(target1)--(target2)
-                coordinate[midway](midpt);% put a coordinate in the center of the two classes
-    \path[name path = lin] (source) -- (midpt);% save path from start to midpoint
-%
-    % draw line in "differential style" from start to intersection point of circ and lin
-    \draw[ cc:differential style, #1, page constraint= { \page == #2 },
-           name intersections = { of = circ and lin } ]
-                (source) -- (intersection-1);
-}
-\begin{sseqdata}[ name = cathex, Adams grading, differentials = { blue } ]
-\class(0,2)\class(0,2)
-\class(1,0)\class(1,0)
-\twods2(1,0,-1,1){2}
-\end{sseqdata}
-\printpage[ name = cathex, page = 1 ]
-\qquad
-\printpage[ name = cathex, page = 2 ]
-\qquad
-\printpage[ name = cathex, page = 3 ]
-\end{codeexample}
+%\begin{codeexample}[]
+%% O{} U( r() is the arg-spec for \d, O{} U( r() mm looks like \d with one extra mandatory arguments
+%\NewSseqCommand{\twods}{ O{} U( r() d()  m }{
+%    \parsedifferential{#2}(#3)(#4)             % Store the target position in \target
+%    \nameclass{source}(\sourcecoord,\nsource)  % give names to the three classes
+%    \nameclass{target1}(\targetcoord,\ntarget)
+%    \nameclass{target2}(\targetcoord,#5)
+%%
+%    \circleclasses[ cc:differential style, name path = circ,
+%                    #1, page = #2--#2 ]
+%                    (target1)(target2)         % Circle the classes, use differential style
+%%
+%    % record source and targets as hit.
+%    \kill#2(source) \kill#2(target1) \kill#2(target2)
+%%
+%    \path(target1)--(target2)
+%                coordinate[midway](midpt);% put a coordinate in the center of the two classes
+%    \path[name path = lin] (source) -- (midpt);% save path from start to midpoint
+%%
+%    % draw line in "differential style" from start to intersection point of circ and lin
+%    \draw[ cc:differential style, #1, page constraint= { \page == #2 },
+%           name intersections = { of = circ and lin } ]
+%                (source) -- (intersection-1);
+%}
+%\begin{sseqdata}[ name = cathex, Adams grading, differentials = { blue } ]
+%\class(0,2)\class(0,2)
+%\class(1,0)\class(1,0)
+%\twods2(1,0,-1,1){2}
+%\end{sseqdata}
+%\printpage[ name = cathex, page = 1 ]
+%\qquad
+%\printpage[ name = cathex, page = 2 ]
+%\qquad
+%\printpage[ name = cathex, page = 3 ]
+%\end{codeexample}
 \end{command}
 
 \begin{command}{\nameclass\marg{name}\pararg{coordinate}}

@@ -315,12 +315,36 @@
 % Redefine point collection to correctly balance the parens
 % Has unfortunate side effect that it now throws an error if parens don't balance.
 \let\pgfmanual@pretty@collectpoint@old\pgfmanual@pretty@collectpoint
-\def\pgfmanual@pretty@collectpoint{\pgfmanual@pretty@collectpoint@(} %)
-\DeclareDocumentCommand\pgfmanual@pretty@collectpoint@{r()}{%
-    \pgfmanualprettyprinterfoundterminatortrue
-	\pgfmanual@pretty@collectargs@finish@collectpoint{#1}%
-	\afterpgfmanual@pretty@collectpoint
+%\def\pgfmanual@pretty@collectpoint{\pgfmanual@pretty@collectpoint@(} %)
+%\DeclareDocumentCommand\pgfmanual@pretty@collectpoint@{r()}{%
+%    \pgfmanualprettyprinterfoundterminatortrue
+%	\pgfmanual@pretty@collectargs@finish@collectpoint{#1}%
+%	\afterpgfmanual@pretty@collectpoint
+%}
+
+
+% Not
+\def\code@catcode@hook{\preventhypenligatures\catcode`"=\active}
+%\begingroup\lccode`~=`>
+%  \lowercase{\endgroup\gdef~}{>}
+
+\begingroup\lccode`~=`-
+  \lowercase{\endgroup\gdef~}{-}
+\def\preventhypenligatures{%
+  \begingroup\lccode`~=`-
+  \lowercase{\endgroup\def~}{-\kern0pt }%
+%  \begingroup\lccode`~=`>
+%  \lowercase{\endgroup\def~}{>{}}%
+%  \catcode`\>=\active
 }
+
+% For some reason without this " appears as [. No idea why.
+\begingroup\lccode`~=`"
+  \lowercase{\endgroup\gdef~}{"}
+
+% Maybe there's a better way to do this? Have to use \scantokens to apply active catcode to dash.
+%\def\code@catcode@hook{\preventhypenligatures}
+%\pgfqkeys{/codeexample}{typeset listing/.prefix code={\preventhypenligatures}}
 
 
 \pgfqkeys{/codeexample/prettyprint}{
@@ -399,7 +423,8 @@
             }%
         \fi
     },
-    point/.code={\pgfutil@in@){#1}\ifpgfutil@in@\prettyprintprocesspoint#1\else \textcolor{pointcolor}{\noligs{#1}}\fi},
+    point/.code={%\pgfutil@in@){#1}\ifpgfutil@in@\def\temp{#1}\prettyprintprocesspoint{#1}\else \textcolor{pointcolor}{\noligs{#1}}\fi
+    \textcolor{pointcolor}{\noligs{#1}}},
 	%/cs/.code={\pgfmanualpdfref{#1}{\textcolor{blue}{#1}}},
 %	/cs with args/.code 2 args={\pgfmanualpdfref{#1}{\textcolor{blue}{#1}}\{\pgfmanualprettyprintcode{#2}\pgfmanualclosebrace},
     %/colored
@@ -420,7 +445,7 @@
 \def\codeverb|{\pgfmanual@verb@code}
 
 % balance the braces
-\NewDocumentCommand\prettyprintprocesspoint { r() } {%
+\NewDocumentCommand\prettyprintprocesspoint { m } {%
     \textcolor{pointcolor}{%
         \bgroup
             \let\pgfmanual@pretty@collectpoint\pgfmanual@pretty@collectpoint@old

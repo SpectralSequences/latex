@@ -12,6 +12,8 @@
 
 \ExplSyntaxOn
 \let\sseq@NoValue\c__xparse_no_value_tl
+% They changed \c__xparse_no_value_tl to \c_novalue_tl at some point. If the first definition doesn't work, try again.
+\@ifundefined{sseq@NoValue}{\let\sseq@NoValue\c_novalue_tl}{}
 
 \protected\def\sseqparseint#1#2{
     \sseq@ifintexpr{#2+0}{ % +0 here to prevent \lastx from freaking out if it's at the end of #2.
@@ -238,13 +240,15 @@
 %%
 %% #1 -- callback. Will pass control to this function when done.
 %% stores output in \sseq@dpage
+%% It also sets the flag  \sseq@tempif to be 
+%%      true if there is an open parenthesis after the page
+%%      false if there is no open parentheis -- so no optional argument for \d.
 \def\sseq@d@grabpage#1{
     \let\sseq@grabdpage@return#1
     \futurelet\testtok\sseq@grabdpage@
 }
-
 \def\sseq@grabdpage@{
-    \sseq@tempiftrue
+    \sseq@tempiftrue 
     \ifx\testtok\bgroup
         \let\next\sseq@grabdpage@group
     \else
@@ -256,21 +260,27 @@
 
 \def\sseq@grabdpage@group#1{\def\sseq@dpage{#1}\sseq@grabdpage@return}
 
+% I guess this is "norm" because it's the most basic case. 
+% Why did I make this so complicated?
 \def\sseq@grabdpage@norm{
     \futurelet\testtok\sseq@grabdpage@norm@
 }
 
+% If the next token is a open group or a new paragraph, we're done collecting and there's no parenthetical argument.
+% If the next token is an open paren, we're done collecting and there is a parenthetical argument.
+% Spaces get added to the token list (I guess that's important because it changes arithmetic sometimes? there must have been an issue at some point)
+% Every other token gets handled by \sseq@grabdpage@token
 \def\sseq@grabdpage@norm@{
-    \let\next\sseq@grabdpage@token
-    \ifx\testtok\bgroup
+    \let\next\sseq@grabdpage@token 
+    \ifx\testtok\bgroup % Open group ==> done collecting page, no optional argument
         \sseq@tempiffalse
         \let\next\sseq@grabdpage@return
     \else
-        \ifx\testtok\par
+        \ifx\testtok\par % new paragraph ==> done collecting page, no optional argument 
             \sseq@tempiffalse
             \let\next\sseq@grabdpage@return
         \else
-            \ifx\testtok(
+            \ifx\testtok( % paren ==> done collecting page, optional argument
                 \let\next\sseq@grabdpage@return
             \else
                 \@xp\ifx\space\testtok
@@ -284,19 +294,20 @@
 
 \def\sseq@grabdpage@space{\sseq@d@addto@macro\sseq@dpage{~}\@xp\sseq@grabdpage@norm\romannumeral-`0}
 
+% All other tokens
 \def\sseq@grabdpage@token#1{
-    \ifcat$\@xp\@gobble\string#1$%
+    \ifcat$\@xp\@gobble\string#1$% % If #1 is a non-macro token, just add it to \sseq@dpage
         \sseq@d@addto@macro\sseq@dpage{#1}
         \@xp\sseq@grabdpage@norm
-    \else
-        \ifx#1\end
+    \else % Now it's a macor
+        \ifx#1\end % \end ==> done
             \sseq@tempiffalse
             \@xp\sseq@grabdpage@return\@xp#1\romannumeral-`0
         \else
-            \ifx#1\begin
+            \ifx#1\begin % \begin ==> done
                 \sseq@tempiffalse
                 \@xp\sseq@grabdpage@return\@xp#1\romannumeral-`0
-            \else
+            \else % Otherwise, let's try to expand it.
                 \@xp\sseq@grabdpage@token@fexpcs\@xp#1\romannumeral-`0
             \fi
         \fi
@@ -314,12 +325,12 @@
     \fi
 }
 \def\sseq@grabdpage@token@fexpcs@@@#1{
-    \ifcat$\@xp\@gobble\string#1$%
-        \sseq@d@addto@macro\sseq@dpage{#1}
+    \ifcat$\@xp\@gobble\string#1$% Did it fexpand into a non control sequence token?
+        \sseq@d@addto@macro\sseq@dpage{#1} % If so add it
         \@xp\sseq@grabdpage@norm
     \else
         \sseq@tempiffalse
-        \@xp\sseq@grabdpage@return
+        \@xp\sseq@grabdpage@return\@xp#1% Else remember to put the token back if we're not going to use it!!
     \fi
 }
 
