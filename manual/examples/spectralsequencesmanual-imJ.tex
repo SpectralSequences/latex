@@ -1,22 +1,22 @@
 \SseqNewFamily{imJ}
 \begin{sseqdata}[
     name=ANSS-S_2, Adams grading,
-    class labels={below}, label distance=-1pt,
-    class placement transform={rotate=90,scale=2},
-    differentials=blue,
-    x range={0}{9}, y range={0}{4},
-    xscale=0.7, grid=go
+    class labels = {below}, label distance = -1pt,
+    class placement transform = {rotate = 90, scale = 2},
+    differentials = blue,
+    x range = {0}{9}, y range = {0}{4},
+    xscale = 0.7, grid = go
 ]
 % Image of J classes
 \begin{scope}[imJ]
 \class[rectangle,fill,inner sep=3pt](0,0)
 \DoUntilOutOfBoundsThenNMore{3}{\etaclass}
 \classoptions["\alpha_1" above left](1,1)
-\class["\alpha_{2/2}",circlen=2](3,1)
+\class["\alpha_{2/2}", circlen = 2](3,1)
 \structline(0,0) \structline[dashed](3,3)
 \class["\alpha_3"](5,1) \d3\relax
 \DoUntilOutOfBounds{ \etaclass \d3 }
-\class["\alpha_{4/4}", rectangle, "16" {font=\tiny,inside}, inner sep=1pt](7,1)
+\class["\alpha_{4/4}", rectangle, "16" {font = \tiny, inside}, inner sep = 1pt](7,1)
 \DoUntilOutOfBoundsThenNMore{3}{\etaclass}
 \end{scope}
 
@@ -27,6 +27,6 @@
 \etaclass\structline(6,2,2) % This is a *nu
 \end{sseqdata}
 
-\printpage[name=ANSS-S_2, title = with image of J, imJ style=purple]
+\printpage[ name = ANSS-S_2, title = with image of J, imJ style = purple]
 
-\printpage[name=ANSS-S_2, no imJ, x range={2}{9}, title = without image of J]
+\printpage[ name = ANSS-S_2, no imJ, x range={2}{9}, title = without image of J] 

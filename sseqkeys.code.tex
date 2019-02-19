@@ -917,7 +917,6 @@
 \def\sseq@mapfeaturelist#1{\def\\##1{#1}\sseq@featurelist}
 
 \def\sseq@familylist{}
-
 \def\sseq@collections@featuretype{}
 \def\sseqnewfamily#1{%
     % Make five bins associated to the new family, one for each feature type. Add them to storelist with empty defaults.
@@ -932,6 +931,7 @@
 %
     % A flag to decide whether to draw the family. Set/unset using "draw family" and "no family".
     \@xp\sseq@addtostorelist\csname sseq@#1@maybedraw\endcsname{}
+    \makeatletter % the tikz people added an extra \scantokens into ecode...
     \pgfqkeys{/sseqpages/global}{%
         #1 style/.ecode={%
             \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@class{/sseqpages/class,/sseqpages/collections/class}{##1}%

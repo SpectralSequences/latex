@@ -48,6 +48,8 @@
 
 \ifsseq@tooltip
     \RequirePackage{pdfcomment}
+\else
+    \let\ulp@afterend\relax % So that removing the tooltip option doesn't cause the aux file to have an error.
 \fi
 
 \def\sseq@authorname{Hood Chatham}

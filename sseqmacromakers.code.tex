@@ -29,33 +29,42 @@
 % Capital U argument type is "Until" but puts back the token when it's done.
 
 % So xparse changed a bunch between the copy pushed to CTAN on February 7th and the copy pushed on February 9th
+\newtoks\sseq@patchxparseUnewcode
+\sseq@patchxparseUnewcode{
+    \cs_new_protected:Npn \sseq__xparse_grab_U:w #1#2 \__xparse_run_code:
+      { \sseq__xparse_grab_U_aux:nnN {#1} {#2} \cs_set_protected_nopar:Npn }
+    \cs_new_protected:Npn \sseq__xparse_grab_U_aux:nnN #1#2#3
+      {
+        \tl_set:Nn \l__xparse_signature_tl {#2}
+        \exp_after:wN #3 \l__xparse_fn_tl ##1 #1
+          { \__xparse_add_arg:n {##1} #1 }
+        \l__xparse_fn_tl
+      }
+    \cs_new_protected:Npn \sseq__xparse_add_type_U:w #1
+      {
+        \__xparse_flush_m_args:
+        \__xparse_add_default:
+        \__xparse_add_grabber_mandatory:N U
+        \tl_put_right:Nn \l__xparse_signature_tl { {#1} }
+        \__xparse_prepare_signature:N
+      }
+}
+
+
 \@ifpackagelater{xparse}{2017/02/08}{
-    \ifsseq@patchxparseU
-        % NEW CODE
-        \cs_new_protected:Npn \sseq__xparse_grab_U:w #1#2 \__xparse_run_code:
-          { \sseq__xparse_grab_U_aux:nnN {#1} {#2} \cs_set_protected_nopar:Npn }
-        \cs_new_protected:Npn \sseq__xparse_grab_U_aux:nnN #1#2#3
-          {
-            \tl_set:Nn \l__xparse_signature_tl {#2}
-            \exp_after:wN #3 \l__xparse_fn_tl ##1 #1
-              { \__xparse_add_arg:n {##1} #1 }
-            \l__xparse_fn_tl
-          }
-        \cs_new_protected:Npn \sseq__xparse_add_type_U:w #1
-          {
-            \__xparse_flush_m_args:
-            \__xparse_add_default:
-            \__xparse_add_grabber_mandatory:N U
-            \tl_put_right:Nn \l__xparse_signature_tl { {#1} }
-            \__xparse_prepare_signature:N
-          }
-    \else
-        % Assumptions failed, so just make U give an error (this isn't such a big deal since we don't use it for \d anymore).
-        \cs_new_protected:Npn \sseq__xparse_add_type_U:w #1
-          {
-            \sseq@error{U-xparse-incompatible}
-          }
-    \fi
+    \@ifpackagelater{xparse}{2018/10/17}{ 
+        \ifsseq@patchxparseU
+            \the\sseq@patchxparseUnewcode
+        \else
+            % Assumptions failed, so just make U give an error (this isn't such a big deal since we don't use it for \d anymore).
+            \cs_new_protected:Npn \sseq__xparse_add_type_U:w #1
+              {
+                \sseq@error{U-xparse-incompatible}
+              }
+        \fi
+    }{
+        \the\sseq@patchxparseUnewcode
+    }
 }{
     % OLD CODE
     \cs_new_protected:Npn \sseq__xparse_grab_U:w #1#2 \l__xparse_args_tl
@@ -89,15 +98,23 @@
     \cs_set:Npn\peek_meaning_remove_ignore_spaces:NTF#1#2#3{\peek_remove_spaces:n{\copy_of_peek_meaning_remove:NTF#1{#2}{#3}}}
 }{}
 
-\cs_new_protected:Npn \sseq__xparse_normalize_type_U:w #1 {
-    \quark_if_recursion_tail_stop_do:nn {#1} { \__xparse_bad_arg_spec:wn }
-    \__xparse_normalize_check_lu:N U
-    \__xparse_add_arg_spec:n { U {#1} }
-    \int_incr:N \l__xparse_mandatory_args_int
-    \tl_clear:N \l__xparse_last_delimiters_tl
-    \__xparse_normalize_arg_spec_loop:n
+\@ifpackagelater{xparse}{2018/10/17}{
+    \cs_new_protected:Npn \sseq__xparse_normalize_type_U:w #1 {
+        \quark_if_recursion_tail_stop_do:nn {#1} { \__xparse_bad_arg_spec:wn }
+        \__xparse_normalize_check_lu:N U
+        \__xparse_add_arg_spec_mandatory:n { U {#1} }
+        \__xparse_normalize_arg_spec_loop:n
+    }
+}{ 
+    \cs_new_protected:Npn \sseq__xparse_normalize_type_U:w #1 {
+        \quark_if_recursion_tail_stop_do:nn {#1} { \__xparse_bad_arg_spec:wn }
+        \__xparse_normalize_check_lu:N U
+        \__xparse_add_arg_spec:n { U {#1} }
+        \int_incr:N \l__xparse_mandatory_args_int
+        \tl_clear:N \l__xparse_last_delimiters_tl
+        \__xparse_normalize_arg_spec_loop:n
+    }
 }
-
 % Expandable commands are a menace to us because they define a bunch of helper commands that we then have to keep track of.
 % We are too lazy to do this, so force \l__xparse_grab_expandably_bool to be false.
 % This is backwards compatible (I think) because \bool_set_false:N just performs a chardef (no existence check)

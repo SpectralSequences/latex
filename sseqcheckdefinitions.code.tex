@@ -47,16 +47,15 @@
     \sseq@checkprotecteddef \__xparse_normalize_type_u:w #1 {
         \quark_if_recursion_tail_stop_do:nn {#1} { \__xparse_bad_arg_spec:wn }
         \__xparse_normalize_check_lu:N u
-        \__xparse_add_arg_spec:n { u {#1} }
-        \int_incr:N \l__xparse_mandatory_args_int
-        \tl_clear:N \l__xparse_last_delimiters_tl
+        \__xparse_add_arg_spec_mandatory:n { u {#1} } % Oct 17, 2018
+%        \int_incr:N \l__xparse_mandatory_args_int
+%        \tl_clear:N \l__xparse_last_delimiters_tl
         \__xparse_normalize_arg_spec_loop:n
     }
 
     \ifsseq@tempif
         \global\sseq@patchxparseUtrue
     \else
-        %\sseq@warning{fit-patch-failed}
         \global\sseq@patchxparseUfalse
     \fi
     \sseq@tempiftrue
@@ -70,7 +69,7 @@
     \ifsseq@tempif\else
         \sseq@error@n{expl3-incompatibility}{\peek_meaning_ignore_spaces:NTF}
     \fi
-     
+
 }{}
 
 \ExplSyntaxOff

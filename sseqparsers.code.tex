@@ -240,7 +240,7 @@
 %%
 %% #1 -- callback. Will pass control to this function when done.
 %% stores output in \sseq@dpage
-%% It also sets the flag  \sseq@tempif to be 
+%% It also sets the flag  \sseq@tempif to be
 %%      true if there is an open parenthesis after the page
 %%      false if there is no open parentheis -- so no optional argument for \d.
 \def\sseq@d@grabpage#1{
@@ -248,7 +248,7 @@
     \futurelet\testtok\sseq@grabdpage@
 }
 \def\sseq@grabdpage@{
-    \sseq@tempiftrue 
+    \sseq@tempiftrue
     \ifx\testtok\bgroup
         \let\next\sseq@grabdpage@group
     \else
@@ -260,7 +260,7 @@
 
 \def\sseq@grabdpage@group#1{\def\sseq@dpage{#1}\sseq@grabdpage@return}
 
-% I guess this is "norm" because it's the most basic case. 
+% I guess this is "norm" because it's the most basic case.
 % Why did I make this so complicated?
 \def\sseq@grabdpage@norm{
     \futurelet\testtok\sseq@grabdpage@norm@
@@ -271,12 +271,12 @@
 % Spaces get added to the token list (I guess that's important because it changes arithmetic sometimes? there must have been an issue at some point)
 % Every other token gets handled by \sseq@grabdpage@token
 \def\sseq@grabdpage@norm@{
-    \let\next\sseq@grabdpage@token 
+    \let\next\sseq@grabdpage@token
     \ifx\testtok\bgroup % Open group ==> done collecting page, no optional argument
         \sseq@tempiffalse
         \let\next\sseq@grabdpage@return
     \else
-        \ifx\testtok\par % new paragraph ==> done collecting page, no optional argument 
+        \ifx\testtok\par % new paragraph ==> done collecting page, no optional argument
             \sseq@tempiffalse
             \let\next\sseq@grabdpage@return
         \else

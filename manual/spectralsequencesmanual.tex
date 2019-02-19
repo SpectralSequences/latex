@@ -79,7 +79,11 @@ The easiest solution is to run \LuaLaTeX. \LuaLaTeX\ dynamically allocates memor
 Another option is to increase the static memory caps for \pdfLaTeX. See \href{https://tex.stackexchange.com/a/26213}{this \TeX stack exchange post} for instructions on how to do this.
 
 \subsection{A warning about fragile macros}
-All the data in a \sseqpages\  environment is stored and used later. As a result, most of the \sseqpages\  commands currently cannot tolerate fragile macros. Unfortunately, it is impossible for \sseqpages\  to warn you about this situation -- if you use a fragile command in a place that it doesn't belong, the result will be an incomprehensible error message. If you are getting nonsense error messages, this might be why. The solution is to convert fragile macros into robust ones. \href{http://www.tex.ac.uk/FAQ-protect.html}{See here for more information.}
+All the data in a \sseqpages\  environment is stored and used later. As a result, most of the \sseqpages\  commands currently cannot tolerate fragile macros. Unfortunately, it is impossible for \sseqpages\  to warn you about this situation -- if you use a fragile command in a place that it doesn't belong, the result will be an incomprehensible error message. If you are getting nonsense error messages, this might be why. The solution is to convert fragile macros into robust ones. Common examples of fragile macros include |\widehat| and |\underline|. My suggested solution to this is to add the following code to your preamble for each fragile macro (example given for |\mathbb|):
+\begin{codeexample}[code only]
+\let\oldwidehat\widehat
+\protected\def\widehat{\oldwidehat}
+\end{codeexample}
 
 
 \section{Package Options and Environments}
@@ -362,17 +366,17 @@ These come from the \LaTeX\  \colorpkg\  package via \tikzpkg, so see the \href{
 \end{manualentry}
 
 \begin{manualentry}{\pgfmanualpdflabel{""quotes}{}|"|\meta{text}|"|\opt{\meta{options}}}
-Specify a label for a class, a differential, or a structure line. This uses the \tikzpkg\ quotes syntax. If the label text includes an equal sign or comma, you need to enclose the entire label in braces, e.g., |\class["{x = y}"](0,0)|. The options include anything you might pass as an option to a \tikzpkg\ node, including arbitrary coordinate transforms, colors, opacity options, shapes, fill, draw, etc. The behavior is a little different depending on whether you use it on a class or on a differential or structure line.
+Specify a label for a class, a differential, or a structure line. This uses the \tikzpkg\ quotes syntax. If the label text includes an equal sign or comma, you need to enclose the entire label in braces, e.g., \codeverb|\class["{x = y}"](0,0)|. The options include anything you might pass as an option to a \tikzpkg\ node, including arbitrary coordinate transforms, colors, opacity options, shapes, fill, draw, etc. The behavior is a little different depending on whether you use it on a class or on a differential or structure line.
 
 For a class, the \meta{text} is placed in the position |inside| the node by default -- in effect, the \meta{text} becomes the label text of the node (so saying |\class["label text"](0,0)| causes a similar effect to saying |\node at (0,0) {label text};|). There are other position options such as |left|, |above left|, etc which cause the label text to be placed in a separate node positioned appropriately. If the placement is above, left, etc, then any option that you may pass to a \tikzpkg\ node will also work for the label, including general coordinate transformations. If the placement is ``inside'', then the only relevant \opt{\meta{options}} are those that alter the appearance of text, such as opacity and color.
 \begin{codeexample}[width = 4cm]
 \begin{sseqpage}[ classes = { minimum width = width("a") + 0.5em }, no axes ]
 \class["a"](0,0)
-\class["a",red](1,0)
-\class["a" black,red](2,0)
+\class["a", red](1,0)
+\class["a" black, red](2,0)
 \class["b" above](0,1)
-\class["b" {below right,yshift = 0.1cm}](1,1)
-\class["a" {above right = {1em}}](2,1)
+\class["b" { below right, yshift = 0.1cm }](1,1)
+\class["a" { above right = {1em} }](2,1)
 \end{sseqpage}
 \end{codeexample}
 You can adjust the default behavior of class labels using the |labels| style option or its relatives |class labels|, |inner class labels| or |outer class labels|.
@@ -381,7 +385,7 @@ Note that it is also possible to give a label to a |\node| this way, although th
 \begin{sseqpage}[ no axes ]
 \class(0,0)
 \class(2,0)
-\node[circle,fill,"a"] at (1,0) {};
+\node[circle, fill, "a"] at (1,0) {};
 \end{sseqpage}
 \end{codeexample}
 
@@ -390,7 +394,7 @@ The |pin| key makes \sseqpages\ draw a line connecting the label to the relevant
 \begin{codeexample}[width = 6cm]
 \begin{sseqpage}
 \class(0,0)
-\class["xy" {above, xshift=-4pt, pin = red}](0,0)
+\class["xy" { above, xshift = -4pt, pin = red }](0,0)
 \class(0,0)
 \class(0,1)
 \structline
@@ -509,23 +513,24 @@ Named classes are immune to coordinate transformations. For example, in the foll
 \end{key}
 
 \begin{key}{show name = \meta{label options}}
+\declareasstyle{show name}
 This option is like saying |"class name"\marg{label options}| if the class has a name, and does nothing if the class has no name. If the class has multiple names, only the most recent is used. This is particularly useful with class styles, . For instance, by saying |this page classes = { show name = above }| you can display names of all of the sources and targets of differentials on each page.
 \begin{codeexample}[width=7cm]
 \begin{sseqdata}[
     name = show name example,
-    this page classes = { show name = {above right, pin} }
+    this page classes = { show name = { above right, pin } }
 ]
-\class[name=a](0,2)
-\class[name=b](0,3)
-\class[name=x](1,0)
+\class[ name = a ](0,2)
+\class[ name = b ](0,3)
+\class[ name = x ](1,0)
 \d2(x)(a)
 \replacesource[name=2x]
 \d3(x)(b)
 \end{sseqdata}
 
-\printpage[name=show name example,page=2]
+\printpage[ name = show name example, page = 2]
 
-\printpage[name=show name example,page=3]
+\printpage[ name = show name example, page = 3]
 \end{codeexample}
 \end{key}
 
@@ -549,8 +554,8 @@ This key adds a tag to the current class. Tags are used for identifying which of
 \begin{sseqpage}[ degree = {-1}{1}, yscale = 1.1,
                   x range = {0}{5}, y range = {0}{5} ]
 \tower(3,0)
-\hvee[tag = id](0,0)
-\hvee[tag = h21](4,2)
+\hvee[ tag = id ](0,0)
+\hvee[ tag = h21 ](4,2)
 \foreach \n in {0,...,5} {
     \d2(4+\n,2+\n,h21,id)
 }
@@ -606,12 +611,14 @@ There's another example at the beginning of the section on the \hyperref[sec:cla
 \end{key}
 
 \begin{keylist}{class:page = \meta{page}\opt{-{}-\meta{page max}},generation = \meta{generation}\opt{-{}-\meta{generation max}}}
+\def\classpagehandler#1#2{\textcolor{keycolor}{\noligs{#2}}}
+\declarecustomhandler{class:page}{\classpagehandler}
 These options only work in |\classoptions|. The |page| option gives a range of pages for which the options apply to. If only one page is specified, it is the minimum page and the option applies to all larger pages.
 \begin{codeexample}[width = 6cm]
 \begin{sseqdata}[ name = page_example, no axes,
     title = \page, title style = {yshift = -0.5cm} ]
 \class(0,0)
-\classoptions[class:page = {2--3},fill,blue](0,0)
+\classoptions[class:page = 2 -- 3, fill, blue](0,0)
 \end{sseqdata}
 
 \printpage[ name = page_example, page = 1 ] \qquad
@@ -658,8 +665,8 @@ See the \href{\pgfmanualurl#subsubsection.15.3.2}{\tikzpkg\  manual} for a compl
     \class(\x,\y)
 }
 \structline[densely dotted](0,0)(0,1)
-\structline[dashed,red, "a"](1,0)(1,1)
-\structline[dash dot,red, "a" black](2,0)(2,1)
+\structline[dashed, red, "a"](1,0)(1,1)
+\structline[dash dot, red, "a" black](2,0)(2,1)
 \end{sseqpage}
 \end{codeexample}
 %
@@ -673,7 +680,7 @@ See the \href{\pgfmanualurl#subsubsection.15.3.2}{\tikzpkg\  manual} for a compl
 }
 \structline[bend left = 20](0,0)(0,1)
 \structline[bend right = 20](1,0)(1,1)
-\structline[in = 20,out = north](2,0)(2,1)
+\structline[in = 20, out = north](2,0)(2,1)
 \end{sseqpage}
 \end{codeexample}
 \end{keylist}
@@ -713,13 +720,13 @@ By specifying a page number, you can adjust which page the |\structline| starts 
 \d3(1,1)(0,4) \replacesource
 \structline[structline:page = 2](1,0)(1,1)
 \end{sseqdata}
-\printpage[name = structpage example2,page = 1]
+\printpage[ name = structpage example2, page = 1 ]
 \qquad
-\printpage[name = structpage example2,page = 2]
+\printpage[ name = structpage example2, page = 2 ]
 \qquad
-\printpage[name = structpage example2,page = 3]
+\printpage[ name = structpage example2, page = 3 ]
 \qquad
-\printpage[name = structpage example2,page = 4]
+\printpage[ name = structpage example2, page = 4 ]
 \end{codeexample}
 
 Similarly, for |\structlineoptions| you can specify a minimum page on which to apply the options, or a range of pages.
@@ -729,12 +736,12 @@ Similarly, for |\structlineoptions| you can specify a minimum page on which to a
 \begin{key}{fit = \meta{coordinates or nodes}}
 The |\circleclasses| command uses the \href{\pgfmanualurl#section.52}{\tikzpkg\  fitting library}. Sometimes it's desirable to make the resulting node fit extra things, for example a label. It doesn't necessarily end up looking great though.
 \begin{codeexample}[]
-\begin{sseqpage}[Adams grading,axes gap = 0.7cm]
+\begin{sseqpage}[ Adams grading, axes gap = 0.7cm ]
 \class(0,2)
 \class(1,0)
 % Fit in the label x and also a symmetric invisible label to maintain symmetry
-\d["x"{name = x},"x"'{name = x',opacity = 0}]2(1,0)
-\circleclasses[fit = (x)(x'),rounded rectangle](1,0)(0,2)
+\d["x"{name = x}, "x"'{name = x', opacity = 0}]2(1,0)
+\circleclasses[fit = (x)(x'), rounded rectangle](1,0)(0,2)
 \end{sseqpage}
 \end{codeexample}
 \end{key}
@@ -770,7 +777,7 @@ This key instructs \sseqpages\  to put the current \tikzpkg\  primitive in the b
 
 In particular, this means that foreground \tikzpkg\  paths can be clipped by the standard clipping, but background paths that are outside of the clipping expand the size of the \tikzpkg\  picture.
 \begin{codeexample}[]
-\begin{sseqpage}[no ticks,yscale = 0.9,math nodes = false]
+\begin{sseqpage}[ no ticks, yscale = 0.9, math nodes = false ]
 \class(0,0)
 \class(1,1)
 \begin{scope}[background]
@@ -1209,41 +1216,41 @@ This has the same weird syntax of |\d|, except that you are required to put brac
 
 
 For instance, consider the following example, suggested by Catherine Ray:
-%\begin{codeexample}[]
-%% O{} U( r() is the arg-spec for \d, O{} U( r() mm looks like \d with one extra mandatory arguments
-%\NewSseqCommand{\twods}{ O{} U( r() d()  m }{
-%    \parsedifferential{#2}(#3)(#4)             % Store the target position in \target
-%    \nameclass{source}(\sourcecoord,\nsource)  % give names to the three classes
-%    \nameclass{target1}(\targetcoord,\ntarget)
-%    \nameclass{target2}(\targetcoord,#5)
-%%
-%    \circleclasses[ cc:differential style, name path = circ,
-%                    #1, page = #2--#2 ]
-%                    (target1)(target2)         % Circle the classes, use differential style
-%%
-%    % record source and targets as hit.
-%    \kill#2(source) \kill#2(target1) \kill#2(target2)
-%%
-%    \path(target1)--(target2)
-%                coordinate[midway](midpt);% put a coordinate in the center of the two classes
-%    \path[name path = lin] (source) -- (midpt);% save path from start to midpoint
-%%
-%    % draw line in "differential style" from start to intersection point of circ and lin
-%    \draw[ cc:differential style, #1, page constraint= { \page == #2 },
-%           name intersections = { of = circ and lin } ]
-%                (source) -- (intersection-1);
-%}
-%\begin{sseqdata}[ name = cathex, Adams grading, differentials = { blue } ]
-%\class(0,2)\class(0,2)
-%\class(1,0)\class(1,0)
-%\twods2(1,0,-1,1){2}
-%\end{sseqdata}
-%\printpage[ name = cathex, page = 1 ]
-%\qquad
-%\printpage[ name = cathex, page = 2 ]
-%\qquad
-%\printpage[ name = cathex, page = 3 ]
-%\end{codeexample}
+\begin{codeexample}[]
+% O{} U( r() is the arg-spec for \d, O{} U( r() mm looks like \d with one extra mandatory arguments
+\NewSseqCommand{\twods}{ O{} U( r() d()  m }{
+    \parsedifferential{#2}(#3)(#4)             % Store the target position in \target
+    \nameclass{source}(\sourcecoord,\nsource)  % give names to the three classes
+    \nameclass{target1}(\targetcoord,\ntarget)
+    \nameclass{target2}(\targetcoord,#5)
+%
+    \circleclasses[ cc:differential style, name path = circ,
+                    #1, page = #2--#2 ]
+                    (target1)(target2)         % Circle the classes, use differential style
+%
+    % record source and targets as hit.
+    \kill#2(source) \kill#2(target1) \kill#2(target2)
+%
+    \path(target1)--(target2)
+                coordinate[midway](midpt);% put a coordinate in the center of the two classes
+    \path[name path = lin] (source) -- (midpt);% save path from start to midpoint
+%
+    % draw line in "differential style" from start to intersection point of circ and lin
+    \draw[ cc:differential style, #1, page constraint= { \page == #2 },
+           name intersections = { of = circ and lin } ]
+                (source) -- (intersection-1);
+}
+\begin{sseqdata}[ name = cathex, Adams grading, differentials = { blue } ]
+\class(0,2)\class(0,2)
+\class(1,0)\class(1,0)
+\twods2(1,0,-1,1){2}
+\end{sseqdata}
+\printpage[ name = cathex, page = 1 ]
+\qquad
+\printpage[ name = cathex, page = 2 ]
+\qquad
+\printpage[ name = cathex, page = 3 ]
+\end{codeexample}
 \end{command}
 
 \begin{command}{\nameclass\marg{name}\pararg{coordinate}}
@@ -1286,12 +1293,12 @@ The |\gettag| command finds the most recent tag applied to the coordinate and st
 \begin{sseqpage}[ y range = {0}{6}, x tick step = 3,
     xscale=0.6, yscale=1.3 ]
 \class(0,2) \class(0,3) \class(3,2)
-\class[tag=h_0^i](0,0)
-\tower[tag=h_0^i]
+\class[tag = h_0^i](0,0)
+\tower[tag = h_0^i]
 \class(0,2) \class(0,1)
 
-\htwotower[tag=h_2 h_0^i](0,0)
-\htwotower[tag=h_2 h_0^i]
+\htwotower[tag = h_2 h_0^i](0,0)
+\htwotower[tag = h_2 h_0^i]
 \end{sseqpage}
 \end{codeexample}
 \end{command}
@@ -1407,7 +1414,7 @@ This passes options to all features in all future spectral sequences in the curr
 
 \begin{codeexample}[width = 7cm]
 % Applies to both of the following sseqs:
-\sseqset{ sseqs = { blue, scale = 0.5 } }%
+\sseqset{ sseqs = { blue, scale = 0.5 } }
 \begin{sseqpage}
 \foreach \x in {0,1}
 \foreach \y in {0,1,2} {
@@ -1501,7 +1508,7 @@ This style applies to labels on classes, differentials, and structure lines. All
 Inner class labels specifically applies to class labels that are inside the node, outer class labels specifically applies to ones outside it:
 \begin{codeexample}[]
 \begin{sseqpage}[ no axes, classes = { inner sep = 1pt },
-    label distance=2pt,
+    label distance = 2pt,
     outer class labels = { red },
     inner class labels = { blue } ]
 \class["a", "b" above](0,0)
@@ -1524,7 +1531,7 @@ This sets the default distance from a class to an outer label. There are also va
 \begin{codeexample}[width = 6cm]
 \begin{sseqpage}[ label distance = 0.3em,
                   right label distance = 0em,
-                  no axes,yscale = 1.25 ]
+                  no axes, yscale = 1.25 ]
 \class["a" above](0,0)
 \class["b" above right](0,1)
 \class["c" right](1,0)
@@ -1612,8 +1619,8 @@ The main functions intended for use here are |\SseqAHSSNameHandler| and |\SseqNo
 \SseqNormalizeMonomialSetVariables{xy}
 \begin{sseqpage}[ class name handler = \SseqNormalizeMonomial,
                   classes = {show name = {right,pin}} ]
-\class[name=xy](0,0)
-\class[name=yxy](0,1)
+\class[name = xy](0,0)
+\class[name = yxy](0,1)
 \class(1,0)
 \structline(yx)(yyx)
 \end{sseqpage}
@@ -2021,7 +2028,7 @@ The value for |x tick handler| should be a function that takes in the current $\
 The \meta{type} is either |border|, |center|, |frame|, or |none|. |no axes| is a shorthand for |axes type=none|. The |border| type is the default and puts the axes on the bottom and left of the picture. The |center| type by default places the axes to pass through $(0,0)$; this can be modified using the |x axis origin| and |y axis origin| keys. See \example{KRAHSS} and \example{KUHFPSS} for examples where this is used. The |frame| type draws a frame around the entire chart:
 
 \begin{codeexample}[width=6cm]
-\begin{sseqpage}[axes type=frame]
+\begin{sseqpage}[ axes type = frame ]
 \class(0,0)
 \class(3,2)
 \end{sseqpage}

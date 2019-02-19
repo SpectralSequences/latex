@@ -13,6 +13,18 @@ Email me at hood@mit.edu to submit bug reports, request new features, etc. The c
 
 Changelog:
 ==========
+## [1.2.2] (2018-02-18)
+### Fixed:
+- expl3 defined \exp_after:NNNf recently, so I changed \cs_new:Npn \exp_after:NNNf to \cs_set:Npn \exp_after:NNNf and copied the definition given by
+  expl3.
+- expl3 changed the definition of \peek_meaning_ignore_spaces to be in terms of \peek_meaning so \letting \peek_meaning to \peek_meaning_ignore_spaces 
+  caused an infite regress. 
+- expl3 changed \c__xparse_no_value_tl to \c__novalue_tl, so now I try to use each of them in sequence.
+- Fixed U argument type.
+- \sseqnewfamily was broken by an update to tikz that added a \scantokens call to the .ecode key handler, causing issues with @.
+- If \d was called without a source or target argument and was followed by a macro, \d would eat the first token of the expansion of that macro
+  causing an error. 
+- Draft mode works a lot better now, though it's probably still buggy.
 
 ## [1.2.1] (2018-10-08)
 ### Fixed:

@@ -1,5 +1,15 @@
 #!/bin/bash
 
+# If a version number was supplied, replace versions and date strings:
+echo "Updating version number"
+if [ "$1" ] ; then
+    echo "Replacing date strings and version numbers"
+    echo $package_files | xargs sed --in-place "s/Date: ....-..-../Date: $(date +%Y-%m-%d)/g"
+    sed --in-place "s_ProvidesPackage{spectralsequences}\[.*\]_ProvidesPackage{spectralsequences}[$(date +%Y/%m/%d) v$1]_g" spectralsequences.sty
+    sed --in-place "s_version{.*}_version{Version $1}_g" manual/spectralsequencesmanual.tex
+    echo $package_files | xargs sed -E --in-place "s/spectralsequences v[0-9]*\.[0-9]*\.[0-9]*[[:punct:]]?[a-z]*/spectralsequences v$1/g"
+fi
+
 package_files=$( /usr/bin/find  | grep -E ".sty|.tex|.md" )
 echo "Compiling manual"
 cd manual
@@ -25,14 +35,6 @@ echo "Cleanup tex output files"
 find -regextype egrep -regex ".*\.aux|.*\.fdb_latexmk|.*\.fls|.*\.bbl|.*\.dvi|.*\.log|.*\.synctex.*|.*\.toc|.*\.out|.*\.up.*" -delete
     
 
-# If a version number was supplied, replace versions and date strings:
-if [ "$1" ] ; then
-    echo "Replacing date strings and version numbers"
-    echo $package_files | xargs sed --in-place "s/Date: ....-..-../Date: $(date +%Y-%m-%d)/g"
-    sed --in-place "s_ProvidesPackage{spectralsequences}\[.*\]_ProvidesPackage{spectralsequences}[$(date +%Y/%m/%d) v$1]_g" spectralsequences.sty
-    sed --in-place "s_version{.*}_version{Version $1}_g" manual/spectralsequencesmanual.tex
-    echo $package_files | xargs sed -E --in-place "s/spectralsequences v[0-9]*\.[0-9]*\.[0-9]*[[:punct:]]?[a-z]*/spectralsequences v$1/g"
-fi
 
 echo "Zipping files"
 rm -f spectralsequences.zip

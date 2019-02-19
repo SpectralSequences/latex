@@ -275,7 +275,8 @@
 }
 \def\pgfmanual@pretty@collectquote{%
     \let\pgfmanualprettyprinterhandlecollectedargs=\pgfmanual@pretty@collectargs@finish@collectquote
-    \pgfmanualprettyprintercollectupto"
+    \let\pgfmanualprettyprinterhandlecollectedargsVtwo\pgfmanualprettyprinterhandlecollectedargsVtwo@default
+    \pgfmanualprettyprintercollectupto"%
     	{\pgfmanual@pretty@collectquote@b}%
 }
 \def\pgfmanual@pretty@collectquote@b{%
@@ -289,9 +290,9 @@
 \def\afterpgfmanual@pretty@collectquote{\pgfmanual@pretty@pgfkeys@loop}
 \def\pgfmanual@pretty@collectargs@finish@collectquote#1{\textcolor{keycolor}{\pgfmanualpdfref{""quotes}{"#1"}}}
 \def\pgfmanual@pretty@collectargs@finish@collectquote@b#1{%
+    \def\thekey{#1}%
     \edef\temp{\ifpgfmanualprettyprinterfoundterminator,\fi}%
     \pgfkeys{/codeexample/prettyprint/key name/.code={\textcolor{keycolor}{##1}}}%
-    \def\thekey{#1}%
     \def\leadingtoks{}\def\trailingtoks{}%
     \pulloffstartspaces\pulloffsinglequote\pulloffstartspaces\pulloffstartbrace
     \removetrailingspaces\removetrailingbrace
@@ -322,29 +323,6 @@
 %	\afterpgfmanual@pretty@collectpoint
 %}
 
-
-% Not
-\def\code@catcode@hook{\preventhypenligatures\catcode`"=\active}
-%\begingroup\lccode`~=`>
-%  \lowercase{\endgroup\gdef~}{>}
-
-\begingroup\lccode`~=`-
-  \lowercase{\endgroup\gdef~}{-}
-\def\preventhypenligatures{%
-  \begingroup\lccode`~=`-
-  \lowercase{\endgroup\def~}{-\kern0pt }%
-%  \begingroup\lccode`~=`>
-%  \lowercase{\endgroup\def~}{>{}}%
-%  \catcode`\>=\active
-}
-
-% For some reason without this " appears as [. No idea why.
-\begingroup\lccode`~=`"
-  \lowercase{\endgroup\gdef~}{"}
-
-% Maybe there's a better way to do this? Have to use \scantokens to apply active catcode to dash.
-%\def\code@catcode@hook{\preventhypenligatures}
-%\pgfqkeys{/codeexample}{typeset listing/.prefix code={\preventhypenligatures}}
 
 
 \pgfqkeys{/codeexample/prettyprint}{
@@ -463,6 +441,19 @@
   \readexamplelines
   \closein\examplesource
   \expandafter\endofcodeexample\expandafter{\examplelines}%
+}
+
+% For some reason it's started duplicating the last line of the file,
+% so I added an illogical extra \ifeof and that seems to fix the problem.
+\def\readexamplelines{
+  \ifeof\examplesource%
+  \else
+    \immediate\read\examplesource to \exampleline
+    \ifeof\examplesource\else  %% Added
+        \edef\examplelines{\unexpanded\@xp{\examplelines}\unexpanded\@xp{\exampleline}}%
+    \fi                        %% Added
+    \expandafter\readexamplelines%
+  \fi
 }
 
 

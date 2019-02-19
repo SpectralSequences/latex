@@ -420,60 +420,7 @@
 
 
 
-\ifsseq@draftmode % Okay, have to dummy out all the main commands.
-    % Only add tikz background paths to the savedpaths. We need to draw background paths because they might change the bounding box!
-    \sseq@setsavedpaths@draftmode
-%
-    % All we want to do here is record the range. Have to process options in order to figure out where it is.
-    \sseq@DeclareDocumentCommand\class{or()}{%
-        \begingroup
-        \sseq@loadinputline
-        \IfNoValueT{#2}{\sseq@break}%
-        \sseq@xsetthiscall{\string\class\IfNoValueF{#1}{[\unexpanded{#1}]}\unexpanded{(#2)}}%
-        \sseq@options@firstpassmode
-        \the\sseq@sseqstyle
-        \the\sseq@classstyle
-        \sseq@options@normalmode
-        \IfNoValueF{#1}{%
-            \sseq@processoptions{class}{#1}% Outputs result into \sseq@savedoptioncode
-        }%
-        \sseq@cparsecoord{#2}{}%
-        \sseq@xminmax{\xcoord}{\ycoord}%
-        \sseq@yminmax{\xcoord}{\ycoord}%
-        \sseq@pushstack@\coord % also need the class stack to calculate other \class commands.
-        \sseq@cleanup@obj{partcoord.(\partialcoord).numnodes}%
-        \ifnum\nodenum=\@ne
-            \sseq@obj@gdef{partcoord.(\partialcoord).numnodes}{0}%
-        \fi
-        \sseq@obj@xdef{partcoord.(\partialcoord).numnodes}{\nodenum}%
-        \edef\classname{class.\coord[0]}%
-        \ifx\sseq@class@tag\pgfutil@empty\else
-            \sseq@obj@ifdef{partcoord.(\partialcoord).tag.\sseq@class@tagprefix\sseq@class@tag}{%
-                \sseq@error@xx{class-tag-already-defined}{\sseq@class@tagprefix\sseq@class@tag}{(\partialcoord)}% could be warning
-            }{}%
-            \sseq@cleanup@obj{partcoord.(\partialcoord).tag.\sseq@class@tagprefix\sseq@class@tag}%
-            \sseq@obj@xdef{partcoord.(\partialcoord).tag.\sseq@class@tagprefix\sseq@class@tag}{\nodenum}%
-        \fi
-        \ifx\sseq@class@name\pgfutil@empty\else
-            \sseq@cleanup@obj{\classname.name}
-            \sseq@cleanup@obj{class.namedclass.\detokenize\@xp{\sseq@class@name}}
-            \sseq@namehandler
-            \sseq@obj@xdef{\classname.name}{\sseq@class@name}
-            \sseq@obj@xdef{class.namedclass.\detokenize\@xp{\sseq@class@name}}{\coordnopar}
-        \fi
-        \sseq@breakpoint
-        \endgroup
-    }
 
-    % Now the rest of these can be no-ops
-    \sseq@DeclareDocumentCommand\classoptions{od()}{}
-    \sseq@DeclareDocumentCommand\replaceclass{od()}{}
-    \def\sseq@d@main#1#2#3#4#5{} % makes both \d and \doptions do nothing
-    \sseq@DeclareDocumentCommand\structline{od()d()}{}
-    \sseq@DeclareDocumentCommand\structlineoptions{od()d()}{}
-    \sseq@DeclareDocumentCommand\circleclasses{or()r()}{}
-    \endinput
-\fi
 
 
 \protected\def\sseq@xcoord{}\protected\def\sseq@ycoord{}
@@ -1515,6 +1462,66 @@
 \def\sseq@structline@draw#1{\sseq@eval{\@nx\sseq@drawedge\sseq@obj{#1.source}\sseq@obj{#1.target}{structline}{\@nx\sseq@obj{#1.options}}}}
 
 
+%% This is a dumb place to put this. It has to be after the differential commands are defined.
+\ifsseq@draftmode % Okay, have to dummy out all the main commands.
+    % Only add tikz background paths to the savedpaths. We need to draw background paths because they might change the bounding box!
+    \sseq@setsavedpaths@draftmode
+    \let\sseq@handlequote\@gobble
+%
+    % All we want to do here is record the range. Have to process options in order to figure out where it is.
+    \sseq@DeclareDocumentCommand\class{or()}{%
+        \begingroup
+        \sseq@loadinputline
+        \IfNoValueT{#2}{\sseq@break}%
+        \sseq@xsetthiscall{\string\class\IfNoValueF{#1}{[\unexpanded{#1}]}\unexpanded{(#2)}}%
+        \sseq@options@firstpassmode
+        \the\sseq@sseqstyle
+        \the\sseq@classstyle
+        \sseq@options@normalmode
+        \IfNoValueF{#1}{%
+            \sseq@processoptions{class}{#1}% Outputs result into \sseq@savedoptioncode
+        }%
+        \sseq@cparsecoord{#2}{}%
+        \sseq@xminmax{\xcoord}{\ycoord}%
+        \sseq@yminmax{\xcoord}{\ycoord}%
+        \sseq@pushstack@\coord % also need the class stack to calculate other \class commands.
+        \sseq@cleanup@obj{partcoord.(\partialcoord).numnodes}%
+        \ifnum\nodenum=\@ne
+            \sseq@obj@gdef{partcoord.(\partialcoord).numnodes}{0}%
+        \fi
+        \sseq@obj@xdef{partcoord.(\partialcoord).numnodes}{\nodenum}%
+        \edef\classname{class.\coord[0]}%
+        \ifx\sseq@class@tag\pgfutil@empty\else
+            \sseq@obj@ifdef{partcoord.(\partialcoord).tag.\sseq@class@tagprefix\sseq@class@tag}{%
+                \sseq@error@xx{class-tag-already-defined}{\sseq@class@tagprefix\sseq@class@tag}{(\partialcoord)}% could be warning
+            }{}%
+            \sseq@cleanup@obj{partcoord.(\partialcoord).tag.\sseq@class@tagprefix\sseq@class@tag}%
+            \sseq@obj@xdef{partcoord.(\partialcoord).tag.\sseq@class@tagprefix\sseq@class@tag}{\nodenum}%
+        \fi
+        \ifx\sseq@class@name\pgfutil@empty\else
+            \sseq@cleanup@obj{\classname.name}
+            \sseq@cleanup@obj{class.namedclass.\detokenize\@xp{\sseq@class@name}}
+            \sseq@namehandler
+            \sseq@obj@xdef{\classname.name}{\sseq@class@name}
+            \sseq@obj@xdef{class.namedclass.\detokenize\@xp{\sseq@class@name}}{\coordnopar}
+        \fi
+        \sseq@breakpoint
+        \endgroup
+    }
+
+    % Now the rest of these can be no-ops
+    \sseq@DeclareDocumentCommand\classoptions{od()}{}
+    \sseq@DeclareDocumentCommand\replaceclass{od()}{}
+    \sseq@DeclareDocumentCommand\replacesource{o}{}
+    \sseq@DeclareDocumentCommand\replacetarget{o}{}
+    \def\sseq@d@main#1#2#3#4#5{}
+    \DeclareDocumentCommand \sseq@DrawIfValidDifferential@@ { d() d() } {}
+    \sseq@DeclareDocumentCommand\structline{od()d()}{}
+    \sseq@DeclareDocumentCommand\structlineoptions{od()d()}{}
+    \sseq@DeclareDocumentCommand\circleclasses{or()r()}{}
+    \sseq@DeclareDocumentCommand\gettag{mr()}{}
+    \endinput
+\fi
 
 
 \newcount\sseq@circleclassuid
