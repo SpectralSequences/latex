@@ -844,19 +844,18 @@
     \sseq@processlabels
     \sseq@obj@ifundef{class.\coord.num}{\sseq@error@x{replaceclass-no-class}{\coordname}\sseq@break}{}
     \sseq@ifdead\coord{}{\sseq@error@x{replaceclass-not-dead-yet}{\coordname}\sseq@break}
-%
     \edef\oldclassname{class.\coord[\sseq@obj{class.\coord.num}]}
+%    \ifsseq@keepchanges\else
+%        \ifnum\the\numexpr\sseq@obj{\oldclassname.page}<\sseq@thepagecount\else
+%            \edef\sseq@temp{\sseq@obj{\oldclassname.page}}
+%            \sseq@error@xxx{replaceclass-no-effect-on-this-page}{\coord}{\sseq@temp}{\the\numexpr\sseq@temp+\@ne}% warning
+%            \sseq@breakfifi
+%        \fi
+%    \fi
+%
     \sseq@cleanup@obj{class.\coord.num}
     \sseq@obj@inc{class.\coord.num}
     \edef\classname{class.\coord[\sseq@obj{class.\coord.num}]}
-%
-    \ifsseq@keepchanges\else
-        \ifnum\the\numexpr\sseq@obj{\oldclassname.page}<\sseq@thepagecount\else
-            \edef\sseq@temp{\sseq@obj{\oldclassname.page}}
-            \sseq@error@xxx{replaceclass-no-effect-on-this-page}{\coord}{\sseq@temp}{\the\numexpr\sseq@temp+\@ne}% warning
-            \sseq@breakfifi
-        \fi
-    \fi
 %
     \let\partialcoord\coord@partial
     \ifx\sseq@class@tag\pgfutil@empty\else
