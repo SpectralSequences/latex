@@ -1075,7 +1075,7 @@
     \sseq@cleanup@obj{d.#2\source\target.familylist}
     \sseq@obj@xoaddto{d.#2\source\target.familylist}{\sseq@familylist}
     \sseq@cleanup@obj{d.#2\source\target.options}
-    \sseq@obj@xoaddto{d.#2\source\target.options}{\sseq@savedoptioncode}
+    \sseq@obj@xaddto{d.#2\source\target.options}{\ifsseq@needstikz\@nx\sseq@needstikztrue\fi\unexpanded\@xp{\sseq@savedoptioncode}}
 }
 
 % Some helper macros:
