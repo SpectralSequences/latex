@@ -241,12 +241,12 @@
 
 \let\sseq@breakpoint\relax
 \let\sseq@breakpointfinally\@gobble
-\def\sseq@break#1\sseq@breakpoint{}
-\def\sseq@break@finally#1\sseq@breakpoint#2{#2}
+\long\def\sseq@break#1\sseq@breakpoint{}
+\long\def\sseq@break@finally#1\sseq@breakpoint#2{#2}
 
-\def\sseq@breakfi{\fi\sseq@break}
-\def\sseq@breakfifi{\fi\fi\sseq@break}
-\def\sseq@breakfififi{\fi\fi\fi\sseq@break}
+\long\def\sseq@breakfi{\fi\sseq@break}
+\long\def\sseq@breakfifi{\fi\fi\sseq@break}
+\long\def\sseq@breakfififi{\fi\fi\fi\sseq@break}
 \long\def\sseq@breakdataenv#1\end#2{
     \def\sseq@tempa{sseqdata}\def\sseq@tempb{#2}\ifx\sseqtempa\sseqtempb
         \@xp\sseq@breakdataenv@

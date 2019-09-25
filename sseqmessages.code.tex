@@ -275,7 +275,7 @@
 \def\sseq@error@xxxx{\msg_error:nnxxxx{spectralsequences}}
 \def\sseq@warning   {\msg_warning:nn{spectralsequences}}
 
-\def\sseq@newerror#1#2{\msg_new:nnn{spectralsequences}{#1}{#2}}
+\def\sseq@newerror#1#2{\msg_new:nnn{spectralsequences}{#1}{#2\sseq@errorinfo}}
 \def\sseq@newerror@internal#1#2{\msg_new:nnn{spectralsequences}{#1}{Internal error: #2 \sseq@contactpackageauthor}}
 \edef\sseq@contactpackageauthor{Contact package author \sseq@authorname\space at \sseq@authoremail.}
 
@@ -285,6 +285,7 @@
 \cs_new_eq:NN \__sseq_hooked_msg_error_code:nnnnnn   \__msg_error_code:nnnnnn
 \cs_new_eq:NN \__sseq_hooked_msg_warning_code:nnnnnn \__msg_warning_code:nnnnnn
 \cs_new_eq:NN \__sseq_hooked_msg_info_code:nnnnnn    \__msg_info_code:nnnnnn
+\cs_new_eq:NN \__sseq_hooked_interupt_wrap:nnn \__msg_interrupt_wrap:nnn
 
 
 \cs_new:Npn \sseq@installmsghooks {%
@@ -294,6 +295,7 @@
     \cs_set_eq:NN \__msg_error_code:nnnnnn      \__sseq_hooked_msg_error_code:nnnnnn
     \cs_set_eq:NN \__msg_warning_code:nnnnnn    \__sseq_hooked_msg_warning_code:nnnnnn
     \cs_set_eq:NN \__msg_info_code:nnnnnn       \__sseq_hooked_msg_info_code:nnnnnn
+    \cs_set_eq:NN \__msg_interrupt_wrap:nnn       \__sseq_hooked_interupt_wrap:nnn
 }
 
 \sseq@newerror@internal{msg-patch-failed}{Failed to patch the latex 3 message system. The errors will not be as expressive.}
@@ -310,7 +312,6 @@
 \pretocmd\__sseq_hooked_msg_see_documentation_text:n{\sseq@errorinfo}{}{\sseq@msgpatchfailed}
 
 
-
 \pretocmd\__sseq_hooked_msg_fatal_code:nnnnnn  {\sseq@error@setup}  {}{\sseq@msgpatchfailed}
 \pretocmd\__sseq_hooked_msg_error_code:nnnnnn  {\sseq@error@setup}  {}{\sseq@msgpatchfailed}
 %\pretocmd\__sseq_hooked_msg_warning_code:nnnnnn{\sseq@msg@setup}  {}{\sseq@msgpatchfailed}
@@ -319,6 +320,7 @@
 \apptocmd\__sseq_hooked_msg_error_code:nnnnnn  {\sseq@error@cleanup}{}{\sseq@msgpatchfailed}
 %\apptocmd\__sseq_hooked_msg_warning_code:nnnnnn{\sseq@error@cleanup}{}{\sseq@msgpatchfailed}
 %\apptocmd\__sseq_hooked_msg_info_code:nnnnnn   {\sseq@error@cleanup}{}{\sseq@msgpatchfailed}
+\patchcmd \__sseq_hooked_interupt_wrap:nnn {\str_count:N\l__msg_text_str-\str_count:N\l__msg_name_str +2} {2} {}{\sseq@msgpatchfailed}
 
 \sseq@breakpoint
 
