@@ -290,7 +290,7 @@
     % Axes labels only occur once per page, so the cost of typesetting them with tikz doesn't matter ... THANK GOD
     \ifx\sseq@title\pgfutil@empty\else
         \ifsseq@drawtitle
-            \sseq@eval{\@nx\path (0,-\sseq@yoffset) node[
+            \sseq@eval{\@nx\node[
                 /sseqpages/global/every title,
                 above=\sseq@topclippadding+5pt
                 ] {\unexpanded\expandafter{\sseq@title}};
