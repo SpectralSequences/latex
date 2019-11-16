@@ -620,7 +620,15 @@
         \sseq@getnumrange@range#1#2--\sseq@infinity\sseq@nil
     \fi
 }
-\def\sseq@getnumrange@range#1#2--#3\sseq@nil{\edef#1{\the\numexpr#2}\@xp\edef\csname\sseq@macroname#1max\endcsname{\the\numexpr#3}}
+\def\sseq@getnumrange@range#1#2--#3\sseq@nil{
+    \ifx#2\infty
+        \edef#1{\sseq@infinity}
+        \@xp\edef\csname\sseq@macroname#1max\endcsname{\sseq@infinity}
+    \else 
+        \edef#1{\the\numexpr#2}
+        \@xp\edef\csname\sseq@macroname#1max\endcsname{\the\numexpr#3}
+    \fi
+}
 
 %% Needs tikz
 % Force \class or \d to fall back to using tikz to render their output
@@ -1380,6 +1388,15 @@
     update existing/.sseq default code={\sseq@updateexistingtrue}
 }
 
+\def\sseq@printnum@inftytosymbol#1{%
+    \ifnum#1=\sseq@infinity\relax
+        $\infty$%
+    \else 
+        #1%
+    \fi
+}
+
+
 \sseq@addtostorelist\sseq@grid{\relax}
 \sseq@addiftostorelist{hasdegree}
 \let\sseq@maybemathswitch\relax
@@ -1388,9 +1405,23 @@
     name/.sseq default error,
     ~page/.code={
         \ifsseq@hasname
-            \sseq@getnumrange\sseq@thepage{#1}
+            \sseq@getnumrange\sseq@thepage{#1}%
             \sseq@thepagecount=\sseq@thepage\relax
             \let\page\sseq@thepage
+            \ifnum\sseq@thepage=\sseq@infinity
+                \def\page{$\infty$}%
+            \fi
+            \def\sseq@temp{\sseq@novalue}
+            \ifx\sseq@printpageas\sseq@temp
+                \def\sseq@printpageas{Page \page}
+                \ifnum\sseq@thepage<\sseq@thepagemax
+                    \ifnum\sseq@thepagemax=\sseq@infinity\relax
+                        \def\sseq@printpageas{Page \page\space(all differentials)}
+                    \else
+                        \def\sseq@printpageas{Page \page\space(differentials of length $\leq\sseq@thepagemax$)}
+                    \fi
+                \fi  
+            \fi
             \edef\sseq@thepagemm{\the\numexpr\sseq@thepagecount-1\relax}
             \ifx\sseq@thepagemax\sseq@infinity
                 \edef\sseq@thepagemaxpp{\the\numexpr\sseq@thepagecount+1\relax}
@@ -1600,10 +1631,12 @@
 \sseq@addtostorelist{\sseq@xtickfn}{} % These should initially be the identity macro, but addtostorelist doesn't accept functions as default
 \sseq@addtostorelist{\sseq@ytickfn}{} % so the default is instated in begin{sseqdata} / begin{sseqpicture}.
 
+\let\sseq@printpageas\relax
 \sseq@globalkeys{%
     title/.sseq store in=\sseq@title{},
 	title style/.sseq append to style={/sseqpages/global/every title}{at={(0.5*\xmin+0.5*\xmax,\ymax)}},
     draw title/.sseq is if=drawtitle,
+    print page as/.sseq store in=\sseq@printpageas{\sseq@novalue},
     no title/.code=\sseq@drawtitlefalse,
 %
     x label/.sseq store in=\sseq@xaxislabel{},

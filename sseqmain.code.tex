@@ -152,6 +152,8 @@
     \gdef\sseq@pagecleanup{}% For undoing local option settings
 %
     \def\sseq@thepage{0}% page defaults to 0
+    \def\thepage{\sseq@printpageas}
+    \def\page{\sseq@printnum@inftytosymbol{\sseq@thepage}}
     \sseq@thepagecount=\z@
     \pgfqkeys{/sseqpages/global/name only}{#1}% Get the name
     \sseq@tempiftrue
@@ -265,6 +267,12 @@
     % Really this could be anything between -\sseq@xmin and -\sseq@xmax and it wouldn't matter. We'll split the difference.
     \sseq@xoffset=\numexpr\sseq@intdivceiling{\numexpr-\sseq@xmin-\sseq@xmax\relax}{\numexpr4*\sseq@xgridstep\relax}*(2*\sseq@xgridstep)\relax
     \sseq@yoffset=\numexpr\sseq@intdivceiling{\numexpr-\sseq@ymin-\sseq@ymax\relax}{\numexpr4*\sseq@ygridstep\relax}*(2*\sseq@ygridstep)\relax
+%
+%
+    \def\sseq@temp{\sseq@novalue}
+    \ifx\sseq@printpageas\sseq@temp
+        \def\sseq@printpageas{Page $2$ (all differentials)}%
+    \fi
 %
 %
     \tikzset{
