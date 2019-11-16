@@ -595,8 +595,8 @@
 	\pgfkeysalso{/sseqpages/alias/.expand once=\detokenize\@xp{\sseq@class@name}}%
     },
     show name/.store in=\sseq@class@showname,
-    page/.code={\sseq@getnumrange\sseq@class@page{#1}},% page & gen are only for \classoptions.
-    generation/.code={\sseq@getnumrange\sseq@gen{#1}}, % \class tests if \sseq@class@page is set and throw an error if so.
+    page/.code={\sseq@getnumrange@defaultupperboundinfty\sseq@class@page{#1}},% page & gen are only for \classoptions.
+    generation/.code={\sseq@getnumrange@defaultupperboundinfty\sseq@gen{#1}}, % \class tests if \sseq@class@page is set and throw an error if so.
     tag/.code={\sseq@d@addto@macro\sseq@class@tag{#1}},
     offset/.store in=\sseq@tempoffset,
     tooltip/.sseq @ first pass code={\ifx\sseqtooltip\undefined \sseq@error{no-tooltip}\else \def\sseq@tooltip{#1}\fi},
@@ -604,31 +604,46 @@
 }
 
 \pgfqkeys{/sseqpages/struct line}{
-    page/.code={\sseq@getnumrange\sseq@structline@page{#1}}
+    page/.code={\sseq@getnumrange@defaultupperboundinfty\sseq@structline@page{#1}}
 }
 
 \def\sseq@fitalso{}
 \pgfqkeys{/sseqpages/fit}{
     fit/.sseq @ first pass code={\sseq@d@addto@macro\sseq@fitalso{#1}},
-    page/.code={\sseq@getnumrange\sseq@fit@page{#1}}
+    page/.code={\sseq@getnumrange@defaultupperboundinfty\sseq@fit@page{#1}}
 }
 
-\def\sseq@getnumrange#1#2{
+\def\sseq@getnumrange#1#2{%
+    \pgfutil@in@{--}{#2}\ifpgfutil@in@
+        \sseq@getnumrange@range#1#2\sseq@nil
+    \else
+        \sseq@getnumrange@range#1#2--#2\sseq@nil
+    \fi
+}
+
+\def\sseq@getnumrange@defaultupperboundinfty#1#2{%
     \pgfutil@in@{--}{#2}\ifpgfutil@in@
         \sseq@getnumrange@range#1#2\sseq@nil
     \else
         \sseq@getnumrange@range#1#2--\sseq@infinity\sseq@nil
     \fi
 }
-\def\sseq@getnumrange@range#1#2--#3\sseq@nil{
+
+\def\sseq@getnumrange@range#1#2--#3\sseq@nil{%
     \ifx#2\infty
-        \edef#1{\sseq@infinity}
-        \@xp\edef\csname\sseq@macroname#1max\endcsname{\sseq@infinity}
-    \else 
-        \edef#1{\the\numexpr#2}
-        \@xp\edef\csname\sseq@macroname#1max\endcsname{\the\numexpr#3}
+        \edef#1{\sseq@infinity}%
+        \@xp\edef\csname\sseq@macroname#1max\endcsname{\sseq@infinity}%
+    \else
+        \edef#1{\the\numexpr#2}%
+        \ifx#3\infty
+            \@xp\edef\csname\sseq@macroname#1max\endcsname{\sseq@infinity}%
+        \else
+            \@xp\edef\csname\sseq@macroname#1max\endcsname{\the\numexpr#3}%
+        \fi
     \fi
 }
+
+
 
 %% Needs tikz
 % Force \class or \d to fall back to using tikz to render their output
@@ -1124,7 +1139,6 @@
             \sseq@temp@ii/.code/.expanded={%
                 \unexpanded{#3{##1}}{\sseq@temp=\unexpanded{##1}}%
                 \unexpanded{\edef#1{\unexpanded\@xp{\sseq@sanitize@output}}}%
-                %\show\@nx#1
                 \sseq@breakpoint
             },
             \sseq@temp@ii/.value required,
@@ -1391,7 +1405,7 @@
 \def\sseq@printnum@inftytosymbol#1{%
     \ifnum#1=\sseq@infinity\relax
         $\infty$%
-    \else 
+    \else
         #1%
     \fi
 }
@@ -1420,17 +1434,13 @@
                     \else
                         \def\sseq@printpageas{Page \page\space(differentials of length $\leq\sseq@thepagemax$)}
                     \fi
-                \fi  
+                \fi
             \fi
             \edef\sseq@thepagemm{\the\numexpr\sseq@thepagecount-1\relax}
-            \ifx\sseq@thepagemax\sseq@infinity
-                \edef\sseq@thepagemaxpp{\the\numexpr\sseq@thepagecount+1\relax}
+            \ifnum\sseq@thepagemax=\z@
+                \let\sseq@thepagemaxpp\sseq@infinity
             \else
-                \ifnum\sseq@thepagemax=\z@
-                    \let\sseq@thepagemaxpp\sseq@infinity
-                \else
-                    \edef\sseq@thepagemaxpp{\the\numexpr\sseq@thepagemax+1\relax}
-                \fi
+                \edef\sseq@thepagemaxpp{\the\numexpr\sseq@thepagemax+1\relax}
             \fi
         \else
             \sseq@error{page-no-name}
@@ -2085,7 +2095,7 @@
     page constraint or/.code={
         \sseq@updatepageconstraint{#1}{||}
     },
-    page/.code={\sseq@getnumrange\temp{#1}\sseq@updatepageconstraintrange},
+    page/.code={\sseq@getnumrange@defaultupperboundinfty\temp{#1}\sseq@updatepageconstraintrange},
     set page constraint/.store in=\sseq@pageconstraint,
     background/.code={\sseq@standardparse\sseq@setsavedpaths{background}\pgfkeysalso{standard parse}},
 }
