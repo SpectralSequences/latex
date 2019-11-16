@@ -872,6 +872,7 @@
 \def\sseq@pushstack@{\@xp\sseq@pushstack@@}
 
 \def\sseq@pushstack@@(#1,#2,#3){
+    %\def\temp{#1,#2,#3}\show\temp
     \global\advance\sseq@stackdepth\@ne
     \@xp\gdef\csname sseq.\sseq@thename.stack.\the\sseq@stackdepth.lastx\endcsname{#1}
     \@xp\gdef\csname sseq.\sseq@thename.stack.\the\sseq@stackdepth.lasty\endcsname{#2}

@@ -841,6 +841,7 @@
 }
 
 \def\sseq@replaceclassmain#1{
+    \sseq@pushstack@\coord
     \sseq@options@firstpassmode
     \the\sseq@sseqstyle
     \the\sseq@classstyle
@@ -864,6 +865,7 @@
     \sseq@cleanup@obj{class.\coord.num}
     \sseq@obj@inc{class.\coord.num}
     \edef\classname{class.\coord[\sseq@obj{class.\coord.num}]}
+    %\show\classname
 %
     \let\partialcoord\coord@partial
     \ifx\sseq@class@tag\pgfutil@empty\else
@@ -920,6 +922,39 @@
     \sseq@breakpoint
     \endgroup
 }
+
+\sseq@DeclareDocumentCommand\replacestructlines{od()}{%
+    \begingroup
+    \sseq@loadinputline
+    \sseq@xsetthiscall{\string\replaceclass\IfNoValueF{#1}{[\unexpanded{#1}]}\unexpanded{(#2)}}
+%
+    \IfNoValueTF{#2}{
+        \def\sseq@coord{\lastclass0}
+    }{
+        \def\sseq@coord{#2}
+    }
+    %\show\sseq@coord
+    \sseq@parsecoord\coord{\sseq@coord}{coordinate passed to \string\replaceclass}%
+    %\show\coord
+%
+    % TODO: error handling here...
+%
+    \edef\sseq@classnum{\sseq@obj{class.\coord.num}}
+    \ifnum\sseq@classnum=0\relax
+        \sseq@error@x{replacestructlines-class-not-replaced}{\coordname}\sseq@breakfi
+    \fi
+    \edef\classname{class.\coord[\sseq@classnum]}
+    %\show\classname
+    \edef\oldclassname{class.\coord[\the\numexpr\sseq@obj{class.\coord.num}-1]}
+    \sseq@obj@gletobj{\classname.dependencies}{\oldclassname.dependencies}
+    %\sseq@obj@show{\classname.dependencies}
+    \sseq@obj@map{\classname.dependencies}{
+        \sseq@obj@gletobj{##1.page}{##1.page.old}%
+    }
+    \sseq@breakpoint
+    \endgroup
+}
+
 \def\sseq@class@draw@ifpage#1{
     \bgroup
     \sseq@obj@pagetogen{#1}{\sseq@thepage} % sets \sseq@gen
@@ -1096,6 +1131,8 @@
     \sseq@cleanup@obj{#1[\sseq@obj{#1.num}].deathline}
     \sseq@d@setpageclass{#1}{#2}{#3}
     \sseq@obj@map{#1[\sseq@obj{#1.num}].dependencies}{
+        %\def\temp{##1}\show\temp
+        %\sseq@obj@show{#1[\sseq@obj{#1.num}].dependencies}
         \sseq@d@setpagemin{##1}{#2} % automatically handles cleanup
     }
 }
@@ -1180,6 +1217,8 @@
     \ifnum\sseq@obj{#1.page}>#2\relax
 	\ifnum\sseq@obj{#1.pagemin}>#2\relax\else % prevent a d1 from getting rid of a structline that was supposed to start on page 5
 	        \sseq@cleanup@obj{#1.page}
+            \sseq@cleanup@obj{#1.page.old}
+            \sseq@obj@gletobj{#1.page.old}{#1.page}
 	        \sseq@obj@xdef{#1.page}{#2}
 	\fi
     \fi
