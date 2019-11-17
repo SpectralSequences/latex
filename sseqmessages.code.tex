@@ -560,6 +560,7 @@
     The #1 #2 of differential \sseq@thiscall\ on page #3 has already been the #4.
     Use \string\replaceclass#2 before \sseq@thiscall.%
 }
+\sseq@newerror{d-class-has-extension}{The #1 #2 of differential \sseq@thiscall\ on page #3 has already been involved in an extension. If you are planning to replace it, move the \string\extension\ after the call to \string\replaceclass.}
 \sseq@newerror{d-hit-same-page-replaceclass}{%#1 <- #3, #2 <- \csname #3name\endcsname, #3 <- #2, #3 <-\sseq@obj{#1[\the\sseq@tempcount].deathinfo},
     The #1 #2 of differential \sseq@thiscall\ was the #3.
     If multiple differentials touch a class on the same page, they cannot be separated by a \@nx\replaceclass command.%
@@ -572,8 +573,9 @@
 
 \sseq@newerror{structline-no-page-max}{You cannot provide \@nx\structline with the option "page=min--max", only with "page=min".} %warning
 \sseq@newerror{structline-already-exists}{Cannot add a structline from #1 to #2 because such a structline already exists.}
-\sseq@newerror{structline-stillborn}{Structline dies before it is born. Perhaps you meant to specify a different source or target?}
-\sseq@newerror{structline-source-target-equal}{The source and target of a \@nx\structline cannot be equal.}
+\sseq@newerror{structline-stillborn}{#1 dies before it is born. Perhaps you meant to specify a different source or target?}
+\sseq@newerror{extension-stillborn}{Either the source or target of extension is not currently alive. Perhaps you meant to specify a different source or target? Perhaps you forgot a call to \@nx\replaceclass?}
+\sseq@newerror{edge-source-target-equal}{The source and target of a #1 cannot be equal.}
 
 
 \protected\def\sseq@quiet{\msg_redirect_module:nnn{spectralsequences}{error}{info}}

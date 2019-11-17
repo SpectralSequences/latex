@@ -384,6 +384,7 @@
     \let\sseq@class@drawnode\sseq@copypage@addclass
     \let\sseq@differential@object\@gobble
     \let\sseq@structline@draw\sseq@copypage@addstructline
+    \let\sseq@extension@draw\sseq@copypage@addextension
     \let\sseq@tikzpath@object\@gobble
     \let\sseq@pgfkeysdocommand\@gobbletwo
     \sseq@savedpaths
@@ -400,6 +401,10 @@
 
 \def\sseq@copypage@addstructline#1{
     \sseq@x@addto@macro\sseq@copymacro{\@nx\sseq@structline@copy{\sseq@thename}{#1}}
+}
+
+\def\sseq@copypage@addextension#1{
+    \sseq@x@addto@macro\sseq@copymacro{\@nx\sseq@extension@copy{\sseq@thename}{#1}}
 }
 
 
@@ -1087,6 +1092,14 @@
 % #2 -- page
 % #3 -- source coordinate
 \def\sseq@d@d#1#2{%%
+    \sseq@obj@ifdef{class.\source.hasextension}{
+        \sseq@error@xxx{d-class-has-extension}{source}{\sourcename}{#2}
+        \sseq@break
+    }{}
+    \sseq@obj@ifdef{class.\target.hasextension}{
+        \sseq@error@xxx{d-class-has-extension}{target}{\targetname}{#2}
+        \sseq@break
+    }{}
     \sseq@d@setpageminrec{class.\source}{#2}{source}%  automatically handles \sseq@cleanup@obj
     \sseq@d@setpageminrec{class.\target}{#2}{target}
     %%% This is the last point we might break, so now the differential is good.
@@ -1316,7 +1329,7 @@
                         \sseq@parsedcoords@swap\source\target
                     \else
                         \ifnum\nsource=\ntarget\relax
-                            \sseq@error{structline-source-target-equal}%
+                            \sseq@error@n{edge-source-target-equal}{\structline}%
                             \@xp\sseq@break\romannumeral-`0
                         \fi
                     \fi
@@ -1507,6 +1520,151 @@
 }
 \def\sseq@structline@draw#1{\sseq@eval{\@nx\sseq@drawedge\sseq@obj{#1.source}\sseq@obj{#1.target}{structline}{\@nx\sseq@obj{#1.options}}}}
 
+
+
+\sseq@DeclareDocumentCommand\extension{od()}{%
+    \begingroup
+    \sseq@loadinputline
+    \IfNoValueTF{#2}{
+        \sseq@extension@main{extension}{#1}{#2}{#2}
+    }{
+        \def\next{\sseq@extension@@{extension}{#1}{#2}}%
+        \@xptwo\next\sseq@trimleadingspaces
+    }
+}
+\sseq@DeclareDocumentCommand\extensionoptions{od()}{%
+    \begingroup
+    \sseq@loadinputline
+    \IfNoValueTF{#2}{
+        \sseq@structline@main{extensionoptions}{#1}{#2}{#2}
+    }{
+        \def\next{\sseq@extensionoptions@@{extensionoptions}{#1}{#2}}%
+        \@xptwo\next\sseq@trimleadingspaces
+    }
+}
+
+\sseq@DeclareDocumentCommandAs\sseq@extension@@\extension{mmmd()}{%
+    \sseq@extension@main{#1}{#2}{#3}{#4}
+}
+
+\sseq@DeclareDocumentCommandAs\sseq@extensionoptions@@\extensionoptions{mmmd()}{%
+    \sseq@extension@main{#1}{#2}{#3}{#4}
+}
+
+\def\sseq@extension@main#1#2#3#4{
+    \sseq@xsetthiscall{\string\extension\IfNoValueF{#2}{\unexpanded{[#2]}}\IfNoValueF{#3}{\unexpanded{(#3)}\IfNoValueF{#4}{\unexpanded{(#4)}}}}%
+    \def\sseq@edgetype{structline}
+    \sseq@options@firstpassmode
+    \the\sseq@sseqstyle
+    \the\sseq@edgestyle
+    \the\sseq@structlinestyle
+    \the\sseq@scope@toks
+    \sseq@options@normalmode
+    \IfNoValueF{#2}{%
+        \sseq@processoptions{extension}{#2}% Outputs result into \sseq@savedoptioncode
+    }%
+    \def\sourcename{#3}%
+    \def\targetname{#4}%
+    \IfNoValueTF{#3}{%
+        \def\sourcename{\lastclass1}%
+        \def\targetname{\lastclass}%
+    }{%
+        \IfNoValueT{#4}{%
+            \def\targetname{\lastclass}%
+        }%
+    }%
+    \sseq@parsecoord\source{\sourcename}{source of extension}%
+    \sseq@parsecoord\target{\targetname}{target of extension}%
+    \ifnum\xsource>\xtarget\relax
+        \sseq@parsedcoords@swap\source\target
+    \else
+        \ifnum\xsource=\xtarget\relax
+            \ifnum\ysource>\ytarget\relax
+                \sseq@parsedcoords@swap\source\target
+            \else
+                \ifnum\ysource=\ytarget\relax
+                    \ifnum\nsource>\ntarget\relax
+                        \sseq@parsedcoords@swap\source\target
+                    \else
+                        \ifnum\nsource=\ntarget\relax
+                            \sseq@error@n{edge-source-target-equal}{\extension}%
+                            \@xp\sseq@break\romannumeral-`0
+                        \fi
+                    \fi
+                \fi
+            \fi
+        \fi
+    \fi
+    \csname sseq@extension@#1\endcsname
+    \sseq@breakpoint
+    \endgroup
+}
+\def\sseq@extension@extension{
+    \ifnum\sseq@obj{class.\source[\sseq@obj{class.\source.num}].page}<\sseq@infinity\relax
+        \sseq@error{extension-stillborn}
+        \sseq@breakfi
+    \fi
+    \ifnum\sseq@obj{class.\target[\sseq@obj{class.\target.num}].page}<\sseq@infinity\relax
+        \sseq@error{extension-stillborn}
+        \sseq@breakfi
+    \fi    
+    \edef\sseq@extensionname{extension.\source\target}
+    \sseq@obj@ifdef{\sseq@extensionname.source}{%
+        \sseq@error@xx{extension-already-exists}{\sourcename}{\targetname}
+        \sseq@breakfi
+    }{
+        \sseq@savedpaths@addextension{extension.\source\target}
+    }
+    \sseq@cleanup@obj{class.\source.hasextension}
+    \sseq@obj@gdef{class.\source.hasextension}{}
+    \sseq@cleanup@obj{class.\target.hasextension}    
+    \sseq@obj@gdef{class.\target.hasextension}{}
+    \sseq@cleanup@obj{\sseq@extensionname.source}
+    \sseq@obj@xdef{\sseq@extensionname.source}{\source}
+    \sseq@obj@xdef{\sseq@extensionname.target}{\target}
+    \sseq@obj@xodef{\sseq@extensionname.familylist}{\sseq@familylist}
+    \sseq@cleanup@obj{\sseq@extensionname.options}
+    \sseq@obj@xdef{\sseq@extensionname.options}{\ifsseq@needstikz\@nx\sseq@needstikztrue\fi\unexpanded\@xp{\sseq@savedoptioncode}}
+}
+\def\sseq@extension@extensionoptions{
+    \edef\sseq@extensionname{extension.\source\target}
+    \sseq@obj@ifundef{\sseq@extensionname.source}{
+        \sseq@error@n{cmdoptions-feature-doesn't-exist}{\extension}
+        \sseq@break
+    }{}
+    \sseq@cleanup@obj{\sseq@extensionname.options}
+    \sseq@cleanup@obj{\sseq@extensionname.familylist}
+    \ifsseq@needstikz
+        \sseq@obj@gaddto{\sseq@extensionname.options}{\sseq@needstikztrue}
+    \fi
+    \sseq@obj@xoaddto{\sseq@extensionname.options}{\sseq@savedoptioncode}
+    \sseq@obj@xoaddto{\sseq@extensionname.familylist}{\sseq@familylist}
+}
+
+\def\sseq@extension@copy#1#2{
+    \begingroup
+    \sseq@structline@copy@decomposename#2
+    \let\sseq@thename@saved\sseq@thename
+    \def\sseq@pagemin{0}
+    \sseq@parsecoord\source{\sourcename}{source of structure line}%
+    \sseq@parsecoord\target{\targetname}{target of structure line}
+    \def\sseq@thename{#1}
+    \sseq@lettoobj\sseq@familylist{#2.familylist}
+    \sseq@lettoobj\sseq@savedoptioncode{#2.options}
+    \let\sseq@thename\sseq@thename@saved
+    \sseq@extension@extension
+    \endgroup
+}
+
+
+\def\sseq@extension@draw@ifpage#1{
+    \bgroup
+    \ifnum\sseq@thepage=\sseq@infinity\relax
+        \sseq@extension@draw{#1}
+    \fi
+    \egroup
+}
+\def\sseq@extension@draw#1{\sseq@eval{\@nx\sseq@drawedge\sseq@obj{#1.source}\sseq@obj{#1.target}{structline}{\@nx\sseq@obj{#1.options}}}}
 
 %% This is a dumb place to put this. It has to be after the differential commands are defined.
 \ifsseq@draftmode % Okay, have to dummy out all the main commands.

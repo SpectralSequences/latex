@@ -129,6 +129,7 @@
 \def\sseq@tempsavedpaths{}
 \def\sseq@savedpaths@addclass@standard#1{\sseq@x@addto@macro\sseq@savedpaths{\@nx\sseq@class@object{#1}}}
 \def\sseq@savedpaths@adddifferential@standard#1{\sseq@x@addto@macro\sseq@savedpaths{\@nx\sseq@differential@object{#1}}}
+\def\sseq@savedpaths@addextension@standard#1{\sseq@x@addto@macro\sseq@savedpaths{\@nx\sseq@extension@draw@ifpage{#1}}}
 \def\sseq@savedpaths@addstructline@standard#1{\sseq@x@addto@macro\sseq@savedpaths{\@nx\sseq@structline@object{#1}}}
 \def\sseq@savedpaths@xaddtikzpath@standard#1{\sseq@x@addto@macro\sseq@savedpaths{\@nx\sseq@tikzpath@object{#1}}}
 \def\sseq@savedpaths@add@standard{\sseq@g@addto@macro\sseq@savedpaths}
@@ -138,6 +139,7 @@
 
 \def\sseq@savedpaths@addclass@temporary#1{\sseq@x@addto@macro\sseq@tempsavedpaths{\@nx\sseq@class@draw@ifpage{#1}}}
 \def\sseq@savedpaths@adddifferential@temporary#1{\sseq@x@addto@macro\sseq@tempsavedpaths{\@nx\sseq@differential@draw@ifpage{#1}}}
+\def\sseq@savedpaths@addextension@temporary#1{\sseq@x@addto@macro\sseq@tempsavedpaths{\@nx\sseq@extension@draw@ifpage{#1}}}
 \def\sseq@savedpaths@addstructline@temporary#1{\sseq@x@addto@macro\sseq@tempsavedpaths{\@nx\sseq@structline@draw@ifpage{#1}}}
 \def\sseq@savedpaths@xaddtikzpath@temporary#1{\sseq@x@addto@macro\sseq@tempsavedpaths{#1}}
 \def\sseq@savedpaths@add@temporary{\sseq@g@addto@macro\sseq@tempsavedpaths}
@@ -149,6 +151,7 @@
 \def\sseq@savedpaths@addclass@background#1{\sseq@error@internal@n{illegal-add-background-mode}{\sseq@savedpaths@addclass}}
 \def\sseq@savedpaths@adddifferential@background#1{\sseq@error@internal@n{illegal-add-background-mode}{\sseq@savedpaths@adddifferential}}
 \def\sseq@savedpaths@addstructline@background#1{\sseq@error@internal@n{illegal-add-background-mode}{\sseq@savedpaths@addstructline}}
+\def\sseq@savedpaths@addextension@background#1{\sseq@error@internal@n{illegal-add-background-mode}{\sseq@savedpaths@addextension}}
 \def\sseq@savedpaths@xaddtikzpath@background#1{\sseq@x@addto@macro\sseq@savedbackgroundpaths{#1}}
 \def\sseq@savedpaths@add@background{\sseq@g@addto@macro\sseq@savedbackgroundpaths}
 \def\sseq@savedpaths@xadd@background{\sseq@x@addto@macro\sseq@savedbackgroundpaths}
@@ -157,6 +160,7 @@
 \def\sseq@savedpaths@addclass@ignore#1{}
 \def\sseq@savedpaths@adddifferential@ignore#1{}
 \def\sseq@savedpaths@addstructline@ignore#1{}
+\def\sseq@savedpaths@addextension@ignore#1{}
 \def\sseq@savedpaths@xaddtikzpath@ignore#1{}
 \def\sseq@savedpaths@add@ignore#1{}
 \def\sseq@savedpaths@xadd@ignore#1{}
@@ -167,6 +171,7 @@
     \@xp\let\@xp\sseq@savedpaths@addclass       \csname sseq@savedpaths@addclass@#1\endcsname
     \@xp\let\@xp\sseq@savedpaths@adddifferential\csname sseq@savedpaths@adddifferential@#1\endcsname
     \@xp\let\@xp\sseq@savedpaths@addstructline  \csname sseq@savedpaths@addstructline@#1\endcsname
+    \@xp\let\@xp\sseq@savedpaths@addextension  \csname sseq@savedpaths@addextension@#1\endcsname
     \@xp\let\@xp\sseq@savedpaths@xaddtikzpath  \csname sseq@savedpaths@xaddtikzpath@#1\endcsname
     \@xp\let\@xp\sseq@savedpaths@add            \csname sseq@savedpaths@add@#1\endcsname
     \@xp\let\@xp\sseq@savedpaths@xadd            \csname sseq@savedpaths@xadd@#1\endcsname
