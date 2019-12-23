@@ -13,7 +13,23 @@ Email me at hood@mit.edu to submit bug reports, request new features, etc. The c
 
 Changelog:
 ==========
-## [1.2.2] (2018-02-18)
+## [Unreleased]
+### Added:
+- Added more control over page indicator in title and "print page as" key.
+- Added "page=\infty".
+- Added \extension and \extensionoptions
+- Added \replacestructlines
+
+### Fixed:
+- Removed \replaceclass in {sseqpage} without "keep changes" error (suggested by Junhou Fung).
+- Fixed \doptions and \structlineoptions so that they can be used to add an edge label -- "needs tikz" wasn't handled correctly (reported by idlaviV)
+- Fixed title positioning when the xrange that doesn't start at 0 (reported by Robert Burklund)
+- Fixed relative tikz coordinates (reported by Dexter Chua).
+
+### Changed:
+- \replaceclass now pushes the class replaced onto the stack.
+
+## [1.2.2] (2019-02-18)
 ### Fixed:
 - expl3 defined \exp_after:NNNf recently, so I changed \cs_new:Npn \exp_after:NNNf to \cs_set:Npn \exp_after:NNNf and copied the definition given by
   expl3.
