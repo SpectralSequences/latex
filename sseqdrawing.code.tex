@@ -1148,11 +1148,22 @@
     \let\tikz@grid\sseq@tikz@grid
     \let\tikz@scan@handle@options\sseq@tikz@scan@handle@options
     \let\tikz@@@parse@polar\sseq@tikz@@@parse@polar
+    \let\tikz@scan@relative\sseq@tikz@scan@relative
 }
 
 % Some of the stuff in tikzlibrarycalc will probably be broken, hopefully not too much
 \let\sseq@tikz@scan@one@point@noshift\tikz@scan@one@point
 \let\sseq@tikz@@@parse@regular@save\tikz@@@parse@regular
+
+\def\sseq@tikz@scan@relative#1+{%
+    \let\tikz@@@parse@regular\sseq@tikz@@@parse@regular@save
+    \pgfutil@ifnextchar+{%
+        \tikz@scan@plusplus{\let\tikz@@@parse@regular\sseq@tikz@@@parse@regular@save#1}%
+    }{%
+        \tikz@scan@oneplus{\let\tikz@@@parse@regular\sseq@tikz@@@parse@regular@save#1}%
+    }%
+}
+
 
 \def\sseq@tikz@scan@one@point@noshift@active#1{%
     \let\tikz@@@parse@regular\sseq@tikz@@@parse@regular@save
