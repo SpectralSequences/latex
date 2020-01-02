@@ -344,7 +344,7 @@
 \newcount\sseq@cp@row
 \newcount\sseq@cp@n
 
-\def\sseqnewclasspattern#1#2{
+\def\SseqNewClassPattern#1#2{
     \ifcsname sseq@#1xoffset1/1\endcsname\sseq@error@n{classpattern-already-defined}{#1}\fi % could be a warning
     \begingroup
     \def\sseq@name{#1}
@@ -355,6 +355,7 @@
     \let\next\sseq@newclasspattern@
     \sseq@newclasspattern@#2\sseq@nil
 }
+\let\sseqnewclasspattern\SseqNewClassPattern
 
 \def\sseq@newclasspattern@{
     \@ifnextchar\bgroup{\sseq@error@n{classpattern-unexpected-token}{\{}}{\sseq@newclasspattern@processstate}
@@ -371,7 +372,7 @@
             \def\sseq@temp{}
             \def\sseq@state{ycoord}
         }{
-            \sseq@error{classpattern-not-integer-expression}
+            \sseq@error@x{classpattern-invalid-math-expression}{\sseq@temp}
             \let\next\sseq@newclasspattern@abort
         }
     \else
@@ -391,9 +392,9 @@
             \let\sseq@tempy\sseq@mathresult
             \def\sseq@temp{}
             \def\sseq@state{nocoord}
-            \advance\sseq@cp@n\@ne
+            \advance\sseq@cp@n1\relax
             \ifnum\sseq@cp@n>\sseq@cp@row\relax
-                \sseq@error@x{classpattern-extra-coord-ignored}{(\sseq@tempx,\sseq@tempy)}
+                \sseq@error@xx{classpattern-extra-coord-ignored}{(\sseq@tempx,\sseq@tempy)}{\the\sseq@cp@row}
             \else
                 \sseq@e@addto@macro\sseq@newclasspattern@dodefs{
                     \def\@xp\@nx\csname sseq@\sseq@name xoffset\the\sseq@cp@n/\the\sseq@cp@row\endcsname{\sseq@tempx}
@@ -401,7 +402,7 @@
                 }
             \fi
         }{
-            \sseq@error{classpattern-not-integer-expression}
+            \sseq@error@x{classpattern-invalid-math-expression}{\sseq@temp}
             \let\next\sseq@newclasspattern@abort
         }
     \else
@@ -420,12 +421,12 @@
         \def\sseq@state{xcoord}
     \else
         \ifx#1;
-            \ifnum\sseq@cp@n=\sseq@cp@row\relax
-                \advance\sseq@cp@row\@ne
-                \sseq@cp@n=\z@
-            \else
+            \ifnum\sseq@cp@n<\sseq@cp@row\relax
                 \sseq@error@x{classpattern-too-few-coords}{\the\sseq@cp@row}
                 \let\next\sseq@newclasspattern@abort
+            \else
+                \advance\sseq@cp@row\@ne
+                \sseq@cp@n=\z@
             \fi
         \else
             \ifx#1\sseq@nil
@@ -596,11 +597,13 @@
                         \ifnum\sseq@index<\@ne
                             \sseq@error@xxx{index-too-large}{\sseq@rawindex}{\sseq@obj{partcoord.(\sseq@xycoord).numnodes}}{(\sseq@xycoord)}%
                             \edef\sseq@index{1}% or maybe I should break?
+                            \sseq@breakfifi
                         \fi
                     \else
                         \ifnum\sseq@rawindexeval>\sseq@obj{partcoord.(\sseq@xycoord).numnodes}\relax
                             \sseq@error@xxx{index-too-large}{\sseq@rawindex}{\sseq@obj{partcoord.(\sseq@xycoord).numnodes}}{(\sseq@xycoord)}%
                             \edef\sseq@rawindex{\sseq@obj{partcoord.(\sseq@xycoord).numnodes}}% or maybe I should break?
+                            \sseq@breakfifi
                         \fi
                         \edef\sseq@index{\the\numexpr\sseq@rawindex}
                     \fi
@@ -1179,6 +1182,9 @@
     \futurelet\testtok\sseq@defer@tikzcommand@@
 }
 
+% This serves as a marker to break out of parser. 
+% TODO: support \pgfextra? Should we pass \pgfextra along to be handled by tikz parser?
+\def\sseq@defer@tikzcommand@escape{sseq@defer@tikzcommand@escape}
 \def\sseq@defer@tikzcommand@@{%
     \ifx\testtok;
         \let\next\sseq@defer@tikzcommand@finish
@@ -1192,10 +1198,18 @@
                 \@xp\ifx\space\testtok
                     \let\next\sseq@defer@tikzcommand@space
                 \else
-                    \ifx\testtok\bgroup
-                        \let\next\sseq@defer@tikzcommand@group
+                    \ifx\testtok\foreach
+                        \let\next\sseq@defer@tikzcommand@foreach
                     \else
-                        \let\next\sseq@defer@tikzcommand@other
+                        \ifx\testtok\sseq@defer@tikzcommand@escape % escape is like \pgfextra, breaks out of the parsing.
+                            \let\next\@gobble
+                        \else
+                            \ifx\testtok\bgroup
+                                \let\next\sseq@defer@tikzcommand@group
+                            \else
+                                \let\next\sseq@defer@tikzcommand@other
+                            \fi
+                        \fi
                     \fi
                 \fi
             \fi
@@ -1204,6 +1218,12 @@
     \sseq@call{\next}%
 }
 
+
+\def\sseq@defer@tikzcommand@foreach{
+    \def\pgffor@beginhook{\expandafter\sseq@defer@tikzcommand@\pgfutil@firstofone}
+    \def\pgffor@endhook{\sseq@defer@tikzcommand@escape}
+    \def\pgffor@afterhook{\sseq@defer@tikzcommand@}    
+}
 
 \def\sseq@defer@tikzcommand@option[#1]{%
     \sseq@processoptions{tikz ~ primitives}{#1}%
@@ -1302,6 +1322,7 @@
 % If the expression was incomplete, we'll jump here to avoid adding the semicolon to the error printout
 \def\sseq@defer@tikzcommand@finish@{
     \sseq@g@addto@macro\sseq@thepathsofar{;}
+    %\show\sseq@thepathsofar
     \global\sseq@thiscalltoks\@xp{\sseq@whattheusersaid}
     \ifx\sseq@pageconstraint\sseq@pageconstraint@true
         %\show\sseq@thepathsofar

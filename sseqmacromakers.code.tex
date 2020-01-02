@@ -52,7 +52,7 @@
 
 
 \@ifpackagelater{xparse}{2017/02/08}{
-    \@ifpackagelater{xparse}{2018/10/17}{ 
+    \@ifpackagelater{xparse}{2018/10/17}{
         \ifsseq@patchxparseU
             \the\sseq@patchxparseUnewcode
         \else
@@ -105,7 +105,7 @@
         \__xparse_add_arg_spec_mandatory:n { U {#1} }
         \__xparse_normalize_arg_spec_loop:n
     }
-}{ 
+}{
     \cs_new_protected:Npn \sseq__xparse_normalize_type_U:w #1 {
         \quark_if_recursion_tail_stop_do:nn {#1} { \__xparse_bad_arg_spec:wn }
         \__xparse_normalize_check_lu:N U
@@ -209,7 +209,7 @@
 \newtoks\sseq@macro@defaultarggetters@toks
 
 \cs_new_protected:Npn\DeclareSseqCommand#1#2#3{%
-    \cs_if_exist:cTF { sseq @ builtin @ \cs_to_str:N #1 } {\sseq@error@x{wont-override-system-macro}{\string#1}\sseq@break} {}
+    \cs_if_exist:cTF { sseq @ \cs_to_str:N #1 @@unique@@ start} {\sseq@error@x{wont-override-builtin}{\string#1}\sseq@break} {}
     \cs_if_free:cT { sseq @ usermacro @ \cs_to_str:N #1 } {
         \sseq@x@addto@macro { \sseq@installmacros } { \let \exp_not:N #1 \exp_not:c { sseq @ usermacro @ \cs_to_str:N #1 } }
     }

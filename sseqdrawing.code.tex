@@ -317,7 +317,7 @@
             \pgfpathclose
             \pgfgetpath\sseq@theclippath % This stores the clipping so I can apply it later
             \pgfusepath{discard}% This has to be after the egroup or else the clipping gets screwed up
-%
+%           
             \bgroup
                 \pgfpathmoveto{\pgfqpointxy{\numexpr\sseq@xmin+\sseq@xoffset\relax}{\numexpr\sseq@ymin+\sseq@yoffset\relax}}
                 \pgfpathlineto{\pgfqpointxy{\numexpr\sseq@xmin+\sseq@xoffset\relax}{\numexpr\sseq@ymax+\sseq@yoffset\relax}}
@@ -369,21 +369,13 @@
 \def\sseq@grid@chess{
     \bgroup
     \pgfscope
-    % Pad on the right and top by either the grid padding, or the remaining piece of the checkerboard before it would start a new square
-    % (it looks ugly to have a tiny sliver). Annoyingly, mod returns its result with the same sign as its input, so in order to reduce mod
-    % \sseq@xgridstep and get a positive result, we have to do it twice. The 0.5cm*scale here matches the -0.5 in the \pgfpathgrid call.
-    \pgfmathsetmacro\sseq@rightpadding{min(
-        \sseq@rightgridpadding,
-        1cm*  mod(mod(-\sseq@xmax,\sseq@xgridstep)+\sseq@xgridstep,\sseq@xgridstep)+0.5cm*\sseq@xscale-0.05cm
-    )}
-    \pgfmathsetmacro\sseq@toppadding{min(
-        \sseq@topgridpadding,
-        1cm * mod(mod(-\sseq@ymax,\sseq@ygridstep)+\sseq@ygridstep,\sseq@ygridstep)+0.5cm*\sseq@yscale-0.02cm
-    )}
     % Because of complicated aliasing issues that arise when misusing the \pgfgrid command in this way,
     % it's more convenient to add a clip than to actually stop things in the right place.
-    \clip        (\sseq@xmin-\sseq@xoffset,\sseq@ymin-\sseq@yoffset) ++ (-0.48, -0.48)
-        rectangle ([shift={(\sseq@rightpadding pt,\sseq@toppadding pt)}]\sseq@xmax,\sseq@ymax);
+    \clip        (\sseq@xmin-0.49,\sseq@ymin-0.49)
+       rectangle (\sseq@xmax+0.49,\sseq@ymax+0.49);
+%    \clip        (\sseq@xmin,\sseq@ymin) ++ (-0.49, -0.49)
+%       rectangle ([shift={(0.5cm*\sseq@yscale,0.5*\sseq@xscale)}]
+%                    \sseq@xmax,\sseq@ymax);
 %
     \sseq@useclip
     \pgfsetcolor{\sseq@gridcolor}
@@ -433,14 +425,16 @@
     \pgfsetdash{{1cm*\sseq@stepscale}{1cm*\sseq@stepscale}}{1cm*\sseq@stepscale}
 %
     % Naturally some trial and error occurred here too.
-    % Note the huge multiples of \sseq@xgridstep I added in -- they probably aren't necessary, but I don't understand what's going on so whatever.
+    % Note the huge multiples of \sseq@xgridstep I added in -- they probably aren't necessary, but I don't understand what's going on so whatever. They make sure that the pattern always extends past the edge of the clipping region. Otherwise the gird occasionally stops short for some reason.
     % The basic idea is that things need to be divisible by twice the grid step. The part I added in the shift above
     % was the remainder when you divide \sseq@xmin by twice the grid step, now we need to add in the multiple of twice the grid step.
     % The -0.5 is ensuring that the checkerboard boundaries lie at half-integer coordinates (I think).
     \pgfpathgrid[stepx= 2cm*\sseq@stepscale,stepy=2cm*\sseq@stepscale]
     { \pgfpointxy
-        { -0.5 + \sseq@intdivfloor{\numexpr\sseq@xmin - \sseq@xgridstep\relax}{2*\sseq@xgridstep}*2*\sseq@xgridstep + \sseq@xoffset - 50*\sseq@xgridstep }
-        { -0.5 + \sseq@intdivfloor{\numexpr\sseq@ymin - \sseq@ygridstep\relax}{2*\sseq@ygridstep}*2*\sseq@ygridstep + \sseq@yoffset - 50*\sseq@ygridstep}
+        { -0.5 + \sseq@intdivfloor{\numexpr\sseq@xmin - \sseq@xgridstep\relax}{2*\sseq@xgridstep}*2*\sseq@xgridstep + \sseq@xoffset -50*\sseq@xgridstep 
+        }
+        { -0.5 + \sseq@intdivfloor{\numexpr\sseq@ymin - \sseq@ygridstep\relax}{2*\sseq@ygridstep}*2*\sseq@ygridstep + \sseq@yoffset -50*\sseq@ygridstep
+        }
     }{ \pgfpointxy
         { \sseq@xmax + \sseq@xoffset + 50*\sseq@xgridstep }
         { \sseq@ymax + \sseq@yoffset + 50*\sseq@ygridstep  }
@@ -531,7 +525,7 @@
 %%% Draw Classes
 %%%
 %%% Class offsets
-\sseqnewclasspattern{standard}{
+\SseqNewClassPattern{standard}{
     (0,0);
     (-0.13,0)(0.13,0);
     (-0.2,0)(0,0)(0.2,0);
@@ -1150,23 +1144,26 @@
     \let\tikz@@@parse@polar\sseq@tikz@@@parse@polar
     \let\tikz@scan@relative\sseq@tikz@scan@relative
 }
+\newif\ifsseq@draw@addoffset % control whether to offset coordinates by (\sseq@xoffset,\sseq@yoffset).
+\sseq@draw@addoffsettrue
 
 % Some of the stuff in tikzlibrarycalc will probably be broken, hopefully not too much
 \let\sseq@tikz@scan@one@point@noshift\tikz@scan@one@point
 \let\sseq@tikz@@@parse@regular@save\tikz@@@parse@regular
 
 \def\sseq@tikz@scan@relative#1+{%
-    \let\tikz@@@parse@regular\sseq@tikz@@@parse@regular@save
+    \global\sseq@draw@addoffsetfalse
+    %\global\let\tikz@@@parse@regular\sseq@tikz@@@parse@regular@save
     \pgfutil@ifnextchar+{%
-        \tikz@scan@plusplus{\let\tikz@@@parse@regular\sseq@tikz@@@parse@regular@save#1}%
+        \tikz@scan@plusplus{\global\sseq@draw@addoffsettrue#1}%
     }{%
-        \tikz@scan@oneplus{\let\tikz@@@parse@regular\sseq@tikz@@@parse@regular@save#1}%
+        \tikz@scan@oneplus{\global\sseq@draw@addoffsettrue#1}%
     }%
 }
 
 \def\sseq@tikz@scan@one@point@noshift@active#1{%
-    \let\tikz@@@parse@regular\sseq@tikz@@@parse@regular@save
-    \def\sseq@scanonepoint@cmd{\let\tikz@@@parse@regular\sseq@tikz@@@parse@regular#1}
+    \global\sseq@draw@addoffsetfalse
+    \def\sseq@scanonepoint@cmd{\global\sseq@draw@addoffsettrue#1}
     \tikz@scan@one@point\sseq@scanonepoint@cmd%
 }
 
@@ -1177,7 +1174,8 @@
 \def\sseq@tikz@to@curve@path{%
   [every curve to]
   \pgfextra{
-    \let\tikz@@@parse@regular\sseq@tikz@@@parse@regular@save % I added this to prevent repeated offsets from screwing us up
+    \sseq@draw@addoffsetfalse % I added this to prevent repeated offsets from screwing us up
+    %\let\tikz@@@parse@regular\sseq@tikz@@@parse@regular@save % I added this to prevent repeated offsets from screwing us up
     %\let\sseq@tikz@scan@one@point@noshift\tikz@scan@one@point
     \iftikz@to@relative\tikz@to@compute@relative\else\tikz@to@compute\fi
   }
@@ -1207,24 +1205,25 @@
 \def\sseq@tikz@@@parse@regular#1#2#3){%
   \pgfutil@in@,{#3}%
   \ifpgfutil@in@%
-    \tikz@parse@splitxyz{#1}{#2}#3,%
+    \tikz@parse@splitxyz{#1}{#2}#3,% Perhaps put an error here? We probably don't handle 3d coords correctly.
   \else%
     \tikz@checkunit{#2}%
     \iftikz@isdimension%
-      \tikz@checkunit{#3}%
-      \iftikz@isdimension%
-        \def\@next{#1{\pgfpointxy{(#2)/1cm+\sseq@xoffset}{(#3)/1cm+\sseq@yoffset}}}%
-      \else%
-        \def\@next{#1{\pgfpointxy{(#2)/1cm+\sseq@xoffset}{#3+\sseq@yoffset}}}%
-      \fi%
-    \else%
-      \tikz@checkunit{#3}%
-      \iftikz@isdimension%
-        \def\@next{#1{\pgfpointxy{#2+\sseq@xoffset}{(#3)/1cm+\sseq@yoffset}}}%
-      \else%
-        \def\@next{#1{\pgfpointxy{#2+\sseq@xoffset}{#3+\sseq@yoffset}}}%
-      \fi%
-    \fi%
+        \def\temp@xcoord{(#2)/1cm}%
+    \else
+        \def\temp@xcoord{#2}%
+    \fi
+    \tikz@checkunit{#3}%
+    \iftikz@isdimension
+        \def\temp@ycoord{(#3)/1cm}%
+    \else
+        \def\temp@ycoord{#3}%
+    \fi
+    \ifsseq@draw@addoffset
+        \edef\temp@xcoord{\unexpanded\@xp{\temp@xcoord}+\unexpanded\@xp{\sseq@xoffset}}%
+        \edef\temp@ycoord{\unexpanded\@xp{\temp@ycoord}+\unexpanded\@xp{\sseq@yoffset}}%
+    \fi
+    \edef\@next{\unexpanded{#1}{\@nx\pgfpointxy{\unexpanded\@xp{\temp@xcoord}}{\unexpanded\@xp{\temp@ycoord}}}}%
   \fi%
   \@next%
 }

@@ -938,22 +938,22 @@
     }{
         \def\sseq@coord{#2}
     }
-    %\show\sseq@coord
     \sseq@parsecoord\coord{\sseq@coord}{coordinate passed to \string\replaceclass}%
-    %\show\coord
 %
     % TODO: error handling here...
 %
-    \edef\sseq@classnum{\sseq@obj{class.\coord.num}}
+    \edef\sseq@classnum{\sseq@obj{class.\coord.num}}%
     \ifnum\sseq@classnum=0\relax
         \sseq@error@x{replacestructlines-class-not-replaced}{\coordname}\sseq@breakfi
     \fi
-    \edef\classname{class.\coord[\sseq@classnum]}
+    \edef\classname{class.\coord[\sseq@classnum]}%
     %\show\classname
-    \edef\oldclassname{class.\coord[\the\numexpr\sseq@obj{class.\coord.num}-1]}
-    \sseq@obj@gletobj{\classname.dependencies}{\oldclassname.dependencies}
+    \edef\oldclassname{class.\coord[\the\numexpr\sseq@obj{class.\coord.num}-1]}%
+    \sseq@cleanup@obj{\classname.dependencies}%
+    \sseq@obj@gletobj{\classname.dependencies}{\oldclassname.dependencies}%
     %\sseq@obj@show{\classname.dependencies}
     \sseq@obj@map{\classname.dependencies}{
+        \sseq@cleanup@obj{##1.page}%
         \sseq@obj@gletobj{##1.page}{##1.page.old}%
     }
     \sseq@breakpoint
@@ -1607,7 +1607,7 @@
     \ifnum\sseq@obj{class.\target[\sseq@obj{class.\target.num}].page}<\sseq@infinity\relax
         \sseq@error{extension-stillborn}
         \sseq@breakfi
-    \fi    
+    \fi
     \edef\sseq@extensionname{extension.\source\target}
     \sseq@obj@ifdef{\sseq@extensionname.source}{%
         \sseq@error@xx{extension-already-exists}{\sourcename}{\targetname}
@@ -1617,7 +1617,7 @@
     }
     \sseq@cleanup@obj{class.\source.hasextension}
     \sseq@obj@gdef{class.\source.hasextension}{}
-    \sseq@cleanup@obj{class.\target.hasextension}    
+    \sseq@cleanup@obj{class.\target.hasextension}
     \sseq@obj@gdef{class.\target.hasextension}{}
     \sseq@cleanup@obj{\sseq@extensionname.source}
     \sseq@obj@xdef{\sseq@extensionname.source}{\source}

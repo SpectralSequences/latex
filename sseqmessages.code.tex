@@ -357,7 +357,6 @@
 
 \sseq@newerror@internal{expl3-incompatibility}{Since this version of spectralsequences, the expl3 definition of #1 was updated in an incompatible way.}
 
-
 \sseq@newerror@internal{this-shouldnt-happen}{This branch of the code should be unreachable. Something really weird has happened. Error occurred in #1.}
 
 % Convexity thing
@@ -379,7 +378,7 @@
 %%
 %%
 \sseq@newerror@internal{U-xparse-incompatible}{The 'U' argument type is incompatible with the current version of xparse.}
-\sseq@newerror{won't-override-builtin}{Macro '#1' is a spectralsequences builtin and I won't override it. Try a different name.}
+\sseq@newerror{wont-override-builtin}{Macro '#1' is a spectralsequences built in and I won't override it. Try a different name.}
 \sseq@newerror{usermacro-not-free}{Macro '#1' has already been defined using \string\DeclareSseqCommand, \string\NewSseqCommand, \string\DeclareSseqGroup, or \string\NewSseqGroup. I am overriding it. If this is what you intended, you should either use \@nx\DeclareSseqGroup or \string\DeclareSseqCommand, which won't complain.}
 
 \sseq@newerror{macro-patch-failed}{Failed to patch macro '#1'. This is probably some annoying catcode issue. Try \@nx\tracingpatches to see more information about why the patch failed.}
@@ -391,9 +390,10 @@
 %%
 %%
 \sseq@newerror{classpattern-already-defined}{Class pattern '#1' already defined. Overwriting it.}
+\sseq@newerror{classpattern-invalid-math-expression}{Expression '#1' encountered in class pattern definition is not a valid math expression. Skipping the definition.}
 \sseq@newerror{classpattern-unexpected-token}{Unexpected token '#1' in class pattern definition. Skipping the definition.}
 \sseq@newerror{classpattern-missing-tokens}{Incomplete class pattern definition. Skipping the definition.}
-\sseq@newerror{classpattern-extra-coord-ignored}{Extra coordinate '#1' ignored. You probably forgot a semicolon.}
+\sseq@newerror{classpattern-extra-coord-ignored}{Extra coordinate '#1' ignored in row #2. You probably forgot a semicolon.}
 \sseq@newerror{classpattern-too-few-coords}{Too few coordinates in row #1.}
 
 \sseq@newerror{classpattern-too-many-classes}{%
@@ -408,11 +408,12 @@
 \sseq@newerror{class-no-tag}{The class #1 has no tag so I cannot get it.}
 
 \sseq@newerror{class-extra-coords}{Too many coordinates. Ignoring the extra ones.}
-\sseq@newerror{named-coordinate-class}{You can't pass a named coordinate to \string\class.} % Probably not actually possible to obtain this error
+\sseq@newerror{named-coordinate-class}{You can't pass a named coordinate to \string\class.}
+
 \sseq@newerror{d-no-degree}{%
-    You must specify the degree of your spectral sequence if you want to use the differential command \string\d.
+    If you want to use the differential command \string\d you must either specify the grading of the differential or explicitly provide a target coordinate for the differential.
     Specify the degree by providing 'degree={f(\#1)}{g(\#1)}' as an option to '\string\begin{sseqdata}',
-    where f(\#1) and g(\#1) are formulas for the x and y degree of the \#1th page differential.%
+    where f(\#1) and g(\#1) are formulas for the x and y degree of the \#1th page differential. Alternatively, you may say e.g., '\string\d2(source)(target)'%
 }
 \sseq@newerror{d-named-coord-two-indexes}{You provided a named class and two indexes, but the named class already comes with an index so you can only provide one more for the target. Ignoring the second index.}% should be a warning
 \sseq@newerror{d-target-index-target-coord}{You provided both a target index and a target coordinate, but this overdetermines the differential. Ignoring the target index.}
@@ -463,7 +464,7 @@
     or '\string\begin{sseqpage}[#1\sseq@possiblecurrentvaluemean]').%
 }
 
-% Applies to name and page, and saying "sseqs={name=somename}" is just a bad idea.
+% Applies to name and page. Saying "sseqs={name=somename}" is a bad idea.
 \sseq@newerror{option-no-default-allowed}{%
     You cannot set a default value for '#1'.% Try \@nx\sseqset{sseqs={#1\ifx\pgfkeyscurrentvalue\pgfkeysnovalue@text\else=\pgfkeyscurrentvalue\fi}}.%
 }

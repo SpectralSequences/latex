@@ -154,8 +154,23 @@ After a class is the source or target of a differential, it disappears on the ne
 \printpage[ name = replace class example, page = 3 ] \qquad
 \printpage[ name = replace class example, page = 4 ]
 \end{codeexample}
-Note that this will not restore any structure lines coming into or off of the class, if you want the structure lines to persist, you must call |\structline| again (or use the |structline:page| option).
+Note that this will not restore any structure lines coming into or off of the class. If you want to restore all structlines on the class use |\replacestructlines|. If you want to selectively replace some of the structure lines, you must use |\structline| again (or use the |structline:page| option).
 \end{commandlist}
+
+\begin{command}{\replacestructlines\opt{\pars{\sourcecoord}}}
+This command replaces all structlines touching a class that has been replaced using |\replaceclass|, |\replacesource|, or |\replacetarget|.
+\begin{codeexample}[]
+\begin{sseqdata}[name=replacestructlines]
+\class(0,1)
+\class(0,2)
+\structline
+\class(1,0)
+\d2(1,0)(0,2)
+\replacetarget\replacestructlines
+\end{sseqdata}
+\printpage[name=replacestructlines, page=3]
+\end{codeexample}
+\end{command}
 
 \begin{commandlist}{{\classoptions\moptions\parargthreeopt{x}{y}{n}},\classoptions\moptions\pararg{classname}, \classoptions\moptions}
 This adds options to an existing class. This can be used in a \sseqpageenv\  environment to modify the appearance of a class for just one drawing of the spectral sequence, for instance to highlight it for discussion purposes.
@@ -303,7 +318,7 @@ This command adds options to an existing structure line, just like |\classoption
 \end{command}
 
 \begin{command}{\circleclasses\ooptions\pars{\sourcecoord}\pars{\targetcoord}}
-This command is a lot like |\structline| except that it puts a circle around the classes instead of connecting them with a line. It might take a certain amount of fiddling with options to get |\circleclasses| to produce good results. There is no |\circleclassesoptions| command because it doesn't seem necessary and (more importantly) I didn't feel like making one. Maybe someday I'll put one in.
+This command is a lot like |\structline| except that it puts a circle around the classes instead of connecting them with a line. It might take a certain amount of fiddling with options to get |\circleclasses| to produce good results. There is no |\circleclassesoptions| command because it doesn't seem necessary.
 \end{command}
 
 \begin{commandlist}{\draw,\path,\node,\clip}
@@ -1306,8 +1321,7 @@ The |\gettag| command finds the most recent tag applied to the coordinate and st
 
 \subsection{The class stack}
 \label{sec:class stack}
-The class stack is a linked list of the classes in the order that they are produced that \sseqpages\  maintains. I've only recently implemented this feature, so it is more liable to change in the future than other things. Whenever you use the |\class| function, the class you added is pushed onto the stack. Here's an example that demonstrates basic usage:
-
+The class stack is a linked list of the classes in the order that they are produced that \sseqpages\  maintains. Whenever you use the |\class| or |\replaceclass| command, the class you added is pushed onto the stack.
 
 The following commands are used to access the stack:
 
@@ -1336,7 +1350,7 @@ The command |\lastclass| evaluates to the coordinate of the most recent class on
 \end{sseqpage}
 \end{codeexample}
 
-You can use |\lastx| and |\lasty| in other contexts than in the body of a \sseqpages\ command, most notably inside |\SseqParseInt| (they also go fine inside |\pgfmathparse| if you need it or one of its siblings). For instance, consider the following tower command:
+You can use |\lastx| and |\lasty| in other contexts than in the body of a \sseqpages\ command, most notably inside |\SseqParseInt| (they also work correctly when used inside of |\pgfmathparse| and its siblings). For instance, consider the following tower command:
 \begin{codeexample}[width=6cm]
 \DeclareSseqCommand \tower { } {
     \savestack
@@ -1786,11 +1800,11 @@ This key specifies the arrangement of multiple classes at the same coordinate. T
     class pattern = linear, class placement transform = { rotate = 45 } ]
 \end{codeexample}
 
-You can add new class patterns using |\sseqnewclasspattern|:
-\begin{command}{\sseqnewclasspattern\marg{class pattern name}\marg{offsets}}
+You can add new class patterns using |\SseqNewClassPattern|:
+\begin{command}{\SseqNewClassPattern\marg{class pattern name}\marg{offsets}}
 Creates a new class pattern. For example, the |linear| class pattern is created using the command:
 \begin{codeexample}[code only]
-\sseqnewclasspattern{linear}{
+\SseqNewClassPattern{linear}{
     (0,0);
     (-0.13,0)(0.13,0);
     (-0.2,0)(0,0)(0.2,0);
