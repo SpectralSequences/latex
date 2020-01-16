@@ -1719,12 +1719,30 @@
     \sseq@DeclareDocumentCommand\replacesource{o}{}
     \sseq@DeclareDocumentCommand\replacetarget{o}{}
     \def\sseq@d@main#1#2#3#4#5{}
-    \DeclareDocumentCommand \sseq@DrawIfValidDifferential@@ { d() d() } {}
+    \DeclareDocumentCommand \sseq@DrawIfValidDifferential@ { mmO{} } {
+        \sseq@loadinputline
+        \def\sseq@dtype{d}
+        \def\sseq@trueclause{#1}
+        \def\sseq@falseclause{#2}
+        \sseq@d@grabpage\sseq@DrawIfValidDifferential@@
+    }
+    \DeclareDocumentCommand \sseq@DrawIfValidDifferential@@ { d() d() } {
+        \csname sseq@DrawIfValidDifferential@@handle@truefalse%
+            @@\sseq@trueclause\sseq@falseclause
+        \endcsname
+    }
+    % Have to do something in case it branches. We somewhat arbitrarily always
+    % pretend it branched yes.
+    \def\sseq@DrawIfValidDifferential@@handle@truefalse@@{}
+    \def\sseq@DrawIfValidDifferential@@handle@truefalse@@T{\@firstofone}
+    \def\sseq@DrawIfValidDifferential@@handle@truefalse@@F{\@gobble}
+    \def\sseq@DrawIfValidDifferential@@handle@truefalse@@TF{\@firstoftwo}
+    
     \sseq@DeclareDocumentCommand\structline{od()d()}{}
     \sseq@DeclareDocumentCommand\structlineoptions{od()d()}{}
     \sseq@DeclareDocumentCommand\circleclasses{or()r()}{}
     \sseq@DeclareDocumentCommand\gettag{mr()}{}
-    \endinput
+    \expandafter\endinput
 \fi
 
 
