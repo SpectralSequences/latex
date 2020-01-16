@@ -317,7 +317,7 @@
             \pgfpathclose
             \pgfgetpath\sseq@theclippath % This stores the clipping so I can apply it later
             \pgfusepath{discard}% This has to be after the egroup or else the clipping gets screwed up
-%           
+%
             \bgroup
                 \pgfpathmoveto{\pgfqpointxy{\numexpr\sseq@xmin+\sseq@xoffset\relax}{\numexpr\sseq@ymin+\sseq@yoffset\relax}}
                 \pgfpathlineto{\pgfqpointxy{\numexpr\sseq@xmin+\sseq@xoffset\relax}{\numexpr\sseq@ymax+\sseq@yoffset\relax}}
@@ -431,7 +431,7 @@
     % The -0.5 is ensuring that the checkerboard boundaries lie at half-integer coordinates (I think).
     \pgfpathgrid[stepx= 2cm*\sseq@stepscale,stepy=2cm*\sseq@stepscale]
     { \pgfpointxy
-        { -0.5 + \sseq@intdivfloor{\numexpr\sseq@xmin - \sseq@xgridstep\relax}{2*\sseq@xgridstep}*2*\sseq@xgridstep + \sseq@xoffset -50*\sseq@xgridstep 
+        { -0.5 + \sseq@intdivfloor{\numexpr\sseq@xmin - \sseq@xgridstep\relax}{2*\sseq@xgridstep}*2*\sseq@xgridstep + \sseq@xoffset -50*\sseq@xgridstep
         }
         { -0.5 + \sseq@intdivfloor{\numexpr\sseq@ymin - \sseq@ygridstep\relax}{2*\sseq@ygridstep}*2*\sseq@ygridstep + \sseq@yoffset -50*\sseq@ygridstep
         }
@@ -983,9 +983,12 @@
             \fi
         \fi
         \ifsseq@needstikz
-            \draw[/sseqpages,
-                /utils/exec={\sseq@thesseqstyle\sseq@theedgestyle\csname sseq@the#3style\endcsname\the\sseq@scope@toks
-                             \temparrowstartspec\temparrowendspec #4}%
+            \draw[/sseqpages,%
+                /utils/exec={%
+                    \sseq@thesseqstyle\sseq@theedgestyle
+                    \csname sseq@the#3style\endcsname\the\sseq@scope@toks
+                    \temparrowstartspec\temparrowendspec #4%
+                }%
             ]  (tempa) to (tempb);%
         \else
             \temparrowstartspec
@@ -1174,9 +1177,9 @@
 \def\sseq@tikz@to@curve@path{%
   [every curve to]
   \pgfextra{
-    \sseq@draw@addoffsetfalse % I added this to prevent repeated offsets from screwing us up
-    %\let\tikz@@@parse@regular\sseq@tikz@@@parse@regular@save % I added this to prevent repeated offsets from screwing us up
-    %\let\sseq@tikz@scan@one@point@noshift\tikz@scan@one@point
+    %\sseq@draw@addoffsetfalse
+    \let\tikz@@@parse@regular\sseq@tikz@@@parse@regular@save % I added this to prevent repeated offsets from screwing us up
+    \let\sseq@tikz@scan@one@point@noshift\tikz@scan@one@point
     \iftikz@to@relative\tikz@to@compute@relative\else\tikz@to@compute\fi
   }
   \tikz@computed@path

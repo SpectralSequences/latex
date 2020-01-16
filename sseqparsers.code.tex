@@ -1182,7 +1182,7 @@
     \futurelet\testtok\sseq@defer@tikzcommand@@
 }
 
-% This serves as a marker to break out of parser. 
+% This serves as a marker to break out of parser.
 % TODO: support \pgfextra? Should we pass \pgfextra along to be handled by tikz parser?
 \def\sseq@defer@tikzcommand@escape{sseq@defer@tikzcommand@escape}
 \def\sseq@defer@tikzcommand@@{%
@@ -1198,6 +1198,7 @@
                 \@xp\ifx\space\testtok
                     \let\next\sseq@defer@tikzcommand@space
                 \else
+                    % TODO: also support "foreach" keyword without the backslash.
                     \ifx\testtok\foreach
                         \let\next\sseq@defer@tikzcommand@foreach
                     \else
@@ -1222,7 +1223,7 @@
 \def\sseq@defer@tikzcommand@foreach{
     \def\pgffor@beginhook{\expandafter\sseq@defer@tikzcommand@\pgfutil@firstofone}
     \def\pgffor@endhook{\sseq@defer@tikzcommand@escape}
-    \def\pgffor@afterhook{\sseq@defer@tikzcommand@}    
+    \def\pgffor@afterhook{\sseq@defer@tikzcommand@}
 }
 
 \def\sseq@defer@tikzcommand@option[#1]{%
