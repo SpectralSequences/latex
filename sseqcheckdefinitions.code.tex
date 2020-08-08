@@ -126,8 +126,20 @@
 \ifsseq@tempif
     \global\sseq@patchfittrue
 \else
-    \sseq@warning{fit-patch-failed}
-    \global\sseq@patchfitfalse
+    % New version of \tikz@calc@anchor
+    \sseq@checkdef\tikz@calc@anchor#1.#2\tikz@stop{%
+        \ifcsname pgf@sh@ns@\tikz@pp@name {#1}\endcsname
+            \pgfpointanchor {\tikz@pp@name {#1}}{#2}%
+        \else
+            \pgfpointanchor {#1}{#2}%
+        \fi
+    }
+    \ifsseq@tempif
+        \global\sseq@patchfittrue
+    \else
+        \sseq@warning{fit-patch-failed}
+        \global\sseq@patchfitfalse
+    \fi
 \fi
 
 \sseq@tempiftrue

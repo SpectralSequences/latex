@@ -26,6 +26,8 @@ Changelog:
 - Fixed title positioning when the xrange that doesn't start at 0 (reported by Robert Burklund)
 - Fixed relative tikz coordinates (reported by Dexter Chua).
 - Fixed foreach loops nested inside of plain tikz commands (e.g., \draw (0,0) foreach \x in {1,2,3} {--(\x,\x)};)
+- Fixed "this page structlines" (reported by Irina Bobkova)
+- Fixed "fit classes" to accomodate new version of \tikz@calc@anchor in tikz version 3.1.5
 
 ### Changed:
 - \replaceclass now pushes the class replaced onto the stack.

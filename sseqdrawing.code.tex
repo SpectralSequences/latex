@@ -939,7 +939,11 @@
     \def\pgfkeysdefaultpath{/sseqpages/#3/}%
     \sseq@options@bothpassmode
     \sseq@thesseqstyle
-    \sseq@theedgestyle\csname sseq@the#3style\endcsname\the\sseq@scope@toks
+    \sseq@theedgestyle\csname sseq@the#3style\endcsname
+    \ifsseq@thispage
+        \csname sseq@thethispage#3style\endcsname
+    \fi
+    \the\sseq@scope@toks
     #4%
     \csname sseq@collections@#3@hook\endcsname
     \pgftransformshift{\pgfqpointxy{-\the\sseq@x}{-\the\sseq@y}}%
@@ -986,7 +990,11 @@
             \draw[/sseqpages,%
                 /utils/exec={%
                     \sseq@thesseqstyle\sseq@theedgestyle
-                    \csname sseq@the#3style\endcsname\the\sseq@scope@toks
+                    \csname sseq@the#3style\endcsname
+                    \ifsseq@thispage
+                        \csname sseq@thethispage#3style\endcsname
+                    \fi
+                    \the\sseq@scope@toks
                     \temparrowstartspec\temparrowendspec #4%
                 }%
             ]  (tempa) to (tempb);%
@@ -1123,12 +1131,33 @@
   \tikz@lib@fit@scan%
 }
 
+%\def\tikz@calc@anchor#1.#2\tikz@stop{%
+%    \ifcsname pgf@sh@ns@\tikz@pp@name {#1}\endcsname
+%        \pgfpointanchor {\tikz@pp@name {#1}}{#2}%
+%    \else
+%        \pgfpointanchor {#1}{#2}%
+%    \fi
+%}
+%l.8 \show\tikz@calc@anchor
+
 % This is copied with modification from \pgf\frontendlayer\tikz\tikz.code.tex line 5164
 \def\sseq@fit@tikz@calc@anchor#1.#2\tikz@stop{%
-  \pgfutil@ifundefined{pgf@sh@ns@#1}{\sseq@tempiffalse}{%If the node doesn't exist, don't throw an error but record that we should skip it
-    \pgfpointanchor{\tikz@pp@name{#1}}{#2}%
-  }%s
+    \ifcsname pgf@sh@ns@\tikz@pp@name {#1}\endcsname
+        \pgfpointanchor {\tikz@pp@name {#1}}{#2}%
+    \else
+        \ifcsname pgf@sh@ns@#1\endcsname
+            \pgfpointanchor {#1}{#2}%
+        \else
+            \sseq@tempiffalse
+        \fi
+    \fi
 }
+%\def\sseq@fit@tikz@calc@anchor#1.#2\tikz@stop{%
+%  \pgfutil@ifundefined{pgf@sh@ns@#1}{\sseq@tempiffalse}{%If the node doesn't exist, don't throw an error but record that we should skip it
+%    \pgfpointanchor{\tikz@pp@name{#1}}{#2}%
+%  }%s
+%}
+
 
 
 %%
