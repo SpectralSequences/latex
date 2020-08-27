@@ -1004,7 +1004,7 @@
     \sseq@parsecoord\coord{#1}{}
     \@gobbletwo\sseq@breakpoint\sseq@tempiffalse % this executes \sseq@tempiffalse if we broke, otherwise it gets gobbled
     \ifsseq@tempif
-        \sseq_if_out_of_bounds_noparse:nnTF { \xcoord } { \ycoord }{\egroup\prg_return_true:}{\egroup\prg_return_false:}
+        \sseq_if_out_of_bounds_inner:nnTF { \xcoord } { \ycoord }{\egroup\prg_return_true:}{\egroup\prg_return_false:}
     \else
         \egroup
         \prg_return_false:
@@ -1012,16 +1012,24 @@
 }
 
 % For internal use b/c it's faster not to call \sseq@parsecoord
+% Make sure to add \sseq@x and \sseq@y to the coordinate before passing along
+% to if_out_of_bounds_inner to correctly account for translations.
 \prg_new_conditional:Npnn \sseq_if_out_of_bounds_noparse:nn #1#2 {TF} {
-    \sseq@tempiftrue
-    \ifnum#1<\sseq@xmaxpp\relax\ifnum#1>\sseq@xminmm\relax\ifnum#2<\sseq@ymaxpp\relax\ifnum#2>\sseq@yminmm\relax
-        \sseq@tempiffalse
-    \fi\fi\fi\fi
-    \ifsseq@tempif
-        \prg_return_true:
-    \else
-        \prg_return_false:
-    \fi
+    \sseq_if_out_of_bounds_inner:nnTF { #1 + \sseq@x } { #2 + \sseq@y }
+        { \prg_return_true: }
+        { \prg_return_false: }
+}
+
+
+\prg_new_conditional:Npnn \sseq_if_out_of_bounds_inner:nn #1#2 {TF} {
+    \bool_lazy_all:nTF {
+        { \int_compare_p:nNn { #1 } < { \sseq@xmaxpp } }
+        { \int_compare_p:nNn { #1 } > { \sseq@xminmm } }
+        { \int_compare_p:nNn { #2 } < { \sseq@ymaxpp } }
+        { \int_compare_p:nNn { #2 } > { \sseq@yminmm } }
+    }
+        { \prg_return_false: }
+        { \prg_return_true: }
 }
 
 \prg_new_conditional:Npnn \sseq_if_alive:nn #1 #2 { T, F, TF } {
