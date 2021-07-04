@@ -1,0 +1,140 @@
+#!/usr/bin/env bash
+
+DEFAULT_PYODIDE_DOCKER_IMAGE="06e17686f73b86b2b9c43f96ae6353507141bdcd07b5cedc5c198bf062fc099e"
+DEFAULT_PYODIDE_SYSTEM_PORT="8000"
+DOCKER_COMMAND="/bin/bash"
+DOCKER_INTERACTIVE="--interactive"
+
+
+USER_HOME="/src/.docker_home"
+USER_NAME="$(id -u -n)"
+USER_PASS="x"
+USER_ID="$(id -u)"
+USER_GID=0
+USER_COMMENT_FIELD="${USER_NAME} pyodide user alias"
+USER_INTERPRETER="/sbin/nologin"
+USER_ACCOUNT_INFO="${USER_NAME}:${USER_PASS}:${USER_ID}:${USER_GID}:${USER_COMMENT_FIELD}:${USER_HOME}:${USER_INTERPRETER}"
+USER_FLAG="--user $(id --user):$(id --group)"
+
+set -eo pipefail
+
+
+function usage() {
+  cat > /dev/stdout <<EOF
+Usage: run_docker [OPTIONS] [COMMAND] [ARG...]
+
+Runs COMMAND in a new Pyodide docker container. If no COMMAND is provided, starts a bash
+shell in the container.
+
+Options:
+  -h, --help                  Show this information and exit.
+  --pre-built                 Use the prebuilt Pyodide image.
+                              This is ignored if the env var PYODIDE_DOCKER_IMAGE is set.
+  -p, --port <port>           System port to which to forward.
+                              This is ignored if the env var PYODIDE_SYSTEM_PORT is set.
+                              If set to 'none', docker instance will not bind to any port.
+  --non-interactive           Run docker without the --interactive flag.
+                              Useful for running in headless mode on CI server.
+  --root                      Run as root user inside the container
+
+Prerequisites:
+  Docker has to be set up on your system.
+EOF
+}
+
+function error() {
+  usage
+  exit 255
+}
+
+while [[ $# -gt 0 ]]
+do
+  key="$1"
+  case $key in
+      -h|--help)
+        usage
+        exit 0
+      ;;
+      --pre-built)
+        if [[ -n ${PYODIDE_DOCKER_IMAGE} ]]; then
+          echo "WARNING: will use the env var PYODIDE_DOCKER_IMAGE=${PYODIDE_DOCKER_IMAGE},
+          the flag --pre-built has no effect"
+        fi
+        DEFAULT_PYODIDE_DOCKER_IMAGE="pyodide/pyodide:${PYODIDE_PREBUILT_IMAGE_TAG}"
+        shift
+      ;;
+      -p|--port)
+        if [ "$#" -lt 2 ]; then
+          >&2 echo "port cannot be empty"
+          error
+        fi
+        if [[ -n ${PYODIDE_SYSTEM_PORT} ]]; then
+          echo "WARNING: will use the env var PYODIDE_SYSTEM_PORT=${PYODIDE_SYSTEM_PORT} instead of the provided port"
+        fi
+        DEFAULT_PYODIDE_SYSTEM_PORT=$2
+        shift 2
+      ;;
+      --non-interactive)
+        DOCKER_INTERACTIVE="--interactive=false"
+        shift
+      ;;
+      --root)
+        USER_FLAG=""
+        shift
+      ;;
+      -*)
+        >&2 echo "Unknown option $1"
+        error
+      ;;
+      *)
+        DOCKER_COMMAND="$@"
+        break
+      ;;
+  esac
+done
+
+PYODIDE_DOCKER_PORT=${PYODIDE_DOCKER_PORT:-"8000"}
+PYODIDE_SYSTEM_PORT=${PYODIDE_SYSTEM_PORT:-${DEFAULT_PYODIDE_SYSTEM_PORT}}
+PYODIDE_DOCKER_IMAGE=${PYODIDE_DOCKER_IMAGE:-${DEFAULT_PYODIDE_DOCKER_IMAGE}}
+
+# in case the port is not a number, do not bind the port
+case $DEFAULT_PYODIDE_SYSTEM_PORT in
+  none)
+  PORT_CONFIGURATION_LINE=""
+  ;;
+  ''|*[!0-9]*) # contains a non-digit character, therefore it is not a number
+  echo "WARNING: Invalid port argument '$DEFAULT_PYODIDE_SYSTEM_PORT'. Port binding disabled."
+  PORT_CONFIGURATION_LINE=""
+  ;;
+  *)
+  PORT_CONFIGURATION_LINE="-p $PYODIDE_SYSTEM_PORT:$PYODIDE_DOCKER_PORT"
+  ;;
+esac
+
+mkdir -p .docker_home
+
+# Start a detached container as root, add the host uname and uid to /etc/passwd,
+# then run forever
+CONTAINER=$(\
+  docker run \
+    -d --rm \
+    -v $PWD:/src \
+    --user root \
+    --shm-size 2g \
+    "${PYODIDE_DOCKER_IMAGE}" \
+    /bin/bash -c " \
+      echo '${USER_ACCOUNT_INFO}' >> /etc/passwd ; \
+      tail -f /dev/null \
+    " \
+)
+
+EXIT_STATUS=0
+# Execute the provided command as the host user with HOME=/src
+docker exec \
+  $DOCKER_INTERACTIVE --tty \
+  $USER_FLAG \
+  $CONTAINER \
+  /bin/bash -c "${DOCKER_COMMAND}" || EXIT_STATUS=$?
+
+docker kill $CONTAINER > /dev/null
+exit $EXIT_STATUS

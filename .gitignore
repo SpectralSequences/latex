@@ -4,3 +4,4 @@
 *.prj
 *.bak
 !timetest.txt
+.docker_home
