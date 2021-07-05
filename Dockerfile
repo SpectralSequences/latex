@@ -60,6 +60,6 @@ RUN tlmgr install \
 # soulutf8 comes from either oberdiek (<= 2018) or soulutf8 (>= 2019)
     && (tlmgr install soulutf8 || true) \
 # zref comes from either oberdiek (<= 2018) or zref (>= 2019)
-    && (tlmgr install zref || true) 
+    && (tlmgr install zref || true)
 
 WORKDIR /src
