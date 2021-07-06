@@ -40,6 +40,9 @@
           { \__xparse_add_arg:n {##1} #1 }
         \l__xparse_fn_tl
       }
+    \ifx\__xparse_add_grabber_mandatory:N\undefined
+        \let \__xparse_add_grabber_mandatory:N \__xparse_add_grabber:N
+    \fi
     \cs_new_protected:Npn \sseq__xparse_add_type_U:w #1
       {
         \__xparse_flush_m_args:
