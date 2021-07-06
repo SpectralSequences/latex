@@ -1,14 +1,17 @@
 # Only difference between this and testsuite.sh is the timeout time is very large here.
 allPassed=1
-cd "examples"
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
+LATEX_FLAGS="--quiet -halt-on-error -output-directory ../outdir"
+l3build install
+
+cd "examples"
 for file in $(ls -1 *.tex); do
   printf "$file"
-  out=( $( ( /usr/bin/timeout 100 /usr/bin/time -f %e pdflatex --quiet $file 2>&1; echo $? ) | tr -d '\0' ) )
+  out=( $( ( /usr/bin/timeout 100 /usr/bin/time -f %e pdflatex $LATEX_FLAGS $file 2>&1; echo $? ) | tr -d '\0' ) )
   if [ -z ${out[0]+x} ]; then
       allPassed=0
       printf " ${RED}timed out${NC}\n"

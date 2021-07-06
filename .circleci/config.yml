@@ -1,0 +1,85 @@
+version: 2.1
+
+defaults: &defaults
+
+jobs:
+  test-examples:
+    parameters:
+      tlyear:
+        description: Which texlive version should we use?
+        type: integer
+    working_directory: ~/repo
+    docker:
+      - image: hoodmane/spectralsequences-tl<< parameters.tlyear >>:1
+
+    steps:
+      - checkout
+      - run:
+          name: l3build install
+          command: l3build install
+      
+      - run:
+          name: test examples
+          command: ./compile_examples
+        
+      - store_artifacts:
+          path: /root/outdir
+
+  test-regrtest:
+    parameters:
+      tlyear:
+        description: Which texlive version should we use?
+        type: integer
+    working_directory: ~/repo
+    docker:
+      - image: hoodmane/spectralsequences-tl<< parameters.tlyear >>:1
+    
+    steps:
+      - checkout
+      - run:
+          name: l3build check
+          command: l3build check test
+
+  
+
+
+workflows:
+  workflow:
+    jobs:
+      - test-examples:
+          name: test-examples-2016
+          tlyear: 2016
+      - test-examples:
+          name: test-examples-2017
+          tlyear: 2017
+      - test-examples:
+          name: test-examples-2018
+          tlyear: 2018
+      - test-examples:
+          name: test-examples-2019
+          tlyear: 2019
+      - test-examples:
+          name: test-examples-2020
+          tlyear: 2020
+      - test-examples:
+          name: test-examples-2021
+          tlyear: 2021
+
+      - test-regrtest:
+          name: test-regr-2016
+          tlyear: 2016
+      - test-regrtest:
+          name: test-regr-2017
+          tlyear: 2017
+      - test-regrtest:
+          name: test-regr-2018
+          tlyear: 2018
+      - test-regrtest:
+          name: test-regr-2019
+          tlyear: 2019
+      - test-regrtest:
+          name: test-regr-2020
+          tlyear: 2020
+      - test-regrtest:
+          name: test-regr-2021
+          tlyear: 2021

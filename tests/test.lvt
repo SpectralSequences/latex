@@ -1,0 +1,27 @@
+\input{regression-test.tex}
+\documentclass{article}
+\usepackage{expl3}
+\usepackage{spectralsequences}
+\begin{document}
+\START
+\makeatletter
+\sseq@DeclareDocumentCommandAs\A\B{r()}{
+    \typeout{#1}
+}
+\TEST{declare-document-command-as}{
+    \A(1,2)
+}
+
+\TEST{declare-document-command-as-error}{
+    \A
+}
+
+\sseq@DeclareDocumentCommandAs\A\B{U(r()}{
+    \typeout{#1, #2}
+}
+\TEST{declare-document-command-as-U}{
+    \sseq@install@xparse@Uarggrabber
+    \A1234(77)
+}
+
+\END

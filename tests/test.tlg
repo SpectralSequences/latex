@@ -1,0 +1,24 @@
+This is a generated file for the l3build validation system.
+Don't change this file in any respect.
+============================================================
+TEST 1: declare-document-command-as
+============================================================
+1,2
+============================================================
+============================================================
+TEST 2: declare-document-command-as-error
+============================================================
+! LaTeX3 Error: Failed to find required argument starting with '(' for command
+(LaTeX3)        '\B '.
+For immediate help type H <return>.
+ ...                                              
+l. ...}
+The current command '\B ' expects an argument starting with '('. LaTeX did not
+find it, and will insert a default value to be processed.
+-NoValue-
+============================================================
+============================================================
+TEST 3: declare-document-command-as-U
+============================================================
+1234, 77
+============================================================
