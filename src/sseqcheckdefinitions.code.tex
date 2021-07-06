@@ -100,6 +100,7 @@
     \sseq@tempiffalse % We'll throw a critical error in spectralsequences.sty to end input
     \endinput
 \fi
+\sseq@tempiftrue
 %%
 %% sseqdrawing.code.tex
 %%
@@ -127,6 +128,7 @@
     \global\sseq@patchfittrue
 \else
     % New version of \tikz@calc@anchor
+    \sseq@tempiftrue
     \sseq@checkdef\tikz@calc@anchor#1.#2\tikz@stop{%
         \ifcsname pgf@sh@ns@\tikz@pp@name {#1}\endcsname
             \pgfpointanchor {\tikz@pp@name {#1}}{#2}%
