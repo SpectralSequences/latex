@@ -9,8 +9,18 @@
 \ExplSyntaxOn
 \msg_redirect_class:nn { info } { none }
 \ExplSyntaxOff
-\START
 \makeatletter
+\START
+
+%\TEST{class-basic}{
+%    \begin{sseqdata}[name=A1]
+%    \class(0, 0)
+%
+%    \end{sseqdata}
+%}
+
+
+
 \sseq@DeclareDocumentCommandAs\A\Blargh{r()}{
     \typeout{#1}
 }
@@ -64,6 +74,12 @@
     \kill2
     \replaceclass[offset={(0,1)}]
     \end{sseqdata}
+}
+
+\TEST{go-no-axes}{
+    \begin{sseqpage}[grid = go, no axes]
+    \class(0,0)
+    \end{sseqpage}
 }
 
 \END
