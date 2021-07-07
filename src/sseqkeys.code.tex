@@ -630,12 +630,12 @@
 }
 
 \def\sseq@getnumrange@range#1#2--#3\sseq@nil{%
-    \ifx#2\infty
+    \ifx\infty#2
         \edef#1{\sseq@infinity}%
         \@xp\edef\csname\sseq@macroname#1max\endcsname{\sseq@infinity}%
     \else
         \edef#1{\the\numexpr#2}%
-        \ifx#3\infty
+        \ifx\infty#3
             \@xp\edef\csname\sseq@macroname#1max\endcsname{\sseq@infinity}%
         \else
             \@xp\edef\csname\sseq@macroname#1max\endcsname{\the\numexpr#3}%
