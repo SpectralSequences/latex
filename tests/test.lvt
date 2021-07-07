@@ -43,4 +43,15 @@
     \TYPE{\temp--\tempmax}
 }
 
+\TEST{pgfmathparse-protect}{
+    \def\x{\protect\y}
+    \def\y{14}
+    \pgfmathparse{\y+1}
+    \TYPE{\pgfmathresult}
+    \sseq@pgfmathparse{\y+2}
+    \TYPE{\pgfmathresult}
+    \sseq@pgfmathparse{\x+3}
+    \TYPE{\pgfmathresult}
+}
+
 \END

@@ -38,7 +38,16 @@
 
 % Prevent \protect from causing trouble for \pgfmathparse
 \let\sseq@pgfmathparse@orig\pgfmathparse
-\protected\def\sseq@pgfmathparse#1{\let\@@protect\protect\def\protect{}\sseq@pgfmathparse@orig{#1}\restore@protect}
+\protected\def\sseq@pgfmathparse#1{%
+    \bgroup
+    \let\@@protect\protect
+    \def\protect{}%
+    \let\pgfmath@protected@edef\edef
+    \sseq@pgfmathparse@orig{#1}%
+    \restore@protect
+    \sseq@smuggle@macro\pgfmathresult
+    \egroup
+}
 
 
 %%% ifpgfmathexpr
