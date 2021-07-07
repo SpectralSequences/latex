@@ -2,7 +2,7 @@ FROM debian:buster-slim
 
 RUN export DEBIAN_FRONTEND=noninteractive \
     && apt-get update -q \
-    && apt-get install -qy build-essential wget libfontconfig1 time \
+    && apt-get install -qy build-essential wget libfontconfig1 time git \
     && rm -rf /var/lib/apt/lists/*
 
 ARG tlyear
@@ -19,12 +19,15 @@ RUN wget $TEXLIVE_URL/install-tl-unx.tar.gz \
     && export TLPDB_EXISTS="$(wget $TEXLIVE_URL/tlnet-final/tlpkg/texlive.tlpdb  -v --spider   2>&1  | grep exists )" \
 # If tlnet-final doesn't exist (most recent texlive) then use default repo
     && if [ -z "$TLPDB_EXISTS" ]; then export TEXLIVE_REPO_FLAG="" ; fi  \
-    && /install-tl-unx/install-tl -profile /install-tl-unx/texlive.profile -no-verify-downloads $TEXLIVE_REPO_FLAG
+    && /install-tl-unx/install-tl -profile /install-tl-unx/texlive.profile -no-verify-downloads $TEXLIVE_REPO_FLAG \
+    && rm -r /install-tl-unx    \
+    && rm /install-tl-unx.tar.gz 
 
 ENV PATH="/usr/local/texlive/$TEXLIVE_VERSION/bin/x86_64-linux:${PATH}"
 
 RUN tlmgr install \
         latexmk \
+# Needed by (at least one of) spectralsequences examples
         pgf \
         etoolbox \
         pdfcomment \
@@ -40,7 +43,6 @@ RUN tlmgr install \
         ec \
         ms \
         luatex85 \
-        l3build \
 # For building the manual
         sansmathfonts \
         needspace \
@@ -54,12 +56,34 @@ RUN tlmgr install \
         zapfding \
         symbol \
         marvosym \
+# For l3build     
+        luatex \
+        latex-bin \
+        platex \
+        uplatex \
+        tex \
+        xetex \
 # soulpos comes from either bezos (<= 2018) or soulpos (>= 2019)
 # bezos went away entirely in 2018.
     && (tlmgr install soulpos || tlmgr install bezos) \
 # soulutf8 comes from either oberdiek (<= 2018) or soulutf8 (>= 2019)
     && (tlmgr install soulutf8 || true) \
 # zref comes from either oberdiek (<= 2018) or zref (>= 2019)
-    && (tlmgr install zref || true)
+    && (tlmgr install zref || true) \
+# luahbtex needed by l3build, only available in versions >= 2020
+    && (tlmgr install luahbtex || true) \
+    && tlmgr option -- autobackup 0
+
+
+# Install l3build. We need a common version independent of the texlive version
+# so we do a custom install. 
+RUN git clone --branch patches --depth 1 https://github.com/hoodmane/l3build.git \
+    && cd l3build   \
+    && chmod 755 l3build.lua    \
+    && ln -s /l3build/l3build.lua /usr/local/bin/l3build \
+# Need to install in a place accessible from both root and other users. This
+# path also doesn't have a year in it which is nice.
+    && ./l3build.lua install --texmfhome /usr/local/texlive/texmf-local/ \ 
+    && texhash
 
 WORKDIR /src

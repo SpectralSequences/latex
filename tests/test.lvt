@@ -3,9 +3,15 @@
 \usepackage{expl3}
 \usepackage{spectralsequences}
 \begin{document}
+\def\EXPECTTHROWS#1{\TYPE{EXPECT_THROWS::#1::}}
+\def\ENDEXPECTTHROWS{\TYPE{END_EXPECT_THROWS}}
+
+\ExplSyntaxOn
+\msg_redirect_class:nn { info } { none }
+\ExplSyntaxOff
 \START
 \makeatletter
-\sseq@DeclareDocumentCommandAs\A\B{r()}{
+\sseq@DeclareDocumentCommandAs\A\Blargh{r()}{
     \typeout{#1}
 }
 \TEST{declare-document-command-as}{
@@ -13,7 +19,9 @@
 }
 
 \TEST{declare-document-command-as-error}{
+    \EXPECTTHROWS{command '\string\Blargh}
     \A
+    \ENDEXPECTTHROWS
 }
 
 \sseq@DeclareDocumentCommandAs\A\B{U(r()}{
