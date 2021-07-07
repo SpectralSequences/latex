@@ -23,15 +23,33 @@ jobs:
       - run:
           name: test examples
           command: ./compile_examples.sh
-        
+
+      - store_artifacts:
+          path: /root/repo/examples_output
+
+
+  build-manual:
+    parameters:
+      tlyear:
+        description: Which texlive version should we use?
+        type: integer
+    working_directory: ~/repo
+    docker:
+      - image: hoodmane/spectralsequences-tl<< parameters.tlyear >>:1
+
+    steps:
+      - checkout
+      - run:
+          name: l3build install
+          command: |
+            export PATH=$SAVED_PATH
+            l3build install
+
       - run:
           name: build manual
           command: |
               cd manual
               pdflatex spectralsequencesmanual.tex
-
-      - store_artifacts:
-          path: /root/repo/examples_output
 
       - store_artifacts:
           path: /root/repo/manual/spectralsequencesmanual.pdf
@@ -103,4 +121,23 @@ workflows:
           tlyear: 2020
       - test-regrtest:
           name: test-regr-2021
+          tlyear: 2021
+
+      - build-manual:
+          name: build-manual-2016
+          tlyear: 2016
+      - build-manual:
+          name: build-manual-2017
+          tlyear: 2017
+      - build-manual:
+          name: build-manual-2018
+          tlyear: 2018
+      - build-manual:
+          name: build-manual-2019
+          tlyear: 2019
+      - build-manual:
+          name: build-manual-2020
+          tlyear: 2020
+      - build-manual:
+          name: build-manual-2021
           tlyear: 2021
