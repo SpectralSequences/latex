@@ -1,0 +1,29 @@
+\input{regression-test.tex}
+\documentclass{article}
+\usepackage{expl3}
+\usepackage{spectralsequences}
+\def\EXPECTTHROWS#1{\TYPE{EXPECT_THROWS::#1::}}
+\def\ENDEXPECTTHROWS{\TYPE{END_EXPECT_THROWS}}
+\makeatletter
+
+\def\THROWS#1#2{
+    \EXPECTTHROWS{#1}
+    #2
+    \ENDEXPECTTHROWS
+}
+
+\protected\long\def\ASSERT#1#2{%
+  \begingroup
+    \edef\@tempa{#1}%
+    \edef\@tempb{#2}%
+    \ifx\@tempa\@tempb
+      \TYPE{\string\ASSERT\detokenize{{#1}{#2}} ::: PASSED}%
+    \else
+      \TYPE{\string\ASSERT\detokenize{{#1}{#2}} ::: FAILED}% 
+    \fi
+  \endgroup
+}
+
+\ExplSyntaxOn
+\msg_redirect_class:nn { info } { none }
+\ExplSyntaxOff

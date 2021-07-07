@@ -28,6 +28,11 @@ function my_normalize_log(content, engine, errlevels)
                 if string.match(cur_expect_block, pattern) then
                     result = result .. "expect match succeeded: pattern '" .. pattern .. "' was found." .. os_newline
                 else
+                    print("!!!!!!!!!!!!!!!!!!\n")
+                    print("expect match failed: pattern '" .. pattern .. "' not found in block:")
+                    print("")
+                    print(cur_expect_block)
+                    print("!!!!!!!!!!!!!!!!!!\n")
                     result = result .. "expect match failed: pattern '" .. pattern .. "' not found." .. os_newline
                 end
                 pattern = nil

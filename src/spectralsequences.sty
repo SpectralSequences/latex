@@ -243,6 +243,7 @@
 \let\sseq@breakpoint\relax
 \let\sseq@breakpointfinally\@gobble
 \long\def\sseq@break#1\sseq@breakpoint{}
+\def\sseq@fbreak{\@xp\sseq@break\romannumeral-`0}
 \long\def\sseq@break@finally#1\sseq@breakpoint#2{#2}
 
 \long\def\sseq@breakfi{\fi\sseq@break}

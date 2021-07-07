@@ -1,0 +1,63 @@
+This is a generated file for the l3build validation system.
+Don't change this file in any respect.
+============================================================
+TEST 1: cparse-coord
+============================================================
+\ASSERT{\partialcoord }{1,2} ::: PASSED
+\ASSERT{\xcoord }{1} ::: PASSED
+\ASSERT{\ycoord }{2} ::: PASSED
+\ASSERT{\nodenum }{1} ::: PASSED
+\ASSERT{\coordnopar }{1,2,1} ::: PASSED
+\ASSERT{\coord }{(1,2,1)} ::: PASSED
+\ASSERT{\partialcoord }{1,2} ::: PASSED
+\ASSERT{\xcoord }{1} ::: PASSED
+\ASSERT{\ycoord }{2} ::: PASSED
+\ASSERT{\nodenum }{2} ::: PASSED
+\ASSERT{\coordnopar }{1,2,2} ::: PASSED
+\ASSERT{\coord }{(1,2,2)} ::: PASSED
+expect match succeeded: pattern 'Too many coordinates. Ignoring' was found.
+============================================================
+============================================================
+TEST 2: parse-coord
+============================================================
+expect match succeeded: pattern 'No classes yet exist in .1,2.[.]' was found.
+expect match succeeded: pattern 'No classes yet exist in .1,2., the xxx[.]' was found.
+expect match succeeded: pattern 'No classes yet exist in .1,2.[.]' was found.
+expect match succeeded: pattern 'No classes yet exist in .1,2.[.]' was found.
+(1,2,1)
+\ASSERT{\temp }{(1,2,1)} ::: PASSED
+(1,2,1)
+\ASSERT{\temp }{(1,2,1)} ::: PASSED
+(1,2,2)
+\ASSERT{\temp }{(1,2,2)} ::: PASSED
+\ASSERT{\temp }{(1,2,2)} ::: PASSED
+\ASSERT{\temp }{(1,2,1)} ::: PASSED
+\ASSERT{\temp }{(1,2,1)} ::: PASSED
+expect match succeeded: pattern 'Index '3' provided is too large.*only 2.*1,2.*"' was found.
+expect match succeeded: pattern 'Index '3' provided is too large.*only 2.*1,2.*"' was found.
+expect match succeeded: pattern 'Index '[-]3' provided is too large.*only 2.*1,2.* ' was found.
+expect match succeeded: pattern 'Index 'xyz' provided is not.*known tag.*1,2.*"' was found.
+\ASSERT{\temp }{(1,2,2)} ::: PASSED
+============================================================
+============================================================
+TEST 3: parse-coord-allow-nonexisting
+============================================================
+(1,2,)
+\ASSERT{\temp }{(1,2,)} ::: PASSED
+expect match succeeded: pattern 'No classes yet exist in .1,2.[.]' was found.
+expect match succeeded: pattern 'No classes yet exist in .1,2.[.]' was found.
+(1,2,1)
+\ASSERT{\temp }{(1,2,1)} ::: PASSED
+(1,2,1)
+\ASSERT{\temp }{(1,2,1)} ::: PASSED
+(1,2,2)
+\ASSERT{\temp }{(1,2,2)} ::: PASSED
+\ASSERT{\temp }{(1,2,2)} ::: PASSED
+\ASSERT{\temp }{(1,2,1)} ::: PASSED
+\ASSERT{\temp }{(1,2,1)} ::: PASSED
+expect match succeeded: pattern 'Index '3' provided is too large.*only 2.*1,2.*"' was found.
+expect match succeeded: pattern 'Index '3' provided is too large.*only 2.*1,2.*"' was found.
+expect match succeeded: pattern 'Index '[-]3' provided is too large.*only 2.*1,2.* ' was found.
+expect match succeeded: pattern 'Index 'xyz' provided is not.*known tag.*1,2.*"' was found.
+\ASSERT{\temp }{(1,2,2)} ::: PASSED
+============================================================

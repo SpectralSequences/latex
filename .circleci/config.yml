@@ -42,7 +42,11 @@ jobs:
           name: l3build check
           command: |
             export PATH=$SAVED_PATH
-            l3build check test
+            l3build check test parsers
+            if [ -n $? ] ; then
+              # Write out diff files to console
+              cat build/test/*.diff
+            fi
       - store_artifacts:
           path : /root/repo/build/test
 

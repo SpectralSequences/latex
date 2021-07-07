@@ -490,13 +490,14 @@
 %   \sseq@parsecoord@maincoord -- separates a coordinate into {x,y}{n or tag}, numerically evaluates x and y, and adds in the values of \sseq@x and \sseq@y
 %   \sseq@parsecoord@index -- decides which class {n or tag} represents
 %
-% There are three interface commands:
+% There are several interface commands:
 %    \sseq@parsecoord   -- for most things
 %    \sseq@cparsecoord  -- for \class (but not for \replaceclass or \classoptions). Doesn't use \sseq@parsecoord@index at all.
 %    \sseq@dparsecoord  -- for \d and \doptions
 %    \sseq@parsecoordex -- for \isalive: the body of a page constraint needs to be \edef'd so we need a completely expandable version.
 %      The expandable version doesn't have any error checking -- to get the error checking, we pass the coordinates once through the unexpandable version
 %      inside of an hbox.
+%    \sseq@parsecoord@allownonexisting -- doesn't raise an error if the class doesn't exist.
 
 \def\sseq@errortype{}
 \def\sseq@printerrortype#1{\@xp\sseq@ifempty\@xp{\sseq@errortype}{}{#1 \sseq@errortype}}
@@ -587,10 +588,14 @@
 \def\sseq@errortype@tikzprim{tikz ~ primitive}% This is sort of a silly hack, but this first error check shouldn't happen in a tikz primitive.
 \def\sseq@parsecoord@index{%
     \sseq@obj@ifundef{partcoord.(\sseq@xycoord).numnodes}{
-        \ifx\sseq@errortype\sseq@errortype@tikzprim
-            \def\sseq@index{}%  Communicates to \sseq@tikzprimitives@coords@maybeclass that this is not a class
+        \ifsseq@parsecoord@allownonexisting
+            \ifx\sseq@rawindex\pgfutil@empty
+                \def\sseq@index{} %  Communicates to \sseq@tikzprimitives@coords@maybeclass that this is not a class
+            \else
+                \sseq@error@x{no-classes}{(\sseq@xycoord)} \sseq@fbreak
+            \fi
         \else
-            \sseq@error@x{no-classes}{(\sseq@xycoord)}\@xp\sseq@break
+            \sseq@error@x{no-classes}{(\sseq@xycoord)} \sseq@fbreak
         \fi
     }{
         \ifx\sseq@rawindex\pgfutil@empty
@@ -605,16 +610,16 @@
                         \edef\sseq@index{\the\numexpr\sseq@obj{partcoord.(\sseq@xycoord).numnodes} + \sseq@rawindex + \@ne\relax}%
                         \ifnum\sseq@index<\@ne
                             \sseq@error@xxx{index-too-large}{\sseq@rawindex}{\sseq@obj{partcoord.(\sseq@xycoord).numnodes}}{(\sseq@xycoord)}%
-                            \edef\sseq@index{1}% or maybe I should break?
-                            \sseq@breakfifi
+                            \edef\sseq@index{1}
+                            \sseq@fbreak
                         \fi
                     \else
+                        \edef\sseq@index{\the\numexpr\sseq@rawindex}
                         \ifnum\sseq@rawindexeval>\sseq@obj{partcoord.(\sseq@xycoord).numnodes}\relax
                             \sseq@error@xxx{index-too-large}{\sseq@rawindex}{\sseq@obj{partcoord.(\sseq@xycoord).numnodes}}{(\sseq@xycoord)}%
-                            \edef\sseq@rawindex{\sseq@obj{partcoord.(\sseq@xycoord).numnodes}}% or maybe I should break?
-                            \sseq@breakfifi
+                            \edef\sseq@rawindex{\sseq@obj{partcoord.(\sseq@xycoord).numnodes}}
+                            \sseq@fbreak
                         \fi
-                        \edef\sseq@index{\the\numexpr\sseq@rawindex}
                     \fi
                 }{
                     \sseq@error@xx{undefined-tag}{\sseq@rawindex}{(\sseq@xycoord)}%
@@ -633,12 +638,20 @@
     \def\sseq@index{}%
     \def\sseq@errortype{#3}%
     \sseq@parsecoord@maincoord{#2}%
-    \let\sseq@rawindex\sseq@restcoord
+    \exp_args:NNf\def\sseq@rawindex{\exp_args:No\sseq@trimspaces{\sseq@restcoord}}
     \ifx\sseq@index\pgfutil@empty
         \@xp\sseq@parsecoord@index
     \fi
     \sseq@parsecoord@setupvariables{#1}{#2}
 }
+
+\newif\ifsseq@parsecoord@allownonexisting
+\def\sseq@parsecoord@allownonexisting#1#2#3{%
+    \sseq@parsecoord@allownonexistingtrue
+    \sseq@parsecoord{#1}{#2}{#3}
+    \sseq@parsecoord@allownonexistingfalse
+}
+
 
 \def\sseq@parsecoord@setupvariables#1#2{
     % TODO: clean this up a bit? it's pretty ad-hoc.
@@ -819,11 +832,26 @@
 
 \def\sseq@parsecoordex{\exp_last_unbraced:NNNf\sseq@parsecoordex@}
 \def\sseq@parsecoordex@#1(#2){\sseq@parsecoordex@@#1#2,\@nil}
+
+% Older versions of etex don't provide \expanded so need more expensive version of \exp_args:NNof.
+\ifx\expanded\undefined
+    \cs_set:Npn\exp_args:NNof { \::N \::o \::f \::: }
+\else
+    \cs_set:Npn\exp_args:NNof #1#2#3#4 {
+        \expanded {
+            \exp_not:N #1
+            \exp_not:N #2
+            { \unexpanded \expandafter { #3 } }
+            { \unexpanded  \expandafter { \exp:w \exp_end_continue_f:w #4} }
+        }
+    }
+\fi
+
 \def\sseq@parsecoordex@@#1#2,#3,#4\@nil{
     \ifx&#4&
-        \exp_last_unbraced:NNo\sseq@parsecoord@indexex#1(\the\numexpr#2\@xp,\the\numexpr#3,1)
+        \exp_args:NNo\sseq@parsecoord@indexex#1{\the\numexpr#2\@xp,\the\numexpr#3}{1}
     \else
-        \exp_args:NNo\sseq@parsecoord@indexex#1{\the\numexpr#2\@xp,\the\numexpr#3\@xp\relax\@xp}\@xp{\sseq@removecomma#4\sseq@nil}
+        \exp_args:NNof\sseq@parsecoord@indexex#1{\the\numexpr#2\@xp,\the\numexpr#3\@xp\relax}{\exp_args:Nf\sseq@trimspaces{\sseq@removecomma#4\sseq@nil}}
     \fi
 }
 
@@ -875,8 +903,9 @@
 
 \protected\def\sseq@pushstack(#1){
     \bgroup
-    \sseq@parsecoord\temp{#1}{}
+    \sseq@parsecoord@allownonexisting\temp{#1}{}
     \sseq@pushstack@\temp
+    \sseq@breakpoint
     \egroup
 }
 
@@ -1412,7 +1441,7 @@
                     \fi
                     \ifsseq@tempif
                         \@xp\sseq@tikzprimitives@ifintcoords\@xp{\sseq@tempcoord}{ % check we're all integer coordinates
-                            \sseq@parsecoord\coord{\sseq@tempcoord}{tikz ~ primitive}%
+                            \sseq@parsecoord@allownonexisting\coord{\sseq@tempcoord}{tikz ~ primitive}%
                             \ifx\sseq@index\pgfutil@empty\else
                                 \sseq@x@addto@macro\sseq@thepathsofar{(sseq{\sseq@removeparens\coord}\sseq@tempanchor)}% Okay, we're all set, it's a class
                                 \let\next\@gobble % don't run \sseq@tikzprimitives@notaclass

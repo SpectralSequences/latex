@@ -1,23 +1,13 @@
-\input{regression-test.tex}
-\documentclass{article}
-\usepackage{expl3}
-\usepackage{spectralsequences}
+\input{test-preamble}
 \begin{document}
-\def\EXPECTTHROWS#1{\TYPE{EXPECT_THROWS::#1::}}
-\def\ENDEXPECTTHROWS{\TYPE{END_EXPECT_THROWS}}
-
-\ExplSyntaxOn
-\msg_redirect_class:nn { info } { none }
-\ExplSyntaxOff
-\makeatletter
 \START
 
-%\TEST{class-basic}{
-%    \begin{sseqdata}[name=A1]
-%    \class(0, 0)
-%
-%    \end{sseqdata}
-%}
+\TEST{class-basic}{
+   \begin{sseqdata}[name=A1]
+   \class(0, 0)
+
+   \end{sseqdata}
+}
 
 
 
@@ -29,7 +19,7 @@
 }
 
 \TEST{declare-document-command-as-error}{
-    \EXPECTTHROWS{command '\string\Blargh}
+    \EXPECTTHROWS{command '.Blargh}
     \A
     \ENDEXPECTTHROWS
 }
@@ -80,6 +70,55 @@
     \begin{sseqpage}[grid = go, no axes]
     \class(0,0)
     \end{sseqpage}
+}
+
+
+
+\TEST{push-stack}{
+    \begin{sseqdata}[name=push-stack-1]
+    \THROWS{No classes yet exist in .1,2..}{
+        \pushstack(1,2,abc)
+    }
+    \THROWS{No classes yet exist in .1,2..}{
+        \pushstack(1,2,1)
+    }
+    \class(1, 2)
+    \THROWS{Index 'abc' provided is not a valid .* position.*1,2}{
+        \pushstack(1,2,abc)
+    }
+
+    \THROWS{Index 'abc' provided is not a valid .* position.*1,2}{
+        \pushstack(1,2, abc )
+    }
+
+    \TYPE{}
+
+    \pushstack(0,0)
+    \TYPE{(\sseq@obj{class.namedclass.lastclass.\the\sseq@stackdepth})}
+    \class[tag=abc](1,2)
+    \pushstack(1,2,abc)
+    \TYPE{(\sseq@obj{class.namedclass.lastclass.\the\sseq@stackdepth})}
+    \end{sseqdata}
+}
+
+\TEST{spaces-in-tag}{
+    \begin{sseqdata}[name=tmp-2]
+    \class(1,2)
+    \class[tag=abc](1,2)
+    \sseq@parsecoord\temp{1,2, abc}{xxxxxxxxxx}
+    \TYPE{\temp}
+    \sseq@parsecoord\temp{1,2, abc }{xxxxxxxxxx}
+    \TYPE{\temp}
+    \sseq@parsecoord\temp{1,2,abc}{xxxxxxxxxx}
+    \TYPE{\temp}
+
+    \TYPE{parsecoordex}
+    \def\typecoord(#1){\TYPE{(#1)}}
+    \sseq@parsecoordex\typecoord(1,2,abc)
+    \sseq@parsecoordex\typecoord(1,2, abc)
+    \sseq@parsecoordex\typecoord(1,2,abc )
+    \sseq@parsecoordex\typecoord(1,2, abc )
+    \end{sseqdata}
 }
 
 \END

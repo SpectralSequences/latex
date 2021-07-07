@@ -1,0 +1,170 @@
+\input{test-preamble}
+\begin{document}
+\START
+
+\TEST{cparse-coord}{
+    \begin{sseqdata}[name=cparse-coord]
+    \sseq@cparsecoord{1,2}
+    \ASSERT{\partialcoord}{1,2}
+    \ASSERT{\xcoord}{1}
+    \ASSERT{\ycoord}{2}
+    \ASSERT{\nodenum}{1}
+    \ASSERT{\coordnopar}{1,2,1}
+    \ASSERT{\coord}{(1,2,1)}
+
+    \class(1,2)
+    \sseq@cparsecoord{1,2}
+    \ASSERT{\partialcoord}{1,2}
+    \ASSERT{\xcoord}{1}
+    \ASSERT{\ycoord}{2}
+    \ASSERT{\nodenum}{2}
+    \ASSERT{\coordnopar}{1,2,2}
+    \ASSERT{\coord}{(1,2,2)}
+
+    \THROWS{Too many coordinates. Ignoring}{
+        \sseq@cparsecoord{1,2,2}
+    }
+    \end{sseqdata}
+}
+
+\TEST{parse-coord}{
+    \begin{sseqdata}[name=parse-coord]
+    \THROWS{No classes yet exist in .1,2.[.]}{
+        \sseq@parsecoord\temp{1,2}{}
+        \sseq@breakpoint
+    }
+    \THROWS{No classes yet exist in .1,2., the xxx[.]}{
+        \sseq@parsecoord\temp{1,2}{xxx}
+        \sseq@breakpoint
+    }
+
+    \THROWS{No classes yet exist in .1,2.[.]}{
+        \sseq@parsecoord\temp{1,2, 1}{}
+        \sseq@breakpoint
+    }
+
+    \THROWS{No classes yet exist in .1,2.[.]}{
+        \sseq@parsecoord\temp{1,2, sometag}{}
+        \sseq@breakpoint
+    }
+
+    \class(1, 2)
+    \class(1, 2)
+
+    \sseq@parsecoord\temp{1,2}{}
+    \TYPE{\temp}
+    \ASSERT{\temp}{(1,2,1)}
+
+    \sseq@parsecoord\temp{1,2, 1}{}
+    \TYPE{\temp}
+    \ASSERT{\temp}{(1,2,1)}
+
+    \sseq@parsecoord\temp{ 1   ,  2   , 2  }{}
+    \TYPE{\temp}
+    \ASSERT{\temp}{(1,2,2)}
+
+    \sseq@parsecoord\temp{1,2, -1}{}
+    \ASSERT{\temp}{(1,2,2)}
+
+    \sseq@parsecoord\temp{1,2, -2}{}
+    \ASSERT{\temp}{(1,2,1)}
+
+    \sseq@parsecoord\temp{1,2, -2+3}{}
+    \ASSERT{\temp}{(1,2,1)}
+
+    \THROWS{Index '3' provided is too large.*only 2.*1,2.*"}{
+        \sseq@parsecoord\temp{1,2, 3}{}
+        \sseq@breakpoint
+    }
+
+    \THROWS{Index '3' provided is too large.*only 2.*1,2.*"}{
+        \sseq@parsecoord\temp{1,2, 3}{}
+        \sseq@breakpoint
+    }
+
+    \THROWS{Index '[-]3' provided is too large.*only 2.*1,2.* }{
+        \sseq@parsecoord\temp{1,2, -3}{}
+        \sseq@breakpoint
+    }
+
+    \THROWS{Index 'xyz' provided is not.*known tag.*1,2.*"}{
+        \sseq@parsecoord\temp{1,2, xyz}{}
+        \sseq@breakpoint
+    }
+
+    \classoptions[tag=xyz]
+
+    \sseq@parsecoord\temp{1,2, xyz}{}
+    \ASSERT{\temp}{(1,2,2)}
+    
+    \end{sseqdata}
+}
+
+\TEST{parse-coord-allow-nonexisting}{
+    \begin{sseqdata}[name=parse-coord-allow-nonexisting]
+    \sseq@parsecoord@allownonexisting\temp{1,2}{}
+    \TYPE{\temp}
+    \ASSERT{\temp}{(1,2,)}
+
+    \THROWS{No classes yet exist in .1,2.[.]}{
+        \sseq@parsecoord@allownonexisting\temp{1,2, 1}{}
+        \sseq@breakpoint
+    }
+
+    \THROWS{No classes yet exist in .1,2.[.]}{
+        \sseq@parsecoord@allownonexisting\temp{1,2, sometag}{}
+        \sseq@breakpoint
+    }
+
+    \class(1, 2)
+    \class(1, 2)
+
+    \sseq@parsecoord@allownonexisting\temp{1,2}{}
+    \TYPE{\temp}
+    \ASSERT{\temp}{(1,2,1)}
+
+    \sseq@parsecoord@allownonexisting\temp{1,2, 1}{}
+    \TYPE{\temp}
+    \ASSERT{\temp}{(1,2,1)}
+
+    \sseq@parsecoord@allownonexisting\temp{ 1   ,  2   , 2  }{}
+    \TYPE{\temp}
+    \ASSERT{\temp}{(1,2,2)}
+
+    \sseq@parsecoord@allownonexisting\temp{1,2, -1}{}
+    \ASSERT{\temp}{(1,2,2)}
+
+    \sseq@parsecoord@allownonexisting\temp{1,2, -2}{}
+    \ASSERT{\temp}{(1,2,1)}
+
+    \sseq@parsecoord@allownonexisting\temp{1,2, -2+3}{}
+    \ASSERT{\temp}{(1,2,1)}
+
+    \THROWS{Index '3' provided is too large.*only 2.*1,2.*"}{
+        \sseq@parsecoord@allownonexisting\temp{1,2, 3}{}
+        \sseq@breakpoint
+    }
+
+    \THROWS{Index '3' provided is too large.*only 2.*1,2.*"}{
+        \sseq@parsecoord@allownonexisting\temp{1,2, 3}{}
+        \sseq@breakpoint
+    }
+
+    \THROWS{Index '[-]3' provided is too large.*only 2.*1,2.* }{
+        \sseq@parsecoord@allownonexisting\temp{1,2, -3}{}
+        \sseq@breakpoint
+    }
+
+    \THROWS{Index 'xyz' provided is not.*known tag.*1,2.*"}{
+        \sseq@parsecoord@allownonexisting\temp{1,2, xyz}{}
+        \sseq@breakpoint
+    }
+
+    \classoptions[tag=xyz]
+
+    \sseq@parsecoord@allownonexisting\temp{1,2, xyz}{}
+    \ASSERT{\temp}{(1,2,2)}
+    
+    \end{sseqdata}
+}
+\END
