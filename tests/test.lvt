@@ -32,4 +32,15 @@
     \A1234(77)
 }
 
+\TEST{get-num-range}{
+    \sseq@getnumrange\temp{1--2}
+    \TYPE{\temp--\tempmax}
+    \sseq@getnumrange\temp{1--\infty}
+    \TYPE{\temp--\tempmax}
+    \sseq@getnumrange\temp{6}
+    \TYPE{\temp--\tempmax}
+    \sseq@getnumrange\temp{\infty}
+    \TYPE{\temp--\tempmax}
+}
+
 \END
