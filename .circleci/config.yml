@@ -20,7 +20,7 @@ jobs:
       
       - run:
           name: test examples
-          command: ./compile_examples
+          command: ./compile_examples.sh
         
       - store_artifacts:
           path: /root/outdir
