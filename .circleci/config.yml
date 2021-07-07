@@ -25,7 +25,7 @@ jobs:
           command: ./compile_examples.sh
         
       - store_artifacts:
-          path: /root/repo/outdir
+          path: /root/repo/examples_output
 
   test-regrtest:
     parameters:

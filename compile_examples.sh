@@ -5,8 +5,9 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
-LATEX_FLAGS="--quiet -halt-on-error -output-directory ../outdir"
 l3build install
+LATEX_FLAGS="--quiet -halt-on-error -output-directory ../examples_output"
+mkdir -p examples_output
 
 cd "examples"
 for file in $(ls -1 *.tex); do
