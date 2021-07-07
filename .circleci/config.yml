@@ -16,7 +16,9 @@ jobs:
       - checkout
       - run:
           name: l3build install
-          command: l3build install
+          command: |
+            export PATH=$SAVED_PATH
+            l3build install
       
       - run:
           name: test examples
@@ -38,7 +40,9 @@ jobs:
       - checkout
       - run:
           name: l3build check
-          command: l3build check test
+          command: |
+            export PATH=$SAVED_PATH
+            l3build check test
       - store_artifacts:
           path : /root/repo/build/test
 

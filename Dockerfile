@@ -86,4 +86,5 @@ RUN git clone --branch patches --depth 1 https://github.com/hoodmane/l3build.git
     && ./l3build.lua install --texmfhome /usr/local/texlive/texmf-local/ \ 
     && texhash
 
+ENV SAVED_PATH="${PATH}"
 WORKDIR /src
