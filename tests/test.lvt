@@ -54,4 +54,16 @@
     \TYPE{\pgfmathresult}
 }
 
+\TEST{class-offset}{
+    \begin{sseqdata}[name=blah]
+    \let\origsseq@setoffset\sseq@setoffset
+    \def\sseq@setoffset#1{\TYPE{SetOffset:\detokenize{#1}:}\origsseq@setoffset{#1}}
+    \class[offset={(1,2)}](0, 0)
+    \classoptions[offset={(-1, -2)}]
+    \classoptions[offset={(1:2pt)}]
+    \kill2
+    \replaceclass[offset={(0,1)}]
+    \end{sseqdata}
+}
+
 \END

@@ -597,7 +597,7 @@
         \sseq@obj@xdef{\classname.needstikz}{\sseq@needstikztrue}%
     \fi
     \@ifundefined{sseq@tempoffset}{}{%
-        \tikz@scan@one@point\sseq@setoffset\sseq@tempoffset
+        \@xp\tikz@scan@one@point\@xp\sseq@setoffset\sseq@tempoffset
     }%
     \ifx\sseq@tooltip\pgfutil@empty\else
         \sseq@obj@protectedxdef{\classname.tooltip}{\sseq@tooltip}
@@ -775,7 +775,7 @@
         \fi
         \@ifundefined{sseq@tempoffset}{}{
             \sseq@cleanup@obj{\classname.offset}
-            \tikz@scan@one@point\sseq@setoffset\sseq@tempoffset
+            \@xp\tikz@scan@one@point\@xp\sseq@setoffset\sseq@tempoffset
         }
     \ifnum\sseq@tempcount<\sseq@genmax\repeat
     \sseq@breakpoint
@@ -923,7 +923,7 @@
     \ifsseq@needstikz
         \sseq@obj@xdef{\classname.needstikz}{\sseq@needstikztrue}
     \fi
-    \@ifundefined{sseq@tempoffset}{}{\tikz@scan@one@point\sseq@setoffset\sseq@tempoffset}
+    \@ifundefined{sseq@tempoffset}{}{\@xp\tikz@scan@one@point\@xp\sseq@setoffset\sseq@tempoffset}
 %
     \sseq@breakpoint
     \endgroup
