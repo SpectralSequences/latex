@@ -24,8 +24,17 @@ jobs:
           name: test examples
           command: ./compile_examples.sh
         
+      - run:
+          name: build manual
+          command: |
+              cd manual
+              pdflatex spectralsequencesmanual.tex
+
       - store_artifacts:
           path: /root/repo/examples_output
+
+      - store_artifacts:
+          path: /root/repo/manual/spectralsequencesmanual.pdf
 
   test-regrtest:
     parameters:
