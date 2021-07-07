@@ -1318,6 +1318,7 @@
     }%
     \sseq@parsecoord\source{\sourcename}{source of structure line}%
     \sseq@parsecoord\target{\targetname}{target of structure line}%
+    % Sort \xsource and \xtarget. This is to ensure that if a person adds
     \ifnum\xsource>\xtarget\relax
         \sseq@parsedcoords@swap\source\target
     \else
