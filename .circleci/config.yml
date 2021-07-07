@@ -53,7 +53,7 @@ jobs:
             export PATH=$SAVED_PATH
             export diffexe="git diff --no-index --color"
             l3build check test parsers || export FAILED=true
-            if [ -n $FAILED ] ; then
+            if [ -n "$FAILED" ] ; then
               # Write out diff files to console
               cat build/test/*.diff
               false
