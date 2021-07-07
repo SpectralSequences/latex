@@ -50,3 +50,25 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <5> on input line ....
 ============================================================
+============================================================
+TEST 9: push-stack
+============================================================
+expect match succeeded: pattern 'No classes yet exist in .1,2..' was found.
+expect match succeeded: pattern 'No classes yet exist in .1,2..' was found.
+expect match succeeded: pattern 'Index 'abc' provided is not a valid .* position.*1,2' was found.
+expect match succeeded: pattern 'Index 'abc' provided is not a valid .* position.*1,2' was found.
+(0,0,)
+(1,2,2)
+============================================================
+============================================================
+TEST 10: spaces-in-tag
+============================================================
+(1,2,2)
+(1,2,2)
+(1,2,2)
+parsecoordex
+(1,2,2)
+(1,2,2)
+(1,2,2)
+(1,2,2)
+============================================================
