@@ -23,7 +23,7 @@ jobs:
           command: ./compile_examples.sh
         
       - store_artifacts:
-          path: /root/outdir
+          path: /root/repo/outdir
 
   test-regrtest:
     parameters:
@@ -39,6 +39,8 @@ jobs:
       - run:
           name: l3build check
           command: l3build check test
+      - store_artifacts:
+          path : /root/repo/build/test
 
   
 
