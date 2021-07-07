@@ -28,29 +28,33 @@
 %%
 
 \ExplSyntaxOn
-% I should work out how old the version of xparse has to be before this breaks, but I'm too lazy.
-% It would also be nice if I could figure out how to ensure that my trick of setting \l__xparse_grab_expandably_bool to false works correctly, but this might be difficult
+% I should work out how old the version of xparse has to be before this breaks,
+% but I'm too lazy. It would also be nice if I could figure out how to ensure
+% that my trick of setting \l__cmd_grab_expandably_bool to false works
+% correctly, but this might be difficult
 \@ifpackagelater{xparse}{2017/02/08}{
-    \sseq@checkprotecteddef \__xparse_grab_u:w #1#2 \__xparse_run_code:{
-        \__xparse_grab_u_aux:nnN {#1} {#2} \cs_set_protected_nopar:Npn
+  \cs_if_exist:NTF \__xparse_grab_u:w {
+    \global\sseq@patchxparseUtrue
+  }{
+    \sseq@checkprotecteddef \__cmd_grab_u:w #1#2 \__cmd_run_code:{
+        \__cmd_grab_u_aux:nnN {#1} {#2} \cs_set_protected_nopar:Npn
     }
 
-    \sseq@checkprotecteddef\__xparse_grab_u_aux:nnN #1#2#3
-      {
-        \tl_set:Nn \l__xparse_signature_tl {#2}
-        \exp_after:wN #3 \l__xparse_fn_tl ##1 #1
-          { \__xparse_add_arg:n {##1} }
-        \l__xparse_fn_tl
+    \sseq@checkprotecteddef\__cmd_grab_u_aux:nnN #1#2#3 {
+        \tl_set:Nn \l__cmd_signature_tl {#2}
+        \exp_after:wN #3 \l__cmd_fn_tl ##1 #1
+          { \__cmd_add_arg:n {##1} }
+        \l__cmd_fn_tl
     }
 
 
-    \sseq@checkprotecteddef \__xparse_normalize_type_u:w #1 {
-        \quark_if_recursion_tail_stop_do:nn {#1} { \__xparse_bad_arg_spec:wn }
-        \__xparse_normalize_check_lu:N u
-        \__xparse_add_arg_spec_mandatory:n { u {#1} } % Oct 17, 2018
-%        \int_incr:N \l__xparse_mandatory_args_int
-%        \tl_clear:N \l__xparse_last_delimiters_tl
-        \__xparse_normalize_arg_spec_loop:n
+    \sseq@checkprotecteddef \__cmd_normalize_type_u:w #1 {
+        \quark_if_recursion_tail_stop_do:nn {#1} { \__cmd_bad_arg_spec:wn }
+        \__cmd_normalize_check_lu:N u
+        \__cmd_add_arg_spec_mandatory:n { u {#1} } % Oct 17, 2018
+%        \int_incr:N \l__cmd_mandatory_args_int
+%        \tl_clear:N \l__cmd_last_delimiters_tl
+        \__cmd_normalize_arg_spec_loop:n
     }
 
     \ifsseq@tempif
@@ -59,6 +63,7 @@
         \global\sseq@patchxparseUfalse
     \fi
     \sseq@tempiftrue
+  }
 }{}
 
 \@ifpackagelater{expl3}{2018/10/01}{

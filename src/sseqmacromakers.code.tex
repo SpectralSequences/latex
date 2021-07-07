@@ -51,8 +51,26 @@
         \tl_put_right:Nn \l__xparse_signature_tl { {#1} }
         \__xparse_prepare_signature:N
       }
+%
+%
+    \cs_new_protected:Npn \sseq__cmd_grab_U:w #1#2 \__cmd_run_code:
+      { \sseq__cmd_grab_U_aux:nnN {#1} {#2} \cs_set_protected_nopar:Npn }
+    \cs_new_protected:Npn \sseq__cmd_grab_U_aux:nnN #1#2#3
+      {
+        \tl_set:Nn \l__cmd_signature_tl {#2}
+        \exp_after:wN #3 \l__cmd_fn_tl ##1 #1
+          { \__cmd_add_arg:n {##1} #1 }
+        \l__cmd_fn_tl
+      }
+    \cs_new_protected:Npn \sseq__cmd_add_type_U:w #1
+      {
+        \__cmd_flush_m_args:
+        \__cmd_add_default:
+        \__cmd_add_grabber:N U
+        \tl_put_right:Nn \l__cmd_signature_tl { {#1} }
+        \__cmd_prepare_signature:N
+      }
 }
-
 
 \@ifpackagelater{xparse}{2017/02/08}{
     \@ifpackagelater{xparse}{2018/10/17}{
@@ -60,10 +78,11 @@
             \the\sseq@patchxparseUnewcode
         \else
             % Assumptions failed, so just make U give an error (this isn't such a big deal since we don't use it for \d anymore).
-            \cs_new_protected:Npn \sseq__xparse_add_type_U:w #1
+            \cs_new_protected:Npn \sseq__cmd_add_type_U:w #1
               {
                 \sseq@error{U-xparse-incompatible}
               }
+            \cs_new_eq:NN \sseq__xparse_add_type_U:w \sseq__cmd_add_type_U
         \fi
     }{
         \the\sseq@patchxparseUnewcode
@@ -108,6 +127,13 @@
         \__xparse_add_arg_spec_mandatory:n { U {#1} }
         \__xparse_normalize_arg_spec_loop:n
     }
+
+    \cs_new_protected:Npn \sseq__cmd_normalize_type_U:w #1 {
+        \quark_if_recursion_tail_stop_do:nn {#1} { \__cmd_bad_arg_spec:wn }
+        \__cmd_normalize_check_lu:N U
+        \__cmd_add_arg_spec_mandatory:n { U {#1} }
+        \__cmd_normalize_arg_spec_loop:n
+    }
 }{
     \cs_new_protected:Npn \sseq__xparse_normalize_type_U:w #1 {
         \quark_if_recursion_tail_stop_do:nn {#1} { \__xparse_bad_arg_spec:wn }
@@ -119,14 +145,20 @@
     }
 }
 % Expandable commands are a menace to us because they define a bunch of helper commands that we then have to keep track of.
-% We are too lazy to do this, so force \l__xparse_grab_expandably_bool to be false.
+% We are too lazy to do this, so force \l__cmd_grab_expandably_bool to be false.
 % This is backwards compatible (I think) because \bool_set_false:N just performs a chardef (no existence check)
-% so in old versions, \l__xparse_grab_expandably_bool will be created harmlessly.
-\let\sseq__xparse_prepare_signature:n\__xparse_prepare_signature:n
-\pretocmd\sseq__xparse_prepare_signature:n { \bool_set_false:N \l__xparse_grab_expandably_bool } {}{\error}
+% so in old versions, \l__cmd_grab_expandably_bool will be created harmlessly.
+\let\sseq__cmd_prepare_signature:n\__cmd_prepare_signature:n
+\ifx\sseq__cmd_prepare_signature:n\undefined
+    \let\sseq__cmd_prepare_signature:n\__xparse_prepare_signature:n
+\fi
+\pretocmd\sseq__cmd_prepare_signature:n { \bool_set_false:N \l__cmd_grab_expandably_bool } {}{\error}
 
 % I would like to patch the \__xparse_grab_U:w's in my commands into \sseq__xparse_grab_U:w's but I can't because of -NoValue-.
-\def\sseq@install@xparse@Uarggrabber{ \cs_set_eq:NN \__xparse_grab_U:w \sseq__xparse_grab_U:w }
+\def\sseq@install@xparse@Uarggrabber{%
+    \cs_set_eq:NN \__xparse_grab_U:w \sseq__xparse_grab_U:w
+    \cs_set_eq:NN \__cmd_grab_U:w \sseq__cmd_grab_U:w
+}
 
 %%% \sseq@DeclareDocumentCommand
 %
@@ -154,10 +186,13 @@
 
 \cs_new_protected:Npn\sseq@DeclareDocumentCommandAs#1#2#3#4{
     \group_begin:
+    \cs_set_eq:NN \__cmd_add_type_U:w \sseq__cmd_add_type_U:w
     \cs_set_eq:NN \__xparse_add_type_U:w \sseq__xparse_add_type_U:w
+    \cs_set_eq:NN \__cmd_normalize_type_U:w \sseq__cmd_normalize_type_U:w
     \cs_set_eq:NN \__xparse_normalize_type_U:w \sseq__xparse_normalize_type_U:w
-    \cs_set_eq:NN \__xparse_prepare_signature:n \sseq__xparse_prepare_signature:n
-    %\cs_set:Npn   \__xparse_declare_cmd_code:Nnn {\bool_set_false:N \l__xparse_grab_expandably_bool\__xparse_declare_cmd_code_aux:Nnn}
+    \cs_set_eq:NN \__cmd_prepare_signature:n \sseq__cmd_prepare_signature:n
+    \cs_set_eq:NN \__xparse_prepare_signature:n \sseq__cmd_prepare_signature:n
+    %\cs_set:Npn   \__cmd_declare_cmd_code:Nnn {\bool_set_false:N \l__cmd_grab_expandably_bool\__cmd_declare_cmd_code_aux:Nnn}
     \sseq@installmsghooks
     \def\sseq@error@setup{}
     \def\sseq@error@cleanup{\sseq@errortrue}
@@ -347,7 +382,8 @@
 \egroup
 
 
-% When there are arguments with default values (O, D, R, G), we need to put them into temporary macros to compare them and see if they are the default value
+% When there are arguments with default values (O, D, R, G), we need to put them
+% into temporary macros to compare them and see if they are the default value
 % that's what \sseq@macro@defaultarggetters@toks is for.
 \def\sseq@parseargspec#1#2{%
     \sseq@tempcount=\z@
