@@ -261,10 +261,11 @@
             \sseq@tempydimen=\sseq@tempdimen
         \fi
 %
-        \pgfmathparse{\sseq@tempxdimen/1cm/(\sseq@xmax-\sseq@xmin)}
-        \sseq@tempx = \numexpr \sseq@tempxdimen /\sseq@xscalecm \relax
-        \ifdim \pgfmathresult cm < \sseq@xscale cm
-            \sseq@tempx = \numexpr \sseq@tempxdimen /\sseq@xscalecm \relax
+        \ifdim \sseq@tempxdimen < \dimexpr \sseq@xscale cm * (\sseq@xmax-\sseq@xmin)\relax
+            % this will divide by zero if somehow we overflow the space on page
+            % while the range is 0. Hopefully no one will ever manage that.
+            \pgfmathparse{\sseq@tempxdimen/1cm/(\sseq@xmax-\sseq@xmin)} % max x range
+            \sseq@tempx = \numexpr \sseq@tempxdimen /\sseq@xscalecm \relax % max xscale
             \sseq@error@xxxx{range-overflow}{x}
                 {from \sseq@xmin\space to \sseq@xmax\space (xmax - xmin = \the\numexpr\sseq@xmax-\sseq@xmin)}
                 {\the\sseq@tempx}% max x range
@@ -272,13 +273,15 @@
             %\@xp\sseq@break
         \fi
 %
-        \pgfmathparse{\sseq@tempydimen/1cm/(\sseq@ymax-\sseq@ymin)}
-        \ifdim \pgfmathresult cm < \sseq@yscale cm
-            \sseq@tempy = \numexpr \sseq@tempydimen /\sseq@yscalecm \relax
+        \relax % Not sure why we need this...
+%
+        \ifdim \sseq@tempydimen < \dimexpr \sseq@yscale cm * (\sseq@ymax-\sseq@ymin)\relax
+            \sseq@tempy = \numexpr \sseq@tempydimen /\sseq@yscalecm \relax % max y range
+            \pgfmathparse{\sseq@tempydimen/1cm/(\sseq@ymax-\sseq@ymin)} % max yscale
             \sseq@error@xxxx{range-overflow}{y}
                 {from \sseq@ymin\space to \sseq@ymax\space (ymax - ymin = \the\numexpr\sseq@ymax-\sseq@ymin)}
                 {\the\sseq@tempy}% max y range
-                {\pgfmathresult}% max yscale
+                {\pgfmathresult} % max yscale
             %\@xp\sseq@break
         \fi
     \fi

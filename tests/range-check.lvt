@@ -11,6 +11,12 @@
     \end{sseqpage}
 }
 
+\TEST{no-divide-by-zero}{
+    \begin{sseqpage}
+    \class(0,0)
+    \end{sseqpage}
+}
+
 \TEST{check-xrange-too-large}{
     \THROWS{The x range.*too large}{
         \begin{sseqpage}[xscale=0.937, yscale=0.975]

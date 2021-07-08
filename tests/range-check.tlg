@@ -9,11 +9,15 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <5> on input line ....
 ============================================================
 ============================================================
-TEST 2: check-xrange-too-large
+TEST 2: no-divide-by-zero
+============================================================
+============================================================
+============================================================
+TEST 3: check-xrange-too-large
 ============================================================
 expect match succeeded: pattern 'The x range.*too large' was found.
 ============================================================
-Overfull \hbox (0.34239pt too wide) in paragraph at lines 21--22
+Overfull \hbox (0.34239pt too wide) in paragraph at lines 27--28
 [][]
 \hbox(556.45424+0.0)x430.00462
 .\hbox(0.0+0.0)x0.0
@@ -1264,17 +1268,16 @@ Overfull \hbox (0.34239pt too wide) in paragraph at lines 21--22
 ...\pdfliteral{Q }
 ...\glue 0.0 plus 1.0fil minus 1.0fil
 .\glue(\rightskip) 0.0
-Underfull \hbox (badness 10000) in paragraph at lines 21--22
+Underfull \hbox (badness 10000) in paragraph at lines 27--28
 \hbox(0.0+0.0)x430.00462
 .\glue(\rightskip) 0.0
-[1
-]
+[2]
 ============================================================
-TEST 3: check-yrange-too-large
+TEST 4: check-yrange-too-large
 ============================================================
 expect match succeeded: pattern 'The y range.*too large' was found.
 ============================================================
-Overfull \hbox (2.16962pt too wide) in paragraph at lines 30--31
+Overfull \hbox (2.16962pt too wide) in paragraph at lines 36--37
 [][]      
 \hbox(556.96208+0.0)x430.00462, glue set - 1.0
 .\hbox(0.0+0.0)x0.0
@@ -2533,20 +2536,20 @@ Overfull \hbox (2.16962pt too wide) in paragraph at lines 30--31
 .\glue(\parfillskip) 0.0 plus 1.0fil
 .\glue(\rightskip) 0.0
 ============================================================
-TEST 4: check-fails-sideways-y
+TEST 5: check-fails-sideways-y
 ============================================================
 expect match succeeded: pattern 'The y range from 0 to 17.*too large' was found.
 ============================================================
 ============================================================
-TEST 5: range-check-scope
+TEST 6: range-check-scope
 ============================================================
 ============================================================
 ============================================================
-TEST 6: range-check-off
+TEST 7: range-check-off
 ============================================================
-[5]
+[6]
 ============================================================
-Overfull \hbox (2472.3752pt too wide) in paragraph at lines 55--56
+Overfull \hbox (2472.3752pt too wide) in paragraph at lines 61--62
 [][]
 \hbox(2902.37982+0.0)x430.00462
 .\hbox(0.0+0.0)x0.0
@@ -9175,10 +9178,10 @@ Overfull \hbox (2472.3752pt too wide) in paragraph at lines 55--56
 ...\pdfliteral{Q }
 ...\glue 0.0 plus 1.0fil minus 1.0fil
 .\glue(\rightskip) 0.0
-Underfull \hbox (badness 10000) in paragraph at lines 55--56
+Underfull \hbox (badness 10000) in paragraph at lines 61--62
 \hbox(0.0+0.0)x430.00462
 .\glue(\rightskip) 0.0
-[6]
+[7]
 Overfull \vbox (2345.90326pt too high) has occurred while \output is active
 \vbox(556.47656+0.0)x430.00462
 .\glue(\topskip) 0.0
@@ -15811,8 +15814,8 @@ Overfull \vbox (2345.90326pt too high) has occurred while \output is active
 ..\glue(\rightskip) 0.0
 .\glue 0.0
 .\glue 0.0 plus 0.0001fil
-[7]
+[8]
 ============================================================
-TEST 7: range-check-sideways-env
+TEST 8: range-check-sideways-env
 ============================================================
 ============================================================
