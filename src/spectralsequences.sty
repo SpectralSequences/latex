@@ -109,6 +109,9 @@
 \newif\ifsseq@drawedge
 \newif\ifsseq@tikzprims@integershift
 \newif\ifsseq@anchor
+\newif\ifsseq@rangecheck
+\newif\ifsseq@rangecheck@sideways
+
 \sseq@drawedgetrue
 \sseq@tikzprims@integershifttrue
 
@@ -276,7 +279,11 @@
     \let\sseqnewgroup\@gobblethree
 }
 
-
+\def\SseqRangeCheckStandard{\sseq@rangechecktrue\sseq@rangecheck@sidewaysfalse}
+\def\SseqRangeCheckSideways{\sseq@rangechecktrue\sseq@rangecheck@sidewaystrue}
+\def\SseqRangeCheckOff{\sseq@rangecheckfalse}
+\AtBeginEnvironment{sideways}{\SseqRangeCheckSideways}
+\SseqRangeCheckStandard
 
 \input sseqmessages.code.tex        % Exposes directly: \sseqerrortowarning
 \input sseqcheckdefinitions.code.tex

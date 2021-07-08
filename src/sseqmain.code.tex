@@ -242,26 +242,45 @@
         \@xp\sseq@break
     \fi
 %
-    \sseq@tempdimen = \dimexpr \textwidth -\sseq@clip@padding@right - \sseq@xaxis@end@extend - \sseq@xaxis@start@extend - \sseq@yaxisgap \relax
-    \sseq@tempcount = \numexpr \sseq@tempdimen /\sseq@xscalecm \relax
-    \ifnum \numexpr\sseq@xmax-\sseq@xmin + 1 > \sseq@tempcount
-      \pgfmathparse{\sseq@tempdimen/1cm/(\sseq@xmax-\sseq@xmin+1)}
-      \sseq@error@xxxx{range-overflow}{x}
-            {from \sseq@xmin\space to \sseq@xmax\space (xmax - xmin = \the\numexpr\sseq@xmax-\sseq@xmin)}
-            {\the\sseq@tempcount}% max x range
-            {\pgfmathresult}% max xscale
-        %\@xp\sseq@break
-    \fi
+    \sseq@setlayoutparameters
+    \ifsseq@rangecheck
+        % Calculate available space
+        %
+        % \sseq@tempydimen = \dimexpr \textheight - \sseq@clip@padding@top - \sseq@yaxis@end@extend - \sseq@yaxis@start@extend - \sseq@xaxisgap \relax
+        % \sseq@tempxdimen = \dimexpr \textwidth -\sseq@clip@padding@right - \sseq@xaxis@end@extend - \sseq@xaxis@start@extend - \sseq@yaxisgap \relax
 %
-    \sseq@tempdimen = \dimexpr \textheight - \sseq@clip@padding@top - \sseq@yaxis@end@extend - \sseq@yaxis@start@extend - \sseq@xaxisgap \relax
-    \sseq@tempcount = \numexpr \sseq@tempdimen /\sseq@yscalecm \relax
-    \ifnum \numexpr\sseq@ymax-\sseq@ymin +1 > \sseq@tempcount
-        \pgfmathparse{\sseq@tempdimen/1cm/(\sseq@ymax-\sseq@ymin+1)}
-        \sseq@error@xxxx{range-overflow}{y}
-            {from \sseq@ymin\space to \sseq@ymax\space (ymax - ymin = \the\numexpr\sseq@ymax-\sseq@ymin)}
-            {\the\sseq@tempcount}% max x range
-            {\pgfmathresult}% max xscale
-        \@xp\sseq@break
+        \sseq@tempxdimen = \dimexpr \linewidth - \sseq@totalhorizontalmargin - 0.1pt
+        \sseq@tempydimen = \dimexpr \textheight - \sseq@totalverticalmargin - 0.1pt
+
+        % \sseq@tempxdimen = \dimexpr \textwidth -\sseq@xaxis@tail - \sseq@yaxisgap - \sseq@xaxis@end@extend - \sseq@clip@padding@right - 0.1pt
+        % \sseq@tempydimen = \dimexpr \textheight -\sseq@yaxis@tail - \sseq@xaxisgap - \sseq@yaxis@end@extend - \sseq@clip@padding@top - 0.1pt
+        \ifsseq@rangecheck@sideways
+            % Swap availability measurements
+            \sseq@tempdimen=\sseq@tempxdimen
+            \sseq@tempxdimen=\sseq@tempydimen
+            \sseq@tempydimen=\sseq@tempdimen
+        \fi
+%
+        \pgfmathparse{\sseq@tempxdimen/1cm/(\sseq@xmax-\sseq@xmin)}
+        \sseq@tempx = \numexpr \sseq@tempxdimen /\sseq@xscalecm \relax
+        \ifdim \pgfmathresult cm < \sseq@xscale cm
+            \sseq@tempx = \numexpr \sseq@tempxdimen /\sseq@xscalecm \relax
+            \sseq@error@xxxx{range-overflow}{x}
+                {from \sseq@xmin\space to \sseq@xmax\space (xmax - xmin = \the\numexpr\sseq@xmax-\sseq@xmin)}
+                {\the\sseq@tempx}% max x range
+                {\pgfmathresult}% max xscale
+            %\@xp\sseq@break
+        \fi
+%
+        \pgfmathparse{\sseq@tempydimen/1cm/(\sseq@ymax-\sseq@ymin)}
+        \ifdim \pgfmathresult cm < \sseq@yscale cm
+            \sseq@tempy = \numexpr \sseq@tempydimen /\sseq@yscalecm \relax
+            \sseq@error@xxxx{range-overflow}{y}
+                {from \sseq@ymin\space to \sseq@ymax\space (ymax - ymin = \the\numexpr\sseq@ymax-\sseq@ymin)}
+                {\the\sseq@tempy}% max y range
+                {\pgfmathresult}% max yscale
+            %\@xp\sseq@break
+        \fi
     \fi
 %
     % Really this could be anything between -\sseq@xmin and -\sseq@xmax and it wouldn't matter. We'll split the difference.
@@ -281,7 +300,6 @@
         every node/.style={}
     }
     \let\errmessage\sseq@errmessage@std
-    \sseq@setlayoutparameters
     \begin{tikzpicture}[/sseqpages/global/{default} options,\ifsseq@hasname/sseqpages/global/{\sseq@thename} options\fi,/sseqpages/global/{this page} options]%
     \sseq@sseqstyle@globalpart
     \sseq@globaldetonetransform

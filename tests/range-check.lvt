@@ -1,0 +1,67 @@
+\input{test-preamble}
+\parindent=0pt
+\usepackage{rotating}
+\usepackage[showframe, showcrop]{geometry}
+\begin{document}
+\START
+\TEST{check-passes}{
+    \begin{sseqpage}[xscale=0.936, yscale=0.975]
+    \class(0,0)
+    \class(14,18)
+    \end{sseqpage}
+}
+
+\TEST{check-xrange-too-large}{
+    \THROWS{The x range.*too large}{
+        \begin{sseqpage}[xscale=0.937, yscale=0.975]
+        \class(0,0)
+        \class(14,18)
+        \end{sseqpage}
+    }
+}
+
+\TEST{check-yrange-too-large}{
+    \THROWS{The y range.*too large}{
+        \begin{sseqpage}[xscale=0.936, yscale=0.976]
+        \class(0,0)
+        \class(14,18)
+        \end{sseqpage}
+    }
+}
+
+\TEST{check-fails-sideways-y}{
+    \THROWS{The y range from 0 to 17.*too large}{
+        \begin{sseqpage}
+        \SseqRangeCheckSideways
+        \class(0,0)
+        \class(10,17)
+        \end{sseqpage}
+    }
+}
+
+\TEST{range-check-scope}{
+    \begin{sseqpage}
+    \class(0,0)
+    \class(10,17)
+    \end{sseqpage}
+}
+
+\TEST{range-check-off}{
+    \begin{sseqpage}
+    \SseqRangeCheckOff
+    \class(0,0)
+    \class(100,100)
+    \end{sseqpage}
+}
+
+\TEST{range-check-sideways-env}{
+    \begin{sideways}
+    \begin{sseqpage}
+    \class(0,0)
+    \class(17,10)
+    \end{sseqpage}
+    \end{sideways}
+}
+
+
+\END
