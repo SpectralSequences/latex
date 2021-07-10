@@ -69,5 +69,84 @@
     \end{sideways}
 }
 
+% Actual limit to hit overful boxes is:
+% xscale=0.951, yscale=0.990
+% we're off by a few thousandths.
+\TEST{frame-passes}{
+    \begin{sseqpage}[axes type = frame, xscale=0.946, yscale=0.989]
+    \class(0,0)
+    \class(14,18)
+    \end{sseqpage}
+}
+
+\TEST{frame-fails-x}{
+    \THROWS{The x range.*too large}{
+        \begin{sseqpage}[axes type = frame, xscale=0.947, yscale=0.989]
+        \class(0,0)
+        \class(14,18)
+        \end{sseqpage}
+    }
+}
+
+\TEST{frame-fails-y}{
+    \THROWS{The y range.*too large}{
+        \begin{sseqpage}[axes type = frame, xscale=0.946, yscale=0.990]
+        \class(0,0)
+        \class(14,18)
+        \end{sseqpage}
+    }
+}
+
+% % TODO: fix me!
+% \TEST{center-passes}{
+%     \begin{sseqpage}[axes type = center, xscale=0.944, yscale=0.985]
+%     \class(0,0)
+%     \class(14,18)
+%     \end{sseqpage}
+% }
+
+% \TEST{center-fails-x}{
+%     \THROWS{The x range.*too large}{
+%         \begin{sseqpage}[axes type = center, xscale=0.945, yscale=0.985]
+%         \class(0,0)
+%         \class(14,18)
+%         \end{sseqpage}
+%     }
+% }
+
+% \TEST{center-fails-y}{
+%     \THROWS{The y range.*too large}{
+%         \begin{sseqpage}[axes type = center, xscale=0.946, yscale=0.990]
+%         \class(0,0)
+%         \class(14,18)
+%         \end{sseqpage}
+%     }
+% }
+
+% Actual max is 0.994, 1.020
+\TEST{none-passes}{
+    \begin{sseqpage}[axes type = none, xscale=0.993, yscale=1.019]
+    \class(0,0)
+    \class(14,18)
+    \end{sseqpage}
+}
+
+\TEST{none-fails-x}{
+    \THROWS{The x range.*too large}{
+        \begin{sseqpage}[axes type = center, xscale=0.994, yscale=1.019]
+        \class(0,0)
+        \class(14,18)
+        \end{sseqpage}
+    }
+}
+
+\TEST{none-fails-y}{
+    \THROWS{The y range.*too large}{
+        \begin{sseqpage}[axes type = center, xscale=0.993, yscale=1.020]
+        \class(0,0)
+        \class(14,18)
+        \end{sseqpage}
+    }
+}
 
 \END
