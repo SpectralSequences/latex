@@ -245,15 +245,30 @@
     \sseq@setlayoutparameters
     \ifsseq@rangecheck
         % Calculate available space
-        %
-        % \sseq@tempydimen = \dimexpr \textheight - \sseq@clip@padding@top - \sseq@yaxis@end@extend - \sseq@yaxis@start@extend - \sseq@xaxisgap \relax
-        % \sseq@tempxdimen = \dimexpr \textwidth -\sseq@clip@padding@right - \sseq@xaxis@end@extend - \sseq@xaxis@start@extend - \sseq@yaxisgap \relax
+        
+        % We might need to know the dimensions of the tick marks in order to calculate "margin" size.
+        \bgroup
+            \@xp\tikzset\@xp{\sseq@xtickstyle}
+            \pgfmathparse{height("\sseq@xmin") + depth("\sseq@xmin")}
+            \edef\sseq@xlabelheight{\pgfmathresult pt}
+            \sseq@smuggle@macro\sseq@xlabelheight
+        \egroup
+        \bgroup
+            \@xp\tikzset\@xp{\sseq@ytickstyle}
+            \pgfmathparse{max(width("\sseq@ymax"), width("\sseq@ymin"))}
+            \edef\sseq@maxylabelwidth{\pgfmathresult pt}
+            \sseq@smuggle@macro\sseq@maxylabelwidth
+        \egroup
+        
+        % "totaldirmargin" isn't really quite margin: it's the distance between
+        % the bounding box (xmin, ymin) -- (xmax, ymax) and the bounding box of
+        % the resulting figure. 
 %
-        \sseq@tempxdimen = \dimexpr \linewidth - \sseq@totalhorizontalmargin - 0.1pt
-        \sseq@tempydimen = \dimexpr \textheight - \sseq@totalverticalmargin - 0.1pt
-
-        % \sseq@tempxdimen = \dimexpr \textwidth -\sseq@xaxis@tail - \sseq@yaxisgap - \sseq@xaxis@end@extend - \sseq@clip@padding@right - 0.1pt
-        % \sseq@tempydimen = \dimexpr \textheight -\sseq@yaxis@tail - \sseq@xaxisgap - \sseq@yaxis@end@extend - \sseq@clip@padding@top - 0.1pt
+        % By subtracting the "margin" distance from the page width / height, we
+        % get the amount of space available for the content.
+        \sseq@tempxdimen = \dimexpr \linewidth - \sseq@totalhorizontalmargin@yborder - 0.1pt
+        \sseq@tempydimen = \dimexpr \textheight - \sseq@totalverticalmargin@xborder - 0.1pt
+%
         \ifsseq@rangecheck@sideways
             % Swap availability measurements
             \sseq@tempdimen=\sseq@tempxdimen
@@ -261,6 +276,8 @@
             \sseq@tempydimen=\sseq@tempdimen
         \fi
 %
+        % \showthe\dimexpr\dimexpr \sseq@tempxdimen - \sseq@xscale cm * (\sseq@xmax-\sseq@xmin)\relax
+        % Compare space available to range * scale.
         \ifdim \sseq@tempxdimen < \dimexpr \sseq@xscale cm * (\sseq@xmax-\sseq@xmin)\relax
             % this will divide by zero if somehow we overflow the space on page
             % while the range is 0. Hopefully no one will ever manage that.
@@ -275,6 +292,7 @@
 %
         \relax % Not sure why we need this...
 %
+        % \showthe\dimexpr\dimexpr \sseq@tempydimen - \sseq@yscale cm * (\sseq@ymax-\sseq@ymin)\relax
         \ifdim \sseq@tempydimen < \dimexpr \sseq@yscale cm * (\sseq@ymax-\sseq@ymin)\relax
             \sseq@tempy = \numexpr \sseq@tempydimen /\sseq@yscalecm \relax % max y range
             \pgfmathparse{\sseq@tempydimen/1cm/(\sseq@ymax-\sseq@ymin)} % max yscale

@@ -56,14 +56,14 @@
 
 % Used to calculate available area in range check
 \def\sseq@totalhorizontalmargin@yborder{(\sseq@xaxis@tail + \sseq@yaxisgap + \sseq@xaxis@end@extend + \sseq@clip@padding@right)}
-\def\sseq@totalhorizontalmargin@yframe{(\sseq@ylabelgap + 2em + \sseq@ytick@start@extend + 2*\sseq@yaxisgap)}
+\def\sseq@totalhorizontalmargin@yframe{(\sseq@ylabelgap + \sseq@maxylabelwidth + \sseq@yaxisgap * 2)}
 \def\sseq@totalhorizontalmargin@ycenter{(\sseq@xaxis@start@extend + \sseq@clip@padding@left + \sseq@xaxis@end@extend + \sseq@clip@padding@right)}
-\def\sseq@totalhorizontalmargin@ynone{(\sseq@clip@padding@left + \sseq@clip@padding@right)}
+\def\sseq@totalhorizontalmargin@ynone{(\sseq@xaxis@start@extend + \sseq@clip@padding@left + \sseq@xaxis@end@extend + \sseq@clip@padding@right)}
 
 \def\sseq@totalverticalmargin@xborder{(\sseq@yaxis@tail + \sseq@xaxisgap + \sseq@yaxis@end@extend + \sseq@clip@padding@top)}
-\def\sseq@totalverticalmargin@xframe{\sseq@yaxis@tail + \sseq@xaxisgap + \sseq@yaxis@end@extend + \sseq@clip@padding@top)}
+\def\sseq@totalverticalmargin@xframe{(\sseq@xlabelgap + \sseq@xlabelheight + \sseq@xaxisgap * 2)}
 \def\sseq@totalverticalmargin@xcenter{(\sseq@yaxis@start@extend + \sseq@clip@padding@bottom + \sseq@yaxis@end@extend + \sseq@clip@padding@top)}
-\def\sseq@totalverticalmargin@xnone{(\sseq@clip@padding@bottom + \sseq@clip@padding@top)}
+\def\sseq@totalverticalmargin@xnone{(\sseq@yaxis@start@extend + \sseq@clip@padding@bottom + \sseq@yaxis@end@extend + \sseq@clip@padding@top)}
 
 % Used to determine axis and ticks placement
 \def\sseq@xaxisorigin@yborder{\sseq@xmin}

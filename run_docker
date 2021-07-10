@@ -63,6 +63,10 @@ do
         DEFAULT_PYODIDE_DOCKER_IMAGE="pyodide/pyodide:${PYODIDE_PREBUILT_IMAGE_TAG}"
         shift
       ;;
+      -y|--year)
+        DEFAULT_PYODIDE_DOCKER_IMAGE="hoodmane/spectralsequences-tl$2:1"
+        shift 2
+      ;;
       -i|--image)
         DEFAULT_PYODIDE_DOCKER_IMAGE=$2
         shift 2
