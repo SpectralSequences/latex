@@ -43,7 +43,7 @@ function my_normalize_log(content, engine, errlevels)
         else
             pattern = string.match(line, "EXPECT_THROWS::(.*)::$")
             if not pattern then
-                if not string.match(line, "\\.+\\") then
+                if not string.match(line, "^[.]+\\") then
                     result = result .. line .. os_newline
                 end
             end
