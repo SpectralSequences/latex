@@ -860,13 +860,21 @@ This places a constraint on the pages in which the \tikzpkg\  primitive is print
 
 \begin{commandlist}{\isalive\pararg{coordinate},\isalive\{\pararg{coordinate 1}$\cdots$\pararg{coordinate n}\}}
 This command can only be used with |page constraint|. Saying
-\[|page constraint = {\pars{\meta{x},\meta{y}\opt{,}\oarg{index}}}}}|\]
+\begin{center}
+    |page constraint = {\pars{\meta{x},\meta{y}\opt{,}\oarg{index}}}}}|
+\end{center}
 will print the \tikzpkg\  primitive only on pages where the specified class is alive. Saying
-\[|page constraint = {\isalive(\meta{coordinate 1})|\,\cdots\,|(\meta{coordinate n})}|\]
+\begin{center}
+    |page constraint = {\isalive(\meta{coordinate 1})|\,\cdots\,|(\meta{coordinate n})}|
+\end{center}
 is equivalent to
-\[|page constraint = {\isalive\pararg{coordinate 1} &&|\,\cdots\,|&& \isalive\pararg{coordinate n}}|\]
+\begin{center}
+    |page constraint = {\isalive\pararg{coordinate 1} &&|\,\cdots\,|&& \isalive\pararg{coordinate n}}|
+\end{center}
 Writing
-\[\codeverb|\draw[page constraint = {\isalive(1,0)(2,2)}](1,0)|\texttt{-{}-}|(2,2);|\]
+\begin{center}
+    \codeverb|\draw[page constraint = {\isalive(1,0)(2,2)}](1,0)|\texttt{-{}-}|(2,2);|
+\end{center}
 is the same as |\structline(1,0)(2,2)|, except that you can't later use |\structlineoptions| on it (and it won't have the |struct lines| style applied).
 \end{commandlist}
 \end{keylist}
