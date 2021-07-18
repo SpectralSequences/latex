@@ -24,13 +24,14 @@ Changelog:
   environment automatically uses `range check sideways` (issue #11). 
 
 ### Fixed:
-- Removed \replaceclass in {sseqpage} without "keep changes" error (suggested by Junhou Fung).
-- Fixed \doptions and \structlineoptions so that they can be used to add an edge label -- "needs tikz" wasn't handled correctly (reported by idlaviV)
-- Fixed title positioning when the xrange that doesn't start at 0 (reported by Robert Burklund)
+- Removed `\replaceclass` in `{sseqpage}` without `keep changes` error (suggested by Junhou Fung).
+- Fixed `\doptions` and `\structlineoptions` so that they can be used to add an edge label -- `needs tikz` wasn't handled correctly (reported by idlaviV)
+- Fixed title positioning when the `xrange` that doesn't start at 0 (reported by Robert Burklund)
 - Fixed relative tikz coordinates (reported by Dexter Chua).
-- Fixed foreach loops nested inside of plain tikz commands (e.g., \draw (0,0) foreach \x in {1,2,3} {--(\x,\x)};)
-- Fixed "this page structlines" (reported by Irina Bobkova)
-- Fixed "fit classes" to accomodate new version of \tikz@calc@anchor in tikz version 3.1.5
+- Fixed foreach loops nested inside of plain tikz commands (e.g., `\draw (0,0) foreach \x in {1,2,3} {--(\x,\x)};`)
+- Fixed `this page structlines` (reported by Irina Bobkova)
+- Fixed `fit classes` to accomodate new version of `\tikz@calc@anchor` in tikz version 3.1.5
+- Fixed various other incompatiblities with latex3 with various versions of expl3.
 
 ### Changed:
 - \replaceclass now pushes the class replaced onto the stack.
