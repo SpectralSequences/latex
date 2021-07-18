@@ -41,9 +41,9 @@ The \sseqpages\  package is a specialized tool built on top of \pgfpkg/\tikzpkg\
 for drawing spectral sequence charts. It provides a powerful, concise syntax for
 specifying the data of a spectral sequence, and then allows the user to print
 various pages of a spectral sequence, automatically choosing which subset of the
-classes, differentials, and structure lines to display on each page. It also
-handles most of the details of the layout. At the same time, \sseqpages\  is
-extremely flexible. It is closely integrated with \tikzpkg\  to ensure that
+classes, differentials, structure lines, and extensions to display on each page.
+It also handles most of the details of the layout. At the same time, \sseqpages\
+is extremely flexible. It is closely integrated with \tikzpkg\  to ensure that
 users can take advantage of as much as possible of its expressive power. It is
 possible to turn off most of the automated layout features and draw replacements
 using \tikzpkg\  commands. \sseqpages\  also has a carefully designed error
@@ -169,11 +169,12 @@ the spectral sequence so that you can access it later.
 \begin{environment}{{sseqpage}\ooptions}%
 This environment is used for printing a page of existing spectral sequence that
 was already specified using the \sseqdataenv\  environment. The body of the
-environment adds local changes -- classes, differentials, structure lines, and
-arbitrary \tikzpkg\  options that are by default only printed on this particular
-page. The \sseqpageenv\  environment can also be used to print a stand-alone
-page of a spectral sequence -- that is, if you only want to print a single page
-of the spectral sequence, you can skip using the \sseqdataenv\  environment.
+environment adds local changes -- classes, differentials, structure lines,
+extensions, and arbitrary \tikzpkg\  options that are by default only printed on
+this particular page. The \sseqpageenv\  environment can also be used to print a
+stand-alone page of a spectral sequence -- that is, if you only want to print a
+single page of the spectral sequence, you can skip using the \sseqdataenv\
+environment.
 \end{environment}
 
 \begin{command}{\printpage\moptions}%
@@ -415,8 +416,8 @@ the default argument is |\lastclass|.
 \end{command}
 
 \begin{command}{\structline\ooptions\opt{\pars{\sourcecoord}\pars{\targetcoord}}}
-This command creates a structure line from \sourcecoord\  to \targetcoord. The
-source and target coordinates are either of the form
+The |\structline| command creates a structure line from \sourcecoord\  to
+\targetcoord. The source and target coordinates are either of the form
 \pars{\meta{x},\meta{y}\opt{,\meta{n}}} or \pararg{class name}. If there are
 multiple classes at $\mathtt{(x,y)}$, then \meta{n} specifies which of the
 classes at $\mathtt{(x,y)}$ the structure line starts and ends at -- if n is
@@ -434,8 +435,10 @@ subsequent pages, the structure line disappears.
 If the source or target has had multiple generations (i.e., they got hit and you
 used |\replaceclass|), then the |\structline| will only appear starting on the
 first page where the current generation of both the source and target are
-present. If this is undesirable, you can use the |structline:page| option to
-change it.
+present. If this is undesirable, you can use the |structline:page| option or the
+to change it. Also, the structline will disppear the first time after this the
+source or target has a differential, but this can be changed with the
+|\replacestructlines| command.
 \begin{codeexample}[width = 7.5cm]
 \DeclareSseqGroup\tower {} {
     \class(0,0)
@@ -467,6 +470,30 @@ change it.
 This command adds options to an existing structure line, just like
 |\classoptions| except for structure lines. Its syntax is identical to
 |\structline|.
+\end{command}
+
+\begin{command}{\extension\ooptions\opt{\pars{\sourcecoord}\pars{\targetcoord}}}
+The |\extension| command has an identical syntax to the |\structline| command
+and most of the same options. Instead of adding a structline, it adds an
+extension. The extensions are only shown on page $\infty$ or page ranges ending
+at $\infty$.
+
+\begin{codeexample}[width = 7.5cm]
+\begin{sseqdata}[ name = extension example,
+                  classes = { circle, fill },
+                  Adams grading, no axes,
+                  yscale = 1.28 ]
+\class(0,0) \class(0,1)
+\extension
+\end{sseqdata}
+\printpage[ name = extension example, page = 2 ] \quad
+\printpage[ name = extension example, page = \infty ]
+\end{codeexample}    
+\end{command}
+
+\begin{command}{\extensionoptions\moptions\opt{\pars{\sourcecoord}\pars{\targetcoord}}}
+This command adds options to an existing extension. Its syntax is identical to
+|\extension|.
 \end{command}
 
 \begin{command}{\circleclasses\ooptions\pars{\sourcecoord}\pars{\targetcoord}}
@@ -876,7 +903,7 @@ Evince. I have not tested whether it works by itself or whether it works with my
 package, but you could. You could potentially figure out how to get math to work
 in tooltips too -- if you find a satisfactory method, please let me know.
 
-Anyways, here's an example:
+Here's an example:
 \begin{codeexample}[]
 \begin{sseqpage}[classes = {tooltip = {(\xcoord,\ycoord)}}]
 \class(0,0)
@@ -930,12 +957,12 @@ current class when used in class options. The only use I have for them is in the
 \end{commandlist}
 
 
-\subsection{Options for \sectionstring\d\ and \sectionstring\structline}
-Because the main job of the |\d| and |\structline| commands is to print an edge
-on the appropriate pages of the spectral sequence, most \tikzpkg\ options that
-you could apply to a \tikzpkg\ ``to'' operator (as in%
-|\draw (x1,y1) to (x2,y2);|) can be applied to both |\d| and |\structline|. Some
-such options are as follows:
+\subsection{Options for \sectionstring\d, \sectionstring\structline, and \sectionstring\extension}
+Because the main job of the |\d|, |\structline|, and |\extension| commands is to
+print an edge on the appropriate pages of the spectral sequence, most \tikzpkg\
+options that you could apply to a \tikzpkg\ ``to'' operator (as in%
+|\draw (x1,y1) to (x2,y2);|) can be applied to |\d|, |\structline|, and
+|\extension|. Some such options are as follows:
 
 \begin{keylist}{source anchor = \meta{anchor}, target anchor = \meta{anchor}}
 Because you can't use the normal \tikzpkg\ mechanism for specifying the source
@@ -2272,12 +2299,19 @@ spectral sequence is to be printed. On page r, all |\class|es that are not hit
 by differentials on pages less than r will be printed, as well as all
 |\structline|s whose source and target classes are both printed on page r, and
 all differentials of length exactly r. The special value |page = 0| prints all
-classes, differentials, and structure lines.
+classes, differentials, and structure lines but no extensions. The special value
+|page=\infty| will draw the infinity page with extensions.
 
-If you use this key with a range, then all differentials in that range of
-lengths will be drawn. The larger number only changes which differentials are
-drawn. If you use 0 for the \meta{page max}, then all differentials longer than
-\meta{page number} will be drawn.
+If you use this key with a range, e.g., |page=2--5|, then all differentials in
+that range of lengths will be drawn, so in the example differentials of length
+greater than or equal to 2 and less than or equal to 5 are drawn. The larger
+number only changes which differentials are drawn, classes and structlines are
+drawn as if the page was the small endpoint of the range. If you use 0 for the
+\meta{page max}, then all differentials longer than \meta{page number} will be
+drawn, e.g., |page=5---0| draws all differentials of length at least 5, but no
+extensions. Using |page=5---\infty| will draw all differentials of length at
+least 5 and also all extensions whose endpoint classes are in the
+final generation on page 5.
 \end{key}
 
 \begin{keylist}{%
