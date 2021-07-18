@@ -279,11 +279,7 @@
     \let\sseqnewgroup\@gobblethree
 }
 
-\def\SseqRangeCheckStandard{\sseq@rangechecktrue\sseq@rangecheck@sidewaysfalse}
-\def\SseqRangeCheckSideways{\sseq@rangechecktrue\sseq@rangecheck@sidewaystrue}
-\def\SseqRangeCheckOff{\sseq@rangecheckfalse}
-\AtBeginEnvironment{sideways}{\SseqRangeCheckSideways}
-\SseqRangeCheckStandard
+\AtBeginEnvironment{sideways}{\sseqset{range check sideways}}
 
 \input sseqmessages.code.tex        % Exposes directly: \sseqerrortowarning
 \input sseqcheckdefinitions.code.tex

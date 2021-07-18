@@ -32,20 +32,22 @@ Overfull \hbox  in paragraph at lines 36--37
 ============================================================
 TEST 5: check-fails-sideways-y
 ============================================================
-expect match succeeded: pattern 'The y range from 0 to 17.*too large' was found.
+expect match succeeded: pattern 'The y range from 0 to .*too large' was found.
 ============================================================
 ============================================================
 TEST 6: range-check-scope
 ============================================================
+Overfull \vbox  has occurred while \output is active
+\vbox(556.47656+0.0)x430.00462
+[6]
 ============================================================
 ============================================================
 TEST 7: range-check-off
 ============================================================
-[6]
 ============================================================
-Overfull \hbox  in paragraph at lines 61--62
+Overfull \hbox  in paragraph at lines 59--60
 \hbox(2902.37982+0.0)x430.00462
-Underfull \hbox (badness 10000) in paragraph at lines 61--62
+Underfull \hbox (badness 10000) in paragraph at lines 59--60
 \hbox(0.0+0.0)x430.00462
 [7]
 Overfull \vbox  has occurred while \output is active
@@ -64,7 +66,7 @@ TEST 10: frame-fails-x
 ============================================================
 expect match succeeded: pattern 'The x range.*too large' was found.
 ============================================================
-Overfull \hbox  in paragraph at lines 89--90
+Overfull \hbox  in paragraph at lines 87--88
 \hbox(555.94922+0.0)x430.00462, glue set - 1.0
 ============================================================
 TEST 11: frame-fails-y
@@ -81,9 +83,9 @@ TEST 13: none-fails-x
 ============================================================
 expect match succeeded: pattern 'The x range.*too large' was found.
 ============================================================
-Overfull \hbox  in paragraph at lines 141--142
+Overfull \hbox  in paragraph at lines 139--140
 \hbox(573.95833+0.0)x430.00462
-Underfull \hbox (badness 10000) in paragraph at lines 141--142
+Underfull \hbox (badness 10000) in paragraph at lines 139--140
 \hbox(0.0+0.0)x430.00462
 [13]
 Overfull \vbox  has occurred while \output is active
@@ -94,9 +96,9 @@ TEST 14: none-fails-y
 ============================================================
 expect match succeeded: pattern 'The y range.*too large' was found.
 ============================================================
-Overfull \hbox  in paragraph at lines 150--151
+Overfull \hbox  in paragraph at lines 148--149
 \hbox(574.47414+0.0)x430.00462
-Underfull \hbox (badness 10000) in paragraph at lines 150--151
+Underfull \hbox (badness 10000) in paragraph at lines 148--149
 \hbox(0.0+0.0)x430.00462
 [15]
 Overfull \vbox  has occurred while \output is active

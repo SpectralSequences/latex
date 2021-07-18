@@ -19,9 +19,9 @@ Changelog:
 - Added `page=\infty`.
 - Added `\extension` and `\extensionoptions`
 - Added `\replacestructlines`
-- Added `\SseqRangeCheckOff`, `\SseqRangeCheckOn`, and `\SseqRangeCheckSideways`
-  to control range checks. The `sideways` environment from `rotating`
-  environment automatically uses `\SseqRangeCheckSideways` (issue #11). 
+- Added `range check off`, `range check on`, and `range check sideways` global
+  keys to control range checks. The `sideways` environment from `rotating`
+  environment automatically uses `range check sideways` (issue #11). 
 
 ### Fixed:
 - Removed \replaceclass in {sseqpage} without "keep changes" error (suggested by Junhou Fung).

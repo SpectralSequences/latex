@@ -36,11 +36,10 @@
 }
 
 \TEST{check-fails-sideways-y}{
-    \THROWS{The y range from 0 to 17.*too large}{
-        \begin{sseqpage}
-        \SseqRangeCheckSideways
+    \THROWS{The y range from 0 to .*too large}{
+        \begin{sseqpage}[range check sideways]
         \class(0,0)
-        \class(10,17)
+        \class(10,18)
         \end{sseqpage}
     }
 }
@@ -53,8 +52,7 @@
 }
 
 \TEST{range-check-off}{
-    \begin{sseqpage}
-    \SseqRangeCheckOff
+    \begin{sseqpage}[range check off]
     \class(0,0)
     \class(100,100)
     \end{sseqpage}
