@@ -1,0 +1,95 @@
+\input{test-preamble}
+
+\makeatletter
+\begin{document}
+\START
+
+\TEST{global-args}{
+    \begin{sseqdata}
+    \class(0,0)
+    \end{sseqdata}
+}
+
+\def\THROWSinvalidcoord#1{\THROWS{Invalid coord}{#1}}
+\def\THROWSinvalidxcoord#1{\THROWS{Invalid x coord}{#1}}
+\def\THROWSinvalidycoord#1{\THROWS{Invalid y coord}{#1}}
+
+\TEST{invalid-class}{
+    \begin{sseqdata}[name=invalid-class]
+    \THROWS{[mM]issing[ -]required}{\class}
+    \THROWSinvalidcoord{\class(0)}
+    \THROWSinvalidcoord{\class(0;1)}
+    \THROWSinvalidycoord{\class(0,1.1)}
+    \THROWSinvalidxcoord{\class(0.1,1)}
+    \THROWSinvalidxcoord{\class(0.1,1.1)}
+    \THROWSinvalidxcoord{\class(0;1,1.1)}
+    \THROWSinvalidxcoord{\class(0a1,1)}
+    \THROWSinvalidxcoord{\class(0**1,1)}
+    \THROWSinvalidxcoord{\class(0+*1,1)}
+    %\class(0*+1,1) % This isn't an error.
+    \end{sseqdata}
+}
+
+\TEST{invalid-class-fuzz}{
+    \begin{sseqdata}[name=invalid-class-fuzz]
+    \THROWSinvalidxcoord{\class(&,1)}
+    \THROWSinvalidxcoord{\class(~,1)}
+    \THROWSinvalidxcoord{\class($,1)}
+    \THROWSinvalidycoord{\class(1,$)}
+    
+    % These are pretty evil, it generates a bunch of extra detritous in the
+    % log but surprisingly doesn't cause any sort of fatal crash
+    \THROWSinvalidcoord{\class(#)}
+    \THROWSinvalidxcoord{\class(#,1)}
+    \THROWSinvalidycoord{\class(1,#)}
+
+    \THROWSinvalidxcoord{\class(\blah,1)}
+    \THROWSinvalidcoord{\class(\@gobble,1)}
+    \THROWSinvalidxcoord{\class(\@gobble,,1)}
+
+    \THROWSinvalidxcoord{\iftrue\class(\fi,1)}
+    
+    % Some bizare but working constructs.
+    \class(1,\iftrue2)\fi
+    \class(1,1+\iftrue2)\fi
+    \iftrue\class(\fi2,1) 
+    \class(1\iffalse\fi,3)
+    \class(1\iffalse,\fi,4)
+    \class(1\iftrue,\fi5)
+    \class(1\iftrue,5)\fi
+    \class(\iffalse\fi1,6)
+    \class(1\iffalse\fi,7)
+    
+    % too evil.
+    %\class(1,1\iffalse)\fi 
+    %\class(\@gobble)
+    \end{sseqdata}
+}
+
+\TEST{too-many-classes}{
+    \begin{sseqdata}[name=too-many-classes]
+    \class(0,0)
+    \class(0,0)
+    \class(0,0)
+    \class(0,0)
+    \class(0,0)
+    \class(0,0)
+    \THROWS{Too many classes.*position.*(0,0).*7th}{
+        \class(0,0)
+    }
+    \end{sseqdata}
+}
+
+\TEST{edge-ends-equal}{
+    \begin{sseqdata}[name=start-end-same, lax degree]
+    \class(0,0)
+    \pushstack(0,0)
+    \THROWS{source and target.*structline.*equal}{\structline}
+    \THROWS{source and target.*extension.*equal}{\extension}
+    % Apparently source and target of a differential can be equal... Maybe this
+    % should be changed.
+    \d2(0,0)(0,0) 
+    \end{sseqdata}
+}
+
+\end{document}

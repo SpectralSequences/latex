@@ -1,0 +1,25 @@
+\input{test-preamble}
+
+\makeatletter
+\def\skiptocontent#1\sseq@startcontentmarker#2\@mynil{#2}
+\def\savedpathscontent{\TYPE{\unexpanded\@xp\@xp\@xp{\@xp\skiptocontent\sseq@savedpaths\@mynil}}}
+
+\begin{document}
+
+
+\START
+
+\makeatletter
+\begin{sseqdata}[name=test]
+\class(0,0)
+\class(1,0)
+\structline
+\extension
+\pushstack(1, 1)
+\class(\lastx+1, \lasty+1)
+\class(\lastx+1, \lasty+1)
+\structline
+\savedpathscontent
+\end{sseqdata}
+
+\END

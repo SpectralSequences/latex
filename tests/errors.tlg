@@ -1,0 +1,67 @@
+This is a generated file for the l3build validation system.
+Don't change this file in any respect.
+============================================================
+TEST 1: global-args
+============================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!
+! spectralsequences error: "env-data-no-name"
+! 
+! Every 'sseqdata' environment must have a name. Specify one by saying
+! 'name=your sseq name'.
+! 
+! Error occurred after call "" (on input line ...). 
+! 
+! See the spectralsequences documentation for further information.
+! 
+! Type <return> to continue.
+!...............................................  
+l. ...}
+|'''''''''''''''''''''''''''''''''''''''''''''''
+| LaTeX does not know anything more about this error, sorry.
+| 
+| Try typing <return> to proceed.
+| If that doesn't work, type X <return> to quit.
+|...............................................
+============================================================
+============================================================
+TEST 2: invalid-class
+============================================================
+expect match succeeded: pattern '[mM]issing[ -]required' was found.
+expect match succeeded: pattern 'Invalid coord' was found.
+expect match succeeded: pattern 'Invalid coord' was found.
+expect match succeeded: pattern 'Invalid y coord' was found.
+expect match succeeded: pattern 'Invalid x coord' was found.
+expect match succeeded: pattern 'Invalid x coord' was found.
+expect match succeeded: pattern 'Invalid x coord' was found.
+expect match succeeded: pattern 'Invalid x coord' was found.
+expect match succeeded: pattern 'Invalid x coord' was found.
+expect match succeeded: pattern 'Invalid x coord' was found.
+============================================================
+============================================================
+TEST 3: invalid-class-fuzz
+============================================================
+expect match succeeded: pattern 'Invalid x coord' was found.
+expect match succeeded: pattern 'Invalid x coord' was found.
+expect match succeeded: pattern 'Invalid x coord' was found.
+expect match succeeded: pattern 'Invalid y coord' was found.
+expect match succeeded: pattern 'Invalid coord' was found.
+expect match succeeded: pattern 'Invalid x coord' was found.
+expect match succeeded: pattern 'Invalid y coord' was found.
+expect match succeeded: pattern 'Invalid x coord' was found.
+expect match succeeded: pattern 'Invalid coord' was found.
+expect match succeeded: pattern 'Invalid x coord' was found.
+expect match succeeded: pattern 'Invalid x coord' was found.
+============================================================
+============================================================
+TEST 4: too-many-classes
+============================================================
+expect match succeeded: pattern 'Too many classes.*position.*(0,0).*7th' was found.
+============================================================
+============================================================
+TEST 5: edge-ends-equal
+============================================================
+expect match succeeded: pattern 'source and target.*structline.*equal' was found.
+expect match succeeded: pattern 'source and target.*extension.*equal' was found.
+============================================================
+Total classes: 0 (errors.aux)

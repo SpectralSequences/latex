@@ -103,9 +103,10 @@
             \@xp\@nx\csname pgfk@/sseqpages/global/{\sseq@currentoptionpath} options/.@cmd\endcsname
     }
     \sseq@savedpaths@xadd{\@nx\sseq@style@object{\sseq@stylelist}}
-    \sseq@savedpaths@add{\begingroup} % prevent some of the two-pass user macros horrors
+    \sseq@savedpaths@add{\begingroup\sseq@startcontentmarker} % prevent some of the two-pass user macros horrors
     \let\sseq@error@setup\sseq@error@setup@withinfo
 }
+\let\sseq@startcontentmarker\relax
 
 % Just store all the settings
 \def\endsseqdata{%
@@ -1371,13 +1372,14 @@
                     \else
                         \ifnum\nsource=\ntarget\relax
                             \sseq@error@n{edge-source-target-equal}{\structline}%
-                            \@xp\sseq@break\romannumeral-`0
+                            \sseq@fbreak
                         \fi
                     \fi
                 \fi
             \fi
         \fi
     \fi
+    \relax % stop fbreak
     \@ifundefined{sseq@structline@page}{%this is repeated in circleclasses
         \def\sseq@pagemin{0}
         \ifnum\sseq@obj{class.\source.num}>\z@
@@ -1629,13 +1631,14 @@
                     \else
                         \ifnum\nsource=\ntarget\relax
                             \sseq@error@n{edge-source-target-equal}{\extension}%
-                            \@xp\sseq@break\romannumeral-`0
+                            \sseq@fbreak
                         \fi
                     \fi
                 \fi
             \fi
         \fi
     \fi
+    \relax % stop fbreak
     \csname sseq@extension@#1\endcsname
     \sseq@breakpoint
     \endgroup
