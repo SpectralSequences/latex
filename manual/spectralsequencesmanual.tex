@@ -1893,8 +1893,29 @@ It probably won't look great if you pick an angle that isn't a multiple of 90 de
 \end{key}
 
 \subsection{Plot options and axes style}
-\begin{keylist}{x range = \marg{x min}\marg{x max},y range = \marg{y min}\marg{y max}}
-These options set the x range (respectively y range) to be a specific interval. By default, if no range is specified then the range is chosen to fit all the classes. If an x range is specified but no y range, then the y range is chosen to fit all the classes that lie inside the specified x range, and vice versa. The values must be integers -- if you want to extend the x axis a noninteger amount, try using |x axis start extend| or |x axis end extend|.
+\begin{keylist}{x range = \marg{x min}\marg{x max},y range = \marg{y min}\marg{y
+max}} These options set the x range (respectively y range) to be a specific
+interval. By default, if no range is specified then the range is chosen to fit
+all the classes. If an x range is specified but no y range, then the y range is
+chosen to fit all the classes that lie inside the specified x range, and vice
+versa. The values must be integers -- if you want to extend the x axis a
+noninteger amount, try using |x axis start extend| or |x axis end extend|.
+\end{keylist}
+
+\begin{keylist}{range check standard (default), range check sideways, range check off}
+These options control the range checking behavior.
+
+By default \sseqpages\ will try to compute whether the chart fits onto the page
+(without causing overfull boxes). The computation isn't perfectly accurate and
+it assumes that the entire page is available for the chart to use up, so for
+instance if the chart is indented because of |\textindent| or not at the top of
+the page, this might give overly large values. Also, the values computed aren't
+perfectly accurate.
+
+If the range check is not desirable, you can use |range check off|. If the
+diagram is being placed onto the page rotated 90 degrees, then use |range check
+sideways|. Inside of a \env{sideways} environment from the \pkg{rotating}
+package, this is the default.
 \end{keylist}
 
 \begin{keylist}{
