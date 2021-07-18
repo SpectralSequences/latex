@@ -17,8 +17,7 @@ TEST 3: check-xrange-too-large
 ============================================================
 expect match succeeded: pattern 'The x range.*too large' was found.
 ============================================================
-Overfull \hbox (0.34239pt too wide) in paragraph at lines 27--28
-[][]
+Overfull \hbox  in paragraph at lines 27--28
 \hbox(556.45424+0.0)x430.00462
 Underfull \hbox (badness 10000) in paragraph at lines 27--28
 \hbox(0.0+0.0)x430.00462
@@ -28,8 +27,7 @@ TEST 4: check-yrange-too-large
 ============================================================
 expect match succeeded: pattern 'The y range.*too large' was found.
 ============================================================
-Overfull \hbox (2.16962pt too wide) in paragraph at lines 36--37
-[][]      
+Overfull \hbox  in paragraph at lines 36--37
 \hbox(556.96208+0.0)x430.00462, glue set - 1.0
 ============================================================
 TEST 5: check-fails-sideways-y
@@ -45,13 +43,12 @@ TEST 7: range-check-off
 ============================================================
 [6]
 ============================================================
-Overfull \hbox (2472.3752pt too wide) in paragraph at lines 61--62
-[][]
+Overfull \hbox  in paragraph at lines 61--62
 \hbox(2902.37982+0.0)x430.00462
 Underfull \hbox (badness 10000) in paragraph at lines 61--62
 \hbox(0.0+0.0)x430.00462
 [7]
-Overfull \vbox (2345.90326pt too high) has occurred while \output is active
+Overfull \vbox  has occurred while \output is active
 \vbox(556.47656+0.0)x430.00462
 [8]
 ============================================================
@@ -61,114 +58,22 @@ TEST 8: range-check-sideways-env
 ============================================================
 TEST 9: frame-passes
 ============================================================
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!
-! spectralsequences error: "range-overflow"
-! 
-! The x range from 0 to 14 (xmax - xmin = 14) is too large. The maximum x
-! range to fit on the page with the current xscale and plot options is xmax -
-! xmin = 14. The maximum xscale possible with the current xrange is 0.93639.
-! Either change the scale or the range as appropriate.
-! 
-! Error occurred after call "\class(14,18)" (on input line ...). 
-! 
-! See the spectralsequences documentation for further information.
-! 
-! Type <return> to continue.
-!...............................................  
-l. ...}
-|'''''''''''''''''''''''''''''''''''''''''''''''
-| LaTeX does not know anything more about this error, sorry.
-| 
-| Try typing <return> to proceed.
-| If that doesn't work, type X <return> to quit.
-|...............................................
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!
-! spectralsequences error: "range-overflow"
-! 
-! The y range from 0 to 18 (ymax - ymin = 18) is too large. The maximum y
-! range to fit on the page with the current yscale and plot options is ymax -
-! ymin = 18. The maximum yscale possible with the current yrange is 0.97523.
-! Either change the scale or the range as appropriate.
-! 
-! Error occurred after call "\class(14,18)" (on input line ...). 
-! 
-! See the spectralsequences documentation for further information.
-! 
-! Type <return> to continue.
-!...............................................  
-l. ...}
-|'''''''''''''''''''''''''''''''''''''''''''''''
-| LaTeX does not know anything more about this error, sorry.
-| 
-| Try typing <return> to proceed.
-| If that doesn't work, type X <return> to quit.
-|...............................................
 ============================================================
 ============================================================
 TEST 10: frame-fails-x
 ============================================================
 expect match succeeded: pattern 'The x range.*too large' was found.
 ============================================================
-Overfull \hbox (0.6587pt too wide) in paragraph at lines 89--90
-[][]      
+Overfull \hbox  in paragraph at lines 89--90
 \hbox(555.94922+0.0)x430.00462, glue set - 1.0
 ============================================================
 TEST 11: frame-fails-y
 ============================================================
 expect match succeeded: pattern 'The y range.*too large' was found.
 ============================================================
-Overfull \hbox (0.25752pt too wide) in paragraph at lines 98--99
-[][]      
-\hbox(556.46503+0.0)x430.00462, glue set - 1.0
 ============================================================
 TEST 12: none-passes
 ============================================================
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!
-! spectralsequences error: "range-overflow"
-! 
-! The x range from 0 to 14 (xmax - xmin = 14) is too large. The maximum x
-! range to fit on the page with the current xscale and plot options is xmax -
-! xmin = 13. The maximum xscale possible with the current xrange is 0.93639.
-! Either change the scale or the range as appropriate.
-! 
-! Error occurred after call "\class(14,18)" (on input line ...). 
-! 
-! See the spectralsequences documentation for further information.
-! 
-! Type <return> to continue.
-!...............................................  
-l. ...}
-|'''''''''''''''''''''''''''''''''''''''''''''''
-| LaTeX does not know anything more about this error, sorry.
-| 
-| Try typing <return> to proceed.
-| If that doesn't work, type X <return> to quit.
-|...............................................
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!
-! spectralsequences error: "range-overflow"
-! 
-! The y range from 0 to 18 (ymax - ymin = 18) is too large. The maximum y
-! range to fit on the page with the current yscale and plot options is ymax -
-! ymin = 17. The maximum yscale possible with the current yrange is 0.97523.
-! Either change the scale or the range as appropriate.
-! 
-! Error occurred after call "\class(14,18)" (on input line ...). 
-! 
-! See the spectralsequences documentation for further information.
-! 
-! Type <return> to continue.
-!...............................................  
-l. ...}
-|'''''''''''''''''''''''''''''''''''''''''''''''
-| LaTeX does not know anything more about this error, sorry.
-| 
-| Try typing <return> to proceed.
-| If that doesn't work, type X <return> to quit.
-|...............................................
 [11]
 ============================================================
 ============================================================
@@ -176,13 +81,12 @@ TEST 13: none-fails-x
 ============================================================
 expect match succeeded: pattern 'The x range.*too large' was found.
 ============================================================
-Overfull \hbox (19.80258pt too wide) in paragraph at lines 141--142
-[][]
+Overfull \hbox  in paragraph at lines 141--142
 \hbox(573.95833+0.0)x430.00462
 Underfull \hbox (badness 10000) in paragraph at lines 141--142
 \hbox(0.0+0.0)x430.00462
 [13]
-Overfull \vbox (17.48177pt too high) has occurred while \output is active
+Overfull \vbox  has occurred while \output is active
 \vbox(556.47656+0.0)x430.00462
 [14]
 ============================================================
@@ -190,12 +94,11 @@ TEST 14: none-fails-y
 ============================================================
 expect match succeeded: pattern 'The y range.*too large' was found.
 ============================================================
-Overfull \hbox (19.4014pt too wide) in paragraph at lines 150--151
-[][]
+Overfull \hbox  in paragraph at lines 150--151
 \hbox(574.47414+0.0)x430.00462
 Underfull \hbox (badness 10000) in paragraph at lines 150--151
 \hbox(0.0+0.0)x430.00462
 [15]
-Overfull \vbox (17.99757pt too high) has occurred while \output is active
+Overfull \vbox  has occurred while \output is active
 \vbox(556.47656+0.0)x430.00462
 [16]

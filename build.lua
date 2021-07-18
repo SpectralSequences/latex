@@ -22,10 +22,12 @@ function my_normalize_log(content, engine, errlevels)
     local result = ""
     local pattern = nil
     local cur_expect_block = ""
+    local test_num = ""
+    local test_name = ""
     for line in string.gmatch(new_content, "([^\n]*)\n") do
         if pattern then
             if line == "END_EXPECT_THROWS" then
-                output = handle_expect_block(cur_expect_block, pattern)
+                output = handle_expect_block(cur_expect_block, pattern, test_num, test_name)
                 result = result .. output .. os_newline
                 pattern = nil
                 cur_expect_block = ""
@@ -33,6 +35,10 @@ function my_normalize_log(content, engine, errlevels)
                 cur_expect_block = cur_expect_block .. line .. os_newline
             end
         else
+            local num, name = string.match(line, "TEST ([0-9]*): (.*)")
+            if num then 
+                test_num = num test_name = name
+            end
             pattern = string.match(line, "EXPECT_THROWS::(.*)::$")
             if not pattern then
                 line = clean_line(line)
@@ -47,18 +53,25 @@ function my_normalize_log(content, engine, errlevels)
 end
 
 function clean_line(line)
-    if not string.match(line, "^[.]+\\") then
+    if string.match(line, "^[.]+\\") then
+        return nil
+    end
+    if string.match(line, "%[%]%[%]") then
+        return nil
+    end
+    if string.match(line, "[0-9.]* ?c? ?[\\ETC]* ?}") then
         return nil
     end
     line = string.gsub(line, "[(][0-9.]*pt too [a-z]*[)]", "")
     return line
 end
 
-function handle_expect_block(expect_block, pat)
+function handle_expect_block(expect_block, pat, test_num, test_name)
     if string.match(expect_block, pat) then
         return "expect match succeeded: pattern '" .. pat .. "' was found."
     else
         print("!!!!!!!!!!!!!!!!!!\n")
+        print("In test " .. test_num .. ": " .. test_name)
         print("expect match failed: pattern '" .. pat .. "' not found in block:")
         print("")
         print(expect_block)

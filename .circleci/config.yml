@@ -70,7 +70,7 @@ jobs:
           command: |
             export PATH=$SAVED_PATH
             export diffexe="git diff --no-index --color"
-            l3build check test parsers range-check \
+            l3build check -e pdftex test parsers range-check \
               || (cat build/test/*.diff && false)
       - store_artifacts:
           path : /root/repo/build/test

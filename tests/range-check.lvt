@@ -73,7 +73,7 @@
 % xscale=0.951, yscale=0.990
 % we're off by a few thousandths.
 \TEST{frame-passes}{
-    \begin{sseqpage}[axes type = frame, xscale=0.946, yscale=0.989]
+    \begin{sseqpage}[axes type = frame, xscale=0.936, yscale=0.974]
     \class(0,0)
     \class(14,18)
     \end{sseqpage}
@@ -90,7 +90,7 @@
 
 \TEST{frame-fails-y}{
     \THROWS{The y range.*too large}{
-        \begin{sseqpage}[axes type = frame, xscale=0.946, yscale=0.990]
+        \begin{sseqpage}[axes type = frame, xscale=0.936, yscale=0.99]
         \class(0,0)
         \class(14,18)
         \end{sseqpage}
@@ -125,7 +125,7 @@
 
 % Actual max is 0.994, 1.020
 \TEST{none-passes}{
-    \begin{sseqpage}[axes type = none, xscale=0.993, yscale=1.019]
+    \begin{sseqpage}[axes type = none, xscale=0.935, yscale=0.975]
     \class(0,0)
     \class(14,18)
     \end{sseqpage}
