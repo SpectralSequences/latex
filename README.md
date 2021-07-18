@@ -1,5 +1,5 @@
 
-spectralsequences v1.2.2
+spectralsequences v1.3.0
 ========================
 Author: Hood Chatham  
 Email: hood@mit.edu  
@@ -13,7 +13,7 @@ Email me at hood@mit.edu to submit bug reports, request new features, etc. The c
 
 Changelog:
 ==========
-## [Unreleased]
+## [1.3.0] (2021-07-18)
 ### Added:
 - Added more control over page indicator in title and "print page as" key.
 - Added `page=\infty`.
