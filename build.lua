@@ -56,10 +56,10 @@ function clean_line(line)
     if string.match(line, "^[.]+\\") then
         return nil
     end
-    if string.match(line, "%[%]%[%]") then
+    if string.match(line, "^%[%]%[%]") then
         return nil
     end
-    if string.match(line, "[0-9.]* ?c? ?[\\ETC]* ?}") then
+    if string.match(line, "^[0-9.]* ?c? ?[\\ETC]* ?}") then
         return nil
     end
     line = string.gsub(line, "[(][0-9.]*pt too [a-z]*[)]", "")
