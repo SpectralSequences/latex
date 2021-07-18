@@ -22,33 +22,62 @@ function my_normalize_log(content, engine, errlevels)
     local result = ""
     local pattern = nil
     local cur_expect_block = ""
+    local test_num = ""
+    local test_name = ""
     for line in string.gmatch(new_content, "([^\n]*)\n") do
         if pattern then
             if line == "END_EXPECT_THROWS" then
-                if string.match(cur_expect_block, pattern) then
-                    result = result .. "expect match succeeded: pattern '" .. pattern .. "' was found." .. os_newline
-                else
-                    print("!!!!!!!!!!!!!!!!!!\n")
-                    print("expect match failed: pattern '" .. pattern .. "' not found in block:")
-                    print("")
-                    print(cur_expect_block)
-                    print("!!!!!!!!!!!!!!!!!!\n")
-                    result = result .. "expect match failed: pattern '" .. pattern .. "' not found." .. os_newline
-                end
+                output = handle_expect_block(cur_expect_block, pattern, test_num, test_name)
+                result = result .. output .. os_newline
                 pattern = nil
                 cur_expect_block = ""
             else
                 cur_expect_block = cur_expect_block .. line .. os_newline
             end
         else
+            local num, name = string.match(line, "TEST ([0-9]*): (.*)")
+            if num then 
+                test_num = num test_name = name
+            end
             pattern = string.match(line, "EXPECT_THROWS::(.*)::$")
             if not pattern then
-                result = result .. line .. os_newline
+                line = clean_line(line)
+                if line then
+                    result = result .. line .. os_newline
+                end
             end
         end
 
     end
 	return result
+end
+
+function clean_line(line)
+    if string.match(line, "^[.]+\\") then
+        return nil
+    end
+    if string.match(line, "^%[%]%[%]") then
+        return nil
+    end
+    if string.match(line, "^[0-9.]* ?c? ?[\\ETC]* ?}") then
+        return nil
+    end
+    line = string.gsub(line, "[(][0-9.]*pt too [a-z]*[)]", "")
+    return line
+end
+
+function handle_expect_block(expect_block, pat, test_num, test_name)
+    if string.match(expect_block, pat) then
+        return "expect match succeeded: pattern '" .. pat .. "' was found."
+    else
+        print("!!!!!!!!!!!!!!!!!!\n")
+        print("In test " .. test_num .. ": " .. test_name)
+        print("expect match failed: pattern '" .. pat .. "' not found in block:")
+        print("")
+        print(expect_block)
+        print("!!!!!!!!!!!!!!!!!!\n")
+        return "expect match failed: pattern '" .. pat .. "' not found."
+    end
 end
 
 

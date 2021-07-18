@@ -1,0 +1,150 @@
+\input{test-preamble}
+\parindent=0pt
+\usepackage{rotating}
+\usepackage[showframe, showcrop]{geometry}
+\begin{document}
+\START
+\TEST{check-passes}{
+    \begin{sseqpage}[xscale=0.936, yscale=0.975]
+    \class(0,0)
+    \class(14,18)
+    \end{sseqpage}
+}
+
+\TEST{no-divide-by-zero}{
+    \begin{sseqpage}
+    \class(0,0)
+    \end{sseqpage}
+}
+
+\TEST{check-xrange-too-large}{
+    \THROWS{The x range.*too large}{
+        \begin{sseqpage}[xscale=0.937, yscale=0.975]
+        \class(0,0)
+        \class(14,18)
+        \end{sseqpage}
+    }
+}
+
+\TEST{check-yrange-too-large}{
+    \THROWS{The y range.*too large}{
+        \begin{sseqpage}[xscale=0.936, yscale=0.976]
+        \class(0,0)
+        \class(14,18)
+        \end{sseqpage}
+    }
+}
+
+\TEST{check-fails-sideways-y}{
+    \THROWS{The y range from 0 to .*too large}{
+        \begin{sseqpage}[range check sideways]
+        \class(0,0)
+        \class(10,18)
+        \end{sseqpage}
+    }
+}
+
+\TEST{range-check-scope}{
+    \begin{sseqpage}
+    \class(0,0)
+    \class(10,17)
+    \end{sseqpage}
+}
+
+\TEST{range-check-off}{
+    \begin{sseqpage}[range check off]
+    \class(0,0)
+    \class(100,100)
+    \end{sseqpage}
+}
+
+\TEST{range-check-sideways-env}{
+    \begin{sideways}
+    \begin{sseqpage}
+    \class(0,0)
+    \class(17,10)
+    \end{sseqpage}
+    \end{sideways}
+}
+
+% Actual limit to hit overful boxes is:
+% xscale=0.951, yscale=0.990
+% we're off by a few thousandths.
+\TEST{frame-passes}{
+    \begin{sseqpage}[axes type = frame, xscale=0.936, yscale=0.974]
+    \class(0,0)
+    \class(14,18)
+    \end{sseqpage}
+}
+
+\TEST{frame-fails-x}{
+    \THROWS{The x range.*too large}{
+        \begin{sseqpage}[axes type = frame, xscale=0.947, yscale=0.989]
+        \class(0,0)
+        \class(14,18)
+        \end{sseqpage}
+    }
+}
+
+\TEST{frame-fails-y}{
+    \THROWS{The y range.*too large}{
+        \begin{sseqpage}[axes type = frame, xscale=0.936, yscale=0.99]
+        \class(0,0)
+        \class(14,18)
+        \end{sseqpage}
+    }
+}
+
+% % TODO: fix me!
+% \TEST{center-passes}{
+%     \begin{sseqpage}[axes type = center, xscale=0.944, yscale=0.985]
+%     \class(0,0)
+%     \class(14,18)
+%     \end{sseqpage}
+% }
+
+% \TEST{center-fails-x}{
+%     \THROWS{The x range.*too large}{
+%         \begin{sseqpage}[axes type = center, xscale=0.945, yscale=0.985]
+%         \class(0,0)
+%         \class(14,18)
+%         \end{sseqpage}
+%     }
+% }
+
+% \TEST{center-fails-y}{
+%     \THROWS{The y range.*too large}{
+%         \begin{sseqpage}[axes type = center, xscale=0.946, yscale=0.990]
+%         \class(0,0)
+%         \class(14,18)
+%         \end{sseqpage}
+%     }
+% }
+
+% Actual max is 0.994, 1.020
+\TEST{none-passes}{
+    \begin{sseqpage}[axes type = none, xscale=0.935, yscale=0.975]
+    \class(0,0)
+    \class(14,18)
+    \end{sseqpage}
+}
+
+\TEST{none-fails-x}{
+    \THROWS{The x range.*too large}{
+        \begin{sseqpage}[axes type = center, xscale=0.994, yscale=1.019]
+        \class(0,0)
+        \class(14,18)
+        \end{sseqpage}
+    }
+}
+
+\TEST{none-fails-y}{
+    \THROWS{The y range.*too large}{
+        \begin{sseqpage}[axes type = center, xscale=0.993, yscale=1.020]
+        \class(0,0)
+        \class(14,18)
+        \end{sseqpage}
+    }
+}
+
+\END

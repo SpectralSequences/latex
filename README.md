@@ -16,9 +16,12 @@ Changelog:
 ## [Unreleased]
 ### Added:
 - Added more control over page indicator in title and "print page as" key.
-- Added "page=\infty".
-- Added \extension and \extensionoptions
-- Added \replacestructlines
+- Added `page=\infty`.
+- Added `\extension` and `\extensionoptions`
+- Added `\replacestructlines`
+- Added `range check off`, `range check on`, and `range check sideways` global
+  keys to control range checks. The `sideways` environment from `rotating`
+  environment automatically uses `range check sideways` (issue #11). 
 
 ### Fixed:
 - Removed \replaceclass in {sseqpage} without "keep changes" error (suggested by Junhou Fung).

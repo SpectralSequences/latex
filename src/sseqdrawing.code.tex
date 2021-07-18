@@ -38,19 +38,32 @@
     \sseq@setlayoutparameter{bottomclippadding}{x\sseq@xaxistype}
     \sseq@setlayoutparameter{topclippadding}{x\sseq@xaxistype}
     \sseq@setlayoutparameter{xlabelposition}{x\sseq@xaxistype}
+    \sseq@setlayoutparameter{totalverticalmargin}{x\sseq@xaxistype}
 %
     \sseq@setlayoutparameter{xaxisorigin}{y\sseq@yaxistype}
-    \sseq@setlayoutparameter{drawxaxis}{y\sseq@xaxistype}
+    \sseq@setlayoutparameter{drawxaxis}{y\sseq@yaxistype}
     \sseq@setlayoutparameter{xaxisstartoffset}{y\sseq@yaxistype}
     \sseq@setlayoutparameter{xaxisendoffset}{y\sseq@yaxistype}
     \sseq@setlayoutparameter{leftgridpadding}{y\sseq@yaxistype}
     \sseq@setlayoutparameter{rightgridpadding}{y\sseq@yaxistype}
     \sseq@setlayoutparameter{leftclippadding}{y\sseq@yaxistype}
     \sseq@setlayoutparameter{rightclippadding}{y\sseq@yaxistype}
-    \sseq@setlayoutparameter{ylabelposition}{y\sseq@xaxistype}
+    \sseq@setlayoutparameter{ylabelposition}{y\sseq@yaxistype}
+    \sseq@setlayoutparameter{totalhorizontalmargin}{y\sseq@yaxistype}
 }
 
 % The appropriate one of these is chosen by the "axis type" keys in sseqkeys.
+
+% Used to calculate available area in range check
+\def\sseq@totalhorizontalmargin@yborder{(\sseq@xaxis@tail + \sseq@yaxisgap + \sseq@xaxis@end@extend + \sseq@clip@padding@right)}
+\def\sseq@totalhorizontalmargin@yframe{(\sseq@ylabelgap + \sseq@maxylabelwidth + \sseq@yaxisgap * 2)}
+\def\sseq@totalhorizontalmargin@ycenter{(\sseq@xaxis@start@extend + \sseq@clip@padding@left + \sseq@xaxis@end@extend + \sseq@clip@padding@right)}
+\def\sseq@totalhorizontalmargin@ynone{(\sseq@xaxis@start@extend + \sseq@clip@padding@left + \sseq@xaxis@end@extend + \sseq@clip@padding@right)}
+
+\def\sseq@totalverticalmargin@xborder{(\sseq@yaxis@tail + \sseq@xaxisgap + \sseq@yaxis@end@extend + \sseq@clip@padding@top)}
+\def\sseq@totalverticalmargin@xframe{(\sseq@xlabelgap + \sseq@xlabelheight + \sseq@xaxisgap * 2)}
+\def\sseq@totalverticalmargin@xcenter{(\sseq@yaxis@start@extend + \sseq@clip@padding@bottom + \sseq@yaxis@end@extend + \sseq@clip@padding@top)}
+\def\sseq@totalverticalmargin@xnone{(\sseq@yaxis@start@extend + \sseq@clip@padding@bottom + \sseq@yaxis@end@extend + \sseq@clip@padding@top)}
 
 % Used to determine axis and ticks placement
 \def\sseq@xaxisorigin@yborder{\sseq@xmin}

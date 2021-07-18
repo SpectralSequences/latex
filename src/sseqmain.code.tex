@@ -242,26 +242,66 @@
         \@xp\sseq@break
     \fi
 %
-    \sseq@tempdimen = \dimexpr \textwidth -\sseq@clip@padding@right - \sseq@xaxis@end@extend - \sseq@xaxis@start@extend - \sseq@yaxisgap \relax
-    \sseq@tempcount = \numexpr \sseq@tempdimen /\sseq@xscalecm \relax
-    \ifnum \numexpr\sseq@xmax-\sseq@xmin + 1 > \sseq@tempcount
-      \pgfmathparse{\sseq@tempdimen/1cm/(\sseq@xmax-\sseq@xmin+1)}
-      \sseq@error@xxxx{range-overflow}{x}
-            {from \sseq@xmin\space to \sseq@xmax\space (xmax - xmin = \the\numexpr\sseq@xmax-\sseq@xmin)}
-            {\the\sseq@tempcount}% max x range
-            {\pgfmathresult}% max xscale
-        %\@xp\sseq@break
-    \fi
+    \sseq@setlayoutparameters
+    \ifsseq@rangecheck
+        % Calculate available space
+        
+        % We might need to know the dimensions of the tick marks in order to calculate "margin" size.
+        \bgroup
+            \@xp\tikzset\@xp{\sseq@xtickstyle}
+            \pgfmathparse{height("\sseq@xmin") + depth("\sseq@xmin")}
+            \edef\sseq@xlabelheight{\pgfmathresult pt}
+            \sseq@smuggle@macro\sseq@xlabelheight
+        \egroup
+        \bgroup
+            \@xp\tikzset\@xp{\sseq@ytickstyle}
+            \pgfmathparse{max(width("\sseq@ymax"), width("\sseq@ymin"))}
+            \edef\sseq@maxylabelwidth{\pgfmathresult pt}
+            \sseq@smuggle@macro\sseq@maxylabelwidth
+        \egroup
+        
+        % "totaldirmargin" isn't really quite margin: it's the distance between
+        % the bounding box (xmin, ymin) -- (xmax, ymax) and the bounding box of
+        % the resulting figure. 
 %
-    \sseq@tempdimen = \dimexpr \textheight - \sseq@clip@padding@top - \sseq@yaxis@end@extend - \sseq@yaxis@start@extend - \sseq@xaxisgap \relax
-    \sseq@tempcount = \numexpr \sseq@tempdimen /\sseq@yscalecm \relax
-    \ifnum \numexpr\sseq@ymax-\sseq@ymin +1 > \sseq@tempcount
-        \pgfmathparse{\sseq@tempdimen/1cm/(\sseq@ymax-\sseq@ymin+1)}
-        \sseq@error@xxxx{range-overflow}{y}
-            {from \sseq@ymin\space to \sseq@ymax\space (ymax - ymin = \the\numexpr\sseq@ymax-\sseq@ymin)}
-            {\the\sseq@tempcount}% max x range
-            {\pgfmathresult}% max xscale
-        \@xp\sseq@break
+        % By subtracting the "margin" distance from the page width / height, we
+        % get the amount of space available for the content.
+        \sseq@tempxdimen = \dimexpr \linewidth - \sseq@totalhorizontalmargin@yborder - 0.1pt
+        \sseq@tempydimen = \dimexpr \textheight - \sseq@totalverticalmargin@xborder - 0.1pt
+%
+        \ifsseq@rangecheck@sideways
+            % Swap availability measurements
+            \sseq@tempdimen=\sseq@tempxdimen
+            \sseq@tempxdimen=\sseq@tempydimen
+            \sseq@tempydimen=\sseq@tempdimen
+        \fi
+%
+        % \showthe\dimexpr\dimexpr \sseq@tempxdimen - \sseq@xscale cm * (\sseq@xmax-\sseq@xmin)\relax
+        % Compare space available to range * scale.
+        \ifdim \sseq@tempxdimen < \dimexpr \sseq@xscale cm * (\sseq@xmax-\sseq@xmin)\relax
+            % this will divide by zero if somehow we overflow the space on page
+            % while the range is 0. Hopefully no one will ever manage that.
+            \pgfmathparse{\sseq@tempxdimen/1cm/(\sseq@xmax-\sseq@xmin)} % max x range
+            \sseq@tempx = \numexpr \sseq@tempxdimen /\sseq@xscalecm \relax % max xscale
+            \sseq@error@xxxx{range-overflow}{x}
+                {from \sseq@xmin\space to \sseq@xmax\space (xmax - xmin = \the\numexpr\sseq@xmax-\sseq@xmin)}
+                {\the\sseq@tempx}% max x range
+                {\pgfmathresult}% max xscale
+            %\@xp\sseq@break
+        \fi
+%
+        \relax % Not sure why we need this...
+%
+        % \showthe\dimexpr\dimexpr \sseq@tempydimen - \sseq@yscale cm * (\sseq@ymax-\sseq@ymin)\relax
+        \ifdim \sseq@tempydimen < \dimexpr \sseq@yscale cm * (\sseq@ymax-\sseq@ymin)\relax
+            \sseq@tempy = \numexpr \sseq@tempydimen /\sseq@yscalecm \relax % max y range
+            \pgfmathparse{\sseq@tempydimen/1cm/(\sseq@ymax-\sseq@ymin)} % max yscale
+            \sseq@error@xxxx{range-overflow}{y}
+                {from \sseq@ymin\space to \sseq@ymax\space (ymax - ymin = \the\numexpr\sseq@ymax-\sseq@ymin)}
+                {\the\sseq@tempy}% max y range
+                {\pgfmathresult} % max yscale
+            %\@xp\sseq@break
+        \fi
     \fi
 %
     % Really this could be anything between -\sseq@xmin and -\sseq@xmax and it wouldn't matter. We'll split the difference.
@@ -281,7 +321,6 @@
         every node/.style={}
     }
     \let\errmessage\sseq@errmessage@std
-    \sseq@setlayoutparameters
     \begin{tikzpicture}[/sseqpages/global/{default} options,\ifsseq@hasname/sseqpages/global/{\sseq@thename} options\fi,/sseqpages/global/{this page} options]%
     \sseq@sseqstyle@globalpart
     \sseq@globaldetonetransform
