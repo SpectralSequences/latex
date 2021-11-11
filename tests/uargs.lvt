@@ -1,0 +1,12 @@
+\documentclass{article}
+
+\usepackage{spectralsequences}
+
+\begin{document}
+\DeclareSseqCommand\foo{u(u,u)} {
+  \class(#2, #3)
+}
+\begin{sseqpage}
+    \foo(0, 0)
+\end{sseqpage}
+\end{document}

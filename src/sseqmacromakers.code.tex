@@ -152,7 +152,10 @@
 \ifx\sseq__cmd_prepare_signature:n\undefined
     \let\sseq__cmd_prepare_signature:n\__xparse_prepare_signature:n
 \fi
-\pretocmd\sseq__cmd_prepare_signature:n { \bool_set_false:N \l__cmd_grab_expandably_bool } {}{\error}
+\pretocmd\sseq__cmd_prepare_signature:n {
+    \bool_set_false:N \l__cmd_grab_expandably_bool
+    \bool_set_false:N \l__xparse_grab_expandably_bool
+}{}{\error}
 
 % I would like to patch the \__xparse_grab_U:w's in my commands into \sseq__xparse_grab_U:w's but I can't because of -NoValue-.
 \def\sseq@install@xparse@Uarggrabber{%
