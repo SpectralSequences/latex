@@ -58,6 +58,26 @@
     \end{sseqpage}
 }
 
+\TEST{range-check-sideways-data}{
+    \begin{sseqdata}[name=test1, range check sideways]
+    \class(0,0)
+    \class(17,10)
+    \end{sseqdata}
+
+    \NEWLINE
+    \TYPE{printpage remembers sideways setting}
+    \TYPE{------------------------------------}
+    \printpage[name=test1]
+
+    \NEWLINE
+    \TYPE{Passing range check standard to printpage overrides remember sideways setting}
+    \TYPE{-----------------------------------------------------------------------------}
+    \THROWS{The x range from 0 to .*too large}{
+        \printpage[name=test1, range check standard]
+    }
+}
+
+
 \TEST{range-check-sideways-env}{
     \begin{sideways}
     \begin{sseqpage}

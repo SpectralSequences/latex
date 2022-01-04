@@ -1515,8 +1515,11 @@
         \def\sseq@rangecheck@default{\global\sseq@rangechecktrue}%
         \def\sseq@rangecheck@sideways@default{\global\sseq@rangecheck@sidewaysfalse}%
     },
-    range check sideways/.code=rangecheck@sideways,
-    range check sideways/.sseq default code={\def\sseq@rangecheck@sideways@default{\global\sseq@rangecheck@sidewaystrue}},
+    range check sideways/.code={\sseq@rangechecktrue\sseq@rangecheck@sidewaystrue},
+    range check sideways/.sseq default code={%
+        \def\sseq@rangecheck@default{\global\sseq@rangechecktrue}%
+        \def\sseq@rangecheck@sideways@default{\global\sseq@rangecheck@sidewaystrue}%
+    },
     range check off/.code={\sseq@rangecheckfalse},
     range check off/.sseq default code={\def\sseq@rangecheck@default{\global\sseq@rangecheckfalse}},
 }
