@@ -1,5 +1,7 @@
 module = "spectralsequences"
 
+require("l3build_funcs")
+
 sourcefiledir = "src"
 docfiledir    = "manual"
 installfiles = { "*.sty", "*.code.tex" }
