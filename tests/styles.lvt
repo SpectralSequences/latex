@@ -1,5 +1,4 @@
 \input{test-preamble}
-\usepackage{spectralsequences}
 \makeatletter
 \newcount\edgecount
 \newcount\structlinecount

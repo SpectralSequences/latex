@@ -694,7 +694,7 @@
 }
 
 
-\sseq@pgfqkeysdirlist{/sseqpages/differential,/sseqpages/struct line,/sseqpages/extension}{
+\sseq@pgfqkeysdirlist{/sseqpages/edge}{
     source anchor/.sseq @ second pass store in=\sseq@edgesourceanchor,
     target anchor/.sseq @ second pass store in=\sseq@edgetargetanchor,
     shorten >/.sseq @ second pass code={\sseq@pgfkeysdocommand{shorten >}{#1}},
@@ -883,11 +883,11 @@
 
 % sseq needs special handling, so is done by hand above.
 %\sseq@newstyles{/sseqpages/}{sseq}% DON'T make this /global/default! Bad things will happen.
-\sseq@newstyles{/sseqpages/label,/sseqpages}{edge, label, edge label, differential label, struct line label, extension label}
+\sseq@newstyles{/sseqpages/label,/sseqpages/edge,/sseqpages}{edge, label, edge label, differential label, struct line label, extension label}
 \sseq@newstyles{/sseqpages/class,/sseqpages}{class, permanent cycle, transient cycle, this page cycle}
-\sseq@newstyles{/sseqpages/differential,/sseqpages}{differential}
-\sseq@newstyles{/sseqpages/struct line,/sseqpages}{struct line, this page struct line}
-\sseq@newstyles{/sseqpages/extension,/sseqpages}{extension}
+\sseq@newstyles{/sseqpages/differential,/sseqpages/edge,/sseqpages}{differential}
+\sseq@newstyles{/sseqpages/struct line,/sseqpages/edge,/sseqpages}{struct line, this page struct line}
+\sseq@newstyles{/sseqpages/extension,/sseqpages/edge,/sseqpages}{extension}
 \sseq@newstyles{/sseqpages/class/label}{class label, inner class label, outer class label}
 \sseq@newstyles{/sseqpages/class/label/pin}{pin}
 \sseq@newstyles{/sseqpages/tikz primitives}{tikz primitive}
