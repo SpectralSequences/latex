@@ -1596,7 +1596,7 @@
 
 \def\sseq@extension@main#1#2#3#4{
     \sseq@xsetthiscall{\string\extension\IfNoValueF{#2}{\unexpanded{[#2]}}\IfNoValueF{#3}{\unexpanded{(#3)}\IfNoValueF{#4}{\unexpanded{(#4)}}}}%
-    \def\sseq@edgetype{structline}
+    \def\sseq@edgetype{extension}
     \sseq@options@firstpassmode
     \the\sseq@sseqstyle
     \the\sseq@edgestyle
@@ -1708,7 +1708,7 @@
     \fi
     \egroup
 }
-\def\sseq@extension@draw#1{\sseq@eval{\@nx\sseq@drawedge\sseq@obj{#1.source}\sseq@obj{#1.target}{structline}{\@nx\sseq@obj{#1.options}}}}
+\def\sseq@extension@draw#1{\sseq@eval{\@nx\sseq@drawedge\sseq@obj{#1.source}\sseq@obj{#1.target}{extension}{\@nx\sseq@obj{#1.options}}}}
 
 %% This is a dumb place to put this. It has to be after the differential commands are defined.
 \ifsseq@draftmode % Okay, have to dummy out all the main commands.

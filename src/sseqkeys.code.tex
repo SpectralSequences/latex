@@ -355,6 +355,8 @@
     /sseqpages/differential/.unknown/.code={\sseq@passoptionto{/sseqpages}},
     /sseqpages/struct line/.is family,
     /sseqpages/struct line/.unknown/.code={\sseq@passoptionto{/sseqpages}},
+    /sseqpages/extension/.is family,
+    /sseqpages/extension/.unknown/.code={\sseq@passoptionto{/sseqpages}},
     /sseqpages/label/.is family,
     /sseqpages/label/.unknown/.code={\sseq@keys@unknown},
     /sseqpages/tikz primitives/.is family,
@@ -649,10 +651,14 @@
 % Force \class or \d to fall back to using tikz to render their output
 % Rather than using the faster direct \pgf primitives (largely copied from tikz to maximize compatibility)
 % Drawing with tikz is slower, but I don't want to reimplement these features
-\def\sseq@needstikzandpass#1#2{\sseq@needstikzandpass@{#1}#2,\@nil}
+\def\sseq@needstikzandpass#1#2{\sseq@needstikzandpass@{#2}#1,\@nila}
 \def\sseq@needstikzandpass@#1#2,{%
+    \sseq@needstikzandpass@@{#2}#1,\@nilb
+    \@ifnextchar\@nila{\@gobble}{\sseq@needstikzandpass@{#1}}
+}
+\def\sseq@needstikzandpass@@#1#2,{%
     \pgfqkeys{#1}{#2/.code={\sseq@options@firstpass{\sseq@needstikztrue}\sseq@options@secondpass{\sseq@pgfkeysdocommand{#2}{##1}\sseq@needstikztrue}}}%
-    \@ifnextchar\@nil{\@gobble}{\sseq@needstikzandpass@{#1}}%
+    \@ifnextchar\@nilb{\@gobble}{\sseq@needstikzandpass@@{#1}}%
 }
 
 \pgfqkeys{/sseqpages}{needs tikz/.code=\sseq@needstikztrue}
@@ -661,14 +667,7 @@
     shade, blend mode, pattern, path picture, path fading, decorate, pin, label % should pin be here?
 }
 
-\sseq@needstikzandpass{/sseqpages/differential}{%
-    bend left, bend right, in, out, relative, looseness, in looseness, out looseness,
-    min distance, max distance, out min distance, out max distance, in min distance, in max distance, distance,
-    controls, in control, out control,
-    loop, loop above, loop below, loop left, loop right % maybe delete the loops and replace them with errors? It's pretty pointless to use these.
-}
-
-\sseq@needstikzandpass{/sseqpages/struct line}{%
+\sseq@needstikzandpass{/sseqpages/differential,/sseqpages/struct line,/sseqpages/extension}{%
     bend left, bend right, in, out, relative, looseness, in looseness, out looseness,
     min distance, max distance, out min distance, out max distance, in min distance, in max distance, distance,
     controls, in control, out control,
@@ -688,12 +687,14 @@
 \sseq@pgfqkeysdirlist{/sseqpages/global,/sseqpages}{
     run off differentials/.code args={#1-#2}{\def\sseq@runoffarrow@start@differential@spec{#1}\def\sseq@runoffarrow@end@differential@spec{#2}},
     run off struct lines/.code args={#1-#2}{\def\sseq@runoffarrow@start@structline@spec{#1}\def\sseq@runoffarrow@end@structline@spec{#2}},
+    run off extensions/.code args={#1-#2}{\def\sseq@runoffarrow@start@extension@spec{#1}\def\sseq@runoffarrow@end@extension@spec{#2}},
     run off/.forward to=/sseqpages/run off differentials,
-    run off/.forward to=/sseqpages/run off struct lines
+    run off/.forward to=/sseqpages/run off struct lines,
+    run off/.forward to=/sseqpages/run off extensions,
 }
 
 
-\sseq@pgfqkeysdirlist{/sseqpages/differential,/sseqpages/struct line}{
+\sseq@pgfqkeysdirlist{/sseqpages/differential,/sseqpages/struct line,/sseqpages/extension}{
     source anchor/.sseq @ second pass store in=\sseq@edgesourceanchor,
     target anchor/.sseq @ second pass store in=\sseq@edgetargetanchor,
     shorten >/.sseq @ second pass code={\sseq@pgfkeysdocommand{shorten >}{#1}},
@@ -882,10 +883,11 @@
 
 % sseq needs special handling, so is done by hand above.
 %\sseq@newstyles{/sseqpages/}{sseq}% DON'T make this /global/default! Bad things will happen.
-\sseq@newstyles{/sseqpages/label,/sseqpages}{edge, label, edge label, differential label, struct line label}
+\sseq@newstyles{/sseqpages/label,/sseqpages}{edge, label, edge label, differential label, struct line label, extension label}
 \sseq@newstyles{/sseqpages/class,/sseqpages}{class, permanent cycle, transient cycle, this page cycle}
 \sseq@newstyles{/sseqpages/differential,/sseqpages}{differential}
 \sseq@newstyles{/sseqpages/struct line,/sseqpages}{struct line, this page struct line}
+\sseq@newstyles{/sseqpages/extension,/sseqpages}{extension}
 \sseq@newstyles{/sseqpages/class/label}{class label, inner class label, outer class label}
 \sseq@newstyles{/sseqpages/class/label/pin}{pin}
 \sseq@newstyles{/sseqpages/tikz primitives}{tikz primitive}
@@ -960,6 +962,7 @@
             \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@class{/sseqpages/class,/sseqpages/collections/class}{##1}%
             \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@differential{/sseqpages/differential,/sseqpages/collections/differential}{##1}%
             \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@structline{/sseqpages/struct line,/sseqpages/collections/struct line}{##1}%
+            \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@extension{/sseqpages/extension,/sseqpages/collections/extension}{##1}%
             \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@circleclass{/sseqpages/fit,/sseqpages/collections/fit}{##1}%
             \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@tikzprimitive{/sseqpages/tikz primitives,/sseqpages/collections/tikz primitives}{##1}%
         },
@@ -971,6 +974,7 @@
             \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@class@default{/sseqpages/class}{##1}%
             \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@differential@default{/sseqpages/differential}{##1}%
             \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@structline@default{/sseqpages/struct line}{##1}%
+            \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@structline@default{/sseqpages/extension}{##1}%
             \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@circleclass@default{/sseqpages/fit}{##1}%
             \@nx\sseq@addstylecodetomacro\@xp\@nx\sseq@tempcmd@tikzprimitive@default{/sseqpages/tikz primitives}{##1}%
         },
@@ -1007,6 +1011,7 @@
         class/#1/.code={},
         differential/#1/.code={},
         struct line/#1/.code={},
+        extension/#1/.code={},
         fit/#1/.code={},
         tikz primitives/#1/.code={}
     }
@@ -1015,8 +1020,8 @@
 
 \sseq@collections@setempty{%
     classes, cycles, permanent classes, permanent cycles, transient classes, transient cycles, this page classes, this page cycles,
-    edges, differentials,struct lines, this page struct lines,circleclasses, tikz primitives,
-    labels, edge labels, differential labels, struct line labels,
+    edges, differentials, extensions, struct lines, this page struct lines, circleclasses, tikz primitives,
+    labels, edge labels, differential labels, struct line labels, extension labels,
     class labels, inner class labels, outer class labels,pins
 }
 
@@ -1045,6 +1050,8 @@
     struct line/edges/.style={/sseqpages/struct line/.cd,#1},
     struct line/struct lines/.style={/sseqpages/struct line/.cd,#1},
     struct line/this page struct lines/.code={\ifsseq@thispage\pgfkeysalso{/sseqpages/struct line/.cd,#1}\fi},
+    extension/edges/.style={/sseqpages/extension/.cd,#1},
+    extension/extensions/.style={/sseqpages/extension/.cd,#1},
     fit/circleclasses/.style={/sseqpages/fit/.cd,#1},
     tikz primitives/tikz primitives/.style={/sseqpages/tikz primitives/.cd,#1},
 % labels
@@ -1061,10 +1068,14 @@
         {\unexpanded\@xp{\sseq@collections@addtohook{/sseqpages/label}{\sseq@collections@edgelabels@hook}{#1}}},
     struct line/edge labels/.code/.expanded=
         {\unexpanded\@xp{\sseq@collections@addtohook{/sseqpages/label}{\sseq@collections@edgelabels@hook}{#1}}},
+    extension/edge labels/.code/.expanded=
+        {\unexpanded\@xp{\sseq@collections@addtohook{/sseqpages/label}{\sseq@collections@edgelabels@hook}{#1}}},
     differential/differential labels/.code/.expanded=
         {\unexpanded\@xp{\sseq@collections@addtohook{/sseqpages/label}{\sseq@collections@differentiallabels@hook}{#1}}},
     struct line/struct line labels/.code/.expanded=
         {\unexpanded\@xp{\sseq@collections@addtohook{/sseqpages/label}{\sseq@collections@structlinelabels@hook}{#1}}},
+    extension/extension labels/.code/.expanded=
+        {\unexpanded\@xp{\sseq@collections@addtohook{/sseqpages/label}{\sseq@collections@extensionlabels@hook}{#1}}},
 }
 
 
@@ -1264,6 +1275,7 @@
             \sseq@stylehandler@processpath{class}{#2}%
             \sseq@stylehandler@processpath{differential}{#2}%
             \sseq@stylehandler@processpath{struct line}{#2}%
+            \sseq@stylehandler@processpath{extension}{#2}%
             \sseq@stylehandler@processpath{circle classes}{#2}%
             \sseq@stylehandler@processpath{tikz primitives}{#2}%
 %
@@ -1280,6 +1292,7 @@
                 /sseqpages/class/\sseq@temp/.#1={##1},%
                 /sseqpages/differential/\sseq@temp/.#1={##1},%
                 /sseqpages/struct line/\sseq@temp/.#1={##1}%
+                /sseqpages/extension/\sseq@temp/.#1={##1}%
             }%
         }%
     },
@@ -2132,6 +2145,7 @@
     this page cycle style/.forward to=/sseqpages/tikz primitives/this page class style,
     differential style/.code={\sseq@d@addto@options{\sseq@thesseqstyle\sseq@theedgestyle\sseq@thedifferentialstyle\the\sseq@scope@toks}},
     struct line style/.code={\sseq@d@addto@options{\sseq@thesseqstyle\sseq@theedgestyle\sseq@thestructlinestyle\the\sseq@scope@toks}},
+    extension style/.code={\sseq@d@addto@options{\sseq@thesseqstyle\sseq@theedgestyle\sseq@theextensionstyle\the\sseq@scope@toks}},
     tikz primitive style/.code={\sseq@d@addto@options{\sseq@thesseqstyle\sseq@thetikzprimitivestyle\the\sseq@scope@toks}}
     %this page struct line style/.sseq @ first pass code={\sseq@d@addto@options{\sseq@thesseqstyle\sseq@theedgestyle\sseq@thestructlinestyle\the\sseq@scope@toks}}
 }

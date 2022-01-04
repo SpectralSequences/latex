@@ -1,0 +1,34 @@
+\input{test-preamble}
+\usepackage{spectralsequences}
+\makeatletter
+\newcount\edgecount
+\newcount\structlinecount
+\newcount\differentialcount
+\newcount\extensioncount
+\tikzset{edge-test-key/.code={\global\advance\edgecount1}}
+\tikzset{structline-test-key/.code={\ASSERT{\sseq@edgetype}{structline}\global\advance\structlinecount1}}
+\tikzset{differential-test-key/.code={\ASSERT{\sseq@edgetype}{differential}\global\advance\differentialcount1}}
+\tikzset{extension-test-key/.code={\ASSERT{\sseq@edgetype}{extension}\global\advance\extensioncount1}}
+\begin{document}
+  \begin{sseqdata}[name=tmp,
+    edges={edge-test-key},
+    struct lines={structline-test-key}, 
+    extensions={extension-test-key}, 
+    differentials={differential-test-key}
+  ]
+    \class(0, 0)
+    \class(0, 1)
+    \structline
+    \class(1, 1)
+    \extension[red]
+    \class(0,2)
+    \class(1,0)
+    \d2(1,0)(0,2)
+  \end{sseqdata}
+  \printpage[name=tmp, page=\infty]
+  \printpage[name=tmp, page=2]
+  \ASSERT{\the\edgecount}{4}
+  \ASSERT{\the\differentialcount}{1}
+  \ASSERT{\the\structlinecount}{2}
+  \ASSERT{\the\extensioncount}{1}
+\END

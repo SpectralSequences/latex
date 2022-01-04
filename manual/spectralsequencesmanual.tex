@@ -515,12 +515,12 @@ foreground features to the spectral sequence:
 \section{Options for the main commands}
 \subsection{Universal options}
 The following options work with all of the drawing commands in this package,
-including |\class|, |\d|, and |\structline|, their friends |\replaceclass|,
-|\classoptions|, |\doptions|, and |\replacestructlines|, as well as with \tikzpkg\
+including |\class|, |\d|, and |\structline|, |\extension|, their friends |\replaceclass|,
+|\classoptions|, |\doptions|, |\structlineoptions|, |\extensionoptions|and |\replacestructlines|, as well as with \tikzpkg\
 primitives.
 \begin{keylist}{xshift = \meta{integer},yshift = \meta{integer}}
 Shifts by integer values are the only coordinate changes that are allowed to be
-applied to |\class|, |\d|, |\structline|, their relatives, or to a \scopeenv\
+applied to |\class|, |\d|, |\structline|, |\extension| their relatives, or to a \scopeenv\
 environment that contains any of these commands. These shift commands help with
 reusing code. For instance:
 \begin{codeexample}[width = 6cm]
@@ -642,10 +642,10 @@ itself can take options which adjust the way that the line is drawn:
 \end{key}
 
 
-For either a |\structline| or a |\class| the label normally goes on the right
-side of the edge. The special option |'| makes it go in the opposite position
-from the default. I imitated the label handling in the \tikzcdpkg\ package, so
-if you use \tikzcdpkg, this should be familiar.
+The label normally goes on the right side of the edge. The special option |'|
+makes it go in the opposite position from the default. I imitated the label
+handling in the \tikzcdpkg\ package, so if you use \tikzcdpkg, this should be
+familiar.
 \begin{codeexample}[width = 6cm]
 \begin{sseqpage}[ Adams grading, yscale = 0.63 ]
 \class(0,0)
@@ -659,7 +659,7 @@ if you use \tikzcdpkg, this should be familiar.
 \end{sseqpage}
 \end{codeexample}
 You can use the style options |labels|, |edge labels|, |differential labels|,
-and |struct line labels| to adjust the styling of edge labels. For instance, if
+|struct line labels|, and |extension labels| to adjust the styling of edge labels. For instance, if
 you would prefer for the labels to default to the left hand side of the edge
 rather than the right hand side, you could say |edge labels = {auto = left}|.
 You can also use quotes to label edges drawn with \tikzpkg\ primitives:
@@ -966,7 +966,8 @@ options that you could apply to a \tikzpkg\ ``to'' operator (as in%
 
 \begin{keylist}{source anchor = \meta{anchor}, target anchor = \meta{anchor}}
 Because you can't use the normal \tikzpkg\ mechanism for specifying the source
-and target anchors, \sseqpages\  has these two keys for |\d| and |\structline|:
+and target anchors, \sseqpages\  has these two keys for |\d|, |\structline|, and
+|\extension|:
 \begin{codeexample}[width = 4cm]
 \begin{sseqpage}[ no axes, yscale = 1.24 ]
 \foreach \x in {0,1} \foreach \y in {0,1} {
@@ -1107,7 +1108,7 @@ answer: \url{https://tex.stackexchange.com/a/24621}.)
 
 \begin{keylist}{
     cc:class style,cc:permanent cycle style,cc:transient cycle style,
-    cc:this page class style,cc:differential style,cc:struct line style
+    cc:this page class style,cc:differential style,cc:struct line style,cc:extension style
 }
 See the \pgfmanualpdfref{class style}{corresponding entry} in the \tikzpkg\
 primitives section.
@@ -1242,9 +1243,9 @@ is the same as |\structline(1,0)(2,2)|, except that you can't later use
 \end{commandlist}
 \end{keylist}
 
-\begin{keylist}{c
-    lass style,permanent cycle style,transient cycle style,
-    this page class style,differential style,struct line style
+\begin{keylist}{
+    class style,permanent cycle style,transient cycle style,
+    this page class style,differential style,struct line style,extension style
 }
 These classes apply the styling of the corresponding element to your \tikzpkg\
 commands.
@@ -2077,11 +2078,11 @@ transient cycle, and so |this page classes| takes precedence over%
 \end{stylekeylist}
 
 \begin{stylekeylist}{
-    edges,differentials,struct lines,
-    change edges, change differentials, change struct lines
+    edges, differentials, struct lines, extensions,
+    change edges, change differentials, change struct lines, change extensions
 }%
 The |edges| key applies to both differentials and structure lines. The
-|differentials| and |struct lines| keys both take precedence over |edges|.
+|differentials|, |struct lines|, and |extensions| keys take precedence over |edges|.
 \end{stylekeylist}
 
 \begin{stylekeylist}{this page struct lines, change this page struct lines}%
@@ -2117,8 +2118,8 @@ node, outer class labels specifically applies to ones outside it:
 \end{stylekeylist}
 
 \begin{stylekeylist}{
-    edge labels,differential labels,struct line labels,
-    change edge labels,change differential labels,change struct line labels
+    edge labels,differential labels,struct line labels, extension labels,
+    change edge labels,change differential labels,change struct line labels, change extension labels,
 }%
 
 \end{stylekeylist}
@@ -2145,11 +2146,12 @@ variants like |above label distance| corresponding to |above|, |below|, |left|,
 \end{keylist}
 
 \begin{keylist}{run off = \meta{start tip}--\meta{end tip},
+    run off differentials = \meta{start tip}--\meta{end tip} (initially {...--...}),
     run off struct lines = \meta{start tip}--\meta{end tip}  (initially {...--...}),
-    run off differentials = \meta{start tip}--\meta{end tip} (initially {...--...})}%
+    run off extensions = \meta{start tip}--\meta{end tip} (initially {...--...}),}%
 Change the default behavior of run off edges for either all edges, just
-structure lines, or just differentials respectively. Local arrowhead options
-override this.
+differentials, just structure lines, or just extensions respectively. Local
+arrowhead options override this.
 
 If an edge runs off the edge of the clipping, \sseqpages\ automatically add an
 arrowhead to indicate that the edge continues. This option controls which arrow
