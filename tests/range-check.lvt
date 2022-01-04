@@ -59,22 +59,43 @@
 }
 
 \TEST{range-check-sideways-data}{
-    \begin{sseqdata}[name=test1, range check sideways]
-    \class(0,0)
-    \class(17,10)
-    \end{sseqdata}
-
-    \NEWLINE
-    \TYPE{printpage remembers sideways setting}
-    \TYPE{------------------------------------}
-    \printpage[name=test1]
-
-    \NEWLINE
-    \TYPE{Passing range check standard to printpage overrides remember sideways setting}
-    \TYPE{-----------------------------------------------------------------------------}
-    \THROWS{The x range from 0 to .*too large}{
-        \printpage[name=test1, range check standard]
+    \THROWS{Option 'range check sideways' is only for}{
+        \begin{sseqdata}[name=t979, range check sideways]
+        \class(0,0)
+        \class(17,10)
+        \end{sseqdata}
     }
+    \NEWLINE
+    \TYPE{Passing range check sideways to printpage}
+    \TYPE{-----------------------------------------}
+    \printpage[name=t979, range check sideways]
+
+    \NEWLINE
+    \TYPE{Orientation Toggle 1}
+    \TYPE{--------------------}
+    \SseqOrientationToggle
+    \printpage[name=t979]
+    \NEWLINE
+    \TYPE{Orientation Toggle 2}
+    \TYPE{--------------------}
+    \SseqOrientationToggle
+    \THROWS{The x range from 0 to .*too large}{
+        \printpage[name=t979]
+    }
+}
+
+\TEST{range-check-sideways-env-data}{
+    \begin{sseqdata}[name = foo]
+        \class(0,0)
+        \class(17,9)
+    \end{sseqdata}
+    \begin{sideways}
+        \printpage[name = foo]
+        \SseqOrientationNormal
+        \THROWS{The x range from 0 to .*too large}{
+            \printpage[name = foo]
+        }
+    \end{sideways}
 }
 
 

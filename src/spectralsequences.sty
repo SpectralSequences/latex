@@ -279,7 +279,13 @@
     \let\sseqnewgroup\@gobblethree
 }
 
-\AtBeginEnvironment{sideways}{\sseqset{range check sideways}}
+\newif\ifsseq@insidewaysenv
+\sseq@insidewaysenvfalse
+\def\SseqOrientationNormal{\sseq@insidewaysenvfalse}
+\def\SseqOrientationSideways{\sseq@insidewaysenvtrue}
+\def\SseqOrientationToggle{\ifsseq@insidewaysenv\sseq@insidewaysenvfalse\else\sseq@insidewaysenvtrue\fi}
+\AtBeginEnvironment{sideways}{\SseqOrientationToggle}
+
 
 \input sseqmessages.code.tex        % Exposes directly: \sseqerrortowarning
 \input sseqcheckdefinitions.code.tex

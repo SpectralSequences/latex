@@ -464,6 +464,7 @@
     or '\string\begin{sseqpage}[#1\sseq@possiblecurrentvaluemean]').%
 }
 
+
 % Applies to name and page. Saying "sseqs={name=somename}" is a bad idea.
 \sseq@newerror{option-no-default-allowed}{%
     You cannot set a default value for '#1'.% Try \@nx\sseqset{sseqs={#1\ifx\pgfkeyscurrentvalue\pgfkeysnovalue@text\else=\pgfkeyscurrentvalue\fi}}.%
@@ -501,7 +502,7 @@
 \sseq@newerror{page-update-existing}{Option 'update existing' is only for the sseqdata environment.}
 \sseq@newerror{page-no-name}{You can't specify a page but no name.}
 \sseq@newerror{keep-changes-no-name}{Option 'keep changes' is only for named spectral sequences.}
-\sseq@newerror{keep-changes-sseqdata}{Option 'keep changes' is only for the sseqpage environment.}
+\sseq@newerror{only-for-sseqpages}{Option '#1' is only for the sseqpage environment.}
 \sseq@newerror{unknown-grid}{Undefined grid style '#1'.}
 \sseq@newerror{unknown-class-pattern}{Unknown class pattern '\sseq@classpattern'.}
 \sseq@newerror{class-placement-shift}{Shifts are illegal in the transformations applied in "class placement" key. If you want to shift your nodes, use \string\sseqnewclasspattern.} % #1 <- x shift, #2 <- shift amount

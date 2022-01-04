@@ -1454,7 +1454,7 @@
     update existing/.code={}, % processed with "name" key and "keep changes" key in /sseqpages/global/name only
     keep changes/.code={%
         \ifsseq@hasname\else\sseq@error{keep-changes-no-name}\fi
-        \ifsseq@ispageenv\else\sseq@error{keep-changes-sseqdata}\fi
+        \ifsseq@ispageenv\else\sseq@error@n{only-for-sseqpages}{keep-changes}\fi
     },
     grid/.code={\ifcsname sseq@grid@#1\endcsname\@xp\let\@xp\sseq@grid\csname sseq@grid@#1\endcsname\else\sseq@error@n{unknown-grid}{#1}\fi},
     grid/.sseq default code={\ifcsname sseq@grid@#1\endcsname\@xp\let\@xp\sseq@grid@default\csname sseq@grid@#1\endcsname\else\sseq@error@n{unknown-grid}{#1}\fi},
@@ -1508,18 +1508,21 @@
 
 
 \sseq@addiftostorelist@truedefault{rangecheck}
-\sseq@addiftostorelist{rangecheck@sideways}
 \sseq@globalkeys{%
-    range check standard/.code={\sseq@rangechecktrue\sseq@rangecheck@sidewaysfalse},
-    range check standard/.sseq default code={%
-        \def\sseq@rangecheck@default{\global\sseq@rangechecktrue}%
-        \def\sseq@rangecheck@sideways@default{\global\sseq@rangecheck@sidewaysfalse}%
+    range check on/.code={\sseq@rangechecktrue},
+    range check default/.sseq default code={\def\sseq@rangecheck@default{\global\sseq@rangechecktrue}},
+    range check standard/.code={%
+        \ifsseq@ispageenv\else\sseq@error@n{only-for-sseqpages}{range check standard}\fi
+        \SseqOrientationNormal
+        \sseq@rangechecktrue
     },
-    range check sideways/.code={\sseq@rangechecktrue\sseq@rangecheck@sidewaystrue},
-    range check sideways/.sseq default code={%
-        \def\sseq@rangecheck@default{\global\sseq@rangechecktrue}%
-        \def\sseq@rangecheck@sideways@default{\global\sseq@rangecheck@sidewaystrue}%
+    range check standard/.sseq default error,
+    range check sideways/.code={%
+        \ifsseq@ispageenv\else\sseq@error@n{only-for-sseqpages}{range check sideways}\fi
+        \SseqOrientationSideways
+        \sseq@rangechecktrue
     },
+    range check sideways/.sseq default error,
     range check off/.code={\sseq@rangecheckfalse},
     range check off/.sseq default code={\def\sseq@rangecheck@default{\global\sseq@rangecheckfalse}},
 }

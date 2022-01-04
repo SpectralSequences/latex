@@ -56,68 +56,82 @@ Overfull \vbox  has occurred while \output is active
 ============================================================
 TEST 8: range-check-sideways-data
 ============================================================
-printpage remembers sideways setting
-------------------------------------
-Overfull \hbox  in paragraph at lines 78--78
+expect match succeeded: pattern 'Option 'range check sideways' is only for' was found.
+Passing range check sideways to printpage
+-----------------------------------------
+Overfull \hbox  in paragraph at lines 85--85
 \hbox(341.6329+0.0)x430.00462
-Passing range check standard to printpage overrides remember sideways setting
------------------------------------------------------------------------------
+Orientation Toggle 1
+--------------------
+Orientation Toggle 2
+--------------------
 expect match succeeded: pattern 'The x range from 0 to .*too large' was found.
 ============================================================
-Overfull \hbox  in paragraph at lines 78--79
+Overfull \hbox  in paragraph at lines 85--86
 \hbox(341.6329+0.0)x430.00462
-Underfull \hbox (badness 10000) in paragraph at lines 78--79
+Overfull \hbox  in paragraph at lines 85--86
+[]
+\hbox(341.6329+0.0)x430.00462
+Underfull \hbox (badness 10000) in paragraph at lines 85--86
 \hbox(0.0+0.0)x430.00462
-[9]
+[9] [10]
 ============================================================
-TEST 9: range-check-sideways-env
+TEST 9: range-check-sideways-env-data
 ============================================================
-============================================================
-============================================================
-TEST 10: frame-passes
-============================================================
-[10]
+expect match succeeded: pattern 'The x range from 0 to .*too large' was found.
 ============================================================
 ============================================================
-TEST 11: frame-fails-x
+TEST 10: range-check-sideways-env
 ============================================================
-expect match succeeded: pattern 'The x range.*too large' was found.
-============================================================
-Overfull \hbox  in paragraph at lines 107--108
-\hbox(555.94922+0.0)x430.00462, glue set - 1.0
-============================================================
-TEST 12: frame-fails-y
-============================================================
-expect match succeeded: pattern 'The y range.*too large' was found.
-============================================================
-============================================================
-TEST 13: none-passes
-============================================================
-[13]
-============================================================
-============================================================
-TEST 14: none-fails-x
-============================================================
-expect match succeeded: pattern 'The x range.*too large' was found.
-============================================================
-Overfull \hbox  in paragraph at lines 159--160
-\hbox(573.95833+0.0)x430.00462
-Underfull \hbox (badness 10000) in paragraph at lines 159--160
-\hbox(0.0+0.0)x430.00462
-[15]
+[11]
 Overfull \vbox  has occurred while \output is active
 \vbox(556.47656+0.0)x430.00462
-[16]
+[12]
 ============================================================
-TEST 15: none-fails-y
+============================================================
+TEST 11: frame-passes
+============================================================
+============================================================
+============================================================
+TEST 12: frame-fails-x
+============================================================
+expect match succeeded: pattern 'The x range.*too large' was found.
+============================================================
+Overfull \hbox  in paragraph at lines 128--129
+\hbox(555.94922+0.0)x430.00462, glue set - 1.0
+============================================================
+TEST 13: frame-fails-y
 ============================================================
 expect match succeeded: pattern 'The y range.*too large' was found.
 ============================================================
-Overfull \hbox  in paragraph at lines 168--169
-\hbox(574.47414+0.0)x430.00462
-Underfull \hbox (badness 10000) in paragraph at lines 168--169
+============================================================
+TEST 14: none-passes
+============================================================
+[15]
+============================================================
+============================================================
+TEST 15: none-fails-x
+============================================================
+expect match succeeded: pattern 'The x range.*too large' was found.
+============================================================
+Overfull \hbox  in paragraph at lines 180--181
+\hbox(573.95833+0.0)x430.00462
+Underfull \hbox (badness 10000) in paragraph at lines 180--181
 \hbox(0.0+0.0)x430.00462
 [17]
 Overfull \vbox  has occurred while \output is active
 \vbox(556.47656+0.0)x430.00462
 [18]
+============================================================
+TEST 16: none-fails-y
+============================================================
+expect match succeeded: pattern 'The y range.*too large' was found.
+============================================================
+Overfull \hbox  in paragraph at lines 189--190
+\hbox(574.47414+0.0)x430.00462
+Underfull \hbox (badness 10000) in paragraph at lines 189--190
+\hbox(0.0+0.0)x430.00462
+[19]
+Overfull \vbox  has occurred while \output is active
+\vbox(556.47656+0.0)x430.00462
+[20]

@@ -2602,7 +2602,22 @@ versa. The values must be integers -- if you want to extend the x axis a
 noninteger amount, try using |x axis start extend| or |x axis end extend|.
 \end{keylist}
 
-\begin{keylist}{range check standard (default), range check sideways, range check off}
+\begin{commandlist}{
+    \SseqOrientationNormal,\SseqOrientationSideways,\SseqOrientationToggle
+}
+By default, the \sseqpageenv\ environment will try to check whether the chart
+fits onto the page (without causing overfull boxes). Environments like the
+\env{sideways} environment rotate the content by 90 degrees. The range checker
+needs to be aware of this. |\SseqOrientationNormal| indicates that the content is
+normal (not rotated). |\SseqOrientationSideways| indicates that the content is
+rotated 90 degrees (it doesn't matter in which direction). |\SseqOrientationToggle|
+swaps between |\SseqOrientationNormal| and |\SseqOrientationSideways|.
+
+\sseqpages\ will automatically detect the chart is being printed inside of a
+sideways environment or not. This can be arranged for other environments with
+|\AtBeginEnvironment{my-sideways}{\SseqOrientationToggle}|.
+\end{commandlist}
+\begin{keylist}{range check on (default), range check off, range check standard, range check sideways}
 These options control the range checking behavior.
 
 By default \sseqpages\ will try to compute whether the chart fits onto the page
@@ -2612,11 +2627,12 @@ instance if the chart is indented because of |\textindent| or not at the top of
 the page, this might give overly large values. Also, the values computed aren't
 perfectly accurate.
 
-If the range check is not desirable, you can use |range check off|. If the
-diagram is being placed onto the page rotated 90 degrees, then use
-%
-|range check sideways|. Inside of a \env{sideways} environment from the
-\pkg{rotating} package, this is the default.
+If the range check is not desirable, you can use |range check off|.
+
+The options |range check standard| and |range check sideways| only work for the
+\sseqpageenv\ environment. |range check standard| is equivalent to |range check
+on| and |\SseqOrientationNormal|. |range check sideways| is equivalent to |range
+check on| and |\SseqOrientationSideways|.
 \end{keylist}
 
 \begin{keylist}{
