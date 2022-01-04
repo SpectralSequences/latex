@@ -1,5 +1,5 @@
 
-spectralsequences v1.3.0
+spectralsequences v1.3.1
 ========================
 Author: Hood Chatham  
 Email: hood@mit.edu  
@@ -13,6 +13,15 @@ Email me at hood@mit.edu to submit bug reports, request new features, etc. The c
 
 Changelog:
 ==========
+## [1.3.1] (2022-01-04)
+
+### Fixed:
+- Extensions now should have all of the same features as structlines. Before, a
+  bunch of things were missing or broken.
+- Various issues with range checks for rotated figures are fixed.
+- The `u` argument works again in `\DeclareSseqCommand` in versions of TeXLive
+  prior to 2021.
+
 ## [1.3.0] (2021-07-18)
 ### Added:
 - Added more control over page indicator in title and "print page as" key.
