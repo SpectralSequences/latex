@@ -960,15 +960,23 @@
     #4%
     \csname sseq@collections@#3@hook\endcsname
     \pgftransformshift{\pgfqpointxy{-\the\sseq@x}{-\the\sseq@y}}%
-    % puts results into \sseq@sourcecoord and \sseq@targetcoord
-    \sseq@drawedge@findsourcetarget{sseq{#1}}{\sseq@edgesourceanchor}{sseq{#2}}{\sseq@edgetargetanchor}
+    \ifsseq@needstikz
+        \pgfnodealias{tempa}{sseq{#1}}
+        \pgfnodealias{tempb}{sseq{#2}}
+        \def\sseq@sourcecoord{\pgfpointanchor{sseq{#1}}{center}}
+        \def\sseq@targetcoord{\pgfpointanchor{sseq{#2}}{center}}
+    \else
+        % puts results into \sseq@sourcecoord and \sseq@targetcoord
+        \sseq@drawedge@findsourcetarget{sseq{#1}}{\sseq@edgesourceanchor}{sseq{#2}}{\sseq@edgetargetanchor}
+        \pgfcoordinate{tempa}{\sseq@sourcecoord}%
+        \pgfcoordinate{tempb}{\sseq@targetcoord}%
+    \fi
+
 %
     \tikz@options
     \tikz@mode
     \def\temparrowstartspec{}%
     \def\temparrowendspec{}%
-    \pgfcoordinate{tempa}{\sseq@sourcecoord}%
-    \pgfcoordinate{tempb}{\sseq@targetcoord}%
     \pgftransformreset
     \sseq@outofrangefalse
     \sseq@ifinrange(#1){}{
