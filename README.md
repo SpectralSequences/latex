@@ -13,6 +13,11 @@ Email me at hood@mit.edu to submit bug reports, request new features, etc. The c
 
 Changelog:
 ==========
+## [Unreleased]
+
+### Fixed:
+- Bent edges now enter the shapes at their endpoints at the correct angle.
+
 ## [1.3.1] (2022-01-04)
 
 ### Fixed:
