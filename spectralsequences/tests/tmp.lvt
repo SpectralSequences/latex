@@ -1,0 +1,12 @@
+\input{test-preamble}
+\usepackage{graphics}
+\begin{document}
+\errorstopmode
+  \begin{sseqpage}
+    \class(0, 0)
+    \class(1, 1)
+    \structline[bend left = 100]
+    \class(2,2)
+    \structline[bend left=50]
+  \end{sseqpage}
+\end{document}
