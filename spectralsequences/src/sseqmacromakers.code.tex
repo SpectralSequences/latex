@@ -116,7 +116,7 @@
 \@ifpackagelater{expl3}{2018/10/01}{
     \cs_set_eq:NN\sseq__copy_of_peek_meaning:NTF\peek_meaning:NTF
     \cs_set:Npn\sseq__peek_meaning_ignore_spaces:NTF#1#2#3{\peek_remove_spaces:n{\sseq__copy_of_peek_meaning:NTF#1{#2}{#3}}}
-    \cs_set_eq:NN\copy_of_peek_meaning_remove:NTF\peek_meaning_remove:NTF
+    \cs_set_eq:NN\sseq__copy_of_peek_meaning_remove:NTF\peek_meaning_remove:NTF
     \cs_set:Npn\sseq__peek_meaning_remove_ignore_spaces:NTF#1#2#3{\peek_remove_spaces:n{\sseq__copy_of_peek_meaning_remove:NTF#1{#2}{#3}}}
 }{}
 
