@@ -17,7 +17,9 @@ jobs:
       - run:
           name: l3build install
           command: |
-            export PATH=$SAVED_PATH
+            if [ -z ${SAVED_PATH+x} ]; then :; else
+              export PATH=$SAVED_PATH
+            fi
             cd spectralsequences
             l3build install
       
@@ -45,7 +47,9 @@ jobs:
       - run:
           name: l3build install
           command: |
-            export PATH=$SAVED_PATH
+            if [ -z ${SAVED_PATH+x} ]; then :; else
+              export PATH=$SAVED_PATH
+            fi
             cd spectralsequences
             l3build install
 
@@ -73,7 +77,9 @@ jobs:
           name: l3build check
           command: |
             cd spectralsequences
-            export PATH=$SAVED_PATH
+            if [ -z ${SAVED_PATH+x} ]; then :; else
+              export PATH=$SAVED_PATH
+            fi
             export diffexe="git diff --no-index --color"
             l3build check -e pdftex test parsers range-check styles \
               || (cat build/test/*.diff && false)
