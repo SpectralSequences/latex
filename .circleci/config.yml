@@ -72,6 +72,7 @@ jobs:
       - run:
           name: l3build check
           command: |
+            cd spectralsequences
             export PATH=$SAVED_PATH
             export diffexe="git diff --no-index --color"
             l3build check -e pdftex test parsers range-check styles \
