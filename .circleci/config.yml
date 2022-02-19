@@ -18,6 +18,7 @@ jobs:
           name: l3build install
           command: |
             export PATH=$SAVED_PATH
+            cd spectralsequences
             l3build install
       
       - run:
@@ -43,6 +44,7 @@ jobs:
           name: l3build install
           command: |
             export PATH=$SAVED_PATH
+            cd spectralsequences
             l3build install
 
       - run:
