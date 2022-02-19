@@ -33,9 +33,9 @@ jobs:
 
   build-manual:
     parameters:
-      tlyear:
-        description: Which texlive version should we use?
-        type: integer
+      image:
+        description: Which docker image should we use?
+        type: string
     working_directory: ~/repo
     docker:
       - image: hoodmane/spectralsequences-tl<< parameters.tlyear >>:1
@@ -60,9 +60,9 @@ jobs:
 
   test-regrtest:
     parameters:
-      tlyear:
-        description: Which texlive version should we use?
-        type: integer
+      image:
+        description: Which docker image should we use?
+        type: string
     working_directory: ~/repo
     docker:
       - image: hoodmane/spectralsequences-tl<< parameters.tlyear >>:1
