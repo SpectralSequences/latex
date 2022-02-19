@@ -38,7 +38,7 @@ jobs:
         type: string
     working_directory: ~/repo
     docker:
-      - image: hoodmane/spectralsequences-tl<< parameters.tlyear >>:1
+      - image: << parameters.image >>
 
     steps:
       - checkout
@@ -65,7 +65,7 @@ jobs:
         type: string
     working_directory: ~/repo
     docker:
-      - image: hoodmane/spectralsequences-tl<< parameters.tlyear >>:1
+      - image: << parameters.image >>
     
     steps:
       - checkout
