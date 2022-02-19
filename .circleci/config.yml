@@ -106,7 +106,7 @@ workflows:
           image: hoodmane/spectralsequences-tl2021:1
       - test-examples:
           name: test-examples-latest
-          image: texlive/lexlive:latest
+          image: texlive/texlive:latest
 
 
       - test-regrtest:
@@ -129,7 +129,7 @@ workflows:
           image: hoodmane/spectralsequences-tl2021:1
       - test-regrtest:
           name: test-regrtest-latest
-          image: texlive/lexlive:latest
+          image: texlive/texlive:latest
 
       - build-manual:
           name: build-manual-2016
@@ -151,7 +151,7 @@ workflows:
           image: hoodmane/spectralsequences-tl2021:1
       - build-manual:
           name: build-manual-latest
-          image: texlive/lexlive:latest
+          image: texlive/texlive:latest
 
   texlive-latest:
     triggers:
@@ -164,10 +164,10 @@ workflows:
     jobs:
       - test-examples:
           name: test-examples-latest
-          image: texlive/lexlive:latest
+          image: texlive/texlive:latest
       - test-regrtest:
           name: test-regrtest-latest
-          image: texlive/lexlive:latest
+          image: texlive/texlive:latest
       - build-manual:
           name: build-manual-latest
-          image: texlive/lexlive:latest
+          image: texlive/texlive:latest
