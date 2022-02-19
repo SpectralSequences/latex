@@ -1,4 +1,16 @@
-# Only difference between this and testsuite.sh is the timeout time is very large here.
+which python3 # > /dev/null
+RESULT=$?
+
+mkdir -p examples_output
+
+# On texlive docker images, we have Python but no /usr/bin/time. On my docker
+# images, we have /usr/bin/time but no Python. If Python is available, use
+# Python script otherwise fall back to the bash code.
+if [ $RESULT -eq 0 ]; then
+  python3 compile_examples.py
+  exit $?
+fi
+
 allPassed=1
 
 RED='\033[0;31m'
@@ -7,7 +19,6 @@ NC='\033[0m' # No Color
 
 l3build install
 LATEX_FLAGS="--quiet -halt-on-error -output-directory ../examples_output"
-mkdir -p examples_output
 
 cd "examples"
 for file in $(ls -1 *.tex); do
