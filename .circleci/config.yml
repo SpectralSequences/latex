@@ -152,3 +152,22 @@ workflows:
       - build-manual:
           name: build-manual-latest
           image: texlive/lexlive:latest
+
+  texlive-latest:
+    triggers:
+      - schedule:
+          cron: "7 37 * * *"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - test-examples:
+          name: test-examples-latest
+          image: texlive/lexlive:latest
+      - test-regrtest:
+          name: test-regrtest-latest
+          image: texlive/lexlive:latest
+      - build-manual:
+          name: build-manual-latest
+          image: texlive/lexlive:latest
