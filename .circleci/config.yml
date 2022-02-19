@@ -156,7 +156,7 @@ workflows:
   texlive-latest:
     triggers:
       - schedule:
-          cron: "37 7 * * *"
+          cron: "37 15 * * 6"
           filters:
             branches:
               only:
