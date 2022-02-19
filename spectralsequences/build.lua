@@ -11,7 +11,7 @@ textfiles = { "*.tex" }
 -- typesetfiles  = {"spectralsequencesmanual.tex"}
 packtdszip    = true
 
-if os.getenv("TEXLIVE_VERSION") < "2020" then
+if os.getenv("TEXLIVE_VERSION") and os.getenv("TEXLIVE_VERSION") < "2020" then
     specialformats = { latex = { luatex = { binary = "luatex",format = "lualatex" } } }
 end
 

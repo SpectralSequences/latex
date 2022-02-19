@@ -5,12 +5,12 @@ defaults: &defaults
 jobs:
   test-examples:
     parameters:
-      tlyear:
-        description: Which texlive version should we use?
-        type: integer
+      image:
+        description: Which docker image should we use?
+        type: string
     working_directory: ~/repo
     docker:
-      - image: hoodmane/spectralsequences-tl<< parameters.tlyear >>:1
+      - image: << parameters.image >>
 
     steps:
       - checkout
@@ -88,57 +88,67 @@ workflows:
     jobs:
       - test-examples:
           name: test-examples-2016
-          tlyear: 2016
+          image: hoodmane/spectralsequences-tl2016:1
       - test-examples:
           name: test-examples-2017
-          tlyear: 2017
+          image: hoodmane/spectralsequences-tl2017:1
       - test-examples:
           name: test-examples-2018
-          tlyear: 2018
+          image: hoodmane/spectralsequences-tl2018:1
       - test-examples:
           name: test-examples-2019
-          tlyear: 2019
+          image: hoodmane/spectralsequences-tl2019:1
       - test-examples:
           name: test-examples-2020
-          tlyear: 2020
+          image: hoodmane/spectralsequences-tl2020:1
       - test-examples:
           name: test-examples-2021
-          tlyear: 2021
+          image: hoodmane/spectralsequences-tl2021:1
+      - test-examples:
+          name: test-examples-latest
+          image: texlive/lexlive:latest
+
 
       - test-regrtest:
           name: test-regr-2016
-          tlyear: 2016
+          image: hoodmane/spectralsequences-tl2016:1
       - test-regrtest:
           name: test-regr-2017
-          tlyear: 2017
+          image: hoodmane/spectralsequences-tl2017:1
       - test-regrtest:
           name: test-regr-2018
-          tlyear: 2018
+          image: hoodmane/spectralsequences-tl2018:1
       - test-regrtest:
           name: test-regr-2019
-          tlyear: 2019
+          image: hoodmane/spectralsequences-tl2019:1
       - test-regrtest:
           name: test-regr-2020
-          tlyear: 2020
+          image: hoodmane/spectralsequences-tl2020:1
       - test-regrtest:
           name: test-regr-2021
-          tlyear: 2021
+          image: hoodmane/spectralsequences-tl2021:1
+      - test-regrtest:
+          name: test-regrtest-latest
+          image: texlive/lexlive:latest
 
       - build-manual:
           name: build-manual-2016
-          tlyear: 2016
+          image: hoodmane/spectralsequences-tl2016:1
       - build-manual:
           name: build-manual-2017
-          tlyear: 2017
+          image: hoodmane/spectralsequences-tl2017:1
       - build-manual:
           name: build-manual-2018
-          tlyear: 2018
+          image: hoodmane/spectralsequences-tl2018:1
       - build-manual:
           name: build-manual-2019
-          tlyear: 2019
+          image: hoodmane/spectralsequences-tl2019:1
       - build-manual:
           name: build-manual-2020
-          tlyear: 2020
+          image: hoodmane/spectralsequences-tl2020:1
       - build-manual:
           name: build-manual-2021
-          tlyear: 2021
+          image: hoodmane/spectralsequences-tl2021:1
+      - build-manual:
+          name: build-manual-latest
+          image: texlive/lexlive:latest
