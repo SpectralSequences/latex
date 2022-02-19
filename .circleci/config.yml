@@ -23,7 +23,9 @@ jobs:
       
       - run:
           name: test examples
-          command: ./compile_examples.sh
+          command: |
+            cd spectralsequences
+            ./compile_examples.sh
 
       - store_artifacts:
           path: /root/repo/examples_output
@@ -50,7 +52,7 @@ jobs:
       - run:
           name: build manual
           command: |
-              cd manual
+              cd spectralsequences/manual
               pdflatex spectralsequencesmanual.tex
 
       - store_artifacts:
