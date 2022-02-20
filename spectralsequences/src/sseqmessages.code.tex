@@ -276,8 +276,8 @@
 \def\sseq@warning   {\msg_warning:nn{spectralsequences}}
 
 \def\sseq@newerror#1#2{\msg_new:nnn{spectralsequences}{#1}{#2\sseq@errorinfo}}
-\def\sseq@newerror@internal#1#2{\msg_new:nnn{spectralsequences}{#1}{Internal error: #2 \sseq@contactpackageauthor}}
-\edef\sseq@contactpackageauthor{Contact package author \sseq@authorname\space at \sseq@authoremail.}
+\def\sseq@newerror@internal#1#2{\msg_new:nnn{spectralsequences}{#1}{Internal error: #2 \sseq@openagithubissue}}
+\edef\sseq@openagithubissue{Please report this on the github issue tracker which is at the following url: \sseq@issuetracker}
 
 
 \cs_new_eq:NN \__sseq_hooked_msg_see_documentation_text:n \msg_see_documentation_text:n
@@ -352,7 +352,7 @@
 
 
 \def\sseq@pgfkeyspatchfailed {
-    \msg_critical:nn { spectralsequences } { pgfkeys-patch-failed }
+    \msg_critical:nn {spectralsequences} {pgfkeys-patch-failed}
 }
 
 \sseq@newerror@internal{expl3-incompatibility}{Since this version of spectralsequences, the expl3 definition of #1 was updated in an incompatible way.}

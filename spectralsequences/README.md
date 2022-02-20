@@ -8,8 +8,11 @@ License: All files have the Latex Project Public License.
 Description: Print spectral sequence diagrams using pgf/tikz.  
 
 
-See the file manual/spectralsequencesmanual.pdf for a manual. See the examples directory for a large number of example files.
-Email me at hood@mit.edu to submit bug reports, request new features, etc. The current development copy is hosted at https://github.com/hoodmane/spectralsequences. 
+See the file manual/spectralsequencesmanual.pdf for a manual. See the examples
+directory for a large number of example files. The current development copy is
+hosted at https://github.com/SpectralSequences/latex. Open an issue on the
+github issue tracker https://github.com/SpectralSequences/latex/issues/new to
+submit bug reports, request new features, etc.
 
 Changelog:
 ==========
