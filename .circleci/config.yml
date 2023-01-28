@@ -2,27 +2,35 @@ version: 2.1
 
 defaults: &defaults
 
+aliases:
+  - &l3build
+    run:
+      name: l3build install
+      command: |
+        if [ -z ${SAVED_PATH+x} ]; then :; else
+          export PATH=$SAVED_PATH
+        fi
+        cd spectralsequences
+        l3build install
+
 jobs:
   test-examples:
     parameters:
       image:
         description: Which docker image should we use?
         type: string
+      year:
+        description: Ignored
+        type: integer
+        default: 0
     working_directory: ~/repo
     docker:
       - image: << parameters.image >>
 
     steps:
       - checkout
-      - run:
-          name: l3build install
-          command: |
-            if [ -z ${SAVED_PATH+x} ]; then :; else
-              export PATH=$SAVED_PATH
-            fi
-            cd spectralsequences
-            l3build install
-      
+      - *l3build
+
       - run:
           name: test examples
           command: |
@@ -30,7 +38,7 @@ jobs:
             ./compile_examples.sh
 
       - store_artifacts:
-          path: /root/repo/examples_output
+          path: /root/repo/spectralsequences/examples_output
 
 
   build-manual:
@@ -38,21 +46,17 @@ jobs:
       image:
         description: Which docker image should we use?
         type: string
+      year:
+        description: Ignored
+        type: integer
+        default: 0
     working_directory: ~/repo
     docker:
       - image: << parameters.image >>
 
     steps:
       - checkout
-      - run:
-          name: l3build install
-          command: |
-            if [ -z ${SAVED_PATH+x} ]; then :; else
-              export PATH=$SAVED_PATH
-            fi
-            cd spectralsequences
-            l3build install
-
+      - *l3build
       - run:
           name: build manual
           command: |
@@ -67,10 +71,14 @@ jobs:
       image:
         description: Which docker image should we use?
         type: string
+      year:
+        description: Ignored
+        type: integer
+        default: 0
     working_directory: ~/repo
     docker:
       - image: << parameters.image >>
-    
+
     steps:
       - checkout
       - run:
@@ -84,80 +92,67 @@ jobs:
             l3build check -e pdftex test parsers range-check styles \
               || (cat build/test/*.diff && false)
       - store_artifacts:
-          path : /root/repo/build/test
+          path : /root/repo/spectralsequences/build/test
 
-  
+  build-dist:
+    working_directory: ~/repo
+    docker:
+      - image: texlive/texlive:latest
+
+    steps:
+      - checkout
+      - *l3build
+      - run:
+          name: make_files
+          command: |
+            cd spectralsequences/manual
+            latexmk -pdf spectralsequencesmanual.tex
+            cd ..
+            ./compile_examples.sh
+            cp examples_output/*.pdf examples
+            rm -rf examples_output
+      - run:
+          name: zip files
+          command: |
+            apt update
+            apt install zip
+            find spectralsequences -regextype egrep -regex ".*\.sty|.*\.tex|.*\.md|.*\.pdf" | zip spectralsequences.zip --quiet -@
+      - store_artifacts:
+          path : /root/repo/spectralsequences.zip
+
 
 
 workflows:
   workflow:
     jobs:
       - test-examples:
-          name: test-examples-2016
-          image: hoodmane/spectralsequences-tl2016:1
-      - test-examples:
-          name: test-examples-2017
-          image: hoodmane/spectralsequences-tl2017:1
-      - test-examples:
-          name: test-examples-2018
-          image: hoodmane/spectralsequences-tl2018:1
-      - test-examples:
-          name: test-examples-2019
-          image: hoodmane/spectralsequences-tl2019:1
-      - test-examples:
-          name: test-examples-2020
-          image: hoodmane/spectralsequences-tl2020:1
-      - test-examples:
-          name: test-examples-2021
-          image: hoodmane/spectralsequences-tl2021:1
+          matrix:
+            parameters:
+              year: [2016, 2017, 2018, 2019, 2020, 2021]
+          image: hoodmane/spectralsequences-tl<<matrix.year>>:1
       - test-examples:
           name: test-examples-latest
           image: texlive/texlive:latest
 
 
       - test-regrtest:
-          name: test-regr-2016
-          image: hoodmane/spectralsequences-tl2016:1
-      - test-regrtest:
-          name: test-regr-2017
-          image: hoodmane/spectralsequences-tl2017:1
-      - test-regrtest:
-          name: test-regr-2018
-          image: hoodmane/spectralsequences-tl2018:1
-      - test-regrtest:
-          name: test-regr-2019
-          image: hoodmane/spectralsequences-tl2019:1
-      - test-regrtest:
-          name: test-regr-2020
-          image: hoodmane/spectralsequences-tl2020:1
-      - test-regrtest:
-          name: test-regr-2021
-          image: hoodmane/spectralsequences-tl2021:1
+          matrix:
+            parameters:
+              year: [2016, 2017, 2018, 2019, 2020, 2021]
+          image: hoodmane/spectralsequences-tl<<matrix.year>>:1
       - test-regrtest:
           name: test-regrtest-latest
           image: texlive/texlive:latest
 
       - build-manual:
-          name: build-manual-2016
-          image: hoodmane/spectralsequences-tl2016:1
-      - build-manual:
-          name: build-manual-2017
-          image: hoodmane/spectralsequences-tl2017:1
-      - build-manual:
-          name: build-manual-2018
-          image: hoodmane/spectralsequences-tl2018:1
-      - build-manual:
-          name: build-manual-2019
-          image: hoodmane/spectralsequences-tl2019:1
-      - build-manual:
-          name: build-manual-2020
-          image: hoodmane/spectralsequences-tl2020:1
-      - build-manual:
-          name: build-manual-2021
-          image: hoodmane/spectralsequences-tl2021:1
+          matrix:
+            parameters:
+              year: [2016, 2017, 2018, 2019, 2020, 2021]
+          image: hoodmane/spectralsequences-tl<<matrix.year>>:1
       - build-manual:
           name: build-manual-latest
           image: texlive/texlive:latest
+      - build-dist
 
   texlive-latest:
     triggers:
