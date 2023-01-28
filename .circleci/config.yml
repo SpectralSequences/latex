@@ -60,7 +60,7 @@ jobs:
               pdflatex spectralsequencesmanual.tex
 
       - store_artifacts:
-          path: /root/repo/manual/spectralsequencesmanual.pdf
+          path: /root/repo/spectralsequences/manual/spectralsequencesmanual.pdf
 
   test-regrtest:
     parameters:
