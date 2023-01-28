@@ -20,6 +20,7 @@
 \def\sseq@checkdef@#1{
     \@xp\ifx\csname sseq@check@\sseq@macroname#1\endcsname#1\else
         \sseq@tempiffalse
+        % \@xp\typeout\@xp{\sseq@macroname#1}
     \fi
 }
 
@@ -80,6 +81,20 @@
    \expandafter\pgfkeys@code\pgfkeyscurrentvalue\pgfeov}
   {\pgfkeys@case@two}%
 }
+
+\ifsseq@tempif\else
+  % Try again with new v3.1.10 definition
+  \sseq@tempiftrue
+  \sseq@checkdef\pgfkeys@case@one{%
+    \pgfkeysifdefined{\pgfkeyscurrentkey/.@cmd}%
+    {\pgfkeysgetvalue{\pgfkeyscurrentkey/.@cmd}{\pgfkeys@code}%
+      \ifx\pgfkeys@code\relax\expandafter\pgfkeys@firstoftwo\else\expandafter\pgfkeys@secondoftwo\fi
+      {\pgfkeys@unknown}%
+      {\expandafter\pgfkeys@code\pgfkeyscurrentvalue\pgfeov}}
+    {\pgfkeys@case@two}%
+  }
+\fi
+
 
 \sseq@checkdef\pgfkeys@case@two@extern{%
   \ifx\pgfkeyscurrentvalue\pgfkeysnovalue@text%

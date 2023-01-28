@@ -314,12 +314,16 @@
 \let\sseq@pgfkeys@case@one@save\pgfkeys@case@one
 \let\sseq@pgfkeys@case@two@extern@save\pgfkeys@case@two@extern
 \def\sseq@pgfkeys@case@one@store{%
-    \pgfkeysifdefined{\pgfkeyscurrentkey/.@cmd}{%
-        \pgfkeysgetvalue{\pgfkeyscurrentkey/.@cmd}{\pgfkeys@code}%
-        % The following line is the only change, it used to be \@xp\pgfkeys@code\pgfkeyscurrentvalue\pgfeov which would just run the code.
-        % Instead we recursively expand the \pgfkeysalso's and then store in it \sseq@savedoptioncode
-        \sseq@eval{\@nx\sseq@keys@addtooptions@checkalso{\unexpanded\@xptwo{\@xp\pgfkeys@code\pgfkeyscurrentvalue\pgfeov}}}%
-    }{\pgfkeys@case@two}%
+    \pgfkeysifdefined{\pgfkeyscurrentkey/.@cmd}%
+    {\pgfkeysgetvalue{\pgfkeyscurrentkey/.@cmd}{\pgfkeys@code}%
+      \ifx\pgfkeys@code\relax\expandafter\@firstoftwo\else\expandafter\@secondoftwo\fi
+      {\pgfkeys@unknown}%
+      % The following line is the only change, it used to be
+      % \@xp\pgfkeys@code\pgfkeyscurrentvalue\pgfeov which would just run the
+      % code. Instead we recursively expand the \pgfkeysalso's and then store in
+      % it in \sseq@savedoptioncode
+      {\sseq@eval{\@nx\sseq@keys@addtooptions@checkalso{\unexpanded\@xptwo{\@xp\pgfkeys@code\pgfkeyscurrentvalue\pgfeov}}}}}%
+    {\pgfkeys@case@two}%
 }
 \def\sseq@pgfkeys@case@two@extern@store{%
   \ifx\pgfkeyscurrentvalue\pgfkeysnovalue@text%
