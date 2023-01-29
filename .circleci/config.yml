@@ -116,6 +116,9 @@ jobs:
           command: |
             apt update
             apt install zip
+            rm -rf spectralsequences/{tests,build}
+            # CTAN requested this file not be included since it is a duplicate
+            rm -f spectralsequences/manual/pgfmanual-en-macros.tex
             find spectralsequences -regextype egrep -regex ".*\.sty|.*\.tex|.*\.md|.*\.pdf" | zip spectralsequences.zip --quiet -@
       - store_artifacts:
           path : /root/repo/spectralsequences.zip
