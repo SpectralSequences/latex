@@ -2,7 +2,7 @@ FROM debian:buster-slim
 
 RUN export DEBIAN_FRONTEND=noninteractive \
     && apt-get update -q \
-    && apt-get install -qy build-essential wget libfontconfig1 time git \
+    && apt-get install -qy build-essential wget libfontconfig1 time git sudo \
     && rm -rf /var/lib/apt/lists/*
 
 ARG tlyear
@@ -72,6 +72,8 @@ RUN tlmgr install \
     && (tlmgr install zref || true) \
 # luahbtex needed by l3build, only available in versions >= 2020
     && (tlmgr install luahbtex || true) \
+# hypdoc needed to build documentation, only available in >= 2022
+    && (tlmgr install hypdoc || true) \
     && tlmgr option -- autobackup 0
 
 
