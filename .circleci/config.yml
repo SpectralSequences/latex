@@ -131,7 +131,7 @@ workflows:
       - test-examples:
           matrix:
             parameters:
-              year: [2016, 2017, 2018, 2019, 2020, 2021, 2022]
+              year: [2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
           image: hoodmane/spectralsequences-tl<<matrix.year>>:1
       - test-examples:
           name: test-examples-latest
@@ -141,7 +141,7 @@ workflows:
       - test-regrtest:
           matrix:
             parameters:
-              year: [2016, 2017, 2018, 2019, 2020, 2021, 2022]
+              year: [2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
           image: hoodmane/spectralsequences-tl<<matrix.year>>:1
       - test-regrtest:
           name: test-regrtest-latest
@@ -150,7 +150,7 @@ workflows:
       - build-manual:
           matrix:
             parameters:
-              year: [2016, 2017, 2018, 2019, 2020, 2021, 2022]
+              year: [2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
           image: hoodmane/spectralsequences-tl<<matrix.year>>:1
       - build-manual:
           name: build-manual-latest

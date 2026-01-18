@@ -1,8 +1,8 @@
-FROM debian:buster-slim
+FROM debian:bookworm-slim
 
 RUN export DEBIAN_FRONTEND=noninteractive \
     && apt-get update -q \
-    && apt-get install -qy build-essential wget libfontconfig1 time git sudo \
+    && apt-get install -qy build-essential wget libfontconfig1 time git sudo perl \
     && rm -rf /var/lib/apt/lists/*
 
 ARG tlyear
@@ -21,9 +21,17 @@ RUN wget $TEXLIVE_URL/install-tl-unx.tar.gz \
     && if [ -z "$TLPDB_EXISTS" ]; then export TEXLIVE_REPO_FLAG="" ; fi  \
     && /install-tl-unx/install-tl -profile /install-tl-unx/texlive.profile -no-verify-downloads $TEXLIVE_REPO_FLAG \
     && rm -r /install-tl-unx    \
-    && rm /install-tl-unx.tar.gz 
+    && rm /install-tl-unx.tar.gz
 
-ENV PATH="/usr/local/texlive/$TEXLIVE_VERSION/bin/x86_64-linux:${PATH}"
+# Determine architecture for PATH
+RUN ARCH=$(uname -m) && \
+    if [ "$ARCH" = "aarch64" ]; then \
+        echo "export PATH=/usr/local/texlive/$TEXLIVE_VERSION/bin/aarch64-linux:\$PATH" >> /etc/profile.d/texlive.sh; \
+    else \
+        echo "export PATH=/usr/local/texlive/$TEXLIVE_VERSION/bin/x86_64-linux:\$PATH" >> /etc/profile.d/texlive.sh; \
+    fi
+
+ENV PATH="/usr/local/texlive/$TEXLIVE_VERSION/bin/x86_64-linux:/usr/local/texlive/$TEXLIVE_VERSION/bin/aarch64-linux:${PATH}"
 
 RUN tlmgr install \
         latexmk \
@@ -41,7 +49,6 @@ RUN tlmgr install \
         l3packages \
         oberdiek \
         ec \
-        ms \
         luatex85 \
 # For building the manual
         sansmathfonts \
@@ -56,7 +63,7 @@ RUN tlmgr install \
         zapfding \
         symbol \
         marvosym \
-# For l3build     
+# For l3build
         luatex \
         latex-bin \
         platex \
@@ -74,18 +81,21 @@ RUN tlmgr install \
     && (tlmgr install luahbtex || true) \
 # hypdoc needed to build documentation, only available in >= 2022
     && (tlmgr install hypdoc || true) \
+    && (tlmgr install ms || true) \
+# tikzfill needed by tcolorbox in >= 2023
+    && (tlmgr install tikzfill || true) \
     && tlmgr option -- autobackup 0
 
 
 # Install l3build. We need a common version independent of the texlive version
-# so we do a custom install. 
+# so we do a custom install.
 RUN git clone --branch patches --depth 1 https://github.com/hoodmane/l3build.git \
     && cd l3build   \
     && chmod 755 l3build.lua    \
     && ln -s /l3build/l3build.lua /usr/local/bin/l3build \
 # Need to install in a place accessible from both root and other users. This
 # path also doesn't have a year in it which is nice.
-    && ./l3build.lua install --texmfhome /usr/local/texlive/texmf-local/ \ 
+    && ./l3build.lua install --texmfhome /usr/local/texlive/texmf-local/ \
     && texhash
 
 ENV SAVED_PATH="${PATH}"
